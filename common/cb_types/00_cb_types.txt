@@ -1,0 +1,187 @@
+## normal scopes(including posttitle scopes) ##
+# ROOT = receiver
+# FROM = giver
+# <no scope change> = attacker or receiver
+## title scopes ##
+# ROOT = receiver
+# FROM = giver
+# <no scope change> = thirdparty landed title	
+#
+# the following effects/triggers exists (example execution order: on_success->on_success_title->on_success_posttitle):
+# is_valid, is_valid_title, on_add, on_add_title, on_add_posttitle, on_success, on_success_title, on_success_posttitle, on_fail, on_fail_title, on_fail_posttitle, on_reverse_demand, on_reverse_demand_title, on_reverse_demand_posttitle
+#
+# Added on_attacker_leader_death, on_defender_leader_death and on_thirdparty_death, which all trigger when corresponding character dies
+# These three all have war scopes, which currently has the following scope changes: 
+# attacker, defender, thirdparty(only valid if thirdparty character is involved), thirdparty_title(only valid if thirdparty title is involved)
+#
+# ai_will_do: modifies value AI places on the CB compared to other CBs (default: 1)
+# can_use_gui: If otherwise valid, the CB is listed in the Diplo View, but you can't declare war unless 'can_use_gui' is also valid (also shows a trigger tooltip.)
+#
+
+claim = {
+	name = CB_NAME_CLAIM
+	war_name = WAR_NAME_CLAIM
+	sprite = 1
+	truce_days = 3650
+	hostile_against_others = yes
+	can_ask_to_join_war = no
+
+	press_claim = yes
+
+	can_use_title = {
+		OR = {
+			ROOT = { is_female = no }
+			NOT = { ROOT = { religion_group = muslim } }
+		}
+		OR = {
+			FROM = {
+				has_landed_title = PREV
+			}
+			holder_scope = {
+				is_liege_or_above = FROM
+			}
+		}
+		OR = { 
+			ROOT = { has_strong_claim = PREV }
+			ROOT = { has_character_flag = claimant_adventurer  }
+			AND = {
+				ROOT = { has_weak_claim = PREV }
+				OR = {
+					is_pretender = yes # Checks vs ROOT character
+					holder_scope = { has_regent = yes }
+					AND = {
+						ROOT = { is_female = no }
+						holder_scope ={ is_female = yes }
+					}
+					is_contested = yes # Is already being contested in some form of Claim or Succession War
+				}
+			}
+		}
+	}
+
+	is_valid_title = {
+		OR = {
+			FROM = {
+				has_landed_title = PREV
+			}
+			holder_scope = {
+				is_liege_or_above = FROM
+			}
+		}
+		ROOT = { has_claim = PREV }
+	}
+
+	on_success_title = {
+		usurp_title_plus_barony_if_unlanded = ROOT
+		
+		if = {
+			limit = {
+				higher_tier_than = BARON
+				NOT = { culture = ROOT }
+			}
+			hidden_tooltip = { conquest_culture = ROOT }
+		}
+		
+		any_attacker = {
+			limit = { character = ROOT }
+			participation_scaled_prestige = 100
+		}
+		any_attacker = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+		
+		FROM = {
+			prestige = -100
+		}
+		
+		hidden_tooltip = {
+			ROOT = {
+				clr_character_flag = claimant_adventurer
+			}
+		}
+	}
+
+	on_fail_title = {
+		ROOT = {
+			prestige = -100
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = claimant_adventurer
+			}
+		}
+		any_defender = {
+			limit = { character = FROM }
+			participation_scaled_prestige = 100
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			prestige = -150
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+		if = {
+			limit = {
+				ROOT = { has_character_flag = claimant_adventurer }
+			}
+			ROOT = { imprison = FROM }
+		}
+		any_defender = {
+			limit = { character = FROM }
+			participation_scaled_prestige = 150
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 150 }
+		}
+	}
+
+	on_reverse_demand_title = {
+		ROOT = {
+			remove_claim = PREV
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = claimant_adventurer
+			}
+		}
+	}
+	
+	on_attacker_leader_death = {
+		if = {
+			limit = {
+				ROOT = { has_character_flag = claimant_adventurer }
+			}
+			ROOT = {
+				hidden_tooltip = {
+					disband_event_forces = yes
+					clr_character_flag = claimant_adventurer
+				}
+			}
+			end_war = invalid
+		}
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}

@@ -961,8 +961,8 @@ NTechnology = {
 	TRADEPOST_SPREAD_BONUS = 0.002, 			-- Spread from trade posts
 	SPYACTION_SPREAD_BONUS = 0.006,				-- Spread from the target of the study technology spymaster action
 	
-	IDEAL_YEAR_LEVEL_0 = 2300, 					-- the chance to get a progress to this level will increase after this date and decrease before it
-	IDEAL_YEAR_LEVEL_8 = 3100,
+	IDEAL_YEAR_LEVEL_0 = 2600, 					-- the chance to get a progress to this level will increase after this date and decrease before it
+	IDEAL_YEAR_LEVEL_8 = 3600,
 	IDEAL_YEAR_AHEAD_PENALTY = -0.2,			-- UNUSED
 	IDEAL_YEAR_AHEAD_PENALTY_INVEST = 0.3,		-- Percent increase in cost pre level ahead of ideal date
 	
@@ -976,8 +976,8 @@ NTechnology = {
 	END_MIL_CATHOLIC    = 5.0,
 	END_ECO_CATHOLIC    = 5.0,
 	END_CUL_CATHOLIC    = 5.0,
-	END_REN_CLOSE       = 7.0, -- Tech level at the center of the renaissance
-	END_REN_FAR         = 6.0, -- Tech level on the fringe of the renaissance
+	END_REN_CLOSE       = 1.0, -- Tech level at the center of the renaissance
+	END_REN_FAR         = 1.0, -- Tech level on the fringe of the renaissance
 	REN_PROVINCE        = 328, -- Province where the Renaissance is centered
 	START_MIL_MUSLIM    = 0.5,
 	START_ECO_MUSLIM    = 1.5,

@@ -1,0 +1,19 @@
+AFTER THE END
+A post-apocalyptic North America mod for Crusader Kings II
+Version 0.1
+
+
+	INSTALLATION
+1. Download "After the End 0.1.zip".
+2. Unzip the file to to My Documents/Paradox Interactive/Crusader Kings II/mod (Windows) or Documents/Paradox Interactive/Crusader Kings II/mod (Mac). If the "mod" folder does not exist, you should create it.
+3. Open Crusader Kings II and check "After the End" in the "Mods" section of the launcher.
+
+
+	AFRICAN PORTRAITS
+If you do not have the African Portraits DLC, the faces of Tuskegean and Caribbean characters will not appear. In order to fix this, open the mod's "interface" folder and remove "portraits_african.gfx".
+
+
+
+	CREDITS
+Ofaloaf - Map, Characters, Events, Graphics
+Sam - Map, Characters, Events, Graphics

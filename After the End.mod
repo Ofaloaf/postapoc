@@ -1,6 +1,6 @@
-name = "postapoc"
-path = "mod/postapoc"
-user_dir = "postapoc"
+name = "After the End 0.1"
+path = "mod/After the End"
+user_dir = "After the End"
 
 replace_path = "history/characters"
 replace_path = "history/provinces"

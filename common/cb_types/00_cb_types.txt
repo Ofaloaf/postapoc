@@ -2813,7 +2813,10 @@ religious = {
 	can_use_gui = {
 		ROOT = {
 			#Base conditions
-			NOT = { has_character_modifier = holy_war_cooldown }
+			OR = {
+				NOT = { has_character_modifier = holy_war_cooldown }
+				has_character_flag = the_prophet
+			}
 			#OR = {
 			#	NOT = { has_law = emperor_peace_0 }
 			#	has_law = revokation_1
@@ -3038,12 +3041,15 @@ religious = {
 	
 	on_add = {
 		ROOT = {
-			custom_tooltip = {
-				text = holy_war_cooldown_ctt
-				hidden_tooltip = {
-					add_character_modifier = {
-						name = holy_war_cooldown
-						duration = 1825
+			if = {
+				limit = { NOT = { has_character_flag = the_prophet } }
+				custom_tooltip = {
+					text = holy_war_cooldown_ctt
+					hidden_tooltip = {
+						add_character_modifier = {
+							name = holy_war_cooldown
+							duration = 1825
+						}
 					}
 				}
 			}
@@ -7853,3 +7859,181 @@ cb_install_antiking = {
 		factor = 100
 	}
 }
+
+
+# The special CB for the Rise of Consumerism
+consumerist_rising = {
+	name = CB_NAME_CONSUMERIST_RISING
+	war_name = WAR_NAME_CONSUMERIST_RISING
+	sprite = 8
+	truce_days = 365
+	hostile_against_others = no
+	is_permanent = yes
+	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+	apply_short_occ_mod = no # Do not apply the 'recently_conquered' modifier to Holdings
+
+	can_use = {
+		ROOT = {
+			has_character_flag = consumerist_prophet
+		}
+	}
+	
+	is_valid_title = {
+		ROOT = {
+			has_character_flag = consumerist_prophet
+		}
+		FROM = {
+			any_realm_title = {
+				de_jure_liege_or_above = PREVPREV
+			}
+		}
+		d_consumerist = {
+			has_holder = no
+		}
+	}
+
+	on_success = {
+		clr_global_flag = consumerist_revolt_ongoing
+		ROOT = {
+			piety = 500
+			#religion_authority = {
+			#	modifier = rise_of_the_shia_caliphate
+			#}
+			clr_character_flag = consumerist_prophet
+		}
+		FROM = {
+			piety = -500
+		}
+	}
+	
+	on_success_title = {
+		custom_tooltip = {
+			text = tribal_invasion_succ_tip
+			hidden_tooltip = {
+				d_consumerist = {
+					usurp_title = ROOT
+				}
+				FROM = {
+					random_realm_province = {
+						limit = {
+							de_jure_liege_or_above = PREVPREV
+							NOT = { religion = ROOT }
+						#	religion_group = muslim
+						}
+						religion = ROOT
+					}
+					random_realm_province = {
+						limit = {
+							de_jure_liege_or_above = PREVPREV
+							NOT = { religion = ROOT }
+						#	religion_group = muslim
+						}
+						religion = ROOT
+					}
+					random_realm_province = {
+						limit = {
+							de_jure_liege_or_above = PREVPREV
+							NOT = { religion = ROOT }
+						#	religion_group = muslim
+						}
+						religion = ROOT
+					}
+					random_realm_province = {
+						limit = {
+							de_jure_liege_or_above = PREVPREV
+							NOT = { religion = ROOT }
+						#	religion_group = muslim
+						}
+						religion = ROOT
+					}
+					random_realm_province = {
+						limit = {
+							de_jure_liege_or_above = PREVPREV
+							NOT = { religion = ROOT }
+						#	religion_group = muslim
+						}
+						religion = ROOT
+					}
+				}
+				ROOT = {
+					occupy_minors_of_occupied_settlements = FROM
+					gain_all_occupied_titles = FROM
+					vassalize_or_take_under_title = {
+						title = PREV
+						enemy = FROM
+					}
+					
+					any_demesne_title = {
+						limit = { tier = BARON }
+						remove_holding_modifier = recently_conquered
+						refill_holding_levy = yes
+					}
+					usurp_title = PREV
+				}
+				
+				if = {
+					limit = {
+						FROM = { is_liege_or_above = ROOT }
+					}
+					FROM = { imprison = ROOT }
+				}
+			}
+		}
+	}
+
+	on_fail = {
+		clr_global_flag = consumerist_revolt_ongoing
+		FROM = {
+			piety = 250
+		}
+		ROOT = {
+			piety = -250
+			clr_character_flag = consumerist_prophet
+		}
+	}
+
+	on_reverse_demand = {
+		clr_global_flag = consumerist_revolt_ongoing
+		ROOT = {
+			piety = -500
+			clr_character_flag = consumerist_prophet
+			imprison = FROM
+		}
+		FROM = {
+			piety = 250
+		}
+		any_defender = {
+			limit = { character = FROM }
+			participation_scaled_piety = 250
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_piety = 250 }
+		}
+	}
+	
+	on_attacker_leader_death = {
+		clr_global_flag = consumerist_revolt_ongoing
+		ROOT = {
+			clr_character_flag = consumerist_prophet
+		}
+		end_war = invalid
+	}
+
+	attacker_ai_victory_worth = {
+		factor = 200
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}
+

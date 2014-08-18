@@ -26,6 +26,14 @@ Klonself - Characters, Debugging
 
 
 	CHANGELOG
+
+Version 0.2
+- Added Consumerism
+- Added Nova Scotia
+- Re-enabled religious conversion
+- Reweighted crusades (no more Ursuline Uppland)
+- Made Upnorth less OP
+
 Version 0.1.1
 - Fixed religion-related crashes
 - Fixed faction leaders being unable to send ultimatums

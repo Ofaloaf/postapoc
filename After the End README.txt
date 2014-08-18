@@ -23,6 +23,7 @@ If you do not have the African Portraits DLC, the faces of Tuskegean and Caribbe
 Ofaloaf - Map, Characters, Events, Graphics
 Sam - Map, Characters, Events, Graphics
 Klonself - Characters, Debugging
+Shadeoses - Map
 
 
 	CHANGELOG
@@ -33,6 +34,7 @@ Version 0.2
 - Re-enabled religious conversion
 - Reweighted crusades (no more Ursuline Uppland)
 - Made Upnorth less OP
+- Made the Confederacy less OP
 
 Version 0.1.1
 - Fixed religion-related crashes

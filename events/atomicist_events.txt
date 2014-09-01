@@ -1,0 +1,430 @@
+# 1		atomic revival occurs in one of their holy sites
+# 2		revival continues, attempting to convert the holy site again
+# 3		revival in adjacent holy city has spread to this province
+# 10	non-atomicist ruler/advisor_spiritual of an atomicist holy city bears witness to the atomic revival
+# 11	your newly-atomicist vassal attempts to convert you
+# 12	you have converted to Atomicism
+# 13	your liege has agreed to convert
+# 14	your liege has refused to convert
+# 15	your advisor has succeeded in disrupting the revival
+# 16	your advisor has failed to disrupt the revival
+
+namespace = event_atomicist
+
+province_event = {
+	id = event_atomicist.1
+	desc = EVTDESC_atom_revival
+	picture = GFX_evt_bishop_pagan_group
+
+	trigger = {
+		OR = { 
+			#3 = { province = ROOT }	# manhattan (skipped for now)
+			151 = { province = ROOT }	# knox (oak ridge)
+			170 = { province = ROOT }	# chicago
+			190 = { province = ROOT }	# three mile island (middletown)
+			1090 = { province = ROOT }	# canaveral (cape canaveral)
+		}
+		NOT = { has_province_modifier = atomic_revival }
+		holder_scope = {
+			NOT = { religion = atomicist }
+			NOT = { religion_authority = 0.8 }
+		}
+	}
+
+	mean_time_to_happen = {
+		years = 20
+		#days = 20
+		modifier = { factor = 1.5 NOT = { religion = atomicist } }
+		modifier = { factor = 0.5 holder_scope = { NOT = { religion_authority = 0.6 } } }
+		modifier = { factor = 0.5 holder_scope = { NOT = { religion_authority = 0.4 } } }
+	}
+   
+	immediate = {
+		add_province_modifier = { name = atomic_revival duration = 720 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_assist
+		trigger = { holder_scope = { religion = atomicist } }
+		holder_scope = { piety = 15 }
+		religion = atomicist
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_personal
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+		}
+		holder_scope = { narrative_event = { id = event_atomicist.10 days = 3 } }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_advisor
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+		}
+		holder_scope = { job_spiritual = { narrative_event = { id = event_atomicist.10 days = 3 } } }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_allow
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { NOT = { religion_authority = 0.6 } }
+			holder_scope = { NOT = { trait = zealous } }
+		}
+		holder_scope = { piety = -5 }
+		religion = atomicist
+		add_province_modifier = { name = religious_tension duration = 180 }
+		ai_chance = { factor = 5 }
+	}
+}
+
+province_event = {
+	id = event_atomicist.2
+	hide_window = yes
+	trigger = {
+		has_province_modifier = atomic_revival
+	}
+	mean_time_to_happen = {
+		years = 1
+		modifier = { factor = 2 religion = atomicist }
+		modifier = { factor = 0.8 holder_scope = { NOT = { religion_authority = 0.6 } } }
+		modifier = { factor = 0.5 holder_scope = { NOT = { religion_authority = 0.4 } } }
+	}
+	immediate = {
+		if = {
+			limit = { NOT = { religion = atomicist } }
+			ROOT = { province_event = { id = event_atomicist.3 } }
+		}
+		if = {
+			limit = { religion = atomicist }
+			random_neighbor_province = { province_event = { id = event_atomicist.3 } }
+		}
+	}
+	option = { }
+}
+
+province_event = {
+	id = event_atomicist.3
+	desc = EVTDESC_atom_revival_spread
+	picture = GFX_evt_bishop_pagan_group
+
+	is_triggered_only = yes
+	trigger = {
+		NOT = { religion = atomicist }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_assist
+		trigger = {
+			OR = {
+				AND = {
+					ai = no
+					has_dlc = "The Old Gods"
+				}
+				ai = yes
+			}
+		}
+		trigger = { holder_scope = { religion = atomicist } }
+		holder_scope = { piety = 15 }
+		religion = atomicist
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_spread_heresy
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { realm_learning = 20 }
+			holder_scope = { NOT = { trait = cynical } }
+		}
+		#tooltip_info = learning
+		holder_scope = { piety = 10 }
+		add_province_modifier = { name = religious_tension duration = 180 }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_spread_crush
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { realm_martial = 20 }
+			holder_scope = { NOT = { trait = kind } }
+		}
+		#tooltip_info = martial
+		holder_scope = { piety = 5 }
+		add_province_modifier = { name = religious_tension duration = 720 }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_allow
+		trigger = { holder_scope = { NOT = { religion = atomicist } } }
+		holder_scope = { piety = -5 }
+		trigger = {
+			OR = {
+				AND = {
+					ai = no
+					has_dlc = "The Old Gods"
+				}
+				ai = yes
+			}
+		}
+		religion = atomicist
+		add_province_modifier = { name = religious_tension duration = 180 }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_spread_convert
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { NOT = { trait = zealous } }
+			holder_scope = { NOT = { religion_authority = 0.5 } }
+		}
+		trigger = {
+			OR = {
+				AND = {
+					ai = no
+					has_dlc = "The Old Gods"
+				}
+				ai = yes
+			}
+		}
+		religion = atomicist
+		holder_scope = { religion = atomicist }
+		ai_chance = { factor = 5 }
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.10
+	title = EVTNAME_atom_revival_witness
+	desc = EVTDESC_atom_revival_witness
+	picture = GFX_evt_bishop_pagan_group
+
+	is_triggered_only = yes
+	trigger = {
+		NOT = { religion = atomicist }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_witness_convert
+		trigger = {
+			OR = {
+				AND = {
+					ai = no
+					has_dlc = "The Old Gods"
+				}
+				ai = yes
+			}
+		}
+		religion = atomicist
+		FROM = { religion = atomicist }
+		custom_tooltip = { text = TXT_atom_revival_convert }
+		hidden_tooltip = { narrative_event = { id = event_atomicist.12 days = 2 } }
+		hidden_tooltip = { liege = { character_event = { id = event_atomicist.11 days = 5 } } }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 0.5 religion_authority = 0.5 }
+			modifier = { factor = 0 religion_authority = 0.8 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_witness_resist
+		trigger = {
+			OR = {
+				AND = {
+					ai = no
+					has_dlc = "The Old Gods"
+				}
+				ai = yes
+			}
+		}
+		random = { chance = 50 FROM = { religion = atomicist } }
+		FROM = { add_province_modifier = { name = religious_tension duration = 720 } }
+		hidden_tooltip = { FROM = { holder_scope = { character_event = { id = event_atomicist.16 } } } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 religion_authority = 0.7 }
+			modifier = { factor = 2 religion_authority = 0.6 }
+			modifier = { factor = 2 religion_authority = 0.4 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_witness_heresy
+		trigger = { learning = 12 }
+		tooltip_info = learning
+		piety = 10
+		FROM = { add_province_modifier = { name = religious_tension duration = 720 } }
+		random_list = {
+			50 = {
+				FROM = { remove_province_modifier = atomic_revival }
+				FROM = { holder_scope = { character_event = { id = event_atomicist.15 } } }
+			}
+			50 = { FROM = { holder_scope = { character_event = { id = event_atomicist.16 } } } }
+		}
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 2 religion_authority = 0.6 }
+			modifier = { factor = 2 religion_authority = 0.4 } 
+		}
+	}
+}
+
+character_event = {
+	id = event_atomicist.11
+	desc = EVTDESC_atom_revival_convertup
+	picture = GFX_evt_bishop_pagan_group
+	
+	is_triggered_only = yes
+	trigger = {
+		NOT = { character = FROM }
+	}
+
+	option = {
+		name = EVTOPT_atom_revival_convertup_agree
+		trigger = {
+			NOT = { trait = zealous }
+			NOT = { religion_authority = 0.8 }
+			OR = {
+				AND = {
+					ai = no
+					has_dlc = "The Old Gods"
+				}
+				ai = yes
+			}
+		}
+		religion = atomicist
+		custom_tooltip = { text = TXT_atom_revival_convert }
+		hidden_tooltip = { liege = { character_event = { id = event_atomicist.11 days = 5 } } }
+		hidden_tooltip = { narrative_event = { id = event_atomicist.12 days = 2 } }
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.13 } } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 NOT = { religion_authority = 0.7 } }
+			modifier = { factor = 2 NOT = { religion_authority = 0.5 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_convertup_refuse
+		opinion = {
+			who = FROM
+			modifier = opinion_infidel
+			months = 120
+			multiplier = 1
+		}
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.14 } } }
+		ai_chance = {
+			factor = 20
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_convertup_diplomacy
+		trigger = {
+			diplomacy = 8
+		}
+		piety = 5
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.14 } } }
+		hidden_tooltip = { FROM = { character_event = { id = 39023 days = 4 } }	}
+		ai_chance = {
+			factor = 50
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_convertup_imprison
+		trigger = {
+			is_liege_of = FROM
+			OR = {
+				trait = wroth
+				trait = zealous
+				trait = lunatic
+			}
+			OR = {
+				NOT = { is_close_relative = FROM }
+				trait = lunatic
+			}
+		}
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.14 } } }
+		hidden_tooltip = { FROM = { character_event = { id = 39024 days = 4 } }	}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 10 trait = zealous }
+		}
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.12
+	title = EVTNAME_atom_revival_converted
+	desc = EVTDESC_atom_revival_converted
+	picture = GFX_evt_bishop_pagan_group
+
+	is_triggered_only = yes
+	trigger = {
+		religion = atomicist
+		primary_title = { higher_tier_than = BARON }
+	}
+	
+	immediate = {
+		religion_authority = { modifier = ruler_converted_to }
+	}
+
+	option = {
+		name = EVTOPT_atom_revival_converted
+	}
+}
+
+
+character_event = {
+	id = event_atomicist.13
+	desc = EVTDESC_atom_revival_liegeconverted
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = { name = EVTOPT_atom_revival_liegeconverted }
+}
+
+character_event = {
+	id = event_atomicist.14
+	desc = EVTDESC_atom_revival_liegerefused
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = { name = EVTOPT_atom_revival_liegerefused }
+}
+
+character_event = {
+	id = event_atomicist.15
+	desc = EVTDESC_atom_revival_advisorsuccess
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = {
+		name = EVTOPT_atom_revival_advisorsuccess
+		# maybe add an opinion bonus?
+	}
+}
+
+character_event = {
+	id = event_atomicist.16
+	desc = EVTDESC_atom_revival_advisorneutral
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = { name = EVTOPT_atom_revival_advisorneutral }
+}
+
+# something to begin demanding conversions from all your vassals/courtiers?
+# perhaps it could require some flag or modifier set during the revival
+# each time a vassal refuses, you get an opinion penalty with all other non-atomicists
+# if you're beloved, you should easily convert most of your vassals
+# otherwise, this is likely to lead to civil war

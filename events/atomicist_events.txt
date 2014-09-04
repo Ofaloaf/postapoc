@@ -9,7 +9,21 @@
 # 15	your advisor has succeeded in disrupting the revival
 # 16	your advisor has failed to disrupt the revival
 
+# should a decision to get blessed as an adult be added?
+#100	atomicist child is born, prepare for the blessing
+#101	parent chooses whether to grant the blessing of the atom
+#102	parent notified that spouse will choose whether blessing is granted
+#103	parent notified that spouse has chosen to undergo the ritual
+#104	parent notified that spouse has chosen not to undergo the ritual
+#110	secretly determine whether the ritual goes well or not
+#120	your ritual has gone well (send to child) [apply benefits]
+#121	your ritual has gone poorly (send to child) [apply penalties]
+#122	the ritual has gone well for your child (send to mom & dad)
+#123	the ritual has gone poorly for your child (send to mom & dad)
+
 namespace = event_atomicist
+
+# ************************* Atomicist Revival ************************
 
 province_event = {
 	id = event_atomicist.1
@@ -119,15 +133,6 @@ province_event = {
 	
 	option = {
 		name = EVTOPT_atom_revival_assist
-		trigger = {
-			OR = {
-				AND = {
-					ai = no
-					has_dlc = "The Old Gods"
-				}
-				ai = yes
-			}
-		}
 		trigger = { holder_scope = { religion = atomicist } }
 		holder_scope = { piety = 15 }
 		religion = atomicist
@@ -163,15 +168,6 @@ province_event = {
 		name = EVTOPT_atom_revival_allow
 		trigger = { holder_scope = { NOT = { religion = atomicist } } }
 		holder_scope = { piety = -5 }
-		trigger = {
-			OR = {
-				AND = {
-					ai = no
-					has_dlc = "The Old Gods"
-				}
-				ai = yes
-			}
-		}
 		religion = atomicist
 		add_province_modifier = { name = religious_tension duration = 180 }
 		ai_chance = { factor = 10 }
@@ -183,14 +179,12 @@ province_event = {
 			holder_scope = { NOT = { religion = atomicist } }
 			holder_scope = { NOT = { trait = zealous } }
 			holder_scope = { NOT = { religion_authority = 0.5 } }
-		}
-		trigger = {
 			OR = {
 				AND = {
-					ai = no
+					holder_scope = { ai = no }
 					has_dlc = "The Old Gods"
 				}
-				ai = yes
+				holder_scope = { ai = yes }
 			}
 		}
 		religion = atomicist
@@ -235,15 +229,6 @@ narrative_event = {
 	
 	option = {
 		name = EVTOPT_atom_revival_witness_resist
-		trigger = {
-			OR = {
-				AND = {
-					ai = no
-					has_dlc = "The Old Gods"
-				}
-				ai = yes
-			}
-		}
 		random = { chance = 50 FROM = { religion = atomicist } }
 		FROM = { add_province_modifier = { name = religious_tension duration = 720 } }
 		hidden_tooltip = { FROM = { holder_scope = { character_event = { id = event_atomicist.16 } } } }
@@ -428,3 +413,200 @@ character_event = {
 # each time a vassal refuses, you get an opinion penalty with all other non-atomicists
 # if you're beloved, you should easily convert most of your vassals
 # otherwise, this is likely to lead to civil war
+
+
+# ************************* Blessing of the Atom ************************
+
+character_event = {
+	id = event_atomicist.100
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		religion = atomicist
+	}
+	immediate = {
+		if = { limit = { is_female = yes }
+			mother = { character_event = { id = event_atomicist.101 days = 5 } }
+			father = { character_event = { id = event_atomicist.102 days = 5 } }
+		}
+		if = { limit = { is_female = no }
+			mother = { character_event = { id = event_atomicist.102 days = 5 } }
+			father = { character_event = { id = event_atomicist.101 days = 5 } }
+		}
+	}
+	option = { }
+}
+
+character_event = {
+	id = event_atomicist.101
+	desc = EVTDESC_atom_birth
+	picture = GFX_evt_birth
+
+	is_triggered_only = yes
+	
+	option = {
+		name = OPTDESC_atom_birth_tradition
+		trigger = {
+			religion = atomicist
+			OR = { 
+				trait = atom_bless
+				trait = atom_curse
+			}
+		}
+		piety = 10
+		any_spouse = { character_event = { id = event_atomicist.103 days = 3 } }
+		FROM = { character_event = { id = event_atomicist.110 days = 5 } }
+		ai_chance = {
+			factor = 100
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 0.2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = OPTDESC_atom_birth_grant
+		trigger = {
+			religion = atomicist
+			NOT = { OR = { 
+					trait = atom_bless
+					trait = atom_curse
+				}	
+			}
+		}
+		piety = 10
+		any_spouse = { character_event = { id = event_atomicist.103 days = 3 } }
+		FROM = { character_event = { id = event_atomicist.110 days = 5 } }
+		ai_chance = {
+			factor = 25
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 0.2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = OPTDESC_atom_birth_deny
+		piety = -10
+		any_spouse = { character_event = { id = event_atomicist.104 days = 3 } }
+		FROM = { add_trait = atom_deny }
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = event_atomicist.102
+	desc = EVTDESC_atom_birth_spousedecide
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	option = { name = OK }
+}
+
+character_event = {
+	id = event_atomicist.103
+	desc = EVTDESC_atom_birth_spousegrant
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	option = { name = OK }
+}
+
+character_event = {
+	id = event_atomicist.104
+	desc = EVTDESC_atom_birth_spousedeny
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	option = { name = OK }
+}
+
+character_event = {
+	id = event_atomicist.110
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		random_list = {
+			75 = { narrative_event = { id = event_atomicist.120 days = 5 } } # good ritual
+			25 = { narrative_event = { id = event_atomicist.121 days = 5 } } # bad ritual
+		}
+	}
+	option = { }
+}
+
+narrative_event = {
+	id = event_atomicist.120
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualgood
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	immediate = {
+		mother = { narrative_event = { id = event_atomicist.122 } }
+		father = { narrative_event = { id = event_atomicist.122 } }
+	}
+	
+	option = {
+		name = OK
+		add_trait = atom_bless
+		random_list = {
+			2 = { add_trait = genius }
+			3 = { add_trait = quick }
+			5 = { add_trait = strong }
+			20 = { remove_trait = ill }
+			20 = { remove_trait = sickly }
+			50 = { }
+		}
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.121
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualbad
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	immediate = {
+		mother = { narrative_event = { id = event_atomicist.123 } }
+		father = { narrative_event = { id = event_atomicist.123 } }
+	}
+	
+	option = {
+		name = OK
+		add_trait = atom_curse
+		random_list = {
+			40 = { add_trait = ill }
+			15 = { add_trait = wounded }
+			5 = { add_trait = lunatic }
+			5 = { add_trait = possessed }
+			5 = { add_trait = ugly }
+			5 = { add_trait = clubfooted }
+			5 = { add_trait = hunchback }
+			5 = { add_trait = harelip }
+			5 = { add_trait = weak }
+			5 = { add_trait = slow }
+			5 = { add_trait = imbecile }
+		}
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.122
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualgoodparent
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_atom_birth_ritualgoodparent
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.123
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualbadparent
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_atom_birth_ritualbadparent
+	}
+}
+

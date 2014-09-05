@@ -87,6 +87,10 @@ character_event = {
 				has_ambition = obj_become_president
 			}
 			modifier = {
+				factor = 100
+				has_landed_title = d_americanist
+			}
+			modifier = {
 				factor = 5
 				trait = ambitious
 			}
@@ -429,6 +433,145 @@ character_event = {
 	}
 }
 
+# Deal with empty Presidency (copies of 1-3)
+character_event = {
+	id = president.11
+	desc = "President is vacant"
+	is_triggered_only = yes
+	hide_window = yes
+
+	trigger = {
+		d_americanist = { has_holder = no }
+		NOT = { has_global_flag = pres_election }
+	}
+	
+	immediate = {
+		d_electoral_college = { character_event = { id = president.115 } } # Clean up variables
+		d_electoral_college = { holder_scope = { character_event = { id = president.2 days = 1 } } }
+		d_electoral_college = { holder_scope = { character_event = { id = president.4 days = 2 } } }
+	}
+	
+	option = {
+		name = "Shouldn't see this"
+		set_global_flag = pres_election
+	}
+}
+
+character_event = {
+	id = president.12
+	desc = "President is dead"
+	is_triggered_only = yes
+
+	option = {
+		name = "Shouldn't see this"
+		d_electoral_college = { holder_scope = {
+			diplomatic_immunity = yes
+			health = 10
+			set_variable = { which = "num_president_candidates" value = 0 }
+			set_variable = { which = "candidate1_votes" value = 0 }
+			set_variable = { which = "candidate2_votes" value = 0 }
+			set_variable = { which = "candidate3_votes" value = 0 }
+			set_variable = { which = "candidate4_votes" value = 0 }
+			set_variable = { which = "c1v2" value = 0 }
+			set_variable = { which = "c1v3" value = 0 }
+			set_variable = { which = "c1v4" value = 0 }
+			set_variable = { which = "c2v3" value = 0 }
+			set_variable = { which = "c2v4" value = 0 }
+			set_variable = { which = "c3v4" value = 0 }
+		} }
+		any_independent_ruler = {
+			any_realm_character = {
+				limit = {
+					religion = americanist
+					is_adult = yes
+					#higher_tier_than = COUNT # Dukes and above
+				}
+				character_event = { id = president.13 }
+			}
+		}
+	}
+}
+
+# Announce death of the President
+character_event = {
+	id = president.13
+	desc = "president.13.desc"
+	picture = GFX_evt_bishop
+	is_triggered_only = yes
+	hide_from = yes
+	
+	option = {
+		name = "president.3.optA" # Run for election
+		trigger = {
+			age = 35
+			only_capable = yes
+			OR = {
+				is_patrician = no
+				num_of_count_titles = 1
+			}
+		}
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 100
+				has_ambition = obj_become_president
+			}
+			modifier = {
+				factor = 100
+				has_landed_title = d_americanist
+			}
+			modifier = {
+				factor = 5
+				trait = ambitious
+			}
+			modifier = {
+				factor = 2
+				trait = zealous
+			}
+			modifier = {
+				factor = 2
+				trait = diligent
+			}
+			modifier = {
+				factor = 1.5
+				trait = greedy
+			}
+			modifier = {
+				factor = 1.5
+				trait = proud
+			}
+		}
+		set_character_flag = running_for_president
+		hidden_tooltip = { d_electoral_college = { holder_scope = { change_variable = { which = "num_president_candidates" value = 1 } } } }
+	}
+	option = {
+		name = "president.3.optB" # Don't run
+		ai_chance = {
+			factor = 2
+			modifier = {
+				factor = 2
+				trait = content
+			}
+			modifier = {
+				factor = 1.5
+				trait = cynical
+			}
+			modifier = {
+				factor = 3
+				trait = slothful
+			}
+			modifier = {
+				factor = 1.5
+				trait = humble
+			}
+		}
+		custom_tooltip = { text = TOOLTIPPRESREQUIREMENTS }
+		clr_character_flag = running_for_president
+		set_character_flag = not_running_for_president
+	}
+}
+
+
 # Send out ballots
 character_event = {
 	id = president.90
@@ -530,27 +673,27 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { pres_candidate_1 = { opinion = { who = ROOT value = -75 } } }
+				NOT = { pres_candidate_1 = { reverse_opinion = { who = ROOT value = -75 } } }
 			}
 			modifier = {
 				factor = 0.5
-				NOT = { pres_candidate_1 = { opinion = { who = ROOT value = -50 } } }
+				NOT = { pres_candidate_1 = { reverse_opinion = { who = ROOT value = -50 } } }
 			}
 			modifier = {
 				factor = 0.75
-				NOT = { pres_candidate_1 = { opinion = { who = ROOT value = -25 } } }
+				NOT = { pres_candidate_1 = { reverse_opinion = { who = ROOT value = -25 } } }
 			}
 			modifier = {
 				factor = 1.25
-				pres_candidate_1 = { opinion = { who = ROOT value = 25 } }
+				pres_candidate_1 = { reverse_opinion = { who = ROOT value = 25 } }
 			}
 			modifier = {
 				factor = 1.5
-				pres_candidate_1 = { opinion = { who = ROOT value = 50 } }
+				pres_candidate_1 = { reverse_opinion = { who = ROOT value = 50 } }
 			}
 			modifier = {
 				factor = 1.75
-				pres_candidate_1 = { opinion = { who = ROOT value = 75 } }
+				pres_candidate_1 = { reverse_opinion = { who = ROOT value = 75 } }
 			}
 			modifier = {
 				factor = 0.75
@@ -613,27 +756,27 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { pres_candidate_2 = { opinion = { who = ROOT value = -75 } } }
+				NOT = { pres_candidate_2 = { reverse_opinion = { who = ROOT value = -75 } } }
 			}
 			modifier = {
 				factor = 0.5
-				NOT = { pres_candidate_2 = { opinion = { who = ROOT value = -50 } } }
+				NOT = { pres_candidate_2 = { reverse_opinion = { who = ROOT value = -50 } } }
 			}
 			modifier = {
 				factor = 0.75
-				NOT = { pres_candidate_2 = { opinion = { who = ROOT value = -25 } } }
+				NOT = { pres_candidate_2 = { reverse_opinion = { who = ROOT value = -25 } } }
 			}
 			modifier = {
 				factor = 1.25
-				pres_candidate_2 = { opinion = { who = ROOT value = 25 } }
+				pres_candidate_2 = { reverse_opinion = { who = ROOT value = 25 } }
 			}
 			modifier = {
 				factor = 1.5
-				pres_candidate_2 = { opinion = { who = ROOT value = 50 } }
+				pres_candidate_2 = { reverse_opinion = { who = ROOT value = 50 } }
 			}
 			modifier = {
 				factor = 1.75
-				pres_candidate_2 = { opinion = { who = ROOT value = 75 } }
+				pres_candidate_2 = { reverse_opinion = { who = ROOT value = 75 } }
 			}
 			modifier = {
 				factor = 0.75
@@ -696,15 +839,15 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { pres_candidate_3 = { opinion = { who = ROOT value = -75 } } }
+				NOT = { pres_candidate_3 = { reverse_opinion = { who = ROOT value = -75 } } }
 			}
 			modifier = {
 				factor = 0.5
-				NOT = { pres_candidate_3 = { opinion = { who = ROOT value = -50 } } }
+				NOT = { pres_candidate_3 = { reverse_opinion = { who = ROOT value = -50 } } }
 			}
 			modifier = {
 				factor = 0.75
-				NOT = { pres_candidate_3 = { opinion = { who = ROOT value = -25 } } }
+				NOT = { pres_candidate_3 = { reverse_opinion = { who = ROOT value = -25 } } }
 			}
 			modifier = {
 				factor = 1.25
@@ -779,27 +922,27 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { pres_candidate_4 = { opinion = { who = ROOT value = -75 } } }
+				NOT = { pres_candidate_4 = { reverse_opinion = { who = ROOT value = -75 } } }
 			}
 			modifier = {
 				factor = 0.5
-				NOT = { pres_candidate_4 = { opinion = { who = ROOT value = -50 } } }
+				NOT = { pres_candidate_4 = { reverse_opinion = { who = ROOT value = -50 } } }
 			}
 			modifier = {
 				factor = 0.75
-				NOT = { pres_candidate_4 = { opinion = { who = ROOT value = -25 } } }
+				NOT = { pres_candidate_4 = { reverse_opinion = { who = ROOT value = -25 } } }
 			}
 			modifier = {
 				factor = 1.25
-				pres_candidate_4 = { opinion = { who = ROOT value = 25 } }
+				pres_candidate_4 = { reverse_opinion = { who = ROOT value = 25 } }
 			}
 			modifier = {
 				factor = 1.5
-				pres_candidate_4 = { opinion = { who = ROOT value = 50 } }
+				pres_candidate_4 = { reverse_opinion = { who = ROOT value = 50 } }
 			}
 			modifier = {
 				factor = 1.75
-				pres_candidate_4 = { opinion = { who = ROOT value = 75 } }
+				pres_candidate_4 = { reverse_opinion = { who = ROOT value = 75 } }
 			}
 			modifier = {
 				factor = 0.75

@@ -1,0 +1,1591 @@
+# 1		description of salvage expedition, choose random location
+# 2		[hidden] prov bounceback selecting location
+# 3		describe selected site, accept or reject it
+# 4		[hidden] prov bounceback while prepping
+# 5		set out to the prov, or keep making more preparations
+# 10	[hidden] determine whether there will be trouble in the province, or get competing agent event
+# 11	[hidden] no problems in the province, buffer event
+# 12	unfriendly locals in the province
+# 13	province owner reacts to conflict in his lands
+# 14	conflict solved peacefully
+# 15	conflict erupts into violence
+# 16 	you have been driven out of the province by angry locals
+# 20	[hidden] determine quality of salvage to be found in province, also collapse event
+# 21	poor salvage
+# 22	medium salvage
+# 23	great salvage
+# 24	meet competing agent of unknown rust cultist (add function to actually choose a lord later?)
+# 26	ruins collapse during exploration
+# 40	find scraps
+# 41	find coins
+# 42	find glassware
+# 43	find machinery
+# 44-49	* reserved for more low tier non-safe finds *
+# 50	find empty safe
+# 51	find jewellery
+# 52	find ledger + cash
+# 53	find photos
+# 54	find music boxes
+# 55	find electric machinery
+# 56-59	* reserved for more low tier safe contents *
+# 60	prize: firearm
+# 61	prize: typewriter
+# 62	prize: calculator
+# 63	prize: watch
+# 64	prize: telescope
+# 65	prize: textbooks
+# 70	repair firearm
+# 71	repair typewriter
+# 72	repair calculator
+# 73	repair watch
+# 74	repair telescope
+# 75	repair textbooks
+# 79	fail to understand/repair something
+# 90	expedition is a failure
+# 91	expedition is a wash: small reward
+# 92	expedition is a wash: medium reward
+# 94	expedition is a success
+# 95	clean up flags
+# 100	on_death, pass on salvaged tech to heir
+# 110	notify heir that the deceased has bequeathed a firearm to them
+# 111	notify heir that the deceased has bequeathed a typewriter to them
+# 112	notify heir that the deceased has bequeathed a calculator to them
+# 113	notify heir that the deceased has bequeathed a watch to them
+# 114	notify heir that the deceased has bequeathed a telescope to them
+# 115	notify heir that the deceased has bequeathed textbooks to them
+# 120	[hidden] helper event for randomly finding salvage
+# 121	[hidden] helper prov event for randomly finding salvage
+# TODO	events related to items breaking, seizing from prisoners
+
+namespace = salvage
+
+# ************************* Salvage Expedition ************************
+
+narrative_event = {
+	id = salvage.1
+	title = EVTNAME_salvage_describe
+	desc = EVTDESC_salvage_describe
+	picture = GFX_evt_pilgrims_epic_journey
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_salvage_describe
+		random_realm_province = {
+			random_neighbor_province = {
+				province_event = { id = salvage.2 days = 3 random = 5 }
+			}
+		}
+	}
+}
+
+province_event = {
+	id = salvage.2
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = { FROM = { narrative_event = { id = salvage.3 } } }
+	option = { }
+}
+
+narrative_event = {
+	id = salvage.3
+	title = EVTNAME_salvage_describe
+	desc = EVTDESC_salvage_choosesite
+	picture = GFX_evt_pilgrims_epic_journey
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTDESC_salvage_choosesite_accept
+		FROM = { province_event = { id = salvage.4 days = 3 random = 5 } }
+	}
+	
+	option = {
+		name = EVTDESC_salvage_choosesite_reject
+		random = { chance = 10 }
+		random_realm_province = {
+			random_neighbor_province = {
+				province_event = { id = salvage.2 days = 3 random = 5 }
+			}
+		}
+	}
+}
+
+province_event = {
+	id = salvage.4
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = { FROM = { narrative_event = { id = salvage.5 } } }
+	option = { }
+}
+
+narrative_event = {
+	id = salvage.5
+	title = EVTNAME_salvage_describe
+	desc = EVTDESC_salvage_prepare
+	picture = GFX_evt_pilgrims_epic_journey
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_salvage_prepare_start
+		add_trait = on_pilgrimage
+		remove_character_modifier = preparing_expedition
+		hidden_tooltip = { FROM = { province_event = { id = salvage.10 days = 5 random = 5 } } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_prepare_research
+		trigger = {
+			NOT = { has_character_flag = salvage_research }
+			learning = 8
+			wealth = 5
+		}
+		tooltip_info = learning
+		set_character_flag = salvage_research
+		wealth = -5
+		piety = 5
+		hidden_tooltip = { FROM = { province_event = { id = salvage.4 days = 15 random = 5 } } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_prepare_warband
+		trigger = {
+			NOT = { has_character_flag = salvage_warband }
+			martial = 8
+			wealth = 10
+		}
+		tooltip_info = martial
+		set_character_flag = salvage_warband
+		wealth = -10
+		hidden_tooltip = { FROM = { province_event = { id = salvage.4 days = 10 random = 5 } } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_prepare_envoys
+		trigger = {
+			NOT = { has_character_flag = salvage_envoys }
+			diplomacy = 8
+			wealth = 10
+		}
+		tooltip_info = diplomacy
+		set_character_flag = salvage_envoys
+		wealth = -10
+		prestige = 5
+		hidden_tooltip = { FROM = { province_event = { id = salvage.4 days = 10 random = 5 } } }
+		ai_chance = { factor = 5 }
+	}
+}
+
+province_event = {
+	id = salvage.10
+	hide_window = yes
+	is_triggered_only = yes
+
+	immediate = {
+		random = { chance = 40 FROM = { narrative_event = { id = salvage.24 days = 3 random = 5 } } }
+	
+		if = {			# same realm, same religion
+			limit = {
+				holder_scope = { same_realm = FROM }
+				OR = {
+					religion = machine_cultist
+					religion = machine_cultist_reformed
+				}
+			}
+			FROM = { character_event = { id = salvage.11 days = 5 } }
+		}
+		
+		if = {			# same realm, different religion
+			limit = {
+				holder_scope = { same_realm = FROM }
+				NOT = { OR = {
+						religion = machine_cultist
+						religion = machine_cultist_reformed
+					}
+				}
+			}
+			random_list = {
+				70 = { FROM = { character_event = { id = salvage.11 days = 5 } } }
+				30 = { FROM = { narrative_event = { id = salvage.12 days = 5 } } }
+			}
+		}
+		
+		if = {			# different realm, same religion
+			limit = {
+				holder_scope = { NOT = { same_realm = FROM } }
+				OR = {
+					religion = machine_cultist
+					religion = machine_cultist_reformed
+				}
+			}
+			random_list = {
+				50 = { FROM = { character_event = { id = salvage.11 days = 5 } } }
+				50 = { FROM = { narrative_event = { id = salvage.12 days = 5 } } }
+			}
+		}
+	
+		if = {			# different realm, different religion
+			limit = {
+				holder_scope = { NOT = { same_realm = FROM } }
+				NOT = { OR = {
+						religion = machine_cultist
+						religion = machine_cultist_reformed
+					}
+				}
+			}
+			random_list = {
+				25 = { FROM = { character_event = { id = salvage.11 days = 5 } } }
+				75 = { FROM = { narrative_event = { id = salvage.12 days = 5 } } }
+			}
+		}
+	}
+	option = { }
+}
+
+character_event = {
+	id = salvage.11
+	hide_window = yes
+	is_triggered_only = yes
+	desc = E_DEBUG2
+	immediate = {
+		FROM = { province_event = { id = salvage.20 days = 5 } }
+	}
+	option = { }
+}
+
+narrative_event = {
+	id = salvage.12
+	is_triggered_only = yes
+	title = EVTNAME_salvage_unfriendly
+	desc = EVTDESC_salvage_unfriendly
+	picture = GFX_evt_peasants
+
+	option = {
+		name = EVTOPT_salvage_unfriendly_ignore
+		hidden_tooltip = { FROM = { province_event = { id = salvage.13 days = 3 } } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_unfriendly_warband
+		trigger = {
+			has_character_flag = salvage_warband
+		}
+		hidden_tooltip = { random_list = {
+			25 = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+			75 = { FROM = { province_event = { id = salvage.13 days = 3 } } }
+		} }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_unfriendly_envoys
+		trigger = {
+			has_character_flag = salvage_envoys
+		}
+		hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_unfriendly_intrigue
+		trigger = {
+			intrigue = 8
+		}
+		tooltip_info = intrigue
+		hidden_tooltip = { random_list = {
+			75 = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+			25 = { FROM = { province_event = { id = salvage.13 days = 3 } } }
+		} }
+	}
+}
+
+province_event = {
+	id = salvage.13
+	desc = EVTDESC_salvage_provowner
+	picture = GFX_evt_peasants
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_salvage_provowner_violence
+		FROM = { narrative_event = { id = salvage.15 days = 3 } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_provowner_peaceful
+		FROM = { narrative_event = { id = salvage.14 days = 3 } }
+	}
+}
+
+narrative_event = {
+	id = salvage.14
+	is_triggered_only = yes
+	title = EVTNAME_salvage_unfriendly
+	desc = EVTDESC_salvage_peaceful
+	picture = GFX_evt_carriage
+
+	option = {
+		name = OK
+		hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+	}
+}
+
+narrative_event = {
+	id = salvage.15
+	is_triggered_only = yes
+	title = EVTNAME_salvage_violence
+	desc = EVTDESC_salvage_violence
+	picture = GFX_evt_peasants
+
+	option = {
+		name = EVTOPT_salvage_violence_flee
+		custom_tooltip = { text = TXT_salvage_flee }
+		hidden_tooltip = { narrative_event = { id = salvage.16 days = 3 } }
+		hidden_tooltip = { narrative_event = { id = salvage.90 days = 6 } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_violence_fight
+		trigger = {
+			NOT = { has_character_flag = salvage_warband }
+		}
+		random_list = {
+			10 = {
+				add_trait = maimed
+				custom_tooltip = { text = TXT_salvage_flee }
+				hidden_tooltip = { narrative_event = { id = salvage.16 days = 3 } }
+				hidden_tooltip = { narrative_event = { id = salvage.90 days = 6 } }
+			}
+			30 = {
+				add_trait = wounded
+				custom_tooltip = { text = TXT_salvage_flee }
+				hidden_tooltip = { narrative_event = { id = salvage.16 days = 3 } }
+				hidden_tooltip = { narrative_event = { id = salvage.90 days = 6 } }
+			}
+			20 = {
+				add_trait = wounded
+				custom_tooltip = { text = TXT_salvage_continue }
+				hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+			}
+			40 = {
+				custom_tooltip = { text = TXT_salvage_continue }
+				hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_salvage_violence_fightwarband
+		trigger = {
+			has_character_flag = salvage_warband
+		}
+		random_list = {
+			20 = { add_trait = wroth }
+			20 = { add_trait = cruel }
+			10 = { add_trait = wounded }
+			50 = { }
+		}
+		custom_tooltip = { text = TXT_salvage_continue }
+		hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_violence_bribe
+		trigger = {
+			stewardship = 8
+			wealth = 25
+		}
+		tooltip_info = stewardship
+		wealth = -25
+		custom_tooltip = { text = TXT_salvage_continue }
+		hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+	}
+}
+
+
+narrative_event = {
+	id = salvage.16
+	is_triggered_only = yes
+	title = EVTNAME_salvage_drivenout
+	desc = EVTDESC_salvage_drivenout
+	picture = GFX_evt_pilgrims_epic_journey
+	option = { name = OK }
+}
+
+# ************************* Determine the Province Salvage ************************
+
+province_event = {
+	id = salvage.20
+	is_triggered_only = yes
+	hide_window = yes
+	
+	immediate = {
+		if = {
+			limit = { FROM = { has_character_flag = salvage_compete } }
+			random_list = {
+				50 = { FROM = { narrative_event = { id = salvage.21 days = 20 random = 10 } } }
+				40 = { FROM = { narrative_event = { id = salvage.22 days = 15 random = 10 } } }
+				10 = { FROM = { narrative_event = { id = salvage.23 days = 15 random = 10 } } }
+			}
+		}
+		
+		if = {
+			limit = { FROM = { NOT = { has_character_flag = salvage_compete } } }
+			random_list = {
+				30 = { FROM = { narrative_event = { id = salvage.21 days = 20 random = 10 } } }
+				50 = { FROM = { narrative_event = { id = salvage.22 days = 15 random = 10 } } }
+				20 = { FROM = { narrative_event = { id = salvage.23 days = 15 random = 10 } } }
+			}
+		}
+		
+		random = { chance = 30 FROM = { narrative_event = { id = salvage.26 days = 8 } } }
+	}
+	
+	option = { }
+}
+
+narrative_event = {
+	id = salvage.21
+	title = EVTNAME_salvage_value
+	desc = EVTDESC_salvage_worthless
+	picture = GFX_evt_carriage
+	
+	is_triggered_only = yes
+	trigger = { trait = on_pilgrimage }
+
+	option = {
+		name = EVTOPT_salvage_worthless
+		trigger = { NOT = { has_character_flag = salvage_compete } }
+		hidden_tooltip = { narrative_event = { id = salvage.90 days = 5 } }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_worthless_compete
+		trigger = { has_character_flag = salvage_compete }
+		hidden_tooltip = { narrative_event = { id = salvage.90 days = 5 } }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_worthless_research
+		trigger = { has_character_flag = salvage_research }
+		custom_tooltip = { text = TXT_salvage_continue }
+		hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+		clr_character_flag = salvage_research
+		ai_chance = { factor = 500 }
+	}
+}
+
+narrative_event = {
+	id = salvage.22
+	title = EVTNAME_salvage_value
+	desc = EVTDESC_salvage_moderate
+	picture = GFX_evt_carriage
+	
+	is_triggered_only = yes
+	trigger = { trait = on_pilgrimage }
+
+	option = {
+		name = EVTOPT_salvage_moderate
+		hidden_tooltip = {
+			random_list = {
+				10 = {
+					narrative_event = { id = salvage.40 days = 5 }
+					narrative_event = { id = salvage.91 days = 12 }
+				}
+				10 = {
+					narrative_event = { id = salvage.41 days = 5 }
+					narrative_event = { id = salvage.91 days = 12 }
+				}
+				10 = {
+					narrative_event = { id = salvage.42 days = 5 }
+					narrative_event = { id = salvage.92 days = 12 }
+				}
+				10 = {
+					narrative_event = { id = salvage.43 days = 5 }
+					narrative_event = { id = salvage.92 days = 12 }
+				}
+			}
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_moderate_research
+		trigger = { has_character_flag = salvage_research }
+		wealth = 25
+		custom_tooltip = { text = TXT_salvage_continue }
+		hidden_tooltip = { FROM = { province_event = { id = salvage.20 days = 5 } } }
+		clr_character_flag = salvage_research
+		ai_chance = { factor = 20 }
+	}
+}
+
+narrative_event = {
+	id = salvage.23
+	title = EVTNAME_salvage_value
+	desc = EVTDESC_salvage_safe
+	picture = GFX_evt_carriage
+	
+	is_triggered_only = yes
+	trigger = {
+		OR = {
+			trait = on_pilgrimage
+			has_character_flag = discover_salvage
+		}
+	}
+	
+	immediate = { clr_character_flag = discover_salvage }
+
+	option = {
+		name = EVTOPT_salvage_safe
+		hidden_tooltip = {
+			random_list = {
+				20 = {
+					narrative_event = { id = salvage.50 days = 3 }
+					narrative_event = { id = salvage.90 days = 6 }
+				}
+				10 = {
+					narrative_event = { id = salvage.51 days = 3 }
+					narrative_event = { id = salvage.92 days = 6 }
+				}
+				5 = {
+					narrative_event = { id = salvage.52 days = 3 }
+					narrative_event = { id = salvage.91 days = 6 }
+				}
+				10 = {
+					narrative_event = { id = salvage.54 days = 3 }
+					narrative_event = { id = salvage.92 days = 6 }
+				}
+				10 = {
+					narrative_event = { id = salvage.55 days = 3 }
+					narrative_event = { id = salvage.94 days = 6 }
+				}
+				10 = {
+					narrative_event = { id = salvage.60 days = 3 }
+					narrative_event = { id = salvage.94 days = 6 }
+				}
+				10 = {
+					narrative_event = { id = salvage.61 days = 3 }
+					narrative_event = { id = salvage.94 days = 6 }
+				}
+				10 = {
+					narrative_event = { id = salvage.62 days = 3 }
+					narrative_event = { id = salvage.94 days = 6 }
+				}
+				10 = {
+					narrative_event = { id = salvage.63 days = 3 }
+					narrative_event = { id = salvage.94 days = 6 }
+				}
+				5 = {
+					narrative_event = { id = salvage.64 days = 3 }
+					narrative_event = { id = salvage.94 days = 6 }
+				}
+			}
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_safe_patient
+		hidden_tooltip = {
+			random_list = {
+				10 = {
+					narrative_event = { id = salvage.51 days = 15 random = 8 }
+					narrative_event = { id = salvage.92 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.52 days = 15 random = 8 }
+					narrative_event = { id = salvage.91 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.53 days = 15 random = 8 }
+					narrative_event = { id = salvage.91 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.54 days = 15 random = 8 }
+					narrative_event = { id = salvage.92 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.55 days = 15 random = 8 }
+					narrative_event = { id = salvage.94 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.60 days = 15 random = 8 }
+					narrative_event = { id = salvage.94 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.61 days = 15 random = 8 }
+					narrative_event = { id = salvage.94 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.62 days = 15 random = 8 }
+					narrative_event = { id = salvage.94 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.63 days = 15 random = 8 }
+					narrative_event = { id = salvage.94 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.64 days = 15 random = 8 }
+					narrative_event = { id = salvage.94 days = 25 }
+				}
+				10 = {
+					narrative_event = { id = salvage.65 days = 15 random = 8 }
+					narrative_event = { id = salvage.94 days = 25 }
+				}
+			}
+		}
+		ai_chance = { factor = 50 }
+	}
+}
+
+narrative_event = {
+	id = salvage.24
+	is_triggered_only = yes
+	title = EVTNAME_salvage_agent
+	desc = EVTDESC_salvage_agent
+	picture = GFX_evt_pilgrims_epic_journey
+
+	option = {
+		name = EVTOPT_salvage_agent
+		prestige = 5
+		set_character_flag = salvage_compete
+	}
+	
+	option = {
+		name = EVTOPT_salvage_agent_research
+		trigger = { has_character_flag = salvage_research }
+		piety = 10
+		random = { chance = 25 add_trait = charitable }
+		clr_character_flag = salvage_research
+	}
+	
+	option = {
+		name = EVTOPT_salvage_agent_intrigue
+		trigger = { intrigue = 8 }
+		tooltip_info = intrigue
+		random_list = {
+			10 = { add_trait = paranoid }
+			10 = { add_trait = wroth }
+			10 = { add_trait = greedy }
+			10 = { add_trait = cruel }
+			10 = { add_trait = cynical }
+			50 = { }
+		}
+	}
+}
+
+narrative_event = {
+	id = salvage.26
+	is_triggered_only = yes
+	title = EVTNAME_salvage_collapse
+	desc = EVTDESC_salvage_collapse
+	picture = GFX_evt_pilgrims_epic_journey
+
+	option = {
+		name = EVTOPT_salvage_collapse_flee
+		custom_tooltip = { text = TXT_salvage_flee }
+		hidden_tooltip = { narrative_event = { id = salvage.90 days = 3 } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_collapse_brave
+		add_trait = brave
+		random_list = {
+			50 = {	
+				custom_tooltip = { text = TXT_salvage_continue }
+			}
+			50 = {
+				add_trait = wounded
+				custom_tooltip = { text = TXT_salvage_flee }
+				hidden_tooltip = { narrative_event = { id = salvage.90 days = 3 } }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_salvage_collapse_plan
+		trigger = {
+			OR = {
+				trait = genius
+				trait = quick
+				trait = diligent
+				trait = paranoid
+			}
+		}
+		prestige = 5
+		random = { chance = 25 add_trait = diligent }
+	}
+}
+
+
+# ************************* All the different salvaged artifacts ************************
+
+narrative_event = {
+	id = salvage.40
+	is_triggered_only = yes
+	title = EVTNAME_salvage_item
+	desc = EVTDESC_salvage_scraps
+	picture = GFX_evt_pilgrims_epic_journey
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = salvage.41
+	is_triggered_only = yes
+	title = EVTNAME_salvage_item
+	desc = EVTDESC_salvage_coins
+	picture = GFX_evt_pilgrims_epic_journey
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = salvage.42
+	is_triggered_only = yes
+	title = EVTNAME_salvage_item
+	desc = EVTDESC_salvage_glassware
+	picture = GFX_evt_pilgrims_epic_journey
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = salvage.43
+	is_triggered_only = yes
+	title = EVTNAME_salvage_item
+	desc = EVTDESC_salvage_machinery
+	picture = GFX_evt_pilgrims_epic_journey
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = salvage.50
+	is_triggered_only = yes
+	title = EVTNAME_salvage_item
+	desc = EVTDESC_salvage_safe_smash
+	picture = GFX_evt_carriage
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = salvage.51
+	is_triggered_only = yes
+	title = EVTNAME_salvage_safe_jewellery
+	desc = EVTDESC_salvage_safe_jewellery
+	picture = GFX_evt_carriage
+	option = { 
+		name = OK
+		wealth = 25
+	}
+}
+
+narrative_event = {
+	id = salvage.52
+	is_triggered_only = yes
+	title = EVTNAME_salvage_safe_ledger
+	desc = EVTDESC_salvage_safe_ledger
+	picture = GFX_evt_carriage
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = salvage.53
+	is_triggered_only = yes
+	title = EVTNAME_salvage_safe_photos
+	desc = EVTDESC_salvage_safe_photos
+	picture = GFX_evt_carriage
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = salvage.54
+	is_triggered_only = yes
+	title = EVTNAME_salvage_item
+	desc = EVTDESC_salvage_safe_musicbox
+	picture = GFX_evt_carriage
+	option = {
+		name = OK
+		prestige = 10
+	}
+}
+
+narrative_event = {
+	id = salvage.55
+	is_triggered_only = yes
+	title = EVTDESC_salvage_safe_machinery
+	desc = EVTDESC_salvage_safe_electric
+	picture = GFX_evt_carriage
+	option = { 
+		name = OK
+		hidden_tooltip = { narrative_event = { id = salvage.79 days = 15 random = 30 } }
+	}
+}
+
+narrative_event = {
+	id = salvage.60
+	is_triggered_only = yes
+	title = EVTNAME_salvage_safe_firearm
+	desc = EVTDESC_salvage_safe_firearm
+	picture = GFX_evt_carriage
+	option = { 
+		name = OK
+		hidden_tooltip = { random_list = {
+			80 = { narrative_event = { id = salvage.70 days = 15 random = 30 } }
+			20 = { narrative_event = { id = salvage.79 days = 15 random = 30 } }
+		} }
+	}
+}
+
+narrative_event = {
+	id = salvage.61
+	is_triggered_only = yes
+	title = EVTDESC_salvage_safe_machinery
+	desc = EVTDESC_salvage_safe_typewriter
+	picture = GFX_evt_carriage
+	option = { 
+		name = OK
+		hidden_tooltip = { random_list = {
+			80 = { narrative_event = { id = salvage.71 days = 15 random = 30 } }
+			20 = { narrative_event = { id = salvage.79 days = 15 random = 30 } }
+		} }
+	}
+}
+
+narrative_event = {
+	id = salvage.62
+	is_triggered_only = yes
+	title = EVTDESC_salvage_safe_machinery
+	desc = EVTDESC_salvage_safe_calculator
+	picture = GFX_evt_carriage
+	option = { 
+		name = OK
+		hidden_tooltip = { random_list = {
+			80 = { narrative_event = { id = salvage.72 days = 15 random = 30 } }
+			20 = { narrative_event = { id = salvage.79 days = 15 random = 30 } }
+		} }
+	}
+}
+
+narrative_event = {
+	id = salvage.63
+	is_triggered_only = yes
+	title = EVTNAME_salvage_safe_jewellery
+	desc = EVTDESC_salvage_safe_watch
+	picture = GFX_evt_carriage
+	option = { 
+		name = OK
+		hidden_tooltip = { random_list = {
+			80 = { narrative_event = { id = salvage.73 days = 15 random = 30 } }
+			20 = { narrative_event = { id = salvage.79 days = 15 random = 30 } }
+		} }
+	}
+}
+
+narrative_event = {
+	id = salvage.64
+	is_triggered_only = yes
+	title = EVTDESC_salvage_safe_machinery
+	desc = EVTDESC_salvage_safe_optics
+	picture = GFX_evt_comet
+	option = { 
+		name = OK
+		hidden_tooltip = { random_list = {
+			80 = { narrative_event = { id = salvage.74 days = 15 random = 30 } }
+			20 = { narrative_event = { id = salvage.79 days = 15 random = 30 } }
+		} }
+	}
+}
+
+narrative_event = {
+	id = salvage.65
+	is_triggered_only = yes
+	title = EVTNAME_salvage_safe_ledger
+	desc = EVTDESC_salvage_safe_textbooks
+	picture = GFX_evt_carriage
+	option = { 
+		name = OK
+		hidden_tooltip = { random_list = {
+			80 = { narrative_event = { id = salvage.75 days = 15 random = 30 } }
+			20 = { narrative_event = { id = salvage.79 days = 15 random = 30 } }
+		} }
+	}
+}
+
+# ************************* Attempts to restore prizes ************************
+
+narrative_event = {
+	id = salvage.70
+	is_triggered_only = yes
+	title = EVTNAME_salvage_repair_prize
+	desc = EVTDESC_salvage_study_firearm
+	picture = GFX_evt_library
+	option = {
+		name = EVTOPT_salvage_study_firearm
+		prestige = 50
+		add_trait = salvage_firearm
+	}
+}
+
+narrative_event = {
+	id = salvage.71
+	is_triggered_only = yes
+	title = EVTNAME_salvage_repair_prize
+	desc = EVTDESC_salvage_study_typewriter
+	picture = GFX_evt_library
+	option = {
+		name = OK
+		prestige = 50
+		add_trait = salvage_typewriter
+	}
+}
+
+narrative_event = {
+	id = salvage.72
+	is_triggered_only = yes
+	title = EVTNAME_salvage_repair_prize
+	desc = EVTDESC_salvage_study_calculator
+	picture = GFX_evt_library
+	option = {
+		name = OK
+		prestige = 50
+		add_trait = salvage_calculator
+	}
+}
+
+narrative_event = {
+	id = salvage.73
+	is_triggered_only = yes
+	title = EVTNAME_salvage_repair_prize
+	desc = EVTDESC_salvage_study_watch
+	picture = GFX_evt_library
+	option = {
+		name = OK
+		prestige = 50
+		add_trait = salvage_watch
+	}
+}
+
+narrative_event = {
+	id = salvage.74
+	is_triggered_only = yes
+	title = EVTNAME_salvage_repair_prize
+	desc = EVTDESC_salvage_study_optics
+	picture = GFX_evt_comet
+	option = {
+		name = OK
+		prestige = 50
+		add_trait = salvage_telescope
+	}
+}
+
+narrative_event = {
+	id = salvage.75
+	is_triggered_only = yes
+	title = EVTNAME_salvage_repair_prize
+	desc = EVTDESC_salvage_study_textbooks
+	picture = GFX_evt_library
+	option = {
+		name = OK
+		prestige = 50
+		add_trait = salvage_textbooks
+	}
+}
+
+narrative_event = {
+	id = salvage.79
+	is_triggered_only = yes
+	title = EVTNAME_salvage_fail_prize
+	desc = EVTDESC_salvage_study_fail
+	picture = GFX_evt_library
+	
+	option = {
+		name = EVTOPT_salvage_study_keep
+		prestige = 100
+		random = { chance = 10 add_trait = proud }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_study_sell
+		wealth = 75
+		random = { chance = 15 add_trait = greedy }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_study_learn
+		random_list = {
+			10 = { culture_techpoints = 25 }
+			10 = { military_techpoints = 25 }
+			10 = { economy_techpoints = 25 }
+			10 = { change_learning = 1 }
+			10 = { add_trait = patient }
+			50 = { }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_salvage_study_donate
+		trigger = {
+			OR = {
+				religion = machine_cultist
+				religion = machine_cultist_reformed
+			}
+		}
+		piety = 50
+		religion_authority = { modifier = donated_tech_prize }
+		random_list = {
+			10 = { add_trait = zealous }
+			10 = { add_trait = charitable }
+			10 = { add_trait = humble }
+		}
+	}
+}
+
+# ************************* Expedition results and cleanup ************************
+
+narrative_event = {
+	id = salvage.90
+	is_triggered_only = yes
+	title = EVTNAME_salvage_result
+	desc = EVTDESC_salvage_result_poor
+	picture = GFX_evt_pilgrims_epic_journey
+	
+	trigger = {
+		OR = { religion = machine_cultist religion = machine_cultist_reformed }
+		has_trait = on_pilgrimage
+	}
+
+	option = {
+		name = EVTOPT_salvage_result_poor
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+}
+
+narrative_event = {
+	id = salvage.91
+	is_triggered_only = yes
+	title = EVTNAME_salvage_result
+	desc = EVTDESC_salvage_result_medium
+	picture = GFX_evt_pilgrims_epic_journey
+
+	trigger = {
+		OR = { religion = machine_cultist religion = machine_cultist_reformed }
+		has_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_salvage_result_medium_keep
+		prestige = 20
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_result_medium_sell
+		wealth = 20
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_result_medium_donate
+		piety = 10
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+}
+
+narrative_event = {
+	id = salvage.92
+	is_triggered_only = yes
+	title = EVTNAME_salvage_result
+	desc = EVTDESC_salvage_result_medium
+	picture = GFX_evt_pilgrims_epic_journey
+
+	trigger = {
+		OR = { religion = machine_cultist religion = machine_cultist_reformed }
+		has_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_salvage_result_medium_keep
+		prestige = 50
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_result_medium_sell
+		wealth = 40
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+	
+	option = {
+		name = EVTOPT_salvage_result_medium_donate
+		piety = 20
+		religion_authority = { modifier = donated_tech_prize }
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+}
+
+narrative_event = {
+	id = salvage.94
+	is_triggered_only = yes
+	title = EVTNAME_salvage_result
+	desc = EVTDESC_salvage_result_good
+	picture = GFX_evt_pilgrims_epic_journey
+
+	trigger = {
+		OR = { religion = machine_cultist religion = machine_cultist_reformed }
+		has_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_salvage_result_study
+		piety = 50
+		prestige = 50
+		add_trait = tech_scavenger
+		hidden_tooltip = { narrative_event = { id = salvage.95 } }
+	}
+}
+
+narrative_event = {
+	id = salvage.95
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		clr_character_flag = salvage_warband
+		clr_character_flag = salvage_research
+		clr_character_flag = salvage_envoys
+		clr_character_flag = salvage_compete
+		remove_trait = on_pilgrimage
+		#add_character_modifier = { name = recent_salvage duration = 5 }
+		add_character_modifier = { name = recent_salvage duration = 720 }
+	}
+	option = { }
+}
+
+# ************************* Pass Salvage to Heir ************************
+
+character_event = {
+	id = salvage.100
+	desc = "shouldn't see this event, passing on tech to heirs"
+	hide_window = yes
+	picture = GFX_evt_death
+
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = { trait = salvage_firearm }
+			remove_trait = salvage_firearm
+			current_heir = { narrative_event = { id = salvage.110 days = 5 } }
+		}
+		if = {
+			limit = { trait = salvage_typewriter }
+			remove_trait = salvage_typewriter
+			current_heir = { narrative_event = { id = salvage.111 days = 5 } }
+		}
+		if = {
+			limit = { trait = salvage_calculator }
+			remove_trait = salvage_calculator
+			current_heir = { narrative_event = { id = salvage.112 days = 5 } }
+		}
+		if = {
+			limit = { trait = salvage_watch }
+			remove_trait = salvage_watch
+			current_heir = { narrative_event = { id = salvage.113 days = 5 } }
+		}
+		if = {
+			limit = { trait = salvage_telescope }
+			remove_trait = salvage_telescope
+			current_heir = { narrative_event = { id = salvage.114 days = 5 } }
+		}
+		if = {
+			limit = { trait = salvage_textbooks }
+			remove_trait = salvage_textbooks
+			current_heir = { narrative_event = { id = salvage.115 days = 5 } }
+		}
+	}
+	option = { }
+}
+
+narrative_event = {
+	id = salvage.110
+	title = EVTNAME_bequeathed
+	desc = EVTDESC_bequeathed_firearm
+	picture = GFX_evt_death
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_bequeath_child
+		trigger = { NOT = { age = 10 } }
+		random_list = {
+			20 = { add_trait = salvage_firearm }
+			20 = { regent = { add_trait = salvage_firearm } }
+			10 = { random_dynasty_member = { add_trait = salvage_firearm } }
+			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_teen
+		trigger = {
+			age = 10
+			NOT = { age = 16 }
+		}
+		random_list = {
+			40 = { add_trait = salvage_firearm }
+			20 = { regent = { add_trait = salvage_firearm } }
+			10 = { random_dynasty_member = { add_trait = salvage_firearm } }
+			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_adult
+		trigger = { age = 16 }
+		random = { chance = 70 add_trait = salvage_firearm }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_skilled
+		trigger = { martial = 10 }
+		tooltip_info = martial
+		random = { chance = 85 add_trait = salvage_firearm }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_intrigue
+		trigger = { intrigue = 12 }
+		tooltip_info = intrigue
+		random = { chance = 95 add_trait = salvage_firearm }
+		ai_chance = { factor = 500 }
+	}
+}
+
+narrative_event = {
+	id = salvage.111
+	title = EVTNAME_bequeathed
+	desc = EVTDESC_bequeathed_typewriter
+	picture = GFX_evt_death
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_bequeath_child
+		trigger = { NOT = { age = 10 } }
+		random_list = {
+			20 = { add_trait = salvage_typewriter }
+			20 = { regent = { add_trait = salvage_typewriter } }
+			10 = { random_dynasty_member = { add_trait = salvage_typewriter } }
+			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_teen
+		trigger = {
+			age = 10
+			NOT = { age = 16 }
+		}
+		random_list = {
+			40 = { add_trait = salvage_typewriter }
+			20 = { regent = { add_trait = salvage_typewriter } }
+			10 = { random_dynasty_member = { add_trait = salvage_typewriter } }
+			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_adult
+		trigger = { age = 16 }
+		random = { chance = 70 add_trait = salvage_typewriter }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_skilled
+		trigger = { diplomacy = 10 }
+		tooltip_info = diplomacy
+		random = { chance = 85 add_trait = salvage_typewriter }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_intrigue
+		trigger = { intrigue = 12 }
+		tooltip_info = intrigue
+		random = { chance = 95 add_trait = salvage_typewriter }
+		ai_chance = { factor = 500 }
+	}
+}
+
+narrative_event = {
+	id = salvage.112
+	title = EVTNAME_bequeathed
+	desc = EVTDESC_bequeathed_calculator
+	picture = GFX_evt_death
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_bequeath_child
+		trigger = { NOT = { age = 10 } }
+		random_list = {
+			20 = { add_trait = salvage_calculator }
+			20 = { regent = { add_trait = salvage_calculator } }
+			10 = { random_dynasty_member = { add_trait = salvage_calculator } }
+			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_teen
+		trigger = {
+			age = 10
+			NOT = { age = 16 }
+		}
+		random_list = {
+			40 = { add_trait = salvage_calculator }
+			20 = { regent = { add_trait = salvage_calculator } }
+			10 = { random_dynasty_member = { add_trait = salvage_calculator } }
+			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_adult
+		trigger = { age = 16 }
+		random = { chance = 70 add_trait = salvage_calculator }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_skilled
+		trigger = { stewardship = 10 }
+		tooltip_info = stewardship
+		random = { chance = 85 add_trait = salvage_calculator }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_intrigue
+		trigger = { intrigue = 12 }
+		tooltip_info = intrigue
+		random = { chance = 95 add_trait = salvage_calculator }
+		ai_chance = { factor = 500 }
+	}
+}
+
+narrative_event = {
+	id = salvage.113
+	title = EVTNAME_bequeathed
+	desc = EVTDESC_bequeathed_watch
+	picture = GFX_evt_death
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_bequeath_child
+		trigger = { NOT = { age = 10 } }
+		random_list = {
+			20 = { add_trait = salvage_watch }
+			20 = { regent = { add_trait = salvage_watch } }
+			10 = { random_dynasty_member = { add_trait = salvage_watch } }
+			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_teen
+		trigger = {
+			age = 10
+			NOT = { age = 16 }
+		}
+		random_list = {
+			40 = { add_trait = salvage_watch }
+			20 = { regent = { add_trait = salvage_watch } }
+			10 = { random_dynasty_member = { add_trait = salvage_watch } }
+			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_adult
+		trigger = { age = 16 }
+		random = { chance = 70 add_trait = salvage_watch }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_skilled
+		trigger = { intrigue = 10 }
+		tooltip_info = intrigue
+		random = { chance = 85 add_trait = salvage_watch }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_intrigue
+		trigger = { intrigue = 12 }
+		tooltip_info = intrigue
+		random = { chance = 95 add_trait = salvage_watch }
+		ai_chance = { factor = 500 }
+	}
+}
+
+narrative_event = {
+	id = salvage.114
+	title = EVTNAME_bequeathed
+	desc = EVTDESC_bequeathed_telescope
+	picture = GFX_evt_death
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_bequeath_child
+		trigger = { NOT = { age = 10 } }
+		random_list = {
+			20 = { add_trait = salvage_telescope }
+			20 = { regent = { add_trait = salvage_telescope } }
+			10 = { random_dynasty_member = { add_trait = salvage_telescope } }
+			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_teen
+		trigger = {
+			age = 10
+			NOT = { age = 16 }
+		}
+		random_list = {
+			40 = { add_trait = salvage_telescope }
+			20 = { regent = { add_trait = salvage_telescope } }
+			10 = { random_dynasty_member = { add_trait = salvage_telescope } }
+			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_adult
+		trigger = { age = 16 }
+		random = { chance = 70 add_trait = salvage_telescope }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_skilled
+		trigger = { learning = 10 }
+		tooltip_info = learning
+		random = { chance = 85 add_trait = salvage_telescope }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_intrigue
+		trigger = { intrigue = 12 }
+		tooltip_info = intrigue
+		random = { chance = 95 add_trait = salvage_telescope }
+		ai_chance = { factor = 500 }
+	}
+}
+
+narrative_event = {
+	id = salvage.115
+	title = EVTNAME_bequeathed
+	desc = EVTDESC_bequeathed_textbooks
+	picture = GFX_evt_death
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_bequeath_child
+		trigger = { NOT = { age = 10 } }
+		random_list = {
+			20 = { add_trait = salvage_textbooks }
+			20 = { regent = { add_trait = salvage_textbooks } }
+			10 = { random_dynasty_member = { add_trait = salvage_textbooks } }
+			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_teen
+		trigger = {
+			age = 10
+			NOT = { age = 16 }
+		}
+		random_list = {
+			40 = { add_trait = salvage_textbooks }
+			20 = { regent = { add_trait = salvage_textbooks } }
+			10 = { random_dynasty_member = { add_trait = salvage_textbooks } }
+			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_adult
+		trigger = { age = 16 }
+		random = { chance = 70 add_trait = salvage_textbooks }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_skilled
+		trigger = { learning = 10 }
+		tooltip_info = learning
+		random = { chance = 85 add_trait = salvage_textbooks }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_bequeath_intrigue
+		trigger = { intrigue = 12 }
+		tooltip_info = intrigue
+		random = { chance = 95 add_trait = salvage_textbooks }
+		ai_chance = { factor = 500 }
+	}
+}
+
+# ************************* Events for Anyone ************************
+
+character_event = {
+	id = salvage.120
+	hide_window = yes
+	title = EVTNAME_salvage_discover
+	desc = EVTDESC_salvage_discover
+	picture = GFX_evt_courier
+
+	is_triggered_only = yes
+	trigger = { num_of_count_titles = 1 }
+	immediate = {
+		set_character_flag = discover_salvage
+		random_demesne_province  = { province_event = { id = salvage.121 } }
+	}
+	option = { }
+}
+
+province_event = {
+	id = salvage.121
+	hide_window = yes
+	title = EVTNAME_salvage_discover
+	desc = EVTDESC_salvage_discover
+	picture = GFX_evt_courier
+	
+	is_triggered_only = yes
+	immediate = { FROM = { narrative_event = { id = salvage.23 } } }
+	option = { }
+}
+
+

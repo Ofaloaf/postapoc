@@ -55,6 +55,12 @@
 # 115	notify heir that the deceased has bequeathed textbooks to them
 # 120	[hidden] helper event for randomly finding salvage
 # 121	[hidden] helper prov event for randomly finding salvage
+# 130	firearm combat event
+# 131	typewriter event
+# 132	calculator event
+# 133	pocket watch event
+# 134	telescope event
+# 135	textbook event
 # TODO	events related to items breaking, seizing from prisoners
 
 namespace = salvage
@@ -422,8 +428,8 @@ province_event = {
 			limit = { FROM = { has_character_flag = salvage_compete } }
 			random_list = {
 				50 = { FROM = { narrative_event = { id = salvage.21 days = 20 random = 10 } } }
-				40 = { FROM = { narrative_event = { id = salvage.22 days = 15 random = 10 } } }
-				10 = { FROM = { narrative_event = { id = salvage.23 days = 15 random = 10 } } }
+				45 = { FROM = { narrative_event = { id = salvage.22 days = 15 random = 10 } } }
+				5 = { FROM = { narrative_event = { id = salvage.23 days = 15 random = 10 } } }
 			}
 		}
 		
@@ -431,8 +437,8 @@ province_event = {
 			limit = { FROM = { NOT = { has_character_flag = salvage_compete } } }
 			random_list = {
 				30 = { FROM = { narrative_event = { id = salvage.21 days = 20 random = 10 } } }
-				50 = { FROM = { narrative_event = { id = salvage.22 days = 15 random = 10 } } }
-				20 = { FROM = { narrative_event = { id = salvage.23 days = 15 random = 10 } } }
+				60 = { FROM = { narrative_event = { id = salvage.22 days = 15 random = 10 } } }
+				10 = { FROM = { narrative_event = { id = salvage.23 days = 15 random = 10 } } }
 			}
 		}
 		
@@ -1173,32 +1179,32 @@ character_event = {
 		if = {
 			limit = { trait = salvage_firearm }
 			remove_trait = salvage_firearm
-			current_heir = { narrative_event = { id = salvage.110 days = 5 } }
+			current_heir = { narrative_event = { id = salvage.110 days = 5 random = 20 } }
 		}
 		if = {
 			limit = { trait = salvage_typewriter }
 			remove_trait = salvage_typewriter
-			current_heir = { narrative_event = { id = salvage.111 days = 5 } }
+			current_heir = { narrative_event = { id = salvage.111 days = 5 random = 20 } }
 		}
 		if = {
 			limit = { trait = salvage_calculator }
 			remove_trait = salvage_calculator
-			current_heir = { narrative_event = { id = salvage.112 days = 5 } }
+			current_heir = { narrative_event = { id = salvage.112 days = 5 random = 20 } }
 		}
 		if = {
 			limit = { trait = salvage_watch }
 			remove_trait = salvage_watch
-			current_heir = { narrative_event = { id = salvage.113 days = 5 } }
+			current_heir = { narrative_event = { id = salvage.113 days = 5 random = 20 } }
 		}
 		if = {
 			limit = { trait = salvage_telescope }
 			remove_trait = salvage_telescope
-			current_heir = { narrative_event = { id = salvage.114 days = 5 } }
+			current_heir = { narrative_event = { id = salvage.114 days = 5 random = 20 } }
 		}
 		if = {
 			limit = { trait = salvage_textbooks }
 			remove_trait = salvage_textbooks
-			current_heir = { narrative_event = { id = salvage.115 days = 5 } }
+			current_heir = { narrative_event = { id = salvage.115 days = 5 random = 20 } }
 		}
 	}
 	option = { }
@@ -1570,8 +1576,41 @@ character_event = {
 	is_triggered_only = yes
 	trigger = { num_of_count_titles = 1 }
 	immediate = {
-		set_character_flag = discover_salvage
-		random_demesne_province  = { province_event = { id = salvage.121 } }
+		if = {
+			limit = {
+				OR = {
+					trait = salvage_firearm
+					trait = salvage_typewriter
+					trait = salvage_calculator
+					trait = salvage_watch
+					trait = salvage_telescope
+					trait = salvage_textbooks
+				}
+			}
+			random_list = {
+				10 = { character_event = { id = salvage.131 } }
+				10 = { character_event = { id = salvage.132 } }
+				10 = { character_event = { id = salvage.133 } }
+				10 = { character_event = { id = salvage.134 } }
+				10 = { character_event = { id = salvage.135 } }
+			}
+		}
+	
+		if = {
+			limit = {
+				NOT = { trait = salvage_firearm }
+				NOT = { trait = salvage_typewriter }
+				NOT = { trait = salvage_calculator }
+				NOT = { trait = salvage_watch }
+				NOT = { trait = salvage_telescope }
+				NOT = { trait = salvage_textbooks }
+			}
+			random = {
+				chance = 25
+				set_character_flag = discover_salvage
+				random_demesne_province  = { province_event = { id = salvage.121 } }
+			}
+		}
 	}
 	option = { }
 }
@@ -1587,5 +1626,272 @@ province_event = {
 	immediate = { FROM = { narrative_event = { id = salvage.23 } } }
 	option = { }
 }
+
+narrative_event = {
+	id = salvage.130
+	is_triggered_only = yes
+	title = EVTNAME_firearm_battle
+	desc = EVTDESC_firearm_battle
+	picture = GFX_evt_viking_battle_oldgods
+	
+	trigger = { trait = salvage_firearm }
+	
+	option = {
+		name = EVTOPT_firearm_battle_fire
+		trigger = { has_nickname = no }
+		prestige = 50
+		give_nickname = nick_the_firebringer
+	}
+	
+	option = {
+		name = EVTOPT_firearm_battle_thunder
+		trigger = { has_nickname = no }
+		prestige = 50
+		give_nickname = nick_the_thunderhand
+	}
+	
+	option = {
+		name = EVTOPT_firearm_battle_default
+		prestige = 25
+	}
+}
+
+narrative_event = {
+	id = salvage.131
+	is_triggered_only = yes
+	title = EVTNAME_typewriter_history
+	desc = EVTDESC_typewriter_history
+	picture = GFX_evt_library
+	
+	trigger = { trait = salvage_typewriter }
+	
+	option = {
+		name = EVTOPT_typewriter_history_record
+		trigger = { has_nickname = no }
+		prestige = 50
+		give_nickname = nick_the_chronicler
+	}
+	
+	option = {
+		name = EVTOPT_typewriter_history_poet
+		trigger = {
+			has_nickname = no
+			NOT = { lifestyle_traits = 1 } 
+		}
+		prestige = 50
+		give_nickname = nick_the_troubadour
+		random = { chance = 50 add_trait = poet }
+	}
+	
+	option = {
+		name = EVTOPT_typewriter_history_poet
+		trigger = {
+			has_nickname = no
+			lifestyle_traits = 1
+		}
+		prestige = 50
+		give_nickname = nick_the_troubadour
+	}
+	
+	option = {
+		name = EVTOPT_typewriter_history_square
+		prestige = 25
+	}
+}
+
+narrative_event = {
+	id = salvage.132
+	is_triggered_only = yes
+	title = EVTNAME_calculator_taxes
+	desc = EVTDESC_calculator_taxes
+	picture = GFX_evt_library
+	
+	trigger = { trait = salvage_calculator }
+	
+	option = {
+		name = EVTOPT_calculator_taxes_shrewd
+		trigger = { has_nickname = no }
+		scaled_wealth = .4
+		give_nickname = nick_the_shrewd
+	}
+	
+	option = {
+		name = EVTOPT_calculator_taxes_machine
+		trigger = { has_nickname = no }
+		scaled_wealth = .4
+		give_nickname = nick_the_calculator
+	}
+	
+	option = {
+		name = EVTOPT_calculator_taxes_default
+		scaled_wealth = .2
+	}
+}
+
+narrative_event = {
+	id = salvage.133
+	is_triggered_only = yes
+	title = EVTNAME_watch_smooth
+	desc = EVTDESC_watch_smooth
+	picture = GFX_evt_carriage
+	
+	trigger = { trait = salvage_watch }
+	
+	option = {
+		name = EVTOPT_watch_smooth_style
+		trigger = { has_nickname = no }
+		prestige = 50
+		give_nickname = nick_the_stylish
+	}
+	
+	option = {
+		name = EVTOPT_watch_smooth_carriage
+		trigger = { has_nickname = no }
+		prestige = 50
+		give_nickname = nick_the_timekeeper
+	}
+	
+	option = {
+		name = EVTOPT_watch_smooth_default
+		prestige = 25
+	}
+}
+
+narrative_event = {
+	id = salvage.134
+	is_triggered_only = yes
+	title = EVTNAME_telescope_stargaze
+	desc = EVTDESC_telescope_stargaze
+	picture = GFX_evt_comet
+	
+	trigger = { trait = salvage_telescope }
+	
+	option = {
+		name = EVTOPT_telescope_stargaze_astro
+		trigger = {
+			has_nickname = no
+			NOT = { lifestyle_traits = 1 } 
+		}
+		give_nickname = nick_the_astronomer
+		add_trait = scholar
+	}
+	
+	option = {
+		name = EVTOPT_telescope_stargaze_astro
+		trigger = {
+			has_nickname = no
+			lifestyle_traits = 1
+		}
+		give_nickname = nick_the_astronomer
+	}
+	
+	option = {
+		name = EVTOPT_telescope_stargaze_military
+		trigger = { has_nickname = no }
+		prestige = 25
+		give_nickname = nick_the_farseer
+	}
+	
+	option = {
+		name = EVTOPT_telescope_stargaze_calm
+		remove_trait = stressed
+	}
+}
+
+narrative_event = {
+	id = salvage.135
+	is_triggered_only = yes
+	title = EVTNAME_textbooks_medical
+	desc = EVTDESC_textbooks_medical
+	picture = GFX_evt_library
+	
+	trigger = { trait = salvage_textbooks }
+	
+	option = {
+		name = EVTOPT_textbooks_medical_wound
+		trigger = { trait = wounded }
+		remove_trait = wounded
+		add_trait = scarred
+	}
+	
+	option = {
+		name = EVTOPT_textbooks_medical_ill
+		trigger = { trait = ill }
+		remove_trait = ill
+	}
+	
+	option = {
+		name = EVTOPT_textbooks_medical_child
+		trigger = {
+			has_nickname = no
+			any_child = {
+				OR = {
+					trait = ill
+					trait = sickly
+				}
+			}
+		}
+		prestige = 25
+		give_nickname = nick_the_healer
+		any_child = {
+			remove_trait = ill
+			remove_trait = sickly
+		}
+	}
+	
+	option = {
+		name = EVTOPT_textbooks_medical_child
+		trigger = {
+			has_nickname = yes
+			any_child = {
+				OR = {
+					trait = ill
+					trait = sickly
+				}
+			}
+		}
+		prestige = 25
+		any_child = {
+			remove_trait = ill
+			remove_trait = sickly
+		}
+	}
+	
+	option = {
+		name = EVTOPT_textbooks_medical_learn
+		trigger = {
+			NOT = { lifestyle_traits = 1 } 
+		}
+		add_trait = scholar
+	}
+	
+	option = {
+		name = EVTOPT_textbooks_medical_learn
+		trigger = {
+			lifestyle_traits = 1
+			has_nickname = no
+		}
+		give_nickname = nick_the_learned
+	}
+	
+	option = {
+		name = EVTOPT_textbooks_medical_learn
+		trigger = {
+			lifestyle_traits = 1
+			has_nickname = yes
+		}
+		random_list = {
+			10 = { culture_techpoints = 10 }
+			10 = { military_techpoints = 10 }
+			10 = { economy_techpoints = 10 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_textbooks_medical_lazy
+	}
+}
+
+
 
 

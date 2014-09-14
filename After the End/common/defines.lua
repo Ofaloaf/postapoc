@@ -964,8 +964,8 @@ NTechnology = {
 	TRADEPOST_SPREAD_BONUS = 0.002, 			-- Spread from trade posts
 	SPYACTION_SPREAD_BONUS = 0.006,				-- Spread from the target of the study technology spymaster action
 	
-	IDEAL_YEAR_LEVEL_0 = 2500, 					-- the chance to get a progress to this level will increase after this date and decrease before it
-	IDEAL_YEAR_LEVEL_8 = 3300,
+	IDEAL_YEAR_LEVEL_0 = 2400, 					-- the chance to get a progress to this level will increase after this date and decrease before it
+	IDEAL_YEAR_LEVEL_8 = 3200,
 	IDEAL_YEAR_AHEAD_PENALTY = -0.2,			-- UNUSED
 	IDEAL_YEAR_AHEAD_PENALTY_INVEST = 0.3,		-- Percent increase in cost pre level ahead of ideal date
 	
@@ -973,12 +973,12 @@ NTechnology = {
 	
 	-- Used to determine tech levels when starting a new game
 	
-	START_MIL_CATHOLIC  = 0.5,
-	START_ECO_CATHOLIC  = 1.0,
-	START_CUL_CATHOLIC  = 1.0,
-	END_MIL_CATHOLIC    = 5.0,
-	END_ECO_CATHOLIC    = 5.0,
-	END_CUL_CATHOLIC    = 5.0,
+	START_MIL_CATHOLIC  = 1.5,
+	START_ECO_CATHOLIC  = 1.5,
+	START_CUL_CATHOLIC  = 1.5,
+	END_MIL_CATHOLIC    = 2.5,
+	END_ECO_CATHOLIC    = 2.5,
+	END_CUL_CATHOLIC    = 2.5,
 	END_REN_CLOSE       = 7.0, -- Tech level at the center of the renaissance
 	END_REN_FAR         = 6.0, -- Tech level on the fringe of the renaissance
 	REN_PROVINCE        = 328, -- Province where the Renaissance is centered
@@ -994,12 +994,12 @@ NTechnology = {
 	END_MIL_INDIAN   		= 4.0,
 	END_ECO_INDIAN    	= 4.0,
 	END_CUL_INDIAN    	= 4.0,
-	START_MIL_OTHER     = 0.5,
-	START_ECO_OTHER     = 1.0,
-	START_CUL_OTHER     = 1.0,
-	END_MIL_OTHER       = 5.0,
-	END_ECO_OTHER       = 5.0,
-	END_CUL_OTHER       = 5.0,
+	START_MIL_OTHER     = 1.5,
+	START_ECO_OTHER     = 1.5,
+	START_CUL_OTHER     = 1.5,
+	END_MIL_OTHER       = 2.5,
+	END_ECO_OTHER       = 2.5,
+	END_CUL_OTHER       = 2.5,
 	START_MIL_BYZANTIUM = 0.7,
 	START_ECO_BYZANTIUM = 1.0,
 	START_CUL_BYZANTIUM = 1.0,

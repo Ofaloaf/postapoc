@@ -16,6 +16,7 @@
 # 51	you hunt for monster, it was local kids
 # 52	you hunt for monster, it was a plot by local minor lord
 # 53	you hunt for monster, talk to shepherd about mangled sheep
+# 54	you hunt for monster, get warned by an old crone to turn back
 # 60	you find the beast lair
 # 61	you fight the beast
 # 62	victorious, but the beast escapes
@@ -28,8 +29,12 @@
 # 72	UNUSED - you killed a man and feel guilty?
 # 80	beast is a crazy hermit
 # 81	beast is a deformed but strong man
-# 82-89	* add some more courtiers? *
-# 90	UNUSED - decide what to do with "beast" courtier... other courtiers react?
+# 82	beast is an attractive but wild witch
+# 83-89	* add some more courtiers? *
+# 90	[hidden] reflect from hermit
+# 91 	hermit/deformed guy aftermath
+# 92	[hidden] reflect from witch
+# 93 	witch aftermath
 # 100	[hidden] clear flags
 
 namespace = monster
@@ -68,10 +73,6 @@ province_event = {
 			30 = { holder_scope = { set_character_flag = monster_animal } }
 			30 = { holder_scope = { set_character_flag = monster_man } }
 		}
-		
-		#holder_scope = { character_event = { id = monster.2 } }
-		#holder_scope = { character_event = { id = monster.3 } }
-		#holder_scope = { character_event = { id = monster.4 } }
 		
 		province_event = { id = monster.100 days = 80 }
 		
@@ -368,7 +369,10 @@ narrative_event = {
 				limit = {
 					has_character_flag = monster_animal
 				}
-				narrative_event = { id = monster.53 days = 10 random = 5 }
+				random_list = {
+					10 = { narrative_event = { id = monster.53 days = 10 random = 5 } }
+					10 = { narrative_event = { id = monster.54 days = 10 random = 5 } }
+				}
 			}
 			
 			if = {
@@ -573,6 +577,47 @@ narrative_event = {
 	}
 }
 
+narrative_event = {
+	id = monster.54
+	is_triggered_only = yes
+	title = EVTNAME_monster_crone
+	desc = EVTDESC_monster_crone
+	picture = GFX_evt_comet
+	
+	option = {
+		name = EVTOPT_monster_crone_flee
+		random_list = {
+			30 = { add_trait = craven }
+			10 = { add_trait = humble }
+			60 = { }
+		}
+		hidden_tooltip = { FROMFROM = { province_event = { id = monster.41 days = 5 random = 5 } } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_monster_crone_scholar
+		trigger = { learning = 8 }
+		tooltip_info = learning
+		piety = 5
+		hidden_tooltip = { FROMFROM = { province_event = { id = monster.60 days = 5 random = 5 } } }
+		ai_chance = { factor = 250 }
+	}
+	
+	option = {
+		name = EVTOPT_monster_crone_angry
+		set_character_flag = doom_vision
+		random_list = {
+			30 = { add_trait = brave }
+			10 = { add_trait = wroth }
+			10 = { add_trait = proud }
+			50 = { }
+		}
+		hidden_tooltip = { FROMFROM = { province_event = { id = monster.60 days = 5 random = 5 } } }
+		ai_chance = { factor = 25 }
+	}
+}
+
 province_event = {
 	id = monster.60
 	desc = EVTDESC_monster_lair
@@ -596,6 +641,7 @@ province_event = {
 			random_list = {
 				10 = { FROM = { narrative_event = { id = monster.80 } } }
 				10 = { FROM = { narrative_event = { id = monster.81 } } }
+				10 = { FROM = { narrative_event = { id = monster.82 } } }
 			}
 		}
 		ai_chance = { factor = 100 }
@@ -751,7 +797,14 @@ character_event = {
 	
 	option = {
 		name = EVTOPT_monster_injured
-		random = { chance = 40 add_trait = ill }
+		trigger = { NOT = { has_character_flag = doom_vision } }
+		random = { chance = 20 add_trait = ill }
+	}
+	
+	option = {
+		name = EVTOPT_monster_injured_doom
+		trigger = { has_character_flag = doom_vision }
+		add_trait = ill
 	}
 }
 
@@ -795,14 +848,16 @@ narrative_event = {
 		new_character = {
 			add_trait = shy
 			random = { chance = 75 add_trait = content }
+			random = { chance = 25 add_trait = drunkard }
 			random_list = {
-				10 = { add_trait = lunatic }
+				20 = { add_trait = lunatic }
 				10 = { add_trait = possessed }
 			}
 			random_list = {
 				5 = { add_trait = genius }
 				10 = { add_trait = quick }
 			}
+			character_event = { id = monster.90 }
 		}
 		FROM = { remove_province_modifier = terror_beast }
 	}
@@ -811,8 +866,8 @@ narrative_event = {
 		name = EVTOPT_monster_hermit_remove
 		piety = -10
 		random_list = {
-			20 = { add_trait = cruel }
-			20 = { add_trait = arbitrary }
+			10 = { add_trait = cruel }
+			10 = { add_trait = arbitrary }
 			80 = { }
 		}
 		FROM = { remove_province_modifier = terror_beast }
@@ -845,6 +900,7 @@ narrative_event = {
 			random = { chance = 75 add_trait = brave }
 			random = { chance = 75 add_trait = scarred }
 			random = { chance = 25 add_trait = possessed }
+			character_event = { id = monster.90 }
 		}
 		FROM = { remove_province_modifier = terror_beast }
 	}
@@ -853,11 +909,170 @@ narrative_event = {
 		name = EVTOPT_monster_hermit_remove
 		piety = -10
 		random_list = {
-			20 = { add_trait = cruel }
-			20 = { add_trait = arbitrary }
+			10 = { add_trait = cruel }
+			10 = { add_trait = arbitrary }
 			80 = { }
 		}
 		FROM = { remove_province_modifier = terror_beast }
+	}
+}
+
+narrative_event = {
+	id = monster.82
+	is_triggered_only = yes
+	title = EVTNAME_monster_witch
+	desc = EVTDESC_monster_witch
+	picture = GFX_evt_scandal
+
+	option = {
+		name = EVTOPT_monster_witch_invite
+		wealth = -10
+		create_random_intriguer = {
+			random_traits = yes
+			dynasty = NONE
+			female = yes
+			age = 22
+			religion = FROMFROM
+			culture = FROMFROM
+		}
+		new_character = {
+			change_learning = 3
+			change_intrigue = 3
+			add_trait = fair
+			add_trait = mystic
+			add_trait = cynical
+			random_list = {
+				60 = { add_trait = possessed }
+				40 = { add_trait = depressed }
+			}
+			random = { chance = 75 add_trait = shy }
+			random = { chance = 50 add_trait = lustful }
+			random = { chance = 50 add_trait = cruel }
+			character_event = { id = monster.92 }
+		}
+		FROM = { remove_province_modifier = terror_beast }
+	}
+	
+	option = {
+		name = EVTOPT_monster_witch_remove
+		random_list = {
+			10 = { add_trait = cruel }
+			10 = { add_trait = arbitrary }
+			80 = { }
+		}
+		FROM = { remove_province_modifier = terror_beast }
+	}
+}
+
+character_event = {
+	id = monster.90
+	is_triggered_only = yes
+	desc = "HERMIT BOUNCEBACK EVENT"
+
+	option = {
+		FROM = { character_event = { id = monster.91 days = 5 random = 20 } }
+	}
+}
+
+character_event = {
+	id = monster.91
+	is_triggered_only = yes
+	desc = EVTDESC_monster_hermit_court
+	picture = GFX_evt_scandal
+
+	option = {
+		name = EVTOPT_monster_hermit_court_diplo
+		trigger = { diplomacy = 10 }
+		tooltip_info = diplomacy
+		FROM = {
+			opinion = {
+				who = ROOT
+				modifier = opinion_happy
+				months = 120
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_monster_hermit_court_stay
+		FROM = {
+			opinion = {
+				who = ROOT
+				modifier = opinion_happy
+				months = 120
+			}
+		}
+		any_courtier = { 
+			limit = { NOT = { character = FROM } }
+			opinion = {
+				who = ROOT
+				modifier = opinion_mildly_disappointed
+				months = 60
+				multiplier = 2
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_monster_hermit_court_banish
+		FROM = { banish = yes }
+	}
+}
+
+character_event = {
+	id = monster.92
+	is_triggered_only = yes
+	desc = "WITCH BOUNCEBACK EVENT"
+
+	option = {
+		FROM = { character_event = { id = monster.93 days = 5 random = 20 } }
+	}
+}
+
+character_event = {
+	id = monster.93
+	is_triggered_only = yes
+	desc = EVTDESC_monster_witch_court
+	picture = GFX_evt_scandal
+
+	option = {
+		name = EVTOPT_monster_witch_court_learn
+		trigger = { learning = 10 }
+		tooltip_info = learning
+		FROM = {
+			opinion = {
+				who = ROOT
+				modifier = opinion_happy
+				months = 120
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_monster_witch_court_stay
+		remove_trait = zealous
+		FROM = {
+			opinion = {
+				who = ROOT
+				modifier = opinion_happy
+				months = 120
+			}
+		}
+		add_character_modifier = { name = harboring_witch duration = 1500 }
+	}
+	
+	option = {
+		name = EVTOPT_monster_witch_court_banish
+		FROM = { banish = yes }
+	}
+	
+	option = {
+		name = EVTOPT_monster_witch_court_kill
+		piety = 10
+		random = {
+			chance = 75
+			FROM = { death = { death_reason = death_execution } }
+		}
 	}
 }
 
@@ -871,6 +1086,7 @@ province_event = {
 		holder_scope = { clr_character_flag = monster_hoax }
 		holder_scope = { clr_character_flag = monster_animal }
 		holder_scope = { clr_character_flag = monster_man }
+		holder_scope = { clr_character_flag = doom_vision }
 	}
 	
 	option = { }

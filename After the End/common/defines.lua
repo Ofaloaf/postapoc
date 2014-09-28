@@ -65,9 +65,9 @@ NDiplomacy = {
 	BASE_REVOLT_CHANCE_MOD = 500,				-- Pre Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO.
 	TOG_REVOLT_CHANCE_MOD = 200,				-- Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO. 
 	JAIN_LIEGE_OPINION_BONUS = 30,				-- Jain Lieges Get Vassal Opinion Bonus
-	MAX_DIPLO_DISTANCE = 800,					-- Most diplomacy is disallowed if two rulers are too distant
-	MAX_DIPLO_DISTANCE_SAME_RELIGION = 150,		-- Bonus to max diplo distance for being of the same religion
-	MAX_DIPLO_DISTANCE_SAME_RELIGION_GROUP = 50, -- Bonus to max diplo distance for being of the same religion group
+	MAX_DIPLO_DISTANCE = 700,					-- Most diplomacy is disallowed if two rulers are too distant
+	MAX_DIPLO_DISTANCE_SAME_RELIGION = 100,		-- Bonus to max diplo distance for being of the same religion
+	MAX_DIPLO_DISTANCE_SAME_RELIGION_GROUP = 0, -- Bonus to max diplo distance for being of the same religion group
 	MAX_DIPLO_DISTANCE_SAME_CULTURE = 100, 		-- Bonus to max diplo distance for being of the same culture
 	MAX_DIPLO_DISTANCE_SAME_CULTURE_GROUP = 100, -- Bonus to max diplo distance for being of the same culture group
 	

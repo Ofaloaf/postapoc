@@ -1,4 +1,4 @@
-name = "After the End 0.1.NotYet2"
+name = "After the End 0.2"
 path = "mod/After the End"
 user_dir = "After the End"
 

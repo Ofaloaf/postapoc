@@ -29,9 +29,6 @@ claim = {
 	press_claim = yes
 
 	can_use_title = {
-		#OR = {
-		#	ROOT = { is_female = no }
-		#}
 		OR = {
 			FROM = {
 				has_landed_title = PREV
@@ -2825,18 +2822,8 @@ religious = {
 				NOT = { has_character_modifier = holy_war_cooldown }
 				has_character_flag = the_prophet
 			}
-			NOT = {
-				AND = {
-					religion_group = pagan_group
-					is_reformed_religion = no
-				}
-			}
 			OR = {
-				AND = {
-					NOT = { trait = content }
-					NOT = { trait = craven }
-					NOT = { trait = stressed }
-				}
+				NOT = { trait = craven }
 				trait = brave
 				trait = wroth
 				trait = ambitious
@@ -2876,11 +2863,9 @@ religious = {
 			NOT = { pacifist = yes }
 			is_patrician = no
 			is_merchant_republic = no
-			NOT = {
-				AND = {
-					religion_group = pagan_group
-					is_reformed_religion = no
-				}
+			OR = {
+				NOT = { religion_group = pagan_group }
+				is_reformed_religion = yes
 			}
 			NOT = { same_realm = FROM }
 			OR = {
@@ -2916,8 +2901,12 @@ religious = {
 				kingdom = { holder = ROOT }
 				empire = { holder = ROOT }
 				ROOT = {
-					NOT = { trait = craven }
 					OR = {
+						AND = {
+							NOT = { trait = content }
+							NOT = { trait = craven }
+							NOT = { trait = stressed }
+						}
 						trait = possessed
 						trait = lunatic
 					}
@@ -2965,11 +2954,11 @@ religious = {
 				NOT = {
 					ROOT = { is_reformed_religion = FROM }
 				}
-				#location = {
-				#	ROOT = {
-				#		religion = PREV
-				#	}
-				#}
+				location = {
+					ROOT = {
+						religion = PREV
+					}
+				}
 			}
 		}
 		# The attacker needs at least one county in the target kingdom, or a border, or be only two sea zones away from one of your counties
@@ -3057,6 +3046,15 @@ religious = {
 							name = holy_war_cooldown
 							duration = 1825
 						}
+					}
+				}
+			}
+			custom_tooltip = {
+				text = holy_war_cooldown_ctt
+				hidden_tooltip = {
+					add_character_modifier = {
+						name = holy_war_cooldown
+						duration = 1825
 					}
 				}
 			}
@@ -5751,26 +5749,6 @@ pagan_subjugation = {
 				de_jure_liege_or_above = PREVPREV
 			}
 		}
-		any_direct_de_jure_vassal_title = {
-			any_direct_de_jure_vassal_title = {
-				holder_scope = {
-					OR = {
-						character = FROM
-						is_liege_or_above = FROM
-					}
-				}
-				location = {
-					any_neighbor_province = {
-						owner = {
-							OR = {
-								character = ROOT
-								is_liege_or_above = ROOT
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 	
 	is_valid_title = {
@@ -6572,6 +6550,7 @@ pagan_holy_war = {
 	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 	
 	can_use_gui = {
+		NOT = { has_character_modifier = holy_war_cooldown }
 		ROOT = {
 			piety = 100
 		}
@@ -6579,19 +6558,25 @@ pagan_holy_war = {
 	
 	on_add = {
 		ROOT = { piety = -100 }
+			custom_tooltip = {
+				text = holy_war_cooldown_ctt
+				hidden_tooltip = {
+					add_character_modifier = {
+						name = holy_war_cooldown
+						duration = 1825
+					}
+				}
+			}
 	}
 
 	can_use = {
 		ROOT = {
-			NOT = {	religion_group = christian }
+			OR = {
+				religion = americanist
+				religion = atomicist
+			}
 			NOT = { same_realm = FROM }
 			NOT = { religion = FROM }
-			NOT = {
-				AND = {
-					is_reformed_religion = no
-					religion_group = pagan_group
-				}
-			}
 			top_liege = {
 				religion = ROOT
 			}
@@ -6656,7 +6641,10 @@ pagan_holy_war = {
 
 	is_valid = {
 		ROOT = {
-			NOT = {	religion_group = christian }
+			OR = {
+				religion = atomicist
+				religion = americanist
+			}
 			NOT = { same_realm = FROM }
 			NOT = { religion = FROM }
 			top_liege = {
@@ -7619,15 +7607,28 @@ depose_antipope = {
 	can_use = {
 		ROOT = {
 			religion = FROM
-			religion = catholic
-			rightful_religious_head_scope = {
-				NOT = { has_claim = k_papal_state }
+			OR = {
+				AND = {
+					religion = catholic
+					rightful_religious_head_scope = {
+						NOT = { has_claim = k_papal_state }
+					}
+				}
+				AND = {
+					religion = ursuline
+					rightful_religious_head_scope = {
+						NOT = { has_claim = k_ursuline }
+					}
+				}
 			}
 		}
 		FROM = {
 			rightful_religious_head_scope = {
 				is_liege_or_above = PREV
-				has_claim = k_papal_state
+				OR = {
+					has_claim = k_papal_state
+					has_claim = k_ursuline
+				}
 			}
 		}
 	}
@@ -7635,15 +7636,28 @@ depose_antipope = {
 	is_valid = {
 		ROOT = {
 			religion = FROM
-			religion = catholic
-			rightful_religious_head_scope = {
-				NOT = { has_claim = k_papal_state }
+			OR = {
+				AND = {
+					religion = catholic
+					rightful_religious_head_scope = {
+						NOT = { has_claim = k_papal_state }
+					}
+				}
+				AND = {
+					religion = ursuline
+					rightful_religious_head_scope = {
+						NOT = { has_claim = k_ursuline }
+					}
+				}
 			}
 		}
 		FROM = {
 			rightful_religious_head_scope = {
 				is_liege_or_above = PREV
-				has_claim = k_papal_state
+				OR = {
+					has_claim = k_papal_state
+					has_claim = k_ursuline
+				}
 			}
 		}
 	}
@@ -7693,6 +7707,7 @@ depose_antipope = {
 			
 			rightful_religious_head_scope = {
 				remove_claim = k_papal_state
+				remove_claim = k_ursuline
 			}
 		}
 	}
@@ -7757,7 +7772,10 @@ cb_install_antiking = {
 		ROOT = {
 			vassal_of = FROM
 			religion = FROM
-			religion = catholic
+			OR = {
+				religion = catholic
+				religion = ursuline
+			}
 		}
 	}
 	
@@ -7770,7 +7788,10 @@ cb_install_antiking = {
 	
 		ROOT = {
 			religion = FROM
-			religion = catholic
+			OR = {
+				religion = catholic
+				religion = ursuline
+			}
 		}
 		
 		ROOT = {
@@ -7820,6 +7841,19 @@ cb_install_antiking = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					religion = ursuline
+				}
+				k_ursuline = {
+					holder_scope = {
+						opinion = {
+							who = ROOT
+							modifier = opinion_deposed_antipope
+						}
+					}
+				}
+			}
 		}
 		
 		FROM = { 
@@ -7829,6 +7863,7 @@ cb_install_antiking = {
 			hidden_tooltip = {
 				rightful_religious_head_scope = {
 					remove_claim = k_papal_state
+					remoce_claim = k_ursuline
 				}
 			}
 			
@@ -7886,7 +7921,6 @@ cb_install_antiking = {
 		factor = 100
 	}
 }
-
 
 # The special CB for the Rise of Consumerism
 consumerist_rising = {

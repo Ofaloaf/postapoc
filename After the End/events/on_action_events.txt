@@ -34,6 +34,10 @@ character_event = {
 
 	option = {
 		name = "EVTOPTA150"
+		chronicle = {
+			entry = CHRONICLE_AVOID_IMPRISON_WAR
+			portrait = [From.GetID]
+		}
 	}
 }
 
@@ -46,6 +50,10 @@ character_event = {
 	
 	option = {
 		name = "EVTOPTA40000"
+		chronicle = {
+			entry = CHRONICLE_FAILED_IMPRISON_WAR
+			portrait = [From.GetID]
+		}
 	}
 }
 
@@ -2732,7 +2740,10 @@ character_event = {
 	is_triggered_only = yes
 	
 	trigger = {
-		NOT = { religion_group = muslim }
+		NOT = { 
+			religion_group = muslim 
+			has_character_flag = recieved_royal_marriage_aid_duty
+		}
 		OR = {
 			AND = {
 				NOT = { religion = zoroastrian }
@@ -2752,6 +2763,10 @@ character_event = {
 				}
 			}
 		}
+	}
+	
+	immediate = {
+		set_character_flag = recieved_royal_marriage_aid_duty
 	}
 	
 	option = {
@@ -3544,34 +3559,63 @@ narrative_event = {
 		}
 		if = {
 			limit = { religion = norse_pagan_reformed }
+			d_jomsvikings = {
+				religion = norse_pagan_reformed # This Holy Order now changes religion
+			}
 			set_global_flag = norse_reformation
 		}
 		if = {
-			limit = { religion = occultist_reformed }
-			set_global_flag = occultist_reformation
+			limit = { religion = tengri_pagan_reformed }
+			set_global_flag = tengri_reformation
 		}
 		if = {
-			limit = { religion = rust_cultist_reformed }
-			set_global_flag = rust_cultist_reformation
+			limit = { religion = baltic_pagan_reformed }
+			set_global_flag = baltic_reformation
 		}
 		if = {
-			limit = { religion = thelemic_reformed }
-			set_global_flag = thelemic_reformation
+			limit = { religion = finnish_pagan_reformed }
+			set_global_flag = finnish_reformation
 		}
 		if = {
-			limit = { religion = revelationist_reformed }
-			set_global_flag = revelationist_reformation
+			limit = { religion = aztec_reformed }
+			set_global_flag = aztec_reformation
+		}
+		if = {
+			limit = { religion = slavic_pagan_reformed }
+			set_global_flag = slavic_reformation
+		}
+		if = {
+			limit = { religion = west_african_pagan_reformed }
+			set_global_flag = west_african_reformation
+		}
+		if = {
+			limit = { religion = zun_pagan_reformed }
+			set_global_flag = zun_reformation
 		}
 	}
 
 	option = {
 		name = "EVTOPTA670" # The Reformer
 		trigger = { religion = ROOT }
+		if = {
+			limit = { ai = no }
+			chronicle = {
+				entry = CHRONICLE_PLAYER_REFORMED_RELIGION
+				portrait = [Root.GetID]
+			}
+		}
 	}
 	option = {
 		name = "EVTOPTB670" # Rulers of the old Faith - Accept
 		trigger = {
 			is_heresy_of = ROOT # The old religion has become a heresy of the Reformed one
+		}
+		if = {
+			limit = { ai = no }
+			chronicle = {
+				entry = CHRONICLE_OTHER_REFORMED_PLAYERS_RELIGION
+				portrait = [Root.GetID]
+			}
 		}
 		ai_chance = {
 			factor = 50
@@ -3631,12 +3675,19 @@ narrative_event = {
 		trigger = {
 			is_heresy_of = ROOT # The old religion has become a heresy of the Reformed one
 		}
+		if = {
+			limit = { ai = no }
+			chronicle = {
+				entry = CHRONICLE_OTHER_REFORMED_PLAYERS_RELIGION
+				portrait = [Root.GetID]
+			}
+		}
 		ai_chance = {
 			factor = 50
-			#modifier = {
-			#	factor = 0
-			#	has_landed_title = d_jomsvikings
-			#}
+			modifier = {
+				factor = 0
+				has_landed_title = d_jomsvikings
+			}
 		}
 		tooltip = { religion = THIS }
 	}
@@ -3649,3 +3700,131 @@ narrative_event = {
 	}
 }
 
+character_event = {
+	id = 671
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		any_rival = { religion = ROOT }
+		
+	}
+	
+	immediate = {
+		any_rival = {
+			limit = { religion = ROOT }
+			character_event = { id = 100500 }
+		}
+	}
+}
+
+####################################################
+# Elective Gavelkind Succession:
+# Vassal Junior Heir Can Choose Independence
+####################################################
+
+character_event = {
+	id = 63103
+	desc = EVTDESC_63103
+	picture = GFX_evt_throne_room
+
+	capable_only = yes
+	prisoner = no
+	min_age = 16
+	
+	is_triggered_only = yes
+
+	trigger = {
+		has_dlc = "Charlemagne"
+	}
+	
+	option = {
+		name = EVTOPTA_63103 # Remain a vassal
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 2
+				opinion = {
+					who = FROM
+					value = 25
+				}
+			}
+			modifier = {
+				factor = 2
+				opinion = {
+					who = FROM
+					value = 50
+				}
+			}
+			modifier = {
+				factor = 4
+				trait = content
+			}
+		}
+	}
+	option = {
+		name = EVTOPTB_63103 # Go independent
+		
+		ai_chance = {
+			factor = 100
+			modifier = {
+				factor = 2
+				NOT = {
+					opinion = {
+						who = FROM
+						value = -25
+					}
+				}
+			}
+			modifier = {
+				factor = 2
+				NOT = {
+					opinion = {
+						who = FROM
+						value = -50
+					}
+				}
+			}
+			modifier = {
+				factor = 2
+				trait = ambitious
+			}
+		}
+		
+		hidden_tooltip = {
+			FROM = { character_event = { id = 63104 } }
+		}
+		
+		set_defacto_liege = THIS
+		any_demesne_title = {
+			limit = {
+				OR = {
+					tier = king
+					tier = emperor
+					is_primary_holder_title_tier = yes
+				}
+			}
+			FROM = {
+				add_claim = PREV
+			}
+		}
+	}
+}
+
+# The liege is notified of the independence
+character_event = {
+	id = 63104
+	desc = EVTDESC_63104
+	picture = GFX_evt_emissary
+
+	is_triggered_only = yes
+	
+	notification = yes
+	
+	option = {
+		name = EVTOPTA_63104
+	}
+	
+}

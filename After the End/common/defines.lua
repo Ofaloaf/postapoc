@@ -10,7 +10,7 @@ NDiplomacy = {
 	ATTACKING_SOMEONE_DEFENDING_AGAINST_OTHER_RELIGIOUS_GROUP_PIETY_COST = 100,		-- Piety hit for attacking someone who is defending against other religious group
 	ATTACKER_CALL_DECLINE_COST = 25, 			-- Prestige cost for refusing to join an offensive war
 	DEFENDER_CALL_DECLINE_COST = 100, 			-- Prestige cost for refusing to join a defensive war
-	TRIBAL_VASSAL_CALL_DECLINE_COST_FACTOR = 5.0, -- Prestige cost multiplier for tribal vassals
+	TRIBAL_VASSAL_CALL_DECLINE_COST_FACTOR = 3.0, -- Prestige cost multiplier for tribal vassals
 	PAPAL_INVEST_PIETY_COST_MULT = 0.5, 		-- The effect of Papal investiture on the piety cost of the special Papal actions
 	SHORT_REIGN_YEARS_END = 9,
 	LONG_REIGN_YEARS_START = 10,
@@ -40,9 +40,9 @@ NDiplomacy = {
 	VASSAL_LIMIT_KING_MULT = 20.0, 				-- Extra Vassal Limit from the ruler's rank
 	VASSAL_LIMIT_EMPEROR_MULT = 30.0, 			-- Extra Vassal Limit from the ruler's rank
 	VASSAL_LIMIT_GREAT_DUKE_BONUS = 5.0, 		-- Extra Vassal Limit for Dukes with more than one Duchy
-	VASSAL_LIMIT_FAMILY_PRESTIGE_BONUS = 0.002,	-- Extra Vassal Limit from family prestige
 	VASSAL_LIMIT_DIPLOMACY_MULT = 0.3,			-- Extra Vasal Limit from ruler and spouse diplomacy
 	VASSAL_LIMIT_TRIBAL_BONUS = -10,			-- All rulers with tribal holdings as their capital have smaller demesnes
+	VASSAL_LIMIT_DECADENCE_MULTIPLIER = 0.25,	-- Negative modifier, multiplied with the current decadence.
 	VASSAL_LIMIT_LEVY_MULTIPLIER = 1,			-- Used for levy penalty calculation for being over vassal limit.
 	VASSAL_LIMIT_LEVY_BASE = 4,					-- Used for levy penalty calculation for being over vassal limit.
 	VASSAL_LIMIT_TAX_MULTIPLIER = 1,			-- Used for tax penalty calculation for being over vassal limit.
@@ -496,6 +496,11 @@ NCharacter = {
 	NOMINATE_CROWN_BISHOP_REL_AUTHORITY_CHANGE = -0.01, -- OBSOLETE
 	WRONG_GOV_FORM_TAX_MOD = -0.75,
 	WRONG_GOV_FORM_LEVY_MOD = -0.75,
+	TRIBAL_WRONG_RELIGION_REFORM_MOD = -0.10,
+	TRIBAL_WRONG_RELIGION_MOD = -0.15,
+	TRIBAL_WRONG_RELIGION_GROUP_MOD = -0.25,
+	TRIBAL_WRONG_CULTURE_MOD = -0.15,
+	TRIBAL_WRONG_CULTURE_GROUP_MOD = -0.25,
 	CHANGE_SUCC_LAW_YEARS = 10,						-- Rulers must have reigned this long before they can change succession laws
 	CHANGE_AMBITION_YEARS = 3,						-- Delay between being able to pick a new ambition of plot after cancelling
 	PRESTIGE_FROM_DYNASTY_ON_BIRTH_DIV = 5, 		-- Newly born characters get the dynasty prestige of their mother and father divided by this as their starting prestige
@@ -830,7 +835,7 @@ NMilitary = {
 	ATTRITION_LEVEL_FACTOR_50_OVER = 1.0,			-- A general "attrition per month" multiplier when 50% over the supply limit
 	ATTRITION_LEVEL_FACTOR_100_OVER = 2.0,			-- A general "attrition per month" multiplier when 100% over the supply limit
 	COASTAL_SUPPLY_BONUS = 0.5,						-- Supply bonus in coastal provinces
-	PAGAN_HOME_SUPPLY_MOD = 0.05,					-- Non Pagans suffer extreme attrition in some Pagan homelands (based on province religion)
+	PAGAN_HOME_SUPPLY_MOD = 0.12,					-- Non Pagans suffer extreme attrition in some Pagan homelands (based on province religion)
 	NAVAL_ATTRITION = 0.0,							-- Attrition taken monthly by units loaded on ships
 	ARMY_MOVEMENT_SPEED = 3,						-- Base movement speed of land units
 	NAVY_MOVEMENT_SPEED = 15,						-- Base movement speed of naval units
@@ -885,6 +890,7 @@ NMilitary = {
 	LIEGE_LEVY_COST_MULTIPLIER = 1.0,				-- The vassal will pay regular maintenance * this for the liege levy
 	LIEGE_LEVY_SUBUNIT_SIZE_CUTOFF = 3000,			-- The max size of each liege levy subunit.
 	LIEGE_LEVY_SUBUNIT_SIZE_MIN = 500,				-- The min size before liege levy subunits start splitting.
+	LIEGE_LEVY_VICE_ROYALTY_MULTIPLIER = 0.8,		-- Liege levy multiplier for viceroy vassals
 	
 	LIGHT_INFANTRY_MORALE = 2,
 	LIGHT_INFANTRY_MAINTENANCE = 0.70,
@@ -1002,58 +1008,23 @@ NMilitary = {
 },
 
 NTechnology = {
+	DONT_EXECUTE_TECH_BEFORE = 769,				-- Set this to your earliest starting year
 	POINTS_PER_ATTRIBUTE = 0.04,
 
 	BASE_NEIGHBOUR_SPREAD_BONUS = 0.03, 		-- bonus for each neighbour with the tech
 	NEIGHBOUR_SAME_RELIGON_GROUP_MULT = 2.0, 	-- multiplier to the above bonus if neighbour is of your religious group
 	BASE_DEMESNE_SPREAD_BONUS = 0.06, 			-- bonus for each other province in demesne with the tech
 	MAX_DEMESNE_BONUS = 0.3, 					-- maximum bonus from demesne
-	FOCUS_BONUS = 1.5, 							-- bonus for the tech in each group set as the focus
+	FOCUS_BONUS = 2.0, 							-- bonus for the tech in each group set as the focus
 	TRADEPOST_SPREAD_BONUS = 0.002, 			-- Spread from trade posts
 	SPYACTION_SPREAD_BONUS = 0.006,				-- Spread from the target of the study technology spymaster action
 	
-	IDEAL_YEAR_LEVEL_0 = 2400, 					-- the chance to get a progress to this level will increase after this date and decrease before it
-	IDEAL_YEAR_LEVEL_8 = 3200,
+	IDEAL_YEAR_LEVEL_0 = 700, 					-- the chance to get a progress to this level will increase after this date and decrease before it
+	IDEAL_YEAR_LEVEL_8 = 1500,
 	IDEAL_YEAR_AHEAD_PENALTY = -0.2,			-- UNUSED
 	IDEAL_YEAR_AHEAD_PENALTY_INVEST = 0.6,		-- Percent increase in cost pre level ahead of ideal date
 	
-	PAGAN_HOME_ATTRITION_REMOVAL_LEVEL = 2.0,
-	
-	-- Used to determine tech levels when starting a new game
-	
-	START_MIL_CATHOLIC  = 1.5,
-	START_ECO_CATHOLIC  = 1.5,
-	START_CUL_CATHOLIC  = 1.5,
-	END_MIL_CATHOLIC    = 2.5,
-	END_ECO_CATHOLIC    = 2.5,
-	END_CUL_CATHOLIC    = 2.5,
-	END_REN_CLOSE       = 3.0, -- Tech level at the center of the renaissance
-	END_REN_FAR         = 3.0, -- Tech level on the fringe of the renaissance
-	REN_PROVINCE        = 1124, -- Province where the Renaissance is centered
-	START_MIL_MUSLIM    = 0.5,
-	START_ECO_MUSLIM    = 1.5,
-	START_CUL_MUSLIM    = 1.5,
-	END_MIL_MUSLIM      = 4.5,
-	END_ECO_MUSLIM      = 4.5,
-	END_CUL_MUSLIM      = 4.5,
-	START_MIL_INDIAN    = 0.5,
-	START_ECO_INDIAN    = 1.0,
-	START_CUL_INDIAN    = 1.0,
-	END_MIL_INDIAN   	= 4.0,
-	END_ECO_INDIAN    	= 4.0,
-	END_CUL_INDIAN    	= 4.0,
-	START_MIL_OTHER     = 1.5,
-	START_ECO_OTHER     = 1.5,
-	START_CUL_OTHER     = 1.5,
-	END_MIL_OTHER       = 2.5,
-	END_ECO_OTHER       = 2.5,
-	END_CUL_OTHER       = 2.5,
-	START_MIL_BYZANTIUM = 1.2,
-	START_ECO_BYZANTIUM = 1.5,
-	START_CUL_BYZANTIUM = 1.5,
-	END_MIL_BYZANTIUM   = 4.5,
-	END_ECO_BYZANTIUM   = 4.5,
-	END_CUL_BYZANTIUM   = 4.5
+	PAGAN_HOME_ATTRITION_REMOVAL_LEVEL = 4.0,
 },  
 
 NDisease = {
@@ -1123,6 +1094,7 @@ NAI =
 	TRIBAL_REPUBLIC_THRIFTY_CLERK_MODIFIER = 10,			-- How much the thrifty clerk trait counts toward the threshold above
 	TRIBAL_REPUBLIC_FORTUNE_BUILDER_MODIFIER = 15,			-- How much the fortune builder trait counts toward the threshold above
 	TRIBAL_REPUBLIC_MIDAS_TOUCHED_MODIFIER = 20,			-- How much the midas touched trait counts toward the threshold above
+	TRIBAL_PRESTIGE_CALL_TRESHOLD = -100, 					-- The treshold needed for the AI to start considering answering call to not take the prestige hit
 },
 
 NFrontend = 
@@ -1276,7 +1248,6 @@ NLearningScenario =
 	COMBAT_EVENT = 107202,
 	AFTER_REVOLT_EVENT = 107250,
 	FABRICATE_CLAIM_EVENT = 913,
-	FABRICATE_CLAIM_CHARACTER = 20842,
 	HAS_CLAIM_EVENT = 107300,
 	WAR_EVENT = 107301,
 	SIEGE_EVENT = 107306,

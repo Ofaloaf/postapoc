@@ -284,6 +284,7 @@ decisions = {
 			factor = 1
 		}
 	}
+	
 	form_new_kingdom = {
 		is_high_prio = yes
 		potential = {
@@ -308,12 +309,7 @@ decisions = {
 			is_adult = yes
 			prisoner = no
 			NOT = { trait = incapable }
-			OR = {
-				independent = yes
-				liege = {
-					tier = EMPEROR
-				}
-			}
+			independent = yes
 			prestige = 1000
 			OR = {
 				realm_size = 35
@@ -327,7 +323,7 @@ decisions = {
 					}
 				}
 			}
-			scaled_wealth = 2
+			wealth = 300
 		}
 		effect = {
 			primary_title = {
@@ -339,9 +335,59 @@ decisions = {
 					culture = ROOT
 					holder = ROOT
 					base_title = THIS
+					copy_title_laws = yes
 				}
+
+				hidden_tooltip = {
+					empire = {
+						ROOT = {
+							primary_title = {
+								de_jure_liege = PREVPREV
+							}
+						}
+					}
+
+					ROOT = {
+						primary_title = {
+							holder_scope = {
+								any_title_under = {
+									limit = {
+										tier = DUKE
+										kingdom = {
+											has_holder = no
+										}
+									}
+									de_jure_liege = PREVPREV
+								}
+								any_title_under = {
+									limit = {
+										tier = COUNT
+										location = {
+											duchy = {
+												kingdom = {
+													has_holder = no
+												}
+												
+												NOT = { de_jure_liege_or_above = PREVPREVPREVPREV }
+												ROOT = {
+													completely_controls = PREV
+												}
+											}
+										}
+									}
+									location = {
+										duchy = {
+											de_jure_liege = PREVPREVPREVPREV
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
 			}
-			scaled_wealth = -2
+			wealth = -300
 			custom_tooltip = { text = form_new_kingdom_tooltip }
 			chronicle = {
 				entry = CHRONICLE_FOUNDED_NEW_KINGDOM_OR_EMPIRE
@@ -355,6 +401,7 @@ decisions = {
 			factor = 1
 		}
 	}
+
 	form_new_empire = {
 		is_high_prio = yes
 		potential = {
@@ -381,17 +428,19 @@ decisions = {
 			NOT = { trait = incapable }
 			independent = yes
 			prestige = 8000
-			realm_size = 180
-			custom_tooltip = {
-				text = form_new_empire_requirement_tooltip
-				hidden_tooltip = {
-					any_demesne_title = {
-						count = 3
-						tier = KING
+			OR = {
+				realm_size = 180
+				custom_tooltip = {
+					text = form_new_empire_requirement_tooltip
+					hidden_tooltip = {
+						any_demesne_title = {
+							count = 3
+							tier = KING
+						}
 					}
 				}
 			}
-			scaled_wealth = 4
+			wealth = 1000
 		}
 		effect = {
 			primary_title = {
@@ -403,9 +452,51 @@ decisions = {
 					culture = ROOT
 					holder = ROOT
 					base_title = THIS
+					copy_title_laws = yes
 				}
+
+				hidden_tooltip = {
+					ROOT = {
+						primary_title = {
+							holder_scope = {
+								any_title_under = {
+									limit = {
+										tier = KING
+										empire = {
+											has_holder = no
+										}
+									}
+									de_jure_liege = PREVPREV
+								}
+								any_title_under = {
+									limit = {
+										tier = DUKE
+										location = {
+											kingdom = {
+												empire = {
+													has_holder = no
+												}
+												
+												NOT = { de_jure_liege_or_above = PREVPREVPREVPREV }
+												ROOT = {
+													completely_controls = PREV
+												}
+											}
+										}
+									}
+									location = {
+										kingdom = {
+											de_jure_liege = PREVPREVPREVPREV
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
 			}
-			scaled_wealth = -4
+			wealth -1000
 			custom_tooltip = { text = form_new_empire_tooltip }
 			chronicle = {
 				entry = CHRONICLE_FOUNDED_NEW_KINGDOM_OR_EMPIRE
@@ -423,37 +514,22 @@ decisions = {
 	adopt_feudalism = {
 		is_high_prio = yes
 		potential = {
-			is_republic = no
-			any_demesne_title = { is_tribal = yes }
+			is_tribal = yes
+			independent = yes
 		}
 		allow = {
-			capital_scope = { # Ensure capital is upgraded first, if not already upgraded
-				OR = {
-					is_feudal = yes
-					AND = {
-						is_tribal = yes
-						has_building = tb_hillfort_4
-					}
-				}
-			}
-			any_demesne_title = { # Have atleast one available title for upgrade (could be, but does not have to be capital)
+			capital_scope = {
 				is_tribal = yes
-				has_any_building = tb_hillfort_4
+				has_building = tb_hillfort_4
 			}
-			OR = {
-				liege = { is_tribal = no }
-				primary_title = { has_law = tribal_organization_4 }
-			}
+			primary_title = { has_law = tribal_organization_4 }
 			custom_tooltip = { 
 				text = TT_NOT_UNREFORMED_PAGAN
 				hidden_tooltip = {
-					NOT = { religion = norse_pagan }
-					NOT = { religion = tengri_pagan }
-					NOT = { religion = baltic_pagan }
-					NOT = { religion = finnish_pagan }
-					NOT = { religion = aztec }
-					NOT = { religion = slavic_pagan }
-					NOT = { religion = west_african_pagan }
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
 				}
 			}
 		}
@@ -461,19 +537,10 @@ decisions = {
 			custom_tooltip = {
 				text = adopt_feudalism_tooltip_1
 				hidden_tooltip = {
-					any_demesne_title = {
-						if = {
-							limit = {
-								is_tribal = yes
-								has_building = tb_hillfort_4
-							}
-							convert_to_feudal = yes
-						}
+					capital_scope = {
+						convert_to_feudal = yes
 					}
 				}
-			}
-			custom_tooltip = {
-				text = adopt_feudalism_tooltip_2
 			}
 			set_character_flag = achievement_not_a_tribe
 			if = {
@@ -484,6 +551,63 @@ decisions = {
 					entry = CHRONICLE_ADOPTED_FEUDALISM
 					picture = GFX_evt_castle_construction
 				}
+			}
+			hidden_tooltip = {
+				any_demesne_title = {
+					if = {
+						limit = {
+							is_crown_law_title = yes
+						}
+						add_law = crown_authority_0
+					}
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1 # On average ca 1 year before taken
+		}
+	}
+	
+	convert_to_castle = {
+		is_high_prio = yes
+		potential = {
+			OR = {
+				AND = {
+					is_feudal = yes
+					is_republic = no
+				}
+				liege = {
+					AND = {
+						is_feudal = yes
+						is_republic = no
+					}
+				}
+			}
+			any_demesne_title = { is_tribal = yes }
+		}
+		allow = {
+			any_demesne_title = {
+				is_tribal = yes
+				has_any_building = tb_hillfort_4
+			}
+		}
+		effect = {
+			hidden_tooltip = {
+				any_demesne_title = {
+					if = {
+						limit = {
+							is_tribal = yes
+							has_building = tb_hillfort_4
+						}
+						convert_to_feudal = yes
+					}
+				}
+			}
+			custom_tooltip = {
+				text = adopt_feudalism_tooltip_2
 			}
 		}
 		revoke_allowed = {
@@ -497,9 +621,9 @@ decisions = {
 	adopt_republicanism = {
 		is_high_prio = yes
 		potential = {
-			is_feudal = no
+			is_tribal = yes
+			independent = yes
 			is_female = no
-			any_demesne_title = { is_tribal = yes }
 			OR = {
 				ai = yes
 				AND = {
@@ -509,94 +633,65 @@ decisions = {
 			}
 		}
 		allow = {
-			capital_scope = { # Ensure capital is upgraded first, if not already upgraded
-				OR = {
-					is_republic = yes
-					AND = {
-						is_tribal = yes
-						has_building = tb_market_town_4
-					}
-				}
-			}
-			any_demesne_title = { # Have atleast one available title for upgrade (could be, but does not have to be capital)
+			capital_scope = {
 				is_tribal = yes
-				has_any_building = tb_market_town_4
+				has_building = tb_market_town_4
 			}
-			OR = {
-				liege = { is_tribal = no }
-				primary_title = { has_law = tribal_organization_4 }
-			}
+			primary_title = { has_law = tribal_organization_4 }
 			custom_tooltip = { 
 				text = TT_NOT_UNREFORMED_PAGAN
 				hidden_tooltip = {
-					NOT = { religion = norse_pagan }
-					NOT = { religion = tengri_pagan }
-					NOT = { religion = baltic_pagan }
-					NOT = { religion = finnish_pagan }
-					NOT = { religion = aztec }
-					NOT = { religion = slavic_pagan }
-					NOT = { religion = west_african_pagan }
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
 				}
 			}
 		}
 		effect = {
 			hidden_tooltip = {
-				if = { # Republic setup
-					limit = { 
-						is_tribal = yes
+				if = { # create duchy if holder does not have one
+					limit = {
+						NOT = { higher_tier_than = COUNT }
 					}
-					if = { # create duchy if holder does not have one
-						limit = {
-							NOT = { higher_tier_than = COUNT }
+					primary_title = {
+						create_title = {
+							tier = DUKE
+							landless = no
+							temporary = no
+							custom_created = yes
+							culture = ROOT
+							holder = ROOT
+							base_title = THIS
 						}
-						primary_title = {
-							create_title = {
-								tier = DUKE
-								landless = no
-								temporary = no
-								custom_created = yes
-								culture = ROOT
-								holder = ROOT
-								base_title = THIS
-							}
+					}
+				}
+				create_family_palace = yes
+				any_unique_dynasty_vassal = { # gives random vassals a family palace
+					count = 4
+					limit = {
+						is_female = no
+						OR = {
+							is_republic = yes
+							is_tribal = yes
+						}
+						prisoner = no
+						NOT = { trait = incapable }
+						is_adult = yes
+						NOT = { 
+							dynasty = none 
 						}
 					}
 					create_family_palace = yes
-					any_unique_dynasty_vassal = { # gives random vassals a family palace
-						count = 4
-						limit = {
-							is_female = no
-							OR = {
-								is_republic = yes
-								is_tribal = yes
-							}
-							prisoner = no
-							NOT = { trait = incapable }
-							is_adult = yes
-							NOT = { 
-								dynasty = none 
-							}
-						}
-						create_family_palace = yes
-					}
 				}
 			}
 			custom_tooltip = {
 				text = adopt_republicanism_tooltip_1
 				hidden_tooltip = {
-					any_demesne_title = {
-						if = {
-							limit = {
-								is_tribal = yes
-								has_building = tb_market_town_4
-							}
-							convert_to_republic = yes
-						}
+					capital_scope = {
+						convert_to_republic = yes
 					}
 				}
-			}
-			custom_tooltip = {
-				text = adopt_republicanism_tooltip_2
 			}
 			set_character_flag = achievement_res_publica
 			if = {
@@ -606,6 +701,16 @@ decisions = {
 				chronicle = {
 					entry = CHRONICLE_FOUNDED_MERCHANT_REPUBLIC
 					picture = GFX_evt_busy_trading_dock_republic
+				}
+			}
+			hidden_tooltip = {
+				any_demesne_title = {
+					if = {
+						limit = {
+							is_crown_law_title = yes
+						}
+						add_law = crown_authority_0
+					}
 				}
 			}
 		}
@@ -622,6 +727,47 @@ decisions = {
 				factor = 2.0
 				is_republic = yes
 			}
+		}
+	}
+	
+	convert_to_city = {
+		is_high_prio = yes
+		potential = {
+			OR = {
+				is_republic = yes
+				liege = {
+					is_republic = yes
+				}
+			}
+			any_demesne_title = { is_tribal = yes }
+		}
+		allow = {
+			any_demesne_title = {
+				is_tribal = yes
+				has_any_building = tb_market_town_4
+			}
+		}
+		effect = {
+			hidden_tooltip = {
+				any_demesne_title = {
+					if = {
+						limit = {
+							is_tribal = yes
+							has_building = tb_market_town_4
+						}
+						convert_to_republic = yes
+					}
+				}
+			}
+			custom_tooltip = {
+				text = adopt_republicanism_tooltip_2
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1 # On average ca 1 year before taken
 		}
 	}
 }

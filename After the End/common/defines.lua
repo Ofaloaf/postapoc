@@ -556,8 +556,8 @@ NCharacter = {
 	NOT_SPOUSE_FERTILITY_MULT = 0.25,				-- Applied to fertility when the two characters are not married
 	MARRIED_LOVERS_FERTILITY_MULT = 1.5,			-- Applied to fertility when lovers are married
 	INFANT_DEATH_CHANCE = 0.0,						-- Chance of stillbirth / death at birth
-	EARLY_PORTRAIT_AND_UNIT_BEFORE_YEAR = 950,		-- Before this date, early versions of Units and Portraits will be used if available
-	LATE_PORTRAIT_AND_UNIT_AFTER_YEAR = 1250,		-- After this date, late versions of Units and Portraits will be used if available
+	EARLY_PORTRAIT_AND_UNIT_BEFORE_YEAR = 2800,		-- Before this date, early versions of Units and Portraits will be used if available
+	LATE_PORTRAIT_AND_UNIT_AFTER_YEAR = 3050,		-- After this date, late versions of Units and Portraits will be used if available
 	TRIBAL_EMPTY_HOLDING_LEVY_MULTIPLIER = 0.5,
 	TRIBAL_EMPTY_HOLDING_GARRISON_MULTIPLIER = 0.5,
 	TRIBAL_EMPTY_HOLDING_TAX_MULTIPLIER = 0.5,
@@ -1019,8 +1019,8 @@ NTechnology = {
 	TRADEPOST_SPREAD_BONUS = 0.002, 			-- Spread from trade posts
 	SPYACTION_SPREAD_BONUS = 0.006,				-- Spread from the target of the study technology spymaster action
 	
-	IDEAL_YEAR_LEVEL_0 = 700, 					-- the chance to get a progress to this level will increase after this date and decrease before it
-	IDEAL_YEAR_LEVEL_8 = 1500,
+	IDEAL_YEAR_LEVEL_0 = 2450, 					-- the chance to get a progress to this level will increase after this date and decrease before it
+	IDEAL_YEAR_LEVEL_8 = 3250,
 	IDEAL_YEAR_AHEAD_PENALTY = -0.2,			-- UNUSED
 	IDEAL_YEAR_AHEAD_PENALTY_INVEST = 0.6,		-- Percent increase in cost pre level ahead of ideal date
 	

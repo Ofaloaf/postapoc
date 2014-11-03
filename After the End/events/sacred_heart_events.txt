@@ -1,12 +1,22 @@
-#################################################
-#                                               #
-# Mexico & Sacred Heart various events          #
-#                                               #
-#################################################
- 
-# Written by Ofaloaf
-# event-writer extraordinaire
- 
+# 1 	choose patron saint at adulthood
+# 10	follower of el santo can become a duelist
+# 20	[hidden] choose target for luchadore match
+# 21	no opponent was found
+# 22	[hidden] bounce event off opponent
+# 30	confirm you want to fight, even if opponent is stronger
+# 40	opponent decides whether to accept the challenge
+# 41	the opponent declined the challenge
+# 50	simulate the fight
+# 60	you won a close fight
+# 61	you won a crushing victory
+# 62	[hidden] bounce event for close win off opponent
+# 63	[hidden] bounce event for crushing victory off opponent
+# 70	you have been unmasked
+# 71	your opponent has shown you mercy
+# 72	you learned a lot from the fight
+# 73	you didn't learn much from a crushing victory
+# 74	the identity of your opponent is revealed
+
 namespace = sacredheart
  
 # Choose patron deity 1
@@ -81,4 +91,630 @@ character_event = {
 		}
 	}
 }
+
+character_event = {
+	id = sacredheart.10
+	desc = EVTDESC_lucha_duelist
+	picture = GFX_evt_melee
+	
+	is_ruler = yes
+	only_men = yes
+	is_prisoner = no
+	capable_only = yes
+	
+	trigger = {
+		age = 16
+		trait = marian_el_santo
+		NOT = { lifestyle_traits = 1 }
+		NOT = { has_character_flag = reject_luchadore }
+	}
+	
+	mean_time_to_happen = {
+		months = 60
+		modifier = { factor = 1.5 martial = 8 }
+		modifier = { factor = 1.5 martial = 16 }
+		modifier = { factor = 2 trait = strong }
+		modifier = { factor = 2 trait = brave }
+	}
+	
+	option = {
+		name = EVTOPT_lucha_duelist
+		piety = 20
+		add_trait = duelist
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = strong }
+			modifier = { factor = 2 trait = brave }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_lucha_duelist_reject
+		set_character_flag = reject_luchadore
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 4 trait = weak }
+			modifier = { factor = 4 trait = craven }
+		}
+	}
+}
+
+character_event = {
+	id = sacredheart.20
+	desc = "DEBUG TEXT"
+	picture = GFX_evt_melee
+	
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		top_liege = {
+			random_realm_character = {
+				limit = {
+					trait = marian_el_santo
+					trait = duelist
+					capable_only = yes
+					is_prisoner = no
+					age = 16
+					NOT = { has_character_modifier = unmasked }
+				}
+				character_event = { id = sacredheart.22 }
+			}
+		}
+		
+		set_character_flag = seeking_lucha_opponent
+		character_event = { id = sacredheart.21 days = 10 }
+	}
+	
+	option = { }
+}
+
+character_event = {
+	id = sacredheart.21
+	desc = EVTDESC_lucha_lackofopponent
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+	
+	trigger = { has_character_flag = seeking_lucha_opponent }
+	
+	option = {
+		name = EVTOPT_lucha_lackofopponent
+		clr_character_flag = seeking_lucha_opponent
+		piety = 5
+	}
+}
+
+character_event = {
+	id = sacredheart.22
+	desc = "DEBUG TEXT"
+	picture = GFX_evt_melee
+	
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		FROM = { character_event = { id = sacredheart.30 days = 2 } }
+	}
+	
+	option = { }
+}
+
+character_event = {
+	id = sacredheart.30
+	desc = EVTDESC_lucha_target
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+	
+	immediate = {
+		clr_character_flag = seeking_lucha_opponent
+	}
+	
+	option = {
+		name = EVTOPT_lucha_target_accept
+		piety = 10
+		hidden_tooltip = {
+			FROM = { character_event = { id = sacredheart.40 } }
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_lucha_strong
+		trigger = {
+			NOT = { trait = strong }
+			FROM = { trait = strong }
+		}
+		piety = -10
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_lucha_skilled
+		trigger = {
+			NOT = {
+				attribute_diff = {
+					character = FROM
+					attribute = martial
+					value = 0
+				}
+			}
+		}
+		piety = -10
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = sacredheart.40
+	desc = EVTDESC_lucha_challenge
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+	
+	option = {
+		name = EVTOPT_lucha_challenge
+		piety = 10
+		hidden_tooltip = {
+			FROM = { character_event = { id = sacredheart.50 } }
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_lucha_strong
+		trigger = {
+			NOT = { trait = strong }
+			FROM = { trait = strong }
+		}
+		piety = -10
+		hidden_tooltip = {
+			FROM = { character_event = { id = sacredheart.41 } }
+		}
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_lucha_skilled
+		trigger = {
+			NOT = {
+				attribute_diff = {
+					character = FROM
+					attribute = martial
+					value = 0
+				}
+			}
+		}
+		piety = -10
+		hidden_tooltip = {
+			FROM = { character_event = { id = sacredheart.41 } }
+		}
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = sacredheart.41
+	desc = EVTDESC_lucha_coward
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+
+	option = {
+		name = EVTOPT_lucha_coward
+		prestige = 20
+		piety = 20
+	}
+}
+
+character_event = {
+	id = sacredheart.50
+	desc = EVTDESC_lucha_fight
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+	
+	immediate = {
+		set_variable = { which = "challenger_skill" value = 3 }
+		random = { chance = 50 change_variable = { which = "challenger_skill" value = 1 } }
+		random = { chance = 50 change_variable = { which = "challenger_skill" value = 1 } }
+		if = {
+			limit = { trait = strong }
+			change_variable = { which = "challenger_skill" value = 2 }
+		}
+		if = {
+			limit = { trait = brave }
+			change_variable = { which = "challenger_skill" value = 1 }
+		}
+		if = {
+			limit = { FROM = { trait = incapable } }
+			change_variable = { which = "challenger_skill" value = -3 }
+		}
+		if = {
+			limit = { trait = weak }
+			change_variable = { which = "challenger_skill" value = -2 }
+		}
+		if = {
+			limit = { trait = craven }
+			change_variable = { which = "challenger_skill" value = -1 }
+		}
+		if = {
+			limit = { martial = 4 }
+			change_variable = { which = "challenger_skill" value = 1 }
+		}
+		if = {
+			limit = { martial = 8 }
+			change_variable = { which = "challenger_skill" value = 1 }
+		}
+		if = {
+			limit = { martial = 12 }
+			change_variable = { which = "challenger_skill" value = 1 }
+		}
+		if = {
+			limit = { martial = 16 }
+			change_variable = { which = "challenger_skill" value = 1 }
+		}
+		if = {
+			limit = { martial = 20 }
+			change_variable = { which = "challenger_skill" value = 1 }
+		}
+		if = {
+			limit = { health_traits = 1 }
+			change_variable = { which = "challenger_skill" value = -1 }
+		}
+		if = {
+			limit = { age = 50 }
+			change_variable = { which = "challenger_skill" value = -1 }
+		}
+		if = {
+			limit = { age = 70 }
+			change_variable = { which = "challenger_skill" value = -1 }
+		}
+		
+		set_variable = { which = "opponent_skill" value = 3 }
+		random = { chance = 50 change_variable = { which = "opponent_skill" value = 1 } }
+		random = { chance = 50 change_variable = { which = "opponent_skill" value = 1 } }
+		if = {
+			limit = { FROM = { trait = strong } }
+			change_variable = { which = "opponent_skill" value = 2 }
+		}
+		if = {
+			limit = { FROM = { trait = brave } }
+			change_variable = { which = "opponent_skill" value = 1 }
+		}
+		if = {
+			limit = { FROM = { trait = incapable } }
+			change_variable = { which = "opponent_skill" value = -3 }
+		}
+		if = {
+			limit = { FROM = { trait = weak } }
+			change_variable = { which = "opponent_skill" value = -2 }
+		}
+		if = {
+			limit = { FROM = { trait = craven } }
+			change_variable = { which = "opponent_skill" value = -1 }
+		}
+		if = {
+			limit = { FROM = { martial = 4 } }
+			change_variable = { which = "opponent_skill" value = 1 }
+		}
+		if = {
+			limit = { FROM = { martial = 8 } }
+			change_variable = { which = "opponent_skill" value = 1 }
+		}
+		if = {
+			limit = { FROM = { martial = 12 } }
+			change_variable = { which = "opponent_skill" value = 1 }
+		}
+		if = {
+			limit = { FROM = { martial = 16 } }
+			change_variable = { which = "opponent_skill" value = 1 }
+		}
+		if = {
+			limit = { FROM = { martial = 20 } }
+			change_variable = { which = "opponent_skill" value = 1 }
+		}
+		if = {
+			limit = { FROM = { health_traits = 1 } }
+			change_variable = { which = "opponent_skill" value = -1 }
+		}
+		if = {
+			limit = { FROM = { age = 50 } }
+			change_variable = { which = "opponent_skill" value = -1 }
+		}
+		if = {
+			limit = { FROM = { age = 70 } }
+			change_variable = { which = "opponent_skill" value = -1 }
+		}
+		
+		# the fight is close
+		if = {
+			limit = {
+				OR = {
+					AND = {		# both fight poorly
+						NOT = { check_variable = { which = "challenger_skill" value = 6 } }
+						NOT = { check_variable = { which = "opponent_skill" value = 6 } }
+					}
+					
+					AND = {		# both fight okay
+						check_variable = { which = "challenger_skill" value = 6 }
+						check_variable = { which = "opponent_skill" value = 6 }
+						NOT = { check_variable = { which = "challenger_skill" value = 10 } }
+						NOT = { check_variable = { which = "opponent_skill" value = 10 } }
+					}
+					
+					AND = {		# both fight well
+						check_variable = { which = "challenger_skill" value = 10 }
+						check_variable = { which = "opponent_skill" value = 10 }
+					}
+				}
+			}
+			random_list = {
+				# bounce off opponent so loser is FROM in subsequent events
+				50 = { FROM = { character_event = { id = sacredheart.62 days = 2 } } }
+				50 = { FROM = { character_event = { id = sacredheart.60 days = 2 } } }
+			}
+		}
+		
+		# the opponent wins a solid victory
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						NOT = { check_variable = { which = "challenger_skill" value = 6 } }
+						check_variable = { which = "opponent_skill" value = 6 }
+					}
+
+					AND = {
+						NOT = { check_variable = { which = "challenger_skill" value = 10 } }
+						check_variable = { which = "opponent_skill" value = 10 }
+					}
+				}
+			}
+			FROM = { character_event = { id = sacredheart.61 days = 2 } }
+		}
+		
+		# the challenger wins a solid victory
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						check_variable = { which = "challenger_skill" value = 6 }
+						NOT = { check_variable = { which = "opponent_skill" value = 6 } }
+					}
+
+					AND = {
+						check_variable = { which = "challenger_skill" value = 10 }
+						NOT = { check_variable = { which = "opponent_skill" value = 10 } }
+					}
+				}
+			}
+			
+			# bounce off opponent so loser is FROM
+			FROM = { character_event = { id = sacredheart.63 days = 2 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_lucha_fight
+	}
+}
+
+character_event = {
+	id = sacredheart.60
+	desc = EVTDESC_lucha_win
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+	
+	immediate = {
+		character_event = { id = sacredheart.72 days = 3 }
+	}
+
+	option = {
+		name = EVTOPT_lucha_unmask
+		hidden_tooltip = { FROM = { character_event = { id = sacredheart.70 } } }
+		random = { chance = 10 add_trait = zealous }
+		random = { chance = 10 add_trait = just }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = cruel }
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 2 trait = just }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_lucha_recognize
+		trigger = { intrigue = 10 }
+		tooltip_info = intrigue
+		FROM = { character_event = { id = sacredheart.71 } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 3 trait = kind }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_lucha_mercy
+		random = { chance = 10 add_trait = kind }
+		random = { chance = 10 add_trait = arbitrary }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = kind }
+			modifier = { factor = 2 trait = arbitrary }
+		}
+	}
+}
+
+character_event = {
+	id = sacredheart.61
+	desc = EVTDESC_lucha_bigwin
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+	
+	immediate = {
+		character_event = { id = sacredheart.73 days = 3 }
+	}
+
+	option = {
+		name = EVTOPT_lucha_unmask
+		hidden_tooltip = { FROM = { character_event = { id = sacredheart.70 } } }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_lucha_recognize
+		trigger = { intrigue = 10 }
+		tooltip_info = intrigue
+		FROM = { character_event = { id = sacredheart.71 } }
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = sacredheart.62
+	desc = "HIDDEN BOUNCE EVENT"
+	picture = GFX_evt_melee
+	hide_window = yes
+	is_triggered_only = yes
+
+	immediate = {
+		FROM = { character_event = { id = sacredheart.60 } }
+	}
+	option = { }
+}
+
+character_event = {
+	id = sacredheart.63
+	desc = "HIDDEN BOUNCE EVENT"
+	picture = GFX_evt_melee
+	hide_window = yes
+	is_triggered_only = yes
+
+	immediate = {
+		FROM = { character_event = { id = sacredheart.61 } }
+	}
+	option = { }
+}
+
+character_event = {
+	id = sacredheart.70
+	desc = EVTDESC_lucha_unmasked
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+
+	option = {
+		name = EVTOPT_lucha_unmasked
+		prestige = -50
+		piety = -20
+		hidden_tooltip = {
+			FROM = { character_event = { id = sacredheart.74 } }
+		}
+	}
+}
+
+character_event = {
+	id = sacredheart.71
+	desc = EVTDESC_lucha_mercy
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+
+	option = {
+		name = OK
+		prestige = -10
+		piety = -10
+	}
+}
+
+character_event = {
+	id = sacredheart.72
+	desc = EVTDESC_lucha_reward
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+
+	option = {
+		name = EVTOPT_lucha_reward_fame
+		prestige = 80
+		piety = 20
+		wealth = 40
+		random_list = {
+			20 = { add_trait = proud }
+			20 = { add_trait = gregarious }
+			20 = { add_trait = greedy }
+			40 = { }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_lucha_reward_skill
+		prestige = 40
+		piety = 20
+		random_list = {
+			60 = { change_martial = 1 }
+			20 = { add_trait = brave }
+			20 = { add_trait = diligent }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_lucha_reward_pious
+		prestige = 20
+		piety = 50
+		random_list = {
+			60 = { change_learning = 1 }
+			20 = { add_trait = zealous }
+			20 = { add_trait = humble }
+		}
+	}
+}
+
+character_event = {
+	id = sacredheart.73
+	desc = EVTDESC_lucha_bigreward
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+	hide_from = yes
+
+	option = {
+		name = EVTOPT_lucha_bigreward
+		prestige = 60
+		piety = 30
+		wealth = 25
+	}
+}
+
+character_event = {
+	id = sacredheart.74
+	desc = EVTDESC_lucha_reveal
+	picture = GFX_evt_melee
+	
+	is_triggered_only = yes
+
+	option = {
+		name = OK
+		FROM = { add_character_modifier = { name = unmasked duration = -1 } }
+	}
+}
+
+
+
+
+
 

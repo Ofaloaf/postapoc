@@ -127,7 +127,12 @@ character_event = {
 	is_triggered_only = yes
 	hide_window = yes
 	
+	trigger = {
+		NOT = { has_character_flag = diversity }
+	}
+	
 	option = {
+		set_character_flag = diversity
 		if = {
 			limit = { culture_group = mexicano }
 			random_list = {
@@ -139,13 +144,144 @@ character_event = {
 			}
 		}
 		if = {
-			limit = { culture = gothamite }
+			limit = { OR = {
+				culture = gothamite
+				culture = chicagoan
+			} }
 			random_list = {
-				35 = { set_graphical_culture = hudsonian }
+				40 = { set_graphical_culture = hudsonian }
 				30 = { set_graphical_culture = tuskegean }
 				30 = { set_graphical_culture = cubano }
 			}
 		}
+		if = {
+			limit = { culture = brazilian }
+			random_list = {
+				40 = { set_graphical_culture = norteno } # brown
+				30 = { set_graphical_culture = west_indian } # black
+				20 = { set_graphical_culture = gulfard } # white
+				10 = { set_graphical_culture = nahua } # native
+			}
+		}
+		if = {
+			limit = { OR = {
+				culture = beltway
+				culture = delawarean
+				culture = rostmann
+			} }
+			random_list = {
+				60 = { set_graphical_culture = beltway } # white
+				30 = { set_graphical_culture = tuskegean } # black
+				10 = { set_graphical_culture = cubano } # brown
+			}
+		}
+		if = {
+			limit = { OR = {
+				culture = west_indian
+				culture = tuskegean
+				culture = motowner
+				culture = haitian
+				culture = dominicano
+			} }
+			random_list = {
+				85 = { set_graphical_culture = tuskegean } # black
+				10 = { set_graphical_culture = cubano } # brown
+				5 = { set_graphical_culture = rostmann } # white
+			}
+		}
+		if = {
+			limit = { OR = {
+				culture = ontarian
+				culture = lacustrine
+				culture = yankee
+				culture = hudsonian
+				culture = maritimer
+				culture = quebecois
+				culture = acadien
+				culture = dellsman
+				culture = northlander
+				culture = yooper
+			} }
+			random_list = {
+				90 = { set_graphical_culture = yankee }
+				10 = { set_graphical_culture = west_indian }
+			}
+		}
+		if = {
+			limit = { OR = {
+				culture = texan
+				culture = arixan
+			} }
+			random_list = {
+				60 = { set_graphical_culture = texan }
+				35 = { set_graphical_culture = tejano }
+				5 = { set_graphical_culture = tuskegean }
+			}
+		}
 		# Add more stuff for other cultures
+	}
+}
+
+# Make sure everyone who's randomly generated gets #3
+# TODO: figure out how to call this seamlessly
+character_event = {
+	id = misc.4
+	desc = "Diversity"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	ai = yes
+	
+	trigger = { NOT = { has_character_flag = diversity } }
+	
+	option = {
+		if = {
+			limit = {
+				# This should figure out which characters have been randomly generated and haven't been around for long
+				#is_ruler = no # uncomment this once we have the map filled out
+				ai = yes
+				NOT = {
+					father_even_if_dead = { always = yes }
+					mother_even_if_dead = { always = yes }
+					spouse_even_if_dead = { always = yes }
+				}
+			}
+			character_event = { id = misc.3 }
+		}
+		set_character_flag = diversity
+	}
+}
+
+# Do this for all random courtiers at the start of the game
+# Game initialization event, called from history of k_papal_state
+character_event = {
+	id = misc.5
+	desc = "Game initialization"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = { NOT = { has_global_flag = scenario_initialized } }
+	
+	option = {
+		set_global_flag = scenario_initialized
+		any_independent_ruler = {
+			any_realm_character = {
+				if = {
+					limit = {
+						# This should figure out which characters have been randomly generated and haven't been around for long
+						#is_ruler = no # uncomment this once we have the map filled out
+						ai = yes
+						NOT = {
+							father_even_if_dead = { always = yes }
+							mother_even_if_dead = { always = yes }
+							spouse_even_if_dead = { always = yes }
+						}
+						NOT = { has_character_flag = diversity }
+					}
+					character_event = { id = misc.3 days = 1 }
+				}
+			}
+		}
+		# Do any other game-initializing stuff here
 	}
 }

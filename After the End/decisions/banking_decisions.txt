@@ -1,0 +1,161 @@
+decisions = {
+	become_banker = {
+		potential = {
+			NOT = { trait = banker }
+			NOT = {
+				AND = {
+					controls_religion = yes # Pope isn't a banker
+					NOT = { religion_group = civilized_pagan } # Americanists and Consumerists okay with moneylending
+				}
+			}
+			OR = {
+				ai = no
+				is_patrician = yes
+				wealth = 500
+				monthly_income = 5
+			}
+		}
+		allow = {
+			OR = {
+				monthly_income = 10
+				wealth = 750
+			}
+		}
+		effect = {
+			add_trait = banker
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				trait = greedy
+			}
+			modifier = {
+				factor = 2
+				trait = ambitious
+			}
+			modifier = {
+				factor = 5
+				is_patrician = yes
+			}
+			modifier = {
+				factor = 2
+				wealth = 1000
+			}
+			modifier = {
+				factor = 5
+				religion_group = civilized_pagan # Americanists and consumerists like money
+			}
+		}
+	}
+	
+	# TODO: figure out how to do this in a way that won't fuck up existing loans (maybe just restrict it to bankers w/o any loans)
+	# leave_banking = {
+		# potential = {
+			# trait = banker
+		# }
+		# allow = { }
+		# effect = { remove_trait = banker }
+		# revoke_allowed = { always = no }
+		# ai_will_do = {
+			# factor = 0.1
+			# modifier = {
+				# factor = 10
+				# NOT = { wealth = 0 }
+			# }
+			# modifier = {
+				# factor = 10
+				# NOT = { monthly_income = 1 }
+			# }
+			# modifier = {
+				# factor = 10
+				# NOT = { monthly_income = 0 }
+			# }
+			# modifier = {
+				# factor = 2
+				# trait = content
+			# }
+		# }
+	# }
+	
+	borrow_400 = {
+		potential = {
+			#ai = no
+			is_ruler = yes
+			num_of_count_titles = 1
+			OR = {
+				higher_tier_than = baron
+				is_patrician = yes
+			}
+			NOT = { has_character_flag = offended_moneylenders }
+			NOT = { has_character_flag = loan_taken }
+			NOT = { has_character_modifier = loan_timer }
+			NOT = { has_character_modifier = defaulted_on_loan }
+			#NOT = { has_character_modifier = recent_loan_request }
+		}
+		allow = {
+			# See if there's any available bankers
+			banker = {
+				NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
+				NOT = { war_with = ROOT }
+				wealth = 0
+			}
+		}
+		effect = {
+			# hidden_tooltip = {
+				# add_character_modifier = { name = recent_loan_request duration = 12 hidden = yes }
+				# #letter_event = { id = loan.6 days = 1 }
+			# }
+			banker = {
+				limit = {
+					NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
+					NOT = { war_with = ROOT }
+				}
+				letter_event = { id = loan.1 }
+			}
+		}
+		revoke_allowed = { always = no }
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.001
+			}
+			modifier = {
+				factor = 0
+				wealth = 500
+			}
+			modifier = {
+				factor = 10
+				war = yes
+			}
+		}
+	}
+	
+	repay_500 = {
+		potential = {
+			has_character_flag = loan_taken
+		}
+		allow = { wealth = 500 }
+		effect = {
+			wealth = -500
+			clr_character_flag = loan_taken
+			clr_character_flag = loan_in_progress
+			remove_character_modifier = loan_timer
+			remove_trait = debtor
+			banker = {
+				limit = { has_opinion_modifier = { who = ROOT modifier = lent_400 } }
+				character_event = { id = loan.23 }
+			}
+		}
+		revoke_allowed = { always = no }
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.5
+			}
+		}
+	}
+}

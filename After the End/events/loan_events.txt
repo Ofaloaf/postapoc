@@ -1,113 +1,346 @@
-# # Patrician loan events
-# namespace = loan
+# Patrician loan events
+namespace = loan
 
-# # Ask if they want to issue loan
-# character_event = {
-	# id = loan.1
-	# desc = loan.1.desc
-	# is_triggered_only = yes
-	# picture = GFX_character_receiving_letter
+# Ask if they want to issue loan for 400
+letter_event = {
+	id = loan.1
+	desc = loan.1.desc
+	is_triggered_only = yes
+	#picture = GFX_character_receiving_letter
 	
-	# option = {
-		# name = loan.1.optA
-		# ai_chance = {
-			# factor = 1
-			# modifier = {
-				# factor = 1.5
-				# trait = ambitious
-			# }
-			# modifier = {
-				# factor = 2
-				# trait = trusting
-			# }
-		# }
-		# if = {
-			# limit = { FROM = { has_character_flag = loan_50 } }
-			# wealth = -10
-			# FROM = { wealth = 50 }
-			# reverse_opinion = { who = ROOT modifier = owes_50 }
-		# }
-		# if = {
-			# limit = { FROM = { has_character_flag = loan_100 } }
-			# wealth = -20
-			# FROM = { wealth = 100 }
-			# reverse_opinion = { who = ROOT modifier = owes_100 }
-		# }
-		# if = {
-			# limit = { FROM = { has_character_flag = loan_200 } }
-			# wealth = -40
-			# FROM = { wealth = 200 }
-			# reverse_opinion = { who = ROOT modifier = owes_200 }
-		# }
-		# if = {
-			# limit = { FROM = { has_character_flag = loan_400 } }
-			# wealth = -80
-			# FROM = { wealth = 400 }
-			# reverse_opinion = { who = ROOT modifier = owes_400 }
-		# }
-		# if = {
-			# limit = { FROM = { has_character_flag = loan_600 } }
-			# wealth = -120
-			# FROM = { wealth = 600 }
-			# reverse_opinion = { who = ROOT modifier = owes_600 }
-		# }
-		# if = {
-			# limit = { FROM = { has_character_flag = loan_800 } }
-			# wealth = -160
-			# FROM = { wealth = 800 }
-			# reverse_opinion = { who = ROOT modifier = owes_800 }
-		# }
-		# if = {
-			# limit = { FROM = { has_character_flag = loan_1000 } }
-			# wealth = -200
-			# FROM = { wealth = 1000 }
-			# reverse_opinion = { who = ROOT modifier = owes_1000 }
-		# }
-		# FROM = { character_event = { id = loan.2 } }
-	# }
+	option = {
+		name = loan.1.optA
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				trait = ambitious
+			}
+			modifier = {
+				factor = 2
+				trait = trusting
+			}
+			modifier = {
+				factor = 2
+				wealth = 400
+			}
+			modifier = {
+				factor = 2
+				wealth = 750
+			}
+			modifier = {
+				factor = 5
+				wealth = 1000
+			}
+			modifier = {
+				factor = 1.5
+				opinion = { who = FROM value = 50 }
+			}
+			modifier = {
+				factor = 2
+				opinion = { who = FROM value = 75 }
+			}
+			modifier = {
+				factor = 3
+				opinion = { who = FROM value = 100 }
+			}
+			modifier = {
+				factor = 0
+				NOT = { wealth = 0 } # otherwise AI will go deeply into debt
+			}
+		}
+		wealth = -100
+		reverse_opinion = { who = FROM modifier = owes_500 years = 100 }
+		opinion = { who = FROM modifier = lent_400 years = 100 }
+		FROM = { letter_event = { id = loan.5 } }
+	}
 	
-	# option = {
-		# name = loan.1.optB
-		# ai_chance = {
-			# factor = 2
-			# modifier = {
-				# factor = 1.5
-				# trait = content
-			# }
-			# modifier = {
-				# factor = 2
-				# trait = paranoid
-			# }
-			# modifier = {
-				# factor = 0.5
-				# NOT = { wealth = 0 }
-			# }
-		# }
-	# }
-	
-	# option = {
-		# trigger = { ai = no }
-		# name = loan.1.optC
-		# set_character_flag = no_loan_offers
-		# custom_tooltip = { text = tooltiploan1 }
-	# }
-# }
+	option = {
+		name = loan.1.optB
+		ai_chance = {
+			factor = 2
+			modifier = {
+				factor = 1.5
+				trait = content
+			}
+			modifier = {
+				factor = 2
+				trait = paranoid
+			}
+			modifier = {
+				factor = 2
+				FROM = { trait = possessed }
+			}
+			modifier = {
+				factor = 2
+				FROM = { trait = lunatic }
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { opinion = { who = FROM value = 0 } }
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { opinion = { who = FROM value = -25 } }
+			}
+			modifier = {
+				factor = 2
+				NOT = { opinion = { who = FROM value = -50 } }
+			}
+			modifier = {
+				factor = 3
+				NOT = { opinion = { who = FROM value = -75 } }
+			}
+		}
+		opinion = { who = FROM modifier = refused_loan years = 1 }
+		FROM = { letter_event = { id = loan.2 } }
+	}
+}
 
-# # Inform character they got loan
-# character_event = {
-	# id = loan.2
-	# desc = loan.2.desc
-	# is_triggered_only = yes
-	# picture = GFX_evt_character_receiving_letter
+# Bounce back to borrower to find another lender
+letter_event = {
+	id = loan.2
+	desc = "Find another lender"
+	is_triggered_only = yes
+	hide_window = yes
 	
-	# option = {
-		# name = loan.2.optA
-		# hidden_tooltip = {
-			# add_character_modifier = {
-				# name = "loan_timer"
-				# duration = 1825
-			# }
-		# }
-		# set_character_flag = loan_taken
-	# }
-# }
+	option = {
+		trigger = {
+			banker = {
+				NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
+				NOT = { war_with = ROOT }
+			}
+		}
+		banker = {
+			limit = {
+				NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
+				NOT = { war_with = ROOT }
+			}
+			letter_event = { id = loan.1 }
+		}
+	}
+	
+	# No bankers left
+	option = {
+		trigger = {
+			NOT = {
+				banker = {
+					NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
+					NOT = { war_with = ROOT }
+				}
+			}
+		}
+		letter_event = { id = loan.7 }
+	}
+}
+
+# Inform character they got loan
+letter_event = {
+	id = loan.5
+	desc = loan.5.desc
+	is_triggered_only = yes
+	#picture = GFX_evt_character_receiving_letter
+	
+	option = {
+		name = loan.5.optA
+		hidden_tooltip = {
+			add_trait = debtor
+			add_character_modifier = {
+				name = "loan_timer"
+				duration = 1825
+				inherit = yes
+			}
+			remove_character_modifier = recent_loan_request
+		}
+		set_character_flag = loan_taken
+		wealth = 400
+	}
+}
+
+# Loan was declined
+letter_event = {
+	id = loan.7
+	desc = loan.7.desc
+	is_triggered_only = yes
+	hide_from = yes
+	
+	option = {
+		name = loan.7.optA
+	}
+}
+
+# On death event
+character_event = {
+	id = loan.10
+	desc = "Transfer loans/debt to heir"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	immediate = {
+		if = {
+			limit = { trait = banker }
+			remove_trait = banker # dead men can't lend
+			current_heir = {
+				add_trait = banker
+				debtor = {
+					limit = { has_opinion_modifier = { who = ROOT modifier = owes_500 } }
+					ROOT = { current_heir = { reverse_opinion = { who = PREVPREV modifier = owes_500 years = 100 } } }
+				}
+			}
+		}
+		
+		if = {
+			limit = { trait = debtor }
+			renove_trait = debtor
+			current_heir = {
+				add_trait = debtor
+				banker = {
+					limit = { has_opinion_modifier = { who = ROOT modifier = lent_400 } }
+					opinion = { who = PREV modifier = lent_400 years = 100 }
+				}
+			}
+		}
+		
+		if = {
+			limit = { has_character_flag = loan_taken }
+			current_heir = { set_character_flag = loan_taken }
+		}
+	}
+}
+
+# Loan comes due - find creditor and inform them
+character_event = {
+	id = loan.20
+	desc = "Inform creditor of due loan"
+	hide_window = yes
+	
+	trigger = {
+		has_character_flag = loan_taken
+		NOT = { has_character_modifier = loan_timer }
+		NOT = { has_character_flag = loan_in_progress }
+	}
+	
+	mean_time_to_happen = { days = 1 }
+	
+	immediate = {
+		set_character_flag = loan_in_progress
+		banker = {
+			limit = { has_opinion_modifier = { who = ROOT modifier = lent_400 } }
+			character_event = { id = loan.21 }
+		}
+	}
+}
+
+# Bounce from creditor to debtor
+character_event = {
+	id = loan.21
+	desc = loan.21.desc
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	option = {
+		name = loan.21.desc
+		FROM = { character_event = { id = loan.22 } }
+	}
+}
+
+# Debtor: Choose whether to pay back loan
+character_event = {
+	id = loan.22
+	desc = loan.22.desc
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	option = { # Pay it back
+		trigger = { wealth = 500 }
+		name = loan.22.optA
+		ai_chance = {
+			factor = 1
+		}
+		wealth = -500
+		clr_character_flag = loan_taken
+		clr_character_flag = loan_in_progress
+		hidden_tooltip = {
+			remove_trait = debtor
+			FROM = { character_event = { id = loan.23 } }
+		}
+	}
+	
+	# Add option to refinance
+	
+	option = { # Default
+		name = loan.22.optD
+		ai_chance = {
+			factor = 0.1
+			modifier = {
+				factor = 0
+				trait = just
+			}
+			modifier = {
+				factor = 0
+				trait = honest
+			}
+			modifier = {
+				factor = 0
+				NOT = {
+					OR = {
+						trait = wroth
+						trait = lunatic
+						trait = possessed	
+					}	
+				}
+			}
+			modifier = {
+				factor = 5
+				trait = lunatic
+			}
+			modifier = {
+				factor = 5
+				trait = possessed
+			}
+		}
+		clr_character_flag = loan_taken
+		clr_character_flag = loan_in_progress
+		prestige = -500
+		add_character_modifier = {
+			name = defaulted_on_loan
+			years = 50
+			inherit = yes
+		}
+		reverse_opinion = { who = FROM modifier = defaulted }
+		banker = { # need to figure out how to make this work for every banker
+			opinion = { who = ROOT modifier = defaulted_other years = 10}
+		}
+		hidden_tooltip = {
+			remove_trait = debtor
+			FROM = { character_event = { id = loan.25 } }
+		}
+	}
+}
+
+# Success! We were paid back in full
+character_event = {
+	id = loan.23
+	desc = loan.23.desc
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	option = {
+		name = loan.23.optA
+		wealth = 125
+		remove_opinion = { who = FROM modifier = lent_400 }
+		reverse_remove_opinion = { who = FROM modifier = owes_500 }
+	}
+}
+
+# Debtor defaulted
+character_event = {
+	id = loan.25
+	desc = loan.25.desc
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	option = {
+		name = loan.25.optA
+	}
+}

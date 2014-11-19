@@ -52,7 +52,7 @@ letter_event = {
 		wealth = -100
 		reverse_opinion = { who = FROM modifier = owes_500 years = 100 }
 		opinion = { who = FROM modifier = lent_400 years = 100 }
-		FROM = { letter_event = { id = loan.5 } }
+		FROM = { letter_event = { id = loan.3 } }
 	}
 	
 	option = {
@@ -109,12 +109,16 @@ letter_event = {
 			banker = {
 				NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
 				NOT = { war_with = ROOT }
+				wealth = 0
+				NOT = { has_character_flag = no_loan_offers }
 			}
 		}
 		banker = {
 			limit = {
 				NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
 				NOT = { war_with = ROOT }
+				wealth = 0
+				NOT = { has_character_flag = no_loan_offers }
 			}
 			letter_event = { id = loan.1 }
 		}
@@ -127,22 +131,24 @@ letter_event = {
 				banker = {
 					NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
 					NOT = { war_with = ROOT }
+					wealth = 0
+					NOT = { has_character_flag = no_loan_offers }
 				}
 			}
 		}
-		letter_event = { id = loan.7 }
+		letter_event = { id = loan.4 }
 	}
 }
 
 # Inform character they got loan
 letter_event = {
-	id = loan.5
-	desc = loan.5.desc
+	id = loan.3
+	desc = loan.3.desc
 	is_triggered_only = yes
 	#picture = GFX_evt_character_receiving_letter
 	
 	option = {
-		name = loan.5.optA
+		name = loan.3.optA
 		hidden_tooltip = {
 			add_trait = debtor
 			add_character_modifier = {
@@ -159,13 +165,14 @@ letter_event = {
 
 # Loan was declined
 letter_event = {
-	id = loan.7
-	desc = loan.7.desc
+	id = loan.4
+	desc = loan.4.desc
 	is_triggered_only = yes
 	hide_from = yes
 	
 	option = {
-		name = loan.7.optA
+		name = loan.4.optA
+		clr_character_flag = loan_400
 	}
 }
 
@@ -205,6 +212,11 @@ character_event = {
 			limit = { has_character_flag = loan_taken }
 			current_heir = { set_character_flag = loan_taken }
 		}
+		
+		if = {
+			limit = { has_character_flag = loan_400 }
+			current_heir = { set_character_flag = loan_400 }
+		}
 	}
 }
 
@@ -239,7 +251,7 @@ character_event = {
 	is_triggered_only = yes
 	
 	option = {
-		name = loan.21.desc
+		name = loan.21.optA
 		FROM = { character_event = { id = loan.22 } }
 	}
 }
@@ -260,35 +272,49 @@ character_event = {
 		wealth = -500
 		clr_character_flag = loan_taken
 		clr_character_flag = loan_in_progress
+		clr_character_flag = loan_400
 		hidden_tooltip = {
 			remove_trait = debtor
 			FROM = { character_event = { id = loan.23 } }
 		}
 	}
 	
+	option = { # Extend the loan
+		name = loan.22.optB
+		trigger = {
+			wealth = 100
+			NOT = { wealth = 500 }
+		}
+		ai_chance = {
+			factor = 1
+		}
+		clr_character_flag = loan_in_progress
+		wealth = -100
+		custom_tooltip = { text = loan.22.tooltipB }
+		hidden_tooltip = {
+			remove_character_modifier = loan_timer
+			add_character_modifier = {
+				name = "loan_timer"
+				duration = 730
+				inherit = yes
+			}
+			FROM = { character_event = { id = loan.24 } }
+		}
+	}
+	
 	# Add option to refinance
 	
-	option = { # Default
+	option = { # Default on debt
 		name = loan.22.optD
 		ai_chance = {
-			factor = 0.1
+			factor = 0.25
 			modifier = {
-				factor = 0
+				factor = 0.01
 				trait = just
 			}
 			modifier = {
-				factor = 0
+				factor = 0.01
 				trait = honest
-			}
-			modifier = {
-				factor = 0
-				NOT = {
-					OR = {
-						trait = wroth
-						trait = lunatic
-						trait = possessed	
-					}	
-				}
 			}
 			modifier = {
 				factor = 5
@@ -298,18 +324,23 @@ character_event = {
 				factor = 5
 				trait = possessed
 			}
+			modifier = {
+				factor = 2
+				relative_power = { who = FROM power = 4.0 }
+			}
 		}
 		clr_character_flag = loan_taken
 		clr_character_flag = loan_in_progress
+		clr_character_flag = loan_400
 		prestige = -500
 		add_character_modifier = {
 			name = defaulted_on_loan
-			years = 50
+			years = 20
 			inherit = yes
 		}
-		reverse_opinion = { who = FROM modifier = defaulted }
+		reverse_opinion = { who = FROM modifier = defaulted years = 20 }
 		banker = { # need to figure out how to make this work for every banker
-			opinion = { who = ROOT modifier = defaulted_other years = 10}
+			opinion = { who = ROOT modifier = defaulted_other years = 20 }
 		}
 		hidden_tooltip = {
 			remove_trait = debtor
@@ -330,6 +361,19 @@ character_event = {
 		wealth = 125
 		remove_opinion = { who = FROM modifier = lent_400 }
 		reverse_remove_opinion = { who = FROM modifier = owes_500 }
+	}
+}
+
+# Payment deferred
+character_event = {
+	id = loan.24
+	desc = loan.24.desc
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	option = {
+		name = loan.24.optA
+		wealth = 25
 	}
 }
 

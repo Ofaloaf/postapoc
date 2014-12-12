@@ -448,7 +448,7 @@ character_event = {
 	}
 }
 
-# Plot revealed by drunken backer
+# Murder plot revealed by drunken backer
 character_event = {
 	id = 7046
 	desc = EVTDESC7045
@@ -484,52 +484,11 @@ character_event = {
 			reveal_plot = yes
 		}
 		plot_target_char = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
+			save_event_target_as = target_victim
+			ROOT = {
+				character_event = { id = 11 } # Consequences of discovery
 			}
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			
-			hidden_tooltip = {
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-						NOT = { character = PREV }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
+			clear_event_target = target_victim
 		}
 	}
 }
@@ -2615,7 +2574,7 @@ letter_event = {
 	}
 	
 	option = {
-		name = "EVTOPTA8000"
+		name = EVTOPTA8000 # Give in
 		ai_chance = {
 			factor = 5
 			modifier = {
@@ -2924,7 +2883,10 @@ letter_event = {
 						limit = {
 							higher_tier_than = PREVPREV
 							holder_scope = {
-								is_feudal = yes
+								OR = {
+									is_feudal = yes
+									is_tribal = yes
+								}
 							}
 							ROOT = {
 								supported_claimant = {
@@ -2939,7 +2901,7 @@ letter_event = {
 						ROOT = { supported_claimant = { abdicate = yes } }
 					}
 				
-					usurp_title_plus_barony_if_unlanded_and_vassals = PREVPREV
+					usurp_title_plus_barony_if_unlanded_and_vassals_no_adj = { target = PREVPREV type = faction_demand }
 				}
 			}
 		}
@@ -3882,7 +3844,7 @@ character_event = {
 		}
 		hidden_tooltip = {
 			any_plot_backer = {
-					character_event = { id = 8162 days = 1 }
+				character_event = { id = 8162 days = 1 }
 			}
 		}
 		
@@ -3954,7 +3916,7 @@ character_event = {
 # A plot backer sees an opportunity - Poisoned Wine
 character_event = {
 	id = 8151
-	desc = "EVTDESC8151"
+	desc = EVTDESC8151
 	picture = GFX_evt_whispers
 	border = GFX_event_normal_frame_intrigue
 	
@@ -4384,6 +4346,10 @@ character_event = {
 		}
 	}
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	option = {
 		name = "EVTOPTA8155" # Drinks the wine
 		trigger = {
@@ -4642,128 +4608,15 @@ character_event = {
 # Poisoned Wine - Notification: Success, but discovered
 character_event = {
 	id = 8163
-	desc = "EVTDESC8163"
+	desc = EVTDESC8163
 	picture = GFX_evt_shadowy_cabal
 	border = GFX_event_normal_frame_intrigue
 	
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -4795,48 +4648,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -5530,6 +5344,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		prisoner = no
 		
@@ -5832,120 +5650,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -5977,48 +5683,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -7206,6 +6873,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -7497,120 +7168,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -7642,48 +7201,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -8373,6 +7893,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -8525,7 +8049,6 @@ character_event = {
 			}
 		}
 	}
-	
 }
 
 # Manure Explosion - Dies, murderer NOT discovered
@@ -8664,120 +8187,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -8809,48 +8220,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -9536,6 +8908,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -9827,121 +9203,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -9973,48 +9236,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -10700,6 +9924,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -10991,120 +10219,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -11136,48 +10252,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+	
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -11867,6 +10944,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -12158,120 +11239,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -12303,48 +11272,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+	
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -13005,6 +11935,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -13296,120 +12230,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -13441,48 +12263,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -14172,6 +12955,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -14463,120 +13250,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -15339,6 +14014,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -15630,120 +14309,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -15775,48 +14342,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -16508,6 +15036,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -16799,121 +15331,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -16945,48 +15364,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -17676,6 +16056,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -17967,121 +16351,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -18113,48 +16384,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -18844,6 +17076,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -19135,120 +17371,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -19280,48 +17404,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {
@@ -20015,6 +18100,10 @@ character_event = {
 	
 	is_triggered_only = yes
 	
+	immediate = {
+		save_event_target_as = target_victim
+	}
+	
 	trigger = {
 		# Is the plot still in motion?
 		OR = {
@@ -20336,120 +18425,8 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { trait = kinslayer }
-			}
-			add_trait = kinslayer
-		}
-		
-		if = {
-			limit = { any_spouse = { character = FROM } }
-			FROM = { 
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_spouse_slayer
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-			top_liege = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-				any_realm_lord = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-			religion_head = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				FROM = { mother = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				mother = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		if = {
-			limit = {
-				FROM = { father = { NOT = { character = ROOT } } }
-			}
-			FROM = {
-				father = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_killed_close_kin
-						months = 60
-					}
-				}
-			}
-		}
-		
-		FROM = {
-			any_child = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
-		
-		FROM = {
-			any_sibling = {
-				limit = {
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_killed_close_kin
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 10 } # Consequences of discovery
+		clear_event_target = target_victim
 	}
 	
 	option = {
@@ -20481,48 +18458,9 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {
-		# Set opinions vs the bungling killer
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_murder_attempt
-				months = 120
-			}
-		}
-		FROM = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		if = {
-			limit = { 
-				NOT = { FROM = { employer = { character = ROOT } } }
-			}
-			FROM = { 
-				employer = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
-		FROM = {
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
-					NOT = { character = ROOT }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
+		character_event = { id = 11 } # Consequences of discovery
+		clear_event_target = target_victim
+		
 		if = {
 			limit = { 
 				plot_target_char = {

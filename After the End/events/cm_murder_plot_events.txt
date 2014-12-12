@@ -184,22 +184,20 @@ character_event = {
 	is_triggered_only = yes
 	
 	immediate = {                    # Notify player and close family and plotters
-		ROOT = {
-			any_plotter = {
-				target = ROOT
-				limit = {
-					OR = {
-						has_plot = plot_kill_character
-						has_plot = plot_kill_spouse
-					}
+		any_plotter = {
+			target = ROOT
+			limit = {
+				OR = {
+					has_plot = plot_kill_character
+					has_plot = plot_kill_spouse
 				}
-				character_event = { id = CM.6001 }
 			}
+			character_event = { id = CM.6001 }
 		}
 		any_spouse = {
 			limit = {
 				ROOT = {
-					NOT = { is_plot_target_of = THIS }
+					NOT = { is_plot_target_of = PREV }
 				}
 			}
 			character_event = { id = CM.6001 }
@@ -207,7 +205,7 @@ character_event = {
 		any_child = {
 			limit = {
 				ROOT = {
-					NOT = { is_plot_target_of = THIS }
+					NOT = { is_plot_target_of = PREV }
 				}
 			}
 			character_event = { id = CM.6001 }
@@ -215,7 +213,7 @@ character_event = {
 		any_lover = {
 			limit = {
 				ROOT = {
-					NOT = { is_plot_target_of = THIS }
+					NOT = { is_plot_target_of = PREV }
 				}
 				NOT = { spouse = { character = ROOT } }
 			}
@@ -224,7 +222,7 @@ character_event = {
 		any_sibling = {
 			limit = {
 				ROOT = {
-					NOT = { is_plot_target_of = THIS }
+					NOT = { is_plot_target_of = PREV }
 				}
 			}
 			character_event = { id = CM.6001 }
@@ -232,7 +230,7 @@ character_event = {
 		any_rival = {
 			limit = {
 				ROOT = {
-					NOT = { is_plot_target_of = THIS }
+					NOT = { is_plot_target_of = PREV }
 				}
 			}
 			character_event = { id = CM.6001 }
@@ -594,6 +592,7 @@ character_event = {
 	trigger = {
 		trait = in_hiding
 		NOT = { lifestyle_traits = 1 }
+		NOT = { has_dlc = "Way of Life" }
 		age = 14
 	}
 	
@@ -614,6 +613,7 @@ character_event = {
 	trigger = {
 		trait = in_hiding
 		NOT = { lifestyle_traits = 1 }
+		NOT = { has_dlc = "Way of Life" }
 		age = 10
 	}
 	
@@ -634,6 +634,7 @@ character_event = {
 	trigger = {
 		trait = in_hiding
 		NOT = { lifestyle_traits = 1 }
+		NOT = { has_dlc = "Way of Life" }
 		age = 13
 	}
 	
@@ -653,7 +654,7 @@ character_event = {
 
 	trigger = {
 		trait = in_hiding
-		NOT = { lifestyle_traits = 1 }
+		NOT = { trait = poet }
 		age = 13
 	}
 	
@@ -1376,7 +1377,7 @@ narrative_event = {
 	title = EVTTITLE_CM_6303
 	desc = EVTDESC_CM_6303
 	picture = GFX_evt_shadow
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
@@ -1429,13 +1430,18 @@ narrative_event = {
 	title = EVTTITLE_CM_6303
 	desc = EVTDESC_CM_6303
 	picture = GFX_evt_death
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
 	immediate = {
 		if = {
 			limit = { multiplayer = yes	}
+			
+			save_event_target_as = target_victim
+			FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+			clear_event_target = target_victim
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
@@ -1447,48 +1453,19 @@ narrative_event = {
 		name = EVTOPTA_CM_6303
 		if = {
 			limit = { multiplayer = no	}
+			
+			hidden_tooltip = {
+				save_event_target_as = target_victim
+				FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+				clear_event_target = target_victim
+			}
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
 			}
 		}
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.6306 }
@@ -1510,47 +1487,6 @@ character_event = {
 
 	option = {
 		name = EVTOPTA_CM_6306
-		tooltip = {
-			FROM = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_murder_attempt
-					months = 120
-				}
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -1599,47 +1535,18 @@ narrative_event = {
 	border = GFX_event_normal_frame_intrigue
 
 	is_triggered_only = yes
-
+	
+	immediate = {
+		save_event_target_as = target_victim
+		FROMFROM = { character_event = { id = 11 } } # Consequences of discovery
+		clear_event_target = target_victim
+	}
+	
 	option = {
 		name = EVTOPTA_CM_6307
+		
 		FROMFROM = { reveal_plot = yes }
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.63099 }
@@ -1661,43 +1568,6 @@ character_event = {
 
 	option = {
 		name = EVTOPTA_CM_63099
-		tooltip = {
-			reveal_plot = yes
-			FROM = {
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -1826,13 +1696,14 @@ narrative_event = {
 	title = EVTTITLE_CM_6313
 	desc = EVTDESC_CM_6313
 	picture = GFX_evt_bad_news
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
 	immediate = {
 		if = {
 			limit = { multiplayer = yes	}
+			
 			death = {
 				death_reason = death_murder_unknown
 				killer = FROMFROM
@@ -1844,6 +1715,7 @@ narrative_event = {
 		name = EVTOPTA_CM_6313
 		if = {
 			limit = { multiplayer = no	}
+			
 			death = {
 				death_reason = death_murder_unknown
 				killer = FROMFROM
@@ -1879,13 +1751,18 @@ narrative_event = {
 	title = EVTTITLE_CM_6313
 	desc = EVTDESC_CM_6313
 	picture = GFX_evt_bad_news
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
 	immediate = {
 		if = {
 			limit = { multiplayer = yes	}
+			
+			save_event_target_as = target_victim
+			FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+			clear_event_target = target_victim
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
@@ -1897,48 +1774,19 @@ narrative_event = {
 		name = EVTOPTA_CM_6313
 		if = {
 			limit = { multiplayer = no	}
+			
+			hidden_tooltip = {
+				save_event_target_as = target_victim
+				FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+				clear_event_target = target_victim
+			}
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
 			}
 		}
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.6316 }
@@ -1960,47 +1808,6 @@ character_event = {
 
 	option = {
 		name = EVTOPTA_CM_6316
-		tooltip = {
-			FROM = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_murder_attempt
-					months = 120
-				}
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -2049,47 +1856,17 @@ narrative_event = {
 	border = GFX_event_normal_frame_intrigue
 
 	is_triggered_only = yes
+	
+	immediate = {
+		save_event_target_as = target_victim
+		FROMFROM = { character_event = { id = 11 } } # Consequences of discovery
+		clear_event_target = target_victim
+	}
 
 	option = {
 		name = EVTOPTA_CM_6317
 		FROMFROM = { reveal_plot = yes }
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.63199 }
@@ -2113,40 +1890,6 @@ character_event = {
 		name = EVTOPTA_CM_63199
 		tooltip = {
 			reveal_plot = yes
-			FROM = {
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
 		}
 	}
 }
@@ -2276,7 +2019,7 @@ narrative_event = {
 	title = EVTTITLE_CM_6323
 	desc = EVTDESC_CM_6323
 	picture = GFX_evt_recieve_letter
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
@@ -2329,13 +2072,18 @@ narrative_event = {
 	title = EVTTITLE_CM_6323
 	desc = EVTDESC_CM_6323
 	picture = GFX_evt_recieve_letter
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
 	immediate = {
 		if = {
 			limit = { multiplayer = yes	}
+			
+			save_event_target_as = target_victim
+			FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+			clear_event_target = target_victim
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
@@ -2347,48 +2095,19 @@ narrative_event = {
 		name = EVTOPTA_CM_6323
 		if = {
 			limit = { multiplayer = no	}
+			
+			hidden_tooltip = {
+				save_event_target_as = target_victim
+				FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+				clear_event_target = target_victim
+			}
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
 			}
 		}
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.6326 }
@@ -2410,47 +2129,6 @@ character_event = {
 
 	option = {
 		name = EVTOPTA_CM_6326
-		tooltip = {
-			FROM = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_murder_attempt
-					months = 120
-				}
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -2499,47 +2177,17 @@ narrative_event = {
 	border = GFX_event_normal_frame_intrigue
 
 	is_triggered_only = yes
+	
+	immediate = {
+		save_event_target_as = target_victim
+		FROMFROM = { character_event = { id = 11 } } # Consequences of discovery
+		clear_event_target = target_victim
+	}
 
 	option = {
 		name = EVTOPTA_CM_6327
 		FROMFROM = { reveal_plot = yes }
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.63299 }
@@ -2563,40 +2211,6 @@ character_event = {
 		name = EVTOPTA_CM_63299
 		tooltip = {
 			reveal_plot = yes
-			FROM = {
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
 		}
 	}
 }
@@ -2726,7 +2340,7 @@ narrative_event = {
 	title = EVTTITLE_CM_6333
 	desc = EVTDESC_CM_6333
 	picture = GFX_evt_shadow
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
@@ -2779,13 +2393,18 @@ narrative_event = {
 	title = EVTTITLE_CM_6333
 	desc = EVTDESC_CM_6333
 	picture = GFX_evt_shadow
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
 	immediate = {
 		if = {
 			limit = { multiplayer = yes	}
+			
+			save_event_target_as = target_victim
+			FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+			clear_event_target = target_victim
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
@@ -2797,48 +2416,19 @@ narrative_event = {
 		name = EVTOPTA_CM_6333
 		if = {
 			limit = { multiplayer = no	}
+			
+			hidden_tooltip = {
+				save_event_target_as = target_victim
+				FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+				clear_event_target = target_victim
+			}
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
 			}
 		}
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.6336 }
@@ -2860,47 +2450,6 @@ character_event = {
 
 	option = {
 		name = EVTOPTA_CM_6336
-		tooltip = {
-			FROM = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_murder_attempt
-					months = 120
-				}
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -2949,47 +2498,17 @@ narrative_event = {
 	border = GFX_event_normal_frame_intrigue
 
 	is_triggered_only = yes
+	
+	immediate = {
+		save_event_target_as = target_victim
+		FROMFROM = { character_event = { id = 11 } } # Consequences of discovery
+		clear_event_target = target_victim
+	}
 
 	option = {
 		name = EVTOPTA_CM_6337
 		FROMFROM = { reveal_plot = yes }
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.63399 }
@@ -3013,40 +2532,6 @@ character_event = {
 		name = EVTOPTA_CM_63399
 		tooltip = {
 			reveal_plot = yes
-			FROM = {
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
 		}
 	}
 }
@@ -3175,7 +2660,7 @@ narrative_event = {
 	title = EVTTITLE_CM_6343
 	desc = EVTDESC_CM_6343
 	picture = GFX_evt_illness
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
@@ -3228,13 +2713,18 @@ narrative_event = {
 	title = EVTTITLE_CM_6343
 	desc = EVTDESC_CM_6343
 	picture = GFX_evt_illness
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
 	immediate = {
 		if = {
 			limit = { multiplayer = yes	}
+			
+			save_event_target_as = target_victim
+			FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+			clear_event_target = target_victim
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
@@ -3246,48 +2736,19 @@ narrative_event = {
 		name = EVTOPTA_CM_6343
 		if = {
 			limit = { multiplayer = no	}
+			
+			hidden_tooltip = {
+				save_event_target_as = target_victim
+				FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+				clear_event_target = target_victim
+			}
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
 			}
 		}
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.6346 }
@@ -3309,47 +2770,6 @@ character_event = {
 
 	option = {
 		name = EVTOPTA_CM_6346
-		tooltip = {
-			FROM = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_murder_attempt
-					months = 120
-				}
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -3398,47 +2818,17 @@ narrative_event = {
 	border = GFX_event_normal_frame_intrigue
 
 	is_triggered_only = yes
+	
+	immediate = {
+		save_event_target_as = target_victim
+		FROMFROM = { character_event = { id = 11 } } # Consequences of discovery
+		clear_event_target = target_victim
+	}
 
 	option = {
 		name = EVTOPTA_CM_6347
 		FROMFROM = { reveal_plot = yes }
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.63499 }
@@ -3462,40 +2852,6 @@ character_event = {
 		name = EVTOPTA_CM_63499
 		tooltip = {
 			reveal_plot = yes
-			FROM = {
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
 		}
 	}
 }
@@ -3625,7 +2981,7 @@ narrative_event = {
 	title = EVTTITLE_CM_6353
 	desc = EVTDESC_CM_6353
 	picture = GFX_evt_child_play
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
@@ -3678,13 +3034,18 @@ narrative_event = {
 	title = EVTTITLE_CM_6353
 	desc = EVTDESC_CM_6353
 	picture = GFX_evt_child_play
-	border = GFX_event_normal_frame_intrigue
+	border = GFX_event_narrative_frame_intrigue
 
 	is_triggered_only = yes
 
 	immediate = {
 		if = {
 			limit = { multiplayer = yes	}
+			
+			save_event_target_as = target_victim
+			FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+			clear_event_target = target_victim
+		
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
@@ -3696,48 +3057,19 @@ narrative_event = {
 		name = EVTOPTA_CM_6353
 		if = {
 			limit = { multiplayer = no	}
+			
+			hidden_tooltip = {
+				save_event_target_as = target_victim
+				FROMFROM = { character_event = { id = 10 } } # Consequences of discovery
+				clear_event_target = target_victim
+			}
+			
 			death = {
 				death_reason = death_murder
 				killer = FROMFROM
 			}
 		}
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.6356 }
@@ -3759,47 +3091,6 @@ character_event = {
 
 	option = {
 		name = EVTOPTA_CM_6356
-		tooltip = {
-			FROM = {
-				opinion = {
-					who = ROOT
-					modifier = opinion_murder_attempt
-					months = 120
-				}
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -3848,47 +3139,17 @@ narrative_event = {
 	border = GFX_event_normal_frame_intrigue
 
 	is_triggered_only = yes
+	
+	immediate = {
+		save_event_target_as = target_victim
+		FROMFROM = { character_event = { id = 11 } } # Consequences of discovery
+		clear_event_target = target_victim
+	}
 
 	option = {
 		name = EVTOPTA_CM_6357
 		FROMFROM = { reveal_plot = yes }
-		opinion = {
-			who = FROMFROM
-			modifier = opinion_murder_attempt
-			months = 120
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROMFROM }
-			}
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		top_liege = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-			any_realm_lord = {
-				opinion = {
-					who = FROMFROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = FROMFROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		
 		hidden_tooltip = {
 			FROMFROM = {
 				character_event = { id = CM.63599 }
@@ -3912,41 +3173,6 @@ character_event = {
 		name = EVTOPTA_CM_63599
 		tooltip = {
 			reveal_plot = yes
-			FROM = {
-				any_dynasty_member = {
-					limit = {
-						is_alive = yes
-						NOT = { character = ROOT }
-					}
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-				top_liege = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-					any_realm_lord = {
-						opinion = {
-							who = ROOT
-							modifier = opinion_dishonorable
-							months = 60
-						}
-					}
-				}
-				religion_head = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
-				}
-			}
 		}
 	}
 }
-

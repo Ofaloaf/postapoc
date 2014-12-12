@@ -20,6 +20,511 @@ character_event = {
 	desc = "B"
 }
 
+# Killer discovered after murder - consequences.
+# (Should be fired for the killer just before the victim dies. Victim is event_target:target_victim.)
+character_event = {
+	id = 10
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				ai = no
+				event_target:target_victim = { any_spouse = { character = ROOT } }
+				NOT = { has_character_flag = achievement_spouse_killer } 
+			}
+			set_character_flag = achievement_spouse_killer
+		}
+	
+		if = {
+			limit = { NOT = { has_character_modifier = known_murderer } }
+			add_character_modifier = {
+				name = known_murderer
+				duration = -1
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = { trait = kinslayer }
+				NOT = { religion_group = muslim }
+				event_target:target_victim = {
+					dynasty = ROOT
+				}
+			}
+			add_trait = kinslayer
+		}
+		
+		event_target:target_victim = {
+			any_liege = {
+				if = {
+					limit = {
+						is_close_relative = PREV
+						NOT = { character = ROOT }
+						NOT = { is_close_relative = ROOT }
+					}
+					opinion = {
+						who = ROOT
+						modifier = opinion_regicide_traitor
+					}
+				}
+			}
+			
+			if = {
+				limit = {
+					NOT = { dynasty = ROOT }
+				}
+				any_dynasty_member = {
+					opinion = {
+						who = ROOT
+						modifier = opinion_dishonorable
+						months = 60
+					}
+					if = {
+						limit = { ROOT = { any_spouse = { character = PREV } } }
+						opinion = {
+							who = ROOT
+							modifier = opinion_spouse_slayer
+							months = 60
+						}
+					}
+				}
+			}
+			
+			top_liege = {
+				opinion = {
+					who = ROOT
+					modifier = opinion_dishonorable
+					months = 60
+				}
+				any_realm_lord = {
+					opinion = {
+						who = ROOT
+						modifier = opinion_dishonorable
+						months = 60
+					}
+				}
+			}
+			religion_head = {
+				opinion = {
+					who = ROOT
+					modifier = opinion_dishonorable
+					months = 60
+				}
+			}
+			
+			if = {
+				limit = {
+					mother = {
+						NOT = { character = ROOT }
+						NOT = { is_mother = ROOT }
+					}
+				}
+				mother = {
+					opinion = {
+						who = ROOT
+						modifier = opinion_killed_close_kin
+						months = 1200
+					}
+					add_rival = ROOT
+				}
+			}
+			if = {
+				limit = {
+					father = {
+						NOT = { character = ROOT }
+						NOT = { is_father = ROOT }
+					}
+				}
+				father = {
+					opinion = {
+						who = ROOT
+						modifier = opinion_killed_close_kin
+						months = 1200
+					}
+					add_rival = ROOT
+				}
+			}
+			
+			any_child = {
+				limit = {
+					NOT = { character = ROOT }
+					NOT = { is_child_of = ROOT }
+				}
+				opinion = {
+					who = ROOT
+					modifier = opinion_killed_close_kin
+					months = 1200
+				}
+				add_rival = ROOT
+			}
+			
+			any_sibling = {
+				limit = {
+					NOT = { character = ROOT }
+					NOT = { sibling = ROOT }
+				}
+				opinion = {
+					who = ROOT
+					modifier = opinion_killed_close_kin
+					months = 1200
+				}
+			}
+		}
+	}
+}
+
+
+# Attacker discovered after failed murder - consequences.
+# (Should be fired for the attacker. The victim is event_target:target_victim.)
+character_event = {
+	id = 11
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		event_target:target_victim = {
+			opinion = {
+				who = ROOT
+				modifier = opinion_murder_attempt
+				months = 600
+			}
+			
+			any_liege = {
+				limit = {
+					is_close_relative = PREV
+					NOT = { character = ROOT }
+					NOT = { dynasty = ROOT }
+				}
+				if = {
+					opinion = {
+						who = ROOT
+						modifier = opinion_dishonorable
+						months = 60
+					}
+				}
+			}
+			
+			if = {
+				limit = {
+					NOT = { dynasty = ROOT }
+				}
+				any_dynasty_member = {
+					opinion = {
+						who = ROOT
+						modifier = opinion_dishonorable
+						months = 60
+					}
+				}
+			}
+			
+			if = {
+				limit = {
+					mother = {
+						NOT = { character = ROOT }
+						NOT = { is_mother = ROOT }
+					}
+				}
+				mother = {
+					opinion = {
+						who = ROOT
+						modifier = attempted_murder_of_child
+						months = 120
+					}
+				}
+			}
+			if = {
+				limit = {
+					father = {
+						NOT = { character = ROOT }
+						NOT = { is_father = ROOT }
+					}
+				}
+				father = {
+					opinion = {
+						who = ROOT
+						modifier = attempted_murder_of_child
+						months = 120
+					}
+				}
+			}
+			
+			any_child = {
+				limit = {
+					NOT = { character = ROOT }
+					NOT = { is_child_of = ROOT }
+				}
+				opinion = {
+					who = ROOT
+					modifier = attempted_murder_of_parent
+					months = 120
+				}
+			}
+			
+			any_sibling = {
+				limit = {
+					NOT = { character = ROOT }
+					NOT = { sibling = ROOT }
+				}
+				opinion = {
+					who = ROOT
+					modifier = attempted_murder_of_sibling
+					months = 60
+				}
+			}
+		}
+	}
+}
+
+
+##########################################
+# ADULTERY DISCOVERED
+##########################################
+# Fired for an unfaithful spouse who was discovered cheating
+# Do not fire for both adulterers!
+# Adulterer: event_target:target_adulterer
+###########################################
+
+character_event = {
+	id = 20
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_character_flag = adultery_discovered
+		
+		if = {
+			limit = {
+				has_nickname = no
+				random = 95 # 5% chance
+			}
+			give_nickname = nick_the_unchaste
+		}
+		
+		if = {
+			limit = {
+				religion_group = christian
+				OR = {
+					AND = {
+						is_ruler = yes
+						is_theocracy = yes
+					}
+					trait = monk
+					trait = nun
+				}
+			}
+			add_character_modifier = {
+				name = adulterous_priest
+				years = 20
+			}
+			piety = -100
+		}
+		
+		event_target:target_adulterer = {
+			ROOT = {
+				if = {
+					limit = {
+						is_female = yes
+						PREV = { is_female = no } # No one cares if two women fool around
+					}
+					
+					if = {
+						limit = {
+							is_married = yes
+							has_nickname = no
+							random = 50
+						}
+						give_nickname = nick_the_unfaithful
+					}
+					
+					if = {
+						limit = {
+							is_pregnant = yes
+							father_of_unborn_known = no
+							father_of_unborn = {
+								character = PREV
+							}
+						}
+						father_of_unborn_known = yes
+					}
+					
+					if = {
+						limit = {
+							age_diff = {
+								who = PREV
+								years = 25
+							}
+							is_older_than = FROMFROM
+							NOT = { has_character_modifier = cradle_robber }
+						}
+						add_character_modifier = {
+							name = cradle_robber
+							years = 5
+						}
+					}
+					
+					any_spouse = {
+						limit = { PREVPREV = { is_female = no } }
+						opinion = {
+							who = PREV
+							modifier = opinion_unfaithful_wife
+							months = 120
+						}
+						opinion = {
+							who = PREVPREV
+							modifier = opinion_cuckolded
+							months = 120
+						}
+						if = {
+							limit = {
+								NOT = { is_rival = PREVPREV }
+								NOT = { is_lover = PREVPREV }
+								NOT = { is_friend = PREVPREV }
+								NOT = { trait = kind }
+								NOT = { trait = content }
+							}
+							add_rival = PREVPREV
+						}
+						if = {
+							limit = { is_lover = PREV }
+							remove_lover = PREV
+						}
+						if = {
+							limit = { is_lover = PREVPREV }
+							remove_lover = PREVPREV
+						}
+						if = {
+							limit = { is_friend = PREVPREV }
+							remove_friend = PREVPREV
+						}
+					}
+					
+					if = {
+						limit = {
+							is_close_relative = PREV
+							NOT = { religion = messalian }
+							NOT = { religion = zoroastrian }
+						}
+						add_character_modifier = {
+							name = incestuous_adulteress
+							years = 20
+						}
+					}
+					if = {
+						limit = {
+							OR = {
+								NOT = { is_close_relative = PREV }
+								religion = messalian
+								religion = zoroastrian
+							}
+						}
+						add_character_modifier = {
+							name = adulteress
+							years = 10
+						}
+					}
+				}
+				
+				if = {
+					limit = { is_female = no }
+					
+					any_spouse = {
+						opinion = {
+							who = PREV
+							modifier = opinion_unfaithful_husband
+							months = 120
+						}
+						opinion = {
+							who = PREVPREV
+							modifier = slut_seductress
+							months = 120
+						}
+						if = {
+							limit = {
+								NOT = { is_rival = PREVPREV }
+								NOT = { is_lover = PREVPREV }
+								NOT = { is_friend = PREVPREV }
+								NOT = { trait = kind }
+								NOT = { trait = content }
+							}
+							add_rival = PREVPREV
+						}
+						
+						if = {
+							limit = { is_lover = PREV }
+							remove_lover = PREV
+						}
+						if = {
+							limit = { is_lover = PREVPREV }
+							remove_lover = PREVPREV
+						}
+						if = {
+							limit = { is_friend = PREVPREV }
+							remove_friend = PREVPREV
+						}
+					}
+					
+					if = {
+						limit = { same_sex = PREV }
+						add_character_modifier = {
+							name = known_sodomite
+							years = 20
+						}
+					}
+					
+					if = {
+						limit = {
+							is_close_relative = PREV
+							NOT = { religion = messalian }
+							NOT = { religion = zoroastrian }
+						}
+						add_character_modifier = {
+							name = incestuous_adulterer
+							years = 20
+						}
+					}
+					if = {
+						limit = {
+							is_married = yes
+							OR = {
+								NOT = { is_close_relative = PREV }
+								religion = messalian
+								religion = zoroastrian
+							}
+						}
+						add_character_modifier = {
+							name = adulterer
+							years = 10
+						}
+					}
+				}
+			}
+			
+			# Fire this event for the adulterer too
+			if = {
+				limit = {
+					NOT = { has_character_flag = adultery_discovered }
+				}
+				ROOT = { save_event_target_as = target_adulterer }
+				character_event = { id = 20 }
+			}
+			
+			log = "20: Adultery discovered between [Root.GetTitledName] and [This.GetTitledName]!"
+		}
+		
+		clear_event_target = target_adulterer
+		clr_character_flag = adultery_discovered
+	}
+}
+
+
 # On-action event: Avoided imprison, declared independence
 character_event = {
 	id = 150
@@ -155,8 +660,8 @@ character_event = {
 # on_executed
 character_event = {
 	id = 154
-	desc = "EVTDESC154"
-	picture = "GFX_evt_beheading"
+	desc = EVTDESC154
+	picture = GFX_evt_beheading
 	
 	is_triggered_only = yes 
 	
@@ -171,8 +676,11 @@ character_event = {
 			}
 			if = {
 				limit = { 
-					spouse = { character = ROOT }
+					any_spouse = { character = ROOT }
 				}
+				
+				set_character_flag = achievement_spouse_killer
+				
 				spouse = {
 					any_dynasty_member = {
 						limit = {
@@ -329,47 +837,18 @@ character_event = {
 # on_failed_assassination_disc - no harm done
 character_event = {
 	id = 159
-	desc = "EVTDESC159"
-	picture = "GFX_evt_shadow"
+	desc = EVTDESC159
+	picture = GFX_evt_shadow
 	
 	is_triggered_only = yes 
 	
 	immediate = {
-		FROM = { character_event = { id = 40006 } }
-		opinion = {
-			who = FROM
-			modifier = opinion_murder_attempt
-			months = 120
+		save_event_target_as = target_victim
+		FROM = {
+			character_event = { id = 11 }
+			character_event = { id = 40006 }
 		}
-		opinion = {
-			who = FROM
-			modifier = opinion_dishonorable
-			months = 60
-		}
-		if = {
-			limit = { 
-				NOT = { employer = { character = FROM } } 
-				NOT = { employer = { character = ROOT } } 
-			}
-			employer = {
-				opinion = {
-					who = FROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROM }
-			}
-			opinion = {
-				who = FROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		clear_event_target = target_victim
 	}
 
 	option = {
@@ -390,38 +869,12 @@ character_event = {
 # on_failed_assassination - divulged my name!
 character_event = {
 	id = 40006
-	desc = "EVTDESC40006"
-	picture = "GFX_evt_shadow"
+	desc = EVTDESC40006
+	picture = GFX_evt_shadow
 	
 	hide_FROM = yes
 	
 	is_triggered_only = yes 
-	
-	immediate = {
-		if = {
-			limit = {
-				same_realm = FROM
-			}
-			any_realm_character = {
-				limit = {
-					NOT = { character = FROM }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		
-		religion_head = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-	}
 
 	option = {
 		name = "EVTOPTA40006"
@@ -443,41 +896,12 @@ character_event = {
 	}
 	
 	immediate = {
-		FROM = { character_event = { id = 40007 } }
-		opinion = {
-			who = FROM
-			modifier = opinion_murder_attempt
-			months = 120
+		save_event_target_as = target_victim
+		FROM = {
+			character_event = { id = 11 }
+			character_event = { id = 40007 }
 		}
-		opinion = {
-			who = FROM
-			modifier = opinion_dishonorable
-			months = 60
-		}
-		if = {
-			limit = { 
-				NOT = { employer = { character = FROM } } 
-				NOT = { employer = { character = ROOT } } 
-			}
-			employer = {
-				opinion = {
-					who = FROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROM }
-			}
-			opinion = {
-				who = FROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		clear_event_target = target_victim
 	}
 
 	option = {
@@ -497,37 +921,12 @@ character_event = {
 
 character_event = {
 	id = 40007
-	desc = "EVTDESC40006"
-	picture = "GFX_evt_shadow"
+	desc = EVTDESC40006
+	picture = GFX_evt_shadow
 	
 	hide_FROM = yes
 	
 	is_triggered_only = yes 
-	
-	immediate = {
-		if = {
-			limit = {
-				same_realm = FROM
-			}
-			any_realm_character = {
-				limit = {
-					NOT = { character = FROM }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-	}
 
 	option = {
 		name = "EVTOPTA40007"
@@ -556,41 +955,12 @@ character_event = {
 	}
 	
 	immediate = {
-		FROM = { character_event = { id = 40008 } }
-		opinion = {
-			who = FROM
-			modifier = opinion_murder_attempt
-			months = 120
+		save_event_target_as = target_victim
+		FROM = {
+			character_event = { id = 11 }
+			character_event = { id = 40008 }
 		}
-		opinion = {
-			who = FROM
-			modifier = opinion_dishonorable
-			months = 60
-		}
-		if = {
-			limit = { 
-				NOT = { employer = { character = FROM } } 
-				NOT = { employer = { character = ROOT } } 
-			}
-			employer = {
-				opinion = {
-					who = FROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROM }
-			}
-			opinion = {
-				who = FROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
+		clear_event_target = target_victim
 	}
 
 	option = {
@@ -609,37 +979,12 @@ character_event = {
 }
 character_event = {
 	id = 40008
-	desc = "EVTDESC40006"
-	picture = "GFX_evt_shadow"
+	desc = EVTDESC40006
+	picture = GFX_evt_shadow
 	
 	hide_FROM = yes
 	is_triggered_only = yes 
 	
-	immediate = {
-		if = {
-			limit = {
-				same_realm = FROM
-			}
-			any_realm_character = {
-				limit = {
-					NOT = { character = FROM }
-				}
-				opinion = {
-					who = ROOT
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		religion_head = {
-			opinion = {
-				who = ROOT
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-	}
-
 	option = {
 		name = "EVTOPTA40008"
 		piety = -50
@@ -649,24 +994,11 @@ character_event = {
 # on_assassination
 character_event = {
 	id = 162
-	picture = "GFX_evt_shadow"
-	desc = "EVTDESC162"
+	picture = GFX_evt_shadow
+	desc = EVTDESC162
 	
 	hide_FROM = yes
 	is_triggered_only = yes 
-	
-	immediate = {
-		if = {
-			limit = {
-				spouse = { character = FROM }
-				FROM = { 
-					ai = no
-					NOT = { has_character_flag = achievement_spouse_killer } 
-				}
-			}
-			FROM = { set_character_flag = achievement_spouse_killer }
-		}
-	}
 	
 	option = {
 		name = "EVTOPTA162"
@@ -702,108 +1034,30 @@ character_event = {
 	is_triggered_only = yes 
 	
 	immediate = {
-		if = {
-			limit = { 
-				dynasty = FROM 
-				NOT = { FROM = { religion_group = muslim } }
-			}
-			FROM = { add_trait = kinslayer }
+		save_event_target_as = target_victim
+		FROM = {
+			character_event = { id = 10 }
 		}
+		clear_event_target = target_victim
+		
 		if = {
-			limit = { spouse = { character = FROM } }
-			any_dynasty_member = {
-				limit = {
-					is_alive = yes
+			limit = {
+				employer = {
 					NOT = { character = FROM }
-				}
-				opinion = {
-					who = FROM
-					modifier = opinion_spouse_slayer
-					months = 60
-				}
-			}
-		}
-		if = {
-			limit = {
-				spouse = { character = FROM }
-				FROM = { 
-					ai = no
-					NOT = { has_character_flag = achievement_spouse_killer } 
+					NOT = { character = ROOT }
+					job_spymaster = {
+						NOT = { character = FROM }
+					}
 				}
 			}
-			FROM = { set_character_flag = achievement_spouse_killer }
+			FROM = { set_character_flag = we_are_evil_assasinator }
+			employer = { character_event = { id = 40020 days = 5 } }
 		}
-		if = {
-			limit = { 
-				NOT = { employer = { character = FROM } } 
-				NOT = { employer = { character = ROOT } } 
-			}
-			employer = {
-				opinion = {
-					who = FROM
-					modifier = opinion_dishonorable
-					months = 60
-				}
-			}
-		}
-		any_dynasty_member = {
-			limit = {
-				is_alive = yes
-				NOT = { character = FROM }
-			}
-			opinion = {
-				who = FROM
-				modifier = opinion_dishonorable
-				months = 60
-			}
-		}
-		mother = {
-			opinion = {
-				who = FROM
-				modifier = opinion_killed_close_kin
-				months = 60
-			}
-		}
-		father = {
-			opinion = {
-				who = FROM
-				modifier = opinion_killed_close_kin
-				months = 60
-			}
-		}
-		any_child = {
-			opinion = {
-				who = FROM
-				modifier = opinion_killed_close_kin
-				months = 60
-			}
-		}
-		any_sibling = {
-			opinion = {
-				who = FROM
-				modifier = opinion_killed_close_kin
-				months = 60
-			}
-		}
+		FROM = { character_event = { id = 40010 } }
 	}
 
 	option = {
 		name = "EVTOPTA163"
-		hidden_tooltip = {
-			if = {
-				limit = {
-					host = {
-						NOT = { character = FROM }
-						job_spymaster = {
-							NOT = { character = FROM }
-						}
-					}
-				}
-				FROM = { set_character_flag = we_are_evil_assasinator }
-				host = { character_event = { id = 40020 days = 5 } }
-			}
-			FROM = { character_event = { id = 40010 } }
-		}
 		death = {
 			death_reason = death_murder
 			killer = FROM
@@ -853,8 +1107,8 @@ character_event = {
 # Failed assassination attempt on us, reactions possible
 character_event = {
 	id = 40020
-	desc = "EVTDESC40020"
-	picture = "GFX_evt_shadow"
+	desc = EVTDESC40020
+	picture = GFX_evt_shadow
 	
 	is_triggered_only = yes 
 	
@@ -937,12 +1191,10 @@ character_event = {
 		trigger = {
 			same_realm = FROMFROM
 			independent = yes
-			FROM = { 
-			 	FROM = {
-			 		prisoner = yes
-					NOT = { host = { character = ROOT } }
-					NOT = { has_opinion_modifier = { who = ROOT  modifier = i_attempted_murder } }
-				}
+			FROMFROM = {
+		 		prisoner = yes
+				NOT = { host = { character = ROOT } }
+				NOT = { has_opinion_modifier = { who = ROOT  modifier = i_attempted_murder } }
 			}
 		}
 		ai_chance = {
@@ -957,40 +1209,34 @@ character_event = {
 		trigger = {
 			same_realm = FROMFROM
 			independent = yes
-			FROM = { 
-			 	FROM = {
-			 		prisoner = yes
-					host = { character = ROOT }
-				}
-			}			
+			FROMFROM = {
+		 		prisoner = yes
+				host = { character = ROOT }
+			}
 		}
 		ai_chance = {
 			factor = 1000
 		}
-		FROM = { 
-			FROM = { 
-				death = {
-					death_reason = death_execution
-					killer = ROOT
-				}
+		FROMFROM = { 
+			death = {
+				death_reason = death_execution
+				killer = ROOT
 			}
 		}
 	}
 	option = {
 		trigger = {
 			NOT = {	same_realm = FROMFROM }
-			FROM = { 
-			 	FROM = {
-					NOT = { has_opinion_modifier = { who = ROOT  modifier = i_attempted_murder } }
-				}
-			}			
+			FROMFROM = {
+				NOT = { has_opinion_modifier = { who = ROOT  modifier = i_attempted_murder } }
+			}
 		}
 		name = "EVTOPTC40020"		# Someone in another realm.
 		ai_chance = {
 			factor = 1000
 		}
 		
-		FROM = { FROM = { opinion = { who = ROOT modifier = i_attempted_murder months = 2 } } }
+		FROMFROM = { opinion = { who = ROOT modifier = i_attempted_murder months = 2 } } 
 
 		send_assassin = FROMFROM
 	}

@@ -2,10 +2,14 @@
 # Written by Sam. Feel free to reuse this code anywhere.
 namespace = prez
 
+################
+# 1-99: Presidential elections
+################
+
 # President is dead
 character_event = {
 	id = prez.1
-	desc = "DEBUG"
+	desc = DEBUG
 	is_triggered_only = yes
 	hide_window = yes
 	
@@ -14,36 +18,48 @@ character_event = {
 	}
 	
 	immediate = {
-	
+		if = {
+			limit = { NOT = { has_global_flag = pres_election } }
+			set_global_flag = pres_election
+			set_global_flag = declare_candidacy
+			any_playable_ruler = { # Inform players
+				limit = { religion = americanist }
+				character_event = { id = prez.3 }
+			}
+			d_electoral_college = {
+				holder_scope = { diplomatic_immunity = yes }
+				character_event = { id = prez.7 days = 30 }
+			}
+		}
 	}
 	
 	# Vice Presidency has holder, give it to them
 	option = {
-		name = "DEBUG"
+		name = DEBUG
 		trigger = {
 			c_americanist_vp = { has_holder = yes }
 		}
-		c_americanist_vp = { holder_scope = { character_event = { id = pres.2 days = 1 } } }
+		c_americanist_vp = { holder_scope = { character_event = { id = prez.2 days = 1 } } }
 	}
 	
 	# No VP, give it to chancellor (Secretary of State)
 	option = {
-		name = "DEBUG"
+		name = DEBUG
 		trigger = {
 			NOT = { c_americanist_vp = { has_holder = yes } }
 			job_chancellor = { always = yes }
 		}
-		job_chancellor = { character_event = { id = pres.2 days = 1 } }
+		job_chancellor = { character_event = { id = prez.2 days = 1 } }
 	}
 	
 	# Somehow they don't have a VP or a chancellor, just give it to a random eligible courtier
 	option = {
-		name = "DEBUG"
+		name = DEBUG
 		trigger = {
 			NOT = { c_americanist_vp = { has_holder = yes } }
 			NOT = { job_chancellor = { always = yes } }
 		}
-		random_courtier = { character_event = { id = pres.2 days = 1 } }
+		random_courtier = { character_event = { id = prez.2 days = 1 } }
 	}
 }
 
@@ -56,7 +72,7 @@ character_event = {
 	
 	immediate = {
 		c_americanist = { gain_title = PREV }
-		c_americanist_vp = { destroy_landed_title = THIS }
+		activate_title = { title = c_americanist_vp status = no }
 	}
 	
 	option = {
@@ -64,60 +80,268 @@ character_event = {
 	}
 }
 
+# Notify players of President death
+character_event = {
+	id = prez.3
+	desc = prez.3.desc
+	picture = GFX_recieve_letter
+	is_triggered_only = yes
+	
+	option = {
+		name = prez.3.optA
+		custom_tooltip = { text = prez.3.tooltip }
+	}
+}
+
+# Notify players of a new candidate
+character_event = {
+	id = prez.4
+	desc = prez.4.desc
+	picture = GFX_recieve_letter
+	is_triggered_only = yes
+
+	notification = yes
+	
+	option = {
+		name = prez.4.optA
+	}
+}
+
+# Notify players of a candidate dropping out
+character_event = {
+	id = prez.5
+	desc = prez.5.desc
+	picture = GFX_recieve_letter
+	is_triggered_only = yes
+
+	notification = yes
+	
+	option = {
+		name = prez.4.optA
+	}
+}
+
+# Show player all candidates
+character_event = {
+	id = prez.6
+	desc = prez.6.desc
+	is_triggered_only = yes
+	
+	option = {
+		name = prez.6.optA
+		any_independent_ruler = {
+			any_realm_character = {
+				limit = {
+					religion = americanist
+					trait = on_campaign
+					has_character_flag = pres_candidate
+				}
+				custom_tooltip = { text = TOOLTIPPRESIDENTCANDIDATE }
+				save_event_target_as = candidate
+				on_campaign = {
+					limit = { has_opinion_modifier = { who = PREV modifier = running_mate } }
+					custom_tooltip = { text = TOOLTIPVICEPRESIDENTCANDIDATE }
+				}
+				clear_event_target = candidate
+			}
+		}
+	}
+}
+
+# Candidate declaration deadline reached
+character_event = {
+	id = prez.7
+	desc = DEBUG
+	is_triggered_only = yes
+	hide_window = yes
+	
+	option = {
+		name = DEBUG
+		clr_global_flag = declare_candidacy
+		any_playable_ruler = {
+			limit = { religion = americanist }
+			character_event = { id = prez.6 }
+		}
+	}
+}
+
 ################
-# 100-200: Events for the President (and VP and First Lady) in power
+# 100-199: Events for the President (and VP and First Lady) in power
+################
 
 # Named Vice President
 character_event = {
 	id = prez.100
-	desc = "prez.100.desc"
+	desc = prez.100.desc
 	picture = GFX_recieve_letter
 	is_triggered_only = yes
 	
 	option = { # Accept
-		name = "prez.100.optA"
-		ai_chance = {
-			factor = 2 # need to expand this a bit
+		name = prez.100.optA
+		ai_chance = { # Should expand this a bit
+			factor = 2
+			modifier = {
+				factor = 2
+				trait = ambitious
+			}
 		}
 		c_americanist_VP = { gain_title = PREV }
 		opinion = { modifier = made_vp who = FROM }
-		hidden_tooltip = { FROM = { character_event = { id = prez.101 } } }
+		hidden_tooltip = {
+			any_playable_ruler = {
+				limit = { religion = americanist }
+				character_event = { id = prez.101 }
+			}
+		}
 	}
 	
 	option = { # Decline
 		ai_chance = {
 			factor = 1
+			modifier = {
+				factor = 3
+				trait = content
+			}
 		}
-		name = "prez.100.optB"
+		name = prez.100.optB
 		reverse_opinion = { modifier = refused_vp who = FROM }
 		hidden_tooltip = { FROM = { character_event = { id = prez.102 } } }
 	}
 }
 
-# Accepted VP
+# Inform Americanists of new VP
 character_event = {
 	id = prez.101
-	desc = "prez.101.desc"
+	desc = prez.101.desc
 	picture = GFX_recieve_letter
 	is_triggered_only = yes
 	
 	option = {
-		name = "prez.101.optA"
+		name = prez.101.optA
 	}
 }
 
-# Declined VP
+# Inform President that VP was declined
 character_event = {
 	id = prez.102
-	desc = "prez.102.desc"
+	desc = prez.102.desc
 	picture = GFX_recieve_letter
 	is_triggered_only = yes
 	
 	option = {
-		name = "prez.102.optA"
+		name = prez.102.optA
+	}
+}
+
+# Death event for VP
+character_event = {
+	id = prez.103
+	desc = DEBUG
+	picture = GFX_recieve_letter
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		has_landed_title = c_americanist_vp
+	}
+	
+	immediate = {
+		c_americanist_vp = { destroy_landed_title = THIS }
+		c_americanist = { holder_scope = { character_event = { id = prez.104 } } }
+	}
+	
+	option = {
+		name = DEBUG
+	}
+}
+
+# Notify Prez of VP death
+character_event = {
+	id = prez.104
+	desc = prez.104.desc
+	picture = GFX_recieve_letter
+	is_triggered_only = yes
+	
+	option = {
+		name = prez.104.optA
+		custom_tooltip = { text = prez.104.tooltip }
 	}
 }
 
 # Americanist owner of Washington asked to give it up
 
 # President is incapacitated, VP or First Lady can try to seize power
+
+
+
+################
+# 200-299: Election campaigning
+################
+# Killer of candidate loses public support - candidate dies
+character_event = {
+	id = prez.200
+	desc = prez.200.desc
+	picture = GFX_evt_shadow
+	is_triggered_only = yes
+	
+	option = {
+		name = prez.200.optA
+		add_character_modifier = { name = murdered_candidate duration = 365 }
+		hidden_tooltip = { 
+			any_playable_ruler = {
+				limit = { religion = americanist }
+				character_event = { id = prez.201 }
+			}
+		}
+	}
+}
+
+# Notify players
+character_event = {
+	id = prez.201
+	desc = prez.201.desc
+	picture = GFX_evt_shadow
+	is_triggered_only = yes
+	
+	notification = yes
+	
+	option = {
+		name = OK
+	}
+}
+
+# Killer of candidate loses public support - candidate lives
+character_event = {
+	id = prez.202
+	desc = prez.202.desc
+	picture = GFX_evt_shadow
+	is_triggered_only = yes
+	
+	option = {
+		name = prez.200.optA
+		add_character_modifier = { name = murdered_candidate duration = 365 }
+		event_target:target_victim = {
+			add_character_modifier = { name = sympathy_vote duration = 365 }
+		}
+		hidden_tooltip = { 
+			any_playable_ruler = {
+				limit = { religion = americanist }
+				character_event = { id = prez.203 }
+			}
+		}
+	}
+}
+
+# Notify players
+character_event = {
+	id = prez.203
+	desc = prez.203.desc
+	picture = GFX_evt_shadow
+	is_triggered_only = yes
+	
+	notification = yes
+	
+	option = {
+		name = OK
+	}
+}

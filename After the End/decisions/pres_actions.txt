@@ -1,49 +1,6 @@
 # Presidential actions
-targetted_decisions = {
-	name_vice_president = {
-		ai_target_filter = all
-		from_potential = {
-			has_landed_title = c_americanist
-			c_americanist_vp = { has_holder = no }
-		}
-		potential = {
-			religion = americanist
-			age = 35
-			only_capable = yes
-			NOT = { trait = on_campaign }
-		}
-		
-		allow = {
-			always = yes
-		}
-		
-		effect = {
-			character_event = { id = prez.100 }
-		}
-		
-		revoke_allowed = {
-			always = no
-		}
-		
-		ai_will_do = {
-			factor = 1
-			modifier = {
-				factor = 100
-				is_friend = FROM
-			}
-			modifier = {
-				factor = 0.01
-				is_rival = FROM
-			}
-			modifier = {
-				factor = 0.01
-				reverse_opinion = { who = FROM modifier = refused_vp }
-			}
-		}
-	}
-}
-
 decisions = {
+	# Found Men in Black
 	found_mib = {
 		potential = {
 			has_landed_title = c_americanist
@@ -73,10 +30,222 @@ decisions = {
 			modifier = {
 				factor = 0.1
 			}
+			modifier = { # Under attack by non-Americanists
+				factor = 100
+				war = yes
+				any_war = {
+					attacker = {
+						NOT = { religion_group = civilized_pagan }
+					}
+				}
+			}
 		}
 	}
-
+	
+	run_for_president = {
+		is_high_prio = yes
+		potential = {
+			has_global_flag = pres_election
+			has_global_flag = declare_candidacy
+			religion = americanist
+			NOT = { trait = on_campaign }
+			NOT = { has_character_flag = dropped_out }
+		}
+		allow = {
+			age = 35
+			NOT = { trait = in_hiding }
+			NOT = { trait = incapable }
+			OR = {
+				wealth = 50
+				prestige = 100
+				piety = 50
+			}
+			OR = {
+				is_patrician = no
+				primary_title = { higher_tier_than = BARON }
+			}
+		}
+		effect = {
+			add_trait = on_campaign
+			set_character_flag = pres_candidate
+			hidden_tooltip = {
+				any_playable_ruler = { # Inform players
+					limit = { religion = americanist }
+					character_event = { id = prez.4 }
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 100
+				has_landed_title = c_americanist # Incumbent wants to run for re-election
+			}
+			modifier = {
+				factor = 100
+				has_ambition = obj_become_president
+			}
+			modifier = {
+				factor = 2
+				trait = ambitious
+			}
+			modifier = {
+				factor = 0.5
+				trait = content
+			}
+			modifier = {
+				factor = 1.5
+				trait = diligent
+			}
+			modifier = {
+				factor = 0.5
+				trait = slothful
+			}
+			modifier = {
+				factor = 1.5
+				trait = zealous
+			}
+			modifier = {
+				factor = 1.5
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+			
+			modifier = {
+				factor = 1.25
+				diplomacy = 15
+			}
+			modifier = {
+				factor = 1.25
+				intrigue = 15
+			}
+			modifier = {
+				factor = 1.5
+				learning = 15
+			}
+			modifier = {
+				factor = 1.25
+				diplomacy = 20
+			}
+			modifier = {
+				factor = 1.25
+				intrigue = 20
+			}
+			modifier = {
+				factor = 1.5
+				learning = 20
+			}
+			# modifier = {
+				# factor = 1.25
+				# tier = baron
+			# }
+			# modifier = {
+				# factor = 1.5
+				# tier = count
+			# }
+			# modifier = {
+				# factor = 1.75
+				# tier = duke
+			# }
+			# modifier = {
+				# factor = 2
+				# tier = king
+			# }
+			# modifier = {
+				# factor = 2.25
+				# tier = emperor
+			# }
+			# modifier = {
+				# factor = 0.5
+				# FROM = { NOT = { prestige = 0 } }
+			# }
+			modifier = {
+				factor = 1.1
+				prestige = 500
+			}
+			modifier = {
+				factor = 1.2
+				prestige = 1000
+			}
+			modifier = {
+				factor = 1.3
+				prestige = 2500
+			}
+			modifier = {
+				factor = 1.4
+				prestige = 5000
+			}
+			modifier = {
+				factor = 1.5
+				prestige = 10000
+			}
+		}
+	}
+	
+	
+	drop_out_of_campaign = {
+		is_high_prio = yes
+		potential = {
+			trait = on_campaign
+			has_global_flag = pres_election
+			NOT = { has_global_flag = pres_voting }
+		}
+		allow = {
+			always = yes
+		}
+		effect = {
+			remove_trait = on_campaign
+			hidden_tooltip = {
+				any_playable_ruler = { # Inform players
+					limit = { religion = americanist }
+					character_event = { id = prez.5 }
+				}
+			}
+			clr_character_flag = pres_candidate
+			set_character_flag = dropped_out
+			# if vp_candidate, inform running mate of this
+			# if pres_candidate, inform running mate and ask them whether to run for Pres or drop out
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.01
+			}
+			modifier = {
+				factor = 5
+				NOT = { wealth = 0 }
+			}
+		}
+	}
+	
+	show_candidates = {
+		is_high_prio = yes
+		potential = {
+			ai = no
+			religion = americanist
+			has_global_flag = pres_election
+		}
+		allow = {
+			always = yes
+		}
+		effect = {
+			character_event = { id = prez.6 }
+		}
+		revoke_allowed = { always = no }
+		ai_will_do = { factor = 0 }
+	}
+	
 	hold_opinion_poll = {
+		is_high_prio = yes
 		potential = {
 			religion = americanist
 			trait = on_campaign

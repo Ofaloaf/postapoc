@@ -1,0 +1,145 @@
+# Targetted decisions are possible vs _all_ other characters and shown are in the Diplomacy View, not the Intrigue View. The taker is in the FROM scope.
+#
+# filter = [self/court/home_court/vassals/sub_realm/realm/dynasty/all] ('self' MUST be set for decisions targetting only the taker, the other filter types can be set to lessen CPU load)
+# ai_target_filter = [self/court/home_court/vassals/sub_realm/realm/dynasty/all] (which characters for which the AI evaluates the decision.)
+#	court: all characters in the AI's host court, including prisoners, and characters currently away (wards, prisoners, etc)
+#	home_court: all characters in the AI's home court, including prisoners, and characters currently away (wards, prisoners, etc)
+#	vassals: direct vassal rulers of the AI's employer
+#	sub_realm: all characters below the AI's employer
+#	realm: all characters in the same top realm as the AI
+#	dynasty: all members of the same dynasty
+#	rivals: your rivals plus any character you have an opinion modifier with 'crime = yes' set (the same set of characters the 'is_foe' trigger evaluates)
+#	all: all living characters (Avoid if possible. VERY CPU-HEAVY!)
+#	
+
+targetted_decisions = {
+	campaign_visit = {
+		filter = all
+		ai_target_filter = all
+		from_potential = {
+			religion = americanist
+			prisoner = no
+			has_global_flag = pres_election
+			trait = on_campaign
+			NOT = { has_character_flag = campaign_visit_in_progress }
+		}
+		potential = {
+			religion = americanist
+			is_ruler = yes
+		}
+		allow = {
+			NOT = { war_with = FROM }
+			FROM = { wealth = 25 }
+		}
+		effect = {
+			set_character_flag = campaign_visit_in_progress
+			# event to begin visit
+			# queue event to end visit
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			# Number of vassals
+		}
+	}
+
+	name_vice_president = {
+		filter = all
+		ai_target_filter = all
+		from_potential = {
+			has_landed_title = c_americanist
+			c_americanist_vp = { has_holder = no }
+		}
+		potential = {
+			NOT = { trait = on_campaign }
+		}
+		
+		allow = {
+			age = 35
+			NOT = { trait = incapable }
+			religion = americanist
+		}
+		
+		effect = {
+			hidden_tooltip = { character_event = { id = prez.100 } }
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 100
+				is_friend = FROM
+			}
+			modifier = {
+				factor = 0.01
+				is_rival = FROM
+			}
+			modifier = {
+				factor = 0.01
+				reverse_opinion = { who = FROM modifier = refused_vp }
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { reverse_opinion = { who = FROM value = -75 } }
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { reverse_opinion = { who = FROM value = -50 } }
+			}
+			modifier = {
+				factor = 0.75
+				NOT = { reverse_opinion = { who = FROM value = -25 } }
+			}
+			modifier = {
+				factor = 1.25
+				reverse_opinion = { who = FROM value = 25 }
+			}
+			modifier = {
+				factor = 1.5
+				reverse_opinion = { who = FROM value = 50 }
+			}
+			modifier = {
+				factor = 1.75
+				reverse_opinion = { who = FROM value = 75 }
+			}
+			modifier = {
+				factor = 0.75
+				NOT = { diplomacy = 10 }
+			}
+			modifier = {
+				factor = 1.25
+				diplomacy = 15
+			}
+			modifier = {
+				factor = 1.5
+				diplomacy = 20
+			}
+			modifier = {
+				factor = 1.75
+				diplomacy = 25
+			}
+			modifier = {
+				factor = 0.75
+				NOT = { learning = 10 }
+			}
+			modifier = {
+				factor = 1.25
+				learning = 15
+			}
+			modifier = {
+				factor = 1.5
+				learning = 20
+			}
+			modifier = {
+				factor = 1.75
+				learning = 25
+			}
+		}
+	}
+}

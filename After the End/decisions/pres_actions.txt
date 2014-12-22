@@ -50,20 +50,26 @@ decisions = {
 			religion = americanist
 			NOT = { trait = on_campaign }
 			NOT = { has_character_flag = dropped_out }
+			NOT = { has_landed_title = d_electoral_college }
 		}
 		allow = {
 			age = 35
 			NOT = { trait = in_hiding }
 			NOT = { trait = incapable }
-			OR = {
-				wealth = 50
-				prestige = 100
-				piety = 50
-			}
+			is_landed = yes
 			OR = {
 				is_patrician = no
 				primary_title = { higher_tier_than = BARON }
 			}
+			# Reduce the number of candidates somewhat
+			hidden_tooltip = { OR = {
+				ai = no
+				prestige = 100
+				piety = 50
+				gold = 50
+				trait = ambitious
+				has_ambition = obj_become_president
+			} }
 		}
 		effect = {
 			add_trait = on_campaign
@@ -73,6 +79,7 @@ decisions = {
 					limit = { religion = americanist }
 					character_event = { id = prez.4 }
 				}
+				d_electoral_college = { holder_scope = { change_variable = { which = num_candidates value = 1 } } }
 			}
 		}
 		revoke_allowed = {
@@ -141,50 +148,6 @@ decisions = {
 				factor = 1.5
 				learning = 20
 			}
-			# modifier = {
-				# factor = 1.25
-				# tier = baron
-			# }
-			# modifier = {
-				# factor = 1.5
-				# tier = count
-			# }
-			# modifier = {
-				# factor = 1.75
-				# tier = duke
-			# }
-			# modifier = {
-				# factor = 2
-				# tier = king
-			# }
-			# modifier = {
-				# factor = 2.25
-				# tier = emperor
-			# }
-			# modifier = {
-				# factor = 0.5
-				# FROM = { NOT = { prestige = 0 } }
-			# }
-			modifier = {
-				factor = 1.1
-				prestige = 500
-			}
-			modifier = {
-				factor = 1.2
-				prestige = 1000
-			}
-			modifier = {
-				factor = 1.3
-				prestige = 2500
-			}
-			modifier = {
-				factor = 1.4
-				prestige = 5000
-			}
-			modifier = {
-				factor = 1.5
-				prestige = 10000
-			}
 		}
 	}
 	
@@ -195,22 +158,13 @@ decisions = {
 			trait = on_campaign
 			has_global_flag = pres_election
 			NOT = { has_global_flag = pres_voting }
+			d_electoral_college = { holder_scope = { check_variable = { which = num_candidates value = 1.9 } } } # last candidate can't drop out
 		}
 		allow = {
 			always = yes
 		}
 		effect = {
-			remove_trait = on_campaign
-			hidden_tooltip = {
-				any_playable_ruler = { # Inform players
-					limit = { religion = americanist }
-					character_event = { id = prez.5 }
-				}
-			}
-			clr_character_flag = pres_candidate
-			set_character_flag = dropped_out
-			# if vp_candidate, inform running mate of this
-			# if pres_candidate, inform running mate and ask them whether to run for Pres or drop out
+			hidden_tooltip = { character_event = { id = prez.8 } }
 		}
 		revoke_allowed = {
 			always = no
@@ -251,11 +205,14 @@ decisions = {
 			trait = on_campaign
 		}
 		allow = {
-			wealth = 10
+			wealth = 5
 		}
 		effect = {
-			wealth = -10
-			# poll event
+			wealth = -5
+			hidden_tooltip = {
+				save_event_target_as = candidate
+				d_electoral_college = { holder_scope = { character_event = { id = prez.205 } } }
+			}
 		}
 		revoke_allowed = {
 			always = no

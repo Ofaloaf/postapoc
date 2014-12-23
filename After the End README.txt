@@ -31,3 +31,14 @@ Clothing and headgear by Crackdtoothgrin
 Borders from NBRT by EOOQE
 Casus bellis from Project Balance
 Titular Empires from CK2+ (old version) by Wiz
+
+Music:
+"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird"
+Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 3.0
+http://creativecommons.org/licenses/by/3.0/
+
+"Lazy Days"
+http://www.purple-planet.com
+Licensed under Creative Commons: By Attribution 3.0
+http://creativecommons.org/licenses/by/3.0/

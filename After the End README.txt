@@ -35,10 +35,13 @@ Titular Empires from CK2+ (old version) by Wiz
 Music:
 "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird"
 Kevin MacLeod (incompetech.com)
-Licensed under Creative Commons: By Attribution 3.0
-http://creativecommons.org/licenses/by/3.0/
 
 "Lazy Days"
-http://www.purple-planet.com
-Licensed under Creative Commons: By Attribution 3.0
-http://creativecommons.org/licenses/by/3.0/
+by http://www.purple-planet.com
+
+Licensed under Creative Commons: By Attribution 3.0 (http://creativecommons.org/licenses/by/3.0/)
+
+
+"Native American Flute"
+by karshkov (https://soundcloud.com/karshkov/native-american-flute)
+Licensed under Creative Commons: Attribution-NonCommercial-NoDerivs 3.0 (http://creativecommons.org/licenses/by-nc-nd/3.0/)

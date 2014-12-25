@@ -33,7 +33,7 @@ Casus bellis from Project Balance
 Titular Empires from CK2+ (old version) by Wiz
 
 Music:
-"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird"
+"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead"
 Kevin MacLeod (incompetech.com)
 
 "Lazy Days"

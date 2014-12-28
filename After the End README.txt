@@ -37,7 +37,7 @@ Music:
 Kevin MacLeod (incompetech.com)
 
 "Lazy Days"
-by http://www.purple-planet.com
+by Purple Planet (purple-planet.com)
 
 Licensed under Creative Commons: By Attribution 3.0 (http://creativecommons.org/licenses/by/3.0/)
 

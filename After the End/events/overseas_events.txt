@@ -1,0 +1,1146 @@
+# 1		foreign ships arrive in a province
+# 2		notify the top liege of the foreign ships
+# 3		ruler has an audience with the foreign merchants
+# 4		foreign merchants are killed and their ships seized
+# 5		foreign merchants offer to leave scholars in court
+# 8		[hidden] character bounce event for creating courtiers, sets up FROMs correctly
+# 9		[hidden] province bounce event for creating courtiers, selects courier type based on location
+# 10	a british merchant courtier is created
+# 11-19	*reserved for additional types of courtiers*
+# 20	[hidden] foreign scholar has some innovative ideas
+# 21	determine what innovative ideas to focus on
+# 22	[hidden] foreign scholar insults liege
+# 23	determine how to deal with a cultural misunderstanding
+# 24	[hidden] foreign scholar tries to convert people
+# 25	deal with proselytizing foreign scholar
+# 30	merchants are carousing and angering the peasants
+# 31	an overseas merchant shipwreck near the coast
+# 32	merchants want to start trading in a new county
+# 33	foreign trade is booming in a county
+# 50	relative wants to engage in mercantile adventure (unlanded AI)
+# 51	relative wants to engage in mercantile adventure (liege)
+# 52	set mercantile adventure flag after a few years
+# 53	inherit opinion used to get adventurer back to court
+# 60	child: die at sea
+# 61	sponsor: adventurer dies at sea
+# 62	child: maimed
+# 63	sponsor: adventurer maimed
+# 64	child: battle scarred
+# 65	sponsor: adventurer battle scarred
+# 66	child: gain worldly experience and sympathy for infidels
+# 67	sponsor: adventurer gains worldly experience and sympathy for infidels
+# 68	child: plunder loot... by piracy?
+# 69	sponsor: adventurer plunders loot... by piracy?
+# 70	child: spawn a bastard child
+# 71	sponsor: adventurer spawns a bastard child
+# 72	child: skillful leadership
+# 73	sponsor: adventurer displays skillful leadership
+
+namespace = overseas
+
+province_event = {
+	id = overseas.1
+	desc = EVTDESC_overseas_arrive
+	picture = GFX_evt_busy_trading_dock_republic
+	hide_window = yes
+	
+	trigger = {
+		year = 2700
+		port = yes
+		
+		OR = {
+			# places where British merchants might land
+			de_jure_liege_or_above = k_maritimes
+			de_jure_liege_or_above = k_new_york
+			de_jure_liege_or_above = k_columbia
+			de_jure_liege_or_above = k_new_england
+			de_jure_liege_or_above = k_old_dominion
+			de_jure_liege_or_above = k_dixieland
+			de_jure_liege_or_above = k_carolina
+			de_jure_liege_or_above = k_florida
+			de_jure_liege_or_above = k_cuba
+			de_jure_liege_or_above = k_jamaica
+			de_jure_liege_or_above = k_antilles
+			de_jure_liege_or_above = k_hispaniola
+		}
+	}
+	
+	mean_time_to_happen = {
+		years = 300
+	}
+	
+	immediate = {
+	
+		# dynasty has not yet met any merchants
+		if = {
+			limit = {
+				owner = {
+					top_liege = {
+						NOT = { has_dynasty_flag = foreign_ships_met }
+					}
+				}
+			}
+			owner = {
+				top_liege = {
+					narrative_event = { id = overseas.2 }
+				}
+			}
+		}
+	}
+
+	option = { }
+}
+
+narrative_event = {
+	id = overseas.2
+	title = EVTNAME_overseas_arrive
+	desc = EVTDESC_overseas_arrive
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_overseas_arrive_audience
+		narrative_event = { id = overseas.3 }
+	}
+	
+	option = {
+		name = EVTOPT_overseas_arrive_repel
+		prestige = 10
+	}
+}
+
+narrative_event = {
+	id = overseas.3
+	title = EVTNAME_overseas_audience
+	desc = EVTDESC_overseas_audience
+	picture = GFX_evt_throne_room
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_dynasty_flag = foreign_ships_met
+	}
+	
+	option = {
+		name = EVTOPT_overseas_audience_allow
+		narrative_event = { id = overseas.5 }
+		FROMFROM = { add_province_modifier = { name = foreign_trade duration = -1 } }
+		set_dynasty_flag = foreign_friendly
+		set_dynasty_flag = foreign_allowed
+		piety = -20
+	}
+	
+	option = {
+		name = EVTOPT_overseas_audience_tax
+		scaled_wealth = 0.2
+		FROMFROM = { add_province_modifier = { name = foreign_trade duration = -1 } }
+		set_dynasty_flag = foreign_allowed
+	}
+	
+	option = {
+		name = EVTOPT_overseas_audience_deny
+		piety = 50
+	}
+	
+	option = {
+		name = EVTOPT_overseas_audience_seize
+		narrative_event = { id = overseas.4 }
+		set_dynasty_flag = foreign_seized
+	}
+}
+
+narrative_event = {
+	id = overseas.4
+	title = EVTNAME_overseas_seize
+	desc = EVTDESC_overseas_seize
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		scaled_wealth = 1.2
+		FROMFROMFROM = {
+			change_tech = { technology = TECH_NAVAL value = 1}
+		}
+	}
+}
+
+narrative_event = {
+	id = overseas.5
+	title = EVTNAME_overseas_friendly
+	desc = EVTDESC_overseas_friendly
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_overseas_friendly_allow
+		wealth = -10
+		hidden_tooltip = {
+			FROMFROMFROM = { province_event = { id = overseas.9 } }
+			FROMFROMFROM = { province_event = { id = overseas.9 } }
+			FROMFROMFROM = { province_event = { id = overseas.9 } }
+		}
+		any_vassal = {
+			limit = { trait = zealous }
+			opinion = { modifier = opinion_upset who = ROOT years = 2 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_friendly_deny
+		prestige = 20
+	}
+}
+
+character_event = {
+	id = overseas.8
+	desc = EVTDESC_bounce
+	picture = GFX_evt_busy_trading_dock_republic
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		FROM = {
+			province_event = { id = overseas.9 }
+		}
+	}
+	
+	option = { }
+}
+
+province_event = {
+	id = overseas.9
+	desc = EVTDESC_bounce
+	picture = GFX_evt_busy_trading_dock_republic
+	hide_window = yes
+	is_triggered_only = yes
+
+	immediate = {
+		# these IFs should be mutually exclusive, otherwise multiple courtiers will be created
+		if = {
+			limit = {
+				OR = {
+					# places where British merchants might land
+					de_jure_liege_or_above = k_maritimes
+					de_jure_liege_or_above = k_new_york
+					de_jure_liege_or_above = k_columbia
+					de_jure_liege_or_above = k_new_england
+					de_jure_liege_or_above = k_old_dominion
+					de_jure_liege_or_above = k_dixieland
+					de_jure_liege_or_above = k_carolina
+					de_jure_liege_or_above = k_florida
+					de_jure_liege_or_above = k_cuba
+					de_jure_liege_or_above = k_jamaica
+					de_jure_liege_or_above = k_antilles
+					de_jure_liege_or_above = k_hispaniola
+				}
+			}
+			
+			FROM = { character_event = { id = overseas.10 } }
+		}
+	}
+	
+	option = { }
+}
+
+character_event = {
+	id = overseas.10
+	desc = EVTDESC_overseas_british
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		create_character = {
+			dynasty = NONE
+			female = no
+			age = 26
+			religion = thelemic
+			culture = british
+			trait = scholar
+			trait = greedy
+			trait = brave
+		}
+		new_character = {
+			set_character_flag = foreign_merchant
+			wealth = 10
+			random_list = {
+				5 = { add_trait = midas_touched }
+				10 = { add_trait = scholarly_theologian  }
+				10 = { add_trait = fortune_builder }
+				10 = { add_trait = charismatic_negotiator  }
+			}
+			random = { chance = 50 add_trait = envious }
+			random = { chance = 50 add_trait = diligent }
+			random = { chance = 50 add_trait = patient }
+			random = { chance = 50 add_trait = gregarious }
+			random = { chance = 20 add_trait = proud }
+			random = { chance = 20 add_trait = ambitious }
+			random = { chance = 10 add_trait = quick }
+		}
+	}
+}
+
+character_event = {
+	id = overseas.20
+	desc = EVTDESC_bounce
+	picture = GFX_evt_monk
+	
+	hide_window = yes
+	
+	mean_time_to_happen = {
+		years = 100
+		modifier = { factor = 0.8 trait = quick }
+		modifier = { factor = 0.5 trait = genius }
+		modifier = { factor = 0.8 trait = diligent }
+		modifier = { factor = 2 trait = slothful }
+		modifier = { factor = 0.8 learning = 12 }
+	}
+	
+	trigger = {
+		has_character_flag = foreign_merchant
+		OR = {
+			culture = british
+		}
+		liege = {
+			has_dynasty_flag = foreign_friendly
+		}
+	}
+
+	option = {
+		liege = {
+			character_event = { id = overseas.21 }
+		}
+	}
+}
+
+character_event = {
+	id = overseas.21
+	desc = EVTDESC_overseas_innovate
+	picture = GFX_evt_monk
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_overseas_innovate_econ
+		wealth = -5
+		economy_techpoints = 10
+	}
+	
+	option = {
+		name = EVTOPT_overseas_innovate_cult
+		wealth = -5
+		culture_techpoints = 10
+	}
+	
+	option = {
+		name = EVTOPT_overseas_innovate_reject
+		prestige = 25
+	}
+}
+
+character_event = {
+	id = overseas.22
+	desc = EVTDESC_bounce
+	picture = GFX_evt_scandal
+	
+	hide_window = yes
+	
+	mean_time_to_happen = {
+		years = 100
+		modifier = { factor = 1.2 trait = quick }
+		modifier = { factor = 1.5 trait = genius }
+		modifier = { factor = 0.8 trait = wroth }
+		modifier = { factor = 0.8 trait = envious }
+		modifier = { factor = 0.5 trait = cruel }
+	}
+	
+	trigger = {
+		has_character_flag = foreign_merchant
+		OR = {
+			culture = british
+		}
+	}
+
+	option = {
+		liege = {
+			character_event = { id = overseas.23 }
+		}
+	}
+}
+
+character_event = {
+	id = overseas.23
+	desc = EVTDESC_overseas_insult
+	picture = GFX_evt_scandal
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_overseas_insult_forgive
+		prestige = -40
+		FROM = {
+			opinion = { modifier = grace_to_forgive who = ROOT years = 5 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_insult_punish
+		FROM = {
+			opinion = { modifier = opinion_angry who = ROOT years = 5 }
+			reverse_opinion = { modifier = opinion_angry who = ROOT years = 5 }
+		}
+	}
+}
+
+character_event = {
+	id = overseas.24
+	desc = EVTDESC_bounce
+	picture = GFX_evt_scandal
+	
+	hide_window = yes
+	
+	mean_time_to_happen = {
+		years = 100
+		modifier = { factor = 0.5 trait = zealous }
+		modifier = { factor = 5 trait = cynical }
+		modifier = { factor = 0.8 trait = gregarious }
+		modifier = { factor = 0.8 learning = 12 }
+	}
+	
+	trigger = {
+		has_character_flag = foreign_merchant
+		OR = {
+			culture = british
+		}
+		OR = {
+			religion = thelemic
+		}
+		liege = {
+			has_dynasty_flag = foreign_friendly
+		}
+	}
+
+	option = {
+		liege = {
+			character_event = { id = overseas.25 }
+		}
+	}
+}
+
+character_event = {
+	id = overseas.25
+	desc = EVTDESC_overseas_convert
+	picture = GFX_evt_scandal
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_overseas_convert_lazy
+		remove_trait = zealous
+		any_vassal = {
+			limit = { trait = zealous }
+			opinion = { modifier = opinion_upset who = ROOT years = 2 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_convert_banish
+		piety = 20
+		FROM = { banish = yes } 
+	}
+}
+
+province_event = {
+	id = overseas.30
+	desc = EVTDESC_overseas_carouse
+	picture = GFX_evt_peasants
+	
+	trigger = {
+		port = yes
+		has_province_modifier = foreign_trade
+	}
+	
+	mean_time_to_happen = {
+		years = 100
+		modifier = {
+			factor = 0.8
+			owner = {
+				has_dynasty_flag = foreign_friendly
+			}
+		}
+	}
+
+	option = {
+		name = EVTOPT_overseas_carouse_shutdown
+		remove_province_modifier = foreign_trade
+	}
+	
+	option = {
+		name = EVTOPT_overseas_carouse_localauth
+		any_province_holding = {
+			owner = {
+				opinion = { modifier = insulted who = ROOT years = 5 }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_carouse_ignore
+		add_province_modifier = { name = peasant_unrest duration = 360 }
+	}
+}
+
+province_event = {
+	id = overseas.31
+	desc = EVTDESC_overseas_shipwreck
+	picture = GFX_evt_kraken
+	
+	trigger = {
+		year = 2700
+		port = yes
+	}
+	
+	mean_time_to_happen = {
+		years = 1000
+	}
+
+	option = {
+		name = EVTOPT_overseas_shipwreck_survivors
+		holder_scope = {
+			character_event = { id = overseas.8 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_shipwreck_ignore
+		holder_scope = {
+			random = { chance = 10 add_trait = slothful }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_shipwreck_salvage
+		holder_scope = {
+			random_list = {
+				70 = { wealth = 20 }
+				25 = { wealth = 50 }
+				5 = { scaled_wealth = 0.9 }
+			}
+			random = { chance = 20 add_trait = greedy }
+		}
+	}
+}
+
+province_event = {
+	id = overseas.32
+	desc = EVTDESC_overseas_newtrades
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	trigger = {
+		port = yes
+		NOT = { has_province_modifier = foreign_trade }
+		holder_scope = { has_dynasty_flag = foreign_allowed }
+	}
+	
+	mean_time_to_happen = {
+		years = 200
+		modifier = {
+			factor = 0.8
+			holder_scope = {
+				has_dynasty_flag = foreign_friendly
+			}
+		}
+	}
+
+	option = {
+		name = EVTOPT_overseas_newtrades_rep
+		add_province_modifier = { name = foreign_trade duration = -1 } 
+		holder_scope = {
+			character_event = { id = overseas.8 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_newtrades_tariff
+		holder_scope = { wealth = 25 }
+		add_province_modifier = { name = foreign_trade duration = -1 } 
+	}
+	
+	option = {
+		name = EVTOPT_overseas_newtrades_reject
+		holder_scope = { piety = 20 }
+	}
+}
+
+province_event = {
+	id = overseas.33
+	desc = EVTDESC_overseas_tariffs
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	trigger = {
+		port = yes
+		has_province_modifier = foreign_trade
+		holder_scope = { has_dynasty_flag = foreign_allowed }
+	}
+	
+	mean_time_to_happen = {
+		years = 100
+		modifier = {
+			factor = 1.5
+			holder_scope = {
+				has_dynasty_flag = foreign_friendly
+			}
+		}
+	}
+
+	option = {
+		name = EVTOPT_overseas_tariffs
+		holder_scope = { wealth = 50 }
+		any_province_holding = {
+			limit = { owner = { is_republic = yes } }
+			owner = {
+				opinion = { modifier = opinion_happy who = ROOT years = 5 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = overseas.50
+	hide_window = yes
+	
+	ai = yes
+	min_age = 16
+	max_age = 40
+	capable_only = yes
+	prisoner = no
+	
+	trigger = {
+		is_landed = no
+		in_command = no
+		from_ruler_dynasty = yes
+		has_dynasty_flag = foreign_trade
+		is_married = no
+		NOT = { 
+			has_character_flag = mercantile_desire
+			has_character_flag = mercantile_deny
+			has_character_flag = mercantile_done
+		}
+		liege = {
+			prisoner = no
+			NOT = { trait = incapable }
+		}
+		NOT = { trait = in_hiding }
+	}
+	
+	mean_time_to_happen = {
+		months = 480
+		modifier = { factor = 0.5 has_dynasty_flag = foreign_friendly }
+		modifier = { factor = 0.5 trait = brave }
+		modifier = { factor = 0.75 trait = proud }
+		modifier = { factor = 1.5 trait = slothful }
+		modifier = { factor = 1.5 trait = content }
+		modifier = { factor = 1.5 trait = zealous }
+		modifier = { factor = 1.5 trait = shy }
+		modifier = { factor = 2.0 health_traits = 1 }
+		modifier = { factor = 3.0 trait = craven }
+		modifier = { factor = 5.0 is_primary_heir = yes }
+	}
+	
+	immediate = {
+		liege = { character_event = { id = overseas.51 } }
+		set_character_flag = mercantile_desire
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+character_event = {
+	id = overseas.51
+	desc = EVTDESC_overseas_ask
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_overseas_ask_deny
+		FROM = {
+			opinion = {
+				modifier = opinion_very_disappointed
+				years = 1
+				who = ROOT
+			}
+			clr_character_flag = mercantile_desire
+			set_character_flag = mercantile_deny
+		}
+		prestige = -10
+	}
+	
+	option = {
+		name = EVTOPT_overseas_ask_allow
+		d_overseas_merchants = {
+			holder_scope = {
+				FROM = {
+					move_character = PREV
+				}
+			}
+		}
+		hidden_tooltip = {
+			FROM = {
+				opinion = { modifier = opinion_mercantile_sponsor who = ROOT years = 100 }
+				character_event = { id = overseas.52 days = 900 }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_overseas_ask_gift
+		wealth = -50
+		prestige = 25
+		d_overseas_merchants = {
+			holder_scope = {
+				FROM = {
+					set_character_flag = mercantile_gift
+					move_character = PREV
+				}
+			}
+		}
+		hidden_tooltip = {
+			FROM = {
+				opinion = { modifier = opinion_mercantile_sponsor who = ROOT years = 100 }
+				character_event = { id = overseas.52 days = 900 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = overseas.52
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = mercantile_desire
+	}
+	
+	immediate = {
+		set_character_flag = mercantile_away
+		clr_character_flag = mercantile_desire
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+character_event = {
+	id = overseas.53
+	desc = "Make sure overseas merchants know where to return to"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			ROOT = {
+				current_heir = {
+					reverse_opinion = { modifier = opinion_mercantile_sponsor who = PREVPREV years = 100 }
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = overseas.60
+	hide_window = yes
+	trigger = {	has_character_flag = mercantile_away }
+	
+	mean_time_to_happen = {
+		months = 350
+		modifier = { factor = 0.5 health_traits = 1 }
+		modifier = { factor = 0.7 trait = brave }
+		modifier = { factor = 1.5 trait = craven }
+		modifier = { factor = 1.5 trait = strong }
+		modifier = { factor = 1.5 trait = genius }
+		modifier = { factor = 1.5 has_character_flag = mercantile_gift }
+	}
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			narrative_event = { id = overseas.61 }
+		}
+		clr_character_flag = mercantile_away
+		set_character_flag = mercantile_done
+	}
+	
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = overseas.61
+	title = EVTNAME_overseas_return
+	desc = EVTDESC_overseas_return_die
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		FROM = {
+			move_character = ROOT
+			death = { death_reason = death_accident }
+		}
+	}
+}
+
+character_event = {
+	id = overseas.62
+	hide_window = yes
+	trigger = {	has_character_flag = mercantile_away }
+	
+	mean_time_to_happen = {
+		months = 250
+		modifier = { factor = 0.5 health_traits = 1 }
+		modifier = { factor = 0.7 trait = brave }
+		modifier = { factor = 1.5 trait = strong }
+		modifier = { factor = 1.5 trait = genius }
+		modifier = { factor = 1.5 has_character_flag = mercantile_gift }
+	}
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			narrative_event = { id = overseas.63 }
+		}
+		clr_character_flag = mercantile_away
+		set_character_flag = mercantile_done
+	}
+	
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = overseas.63
+	title = EVTNAME_overseas_return
+	desc = EVTDESC_overseas_return_maim
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		FROM = {
+			move_character = ROOT
+			add_trait = maimed
+			random_list = {
+				10 = { add_trait = ill }
+				10 = { add_trait = wounded }
+				10 = { add_trait = craven }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = overseas.64
+	hide_window = yes
+	trigger = {	has_character_flag = mercantile_away }
+	
+	mean_time_to_happen = {
+		months = 150
+		modifier = { factor = 0.5 trait = brave }
+		modifier = { factor = 0.8 trait = strong }
+		modifier = { factor = 1.3 trait = slothful }
+		modifier = { factor = 2.0 trait = craven }
+		modifier = { factor = 0.8 has_character_flag = mercantile_gift }
+	}
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			narrative_event = { id = overseas.65 }
+		}
+		clr_character_flag = mercantile_away
+		set_character_flag = mercantile_done
+	}
+	
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = overseas.65
+	title = EVTNAME_overseas_return
+	desc = EVTDESC_overseas_return_scar
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		FROM = {
+			move_character = ROOT
+			add_trait = scarred
+			prestige = 100
+			random_list = {
+				10 = { change_martial = 2 }
+				10 = { change_martial = 1 }
+				10 = { add_trait = brave }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = overseas.66
+	hide_window = yes
+	trigger = {	has_character_flag = mercantile_away }
+	
+	mean_time_to_happen = {
+		months = 150
+		modifier = { factor = 0.5 trait = cynical }
+		modifier = { factor = 0.8 trait = kind }
+		modifier = { factor = 0.8 trait = humble }
+		modifier = { factor = 2.0 trait = zealous }
+		modifier = { factor = 0.8 has_character_flag = mercantile_gift }
+	}
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			narrative_event = { id = overseas.67 }
+		}
+		clr_character_flag = mercantile_away
+		set_character_flag = mercantile_done
+	}
+	
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = overseas.67
+	title = EVTNAME_overseas_return
+	desc = EVTDESC_overseas_return_symp
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		random_list = {
+			70 = { wealth = 20 }
+			25 = { wealth = 50 }
+			5 = { scaled_wealth = 0.5 }
+		}
+		FROM = {
+			move_character = ROOT
+			remove_trait = zealous
+			add_trait = gregarious
+			piety = -20
+			wealth = 50
+			if = {
+				limit = { NOT = { religion_group = pagan_group } }
+				add_trait = sympathy_pagans
+			}
+			if = {
+				limit = { NOT = { religion_group = christian } }
+				add_trait = sympathy_christendom
+			}
+		}
+	}
+}
+
+character_event = {
+	id = overseas.68
+	hide_window = yes
+	trigger = {	has_character_flag = mercantile_away }
+	
+	mean_time_to_happen = {
+		months = 180
+		modifier = { factor = 0.8 trait = deceitful }
+		modifier = { factor = 0.8 trait = greedy }
+		modifier = { factor = 0.8 trait = cruel }
+		modifier = { factor = 0.8 trait = arbitrary }
+		modifier = { factor = 0.8 trait = envious }
+		modifier = { factor = 1.5 trait = charitable }
+		modifier = { factor = 1.5 trait = temperate }
+		modifier = { factor = 2.0 trait = kind }
+		modifier = { factor = 2.0 trait = just }
+		modifier = { factor = 2.0 trait = honest }
+	}
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			narrative_event = { id = overseas.69 }
+		}
+		clr_character_flag = mercantile_away
+		set_character_flag = mercantile_done
+	}
+	
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = overseas.69
+	title = EVTNAME_overseas_return
+	desc = EVTDESC_overseas_return_pirate
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		random_list = {
+			50 = { wealth = 20 }
+			40 = { wealth = 50 }
+			10 = { scaled_wealth = 0.7 }
+		}
+		FROM = {
+			move_character = ROOT
+			wealth = 75
+			random = { chance = 80 add_trait = greedy }
+			random = { chance = 70 add_trait = lustful }
+			random = { chance = 60 add_trait = arbitrary }
+			random = { chance = 50 add_trait = cruel }
+			random = { chance = 40 add_trait = drunkard }
+		}
+	}
+}
+
+character_event = {
+	id = overseas.70
+	hide_window = yes
+	trigger = {	has_character_flag = mercantile_away }
+	
+	mean_time_to_happen = {
+		months = 160
+		modifier = { factor = 0.5 trait = lustful }
+		modifier = { factor = 0.5 trait = hedonist }
+		modifier = { factor = 0.8 trait = gregarious }
+		modifier = { factor = 1.5 trait = shy }
+		modifier = { factor = 2.0 trait = zealous }
+		modifier = { factor = 2.0 trait = chaste }
+		modifier = { factor = 10.0 trait = celibate }
+	}
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			narrative_event = { id = overseas.71 }
+		}
+		clr_character_flag = mercantile_away
+		set_character_flag = mercantile_done
+	}
+	
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = overseas.71
+	title = EVTNAME_overseas_return
+	desc = EVTDESC_overseas_return_bastard
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		random_list = {
+			70 = { wealth = 20 }
+			25 = { wealth = 50 }
+			5 = { scaled_wealth = 0.5 }
+		}
+		FROM = {
+			move_character = ROOT
+			wealth = 50
+			piety = -20
+			create_character = {
+				dynasty = THIS
+				religion = THIS
+				culture = THIS
+				age = 1
+				trait = bastard
+			}
+			new_character = {
+				if = {
+					limit = { FROM = { is_female = yes } }
+					set_mother = FROM
+				}
+				if = {
+					limit = { FROM = { is_female = no } }
+					set_father = FROM
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = overseas.72
+	hide_window = yes
+	trigger = {	has_character_flag = mercantile_away }
+	
+	mean_time_to_happen = {
+		months = 200
+		modifier = { factor = 0.5 trait = genius }
+		modifier = { factor = 0.7 trait = ambitious }
+		modifier = { factor = 0.7 trait = quick }
+		modifier = { factor = 0.8 trait = strong }
+		modifier = { factor = 0.8 trait = diligent }
+		modifier = { factor = 0.8 trait = gregarious }
+		modifier = { factor = 1.5 trait = content }
+		modifier = { factor = 1.5 trait = shy }
+		modifier = { factor = 2.0 trait = slothful }
+		modifier = { factor = 3.0 trait = slow }
+		modifier = { factor = 5.0 trait = inbred }
+		modifier = { factor = 8.0 trait = imbecile }
+		modifier = { factor = 0.8 has_character_flag = mercantile_gift }
+	}
+	
+	immediate = {
+		any_dynasty_member = {
+			limit = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_mercantile_sponsor } }
+			narrative_event = { id = overseas.73 }
+		}
+		clr_character_flag = mercantile_away
+		set_character_flag = mercantile_done
+	}
+	
+	option = { name = OK }
+}
+
+narrative_event = {
+	id = overseas.73
+	title = EVTNAME_overseas_return
+	desc = EVTDESC_overseas_return_leader
+	picture = GFX_evt_busy_trading_dock_republic
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		random_list = {
+			50 = { wealth = 50 }
+			50 = { scaled_wealth = 0.8 }
+		}
+		FROM = {
+			move_character = ROOT
+			wealth = 100
+			prestige = 100
+			change_diplomacy = 1
+			change_stewardship = 1
+			add_trait = ambitious
+			add_trait = diligent
+		}
+	}
+}

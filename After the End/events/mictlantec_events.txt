@@ -1,3 +1,22 @@
+# 1 	subjects chafe under rule of a mortal, demand living god-king
+# 9		introduction to the incarnation ceremony
+# 10	choose a sacrifice from the dungeons
+# 11	victim: informed of impending sacrifice
+# 12	the sacrifice is performed
+# 13	victim: informed of death
+# 14	victim: informed of mercy
+# 15	dungeons contain no more prisoners
+# 20	[hidden] determine result of ceremony
+# 21	ceremony successful
+# 22	ceremony partially successful
+# 23	ceremony fails
+# 31	chosen god: Huitzilopochtli
+# 32	chosen god: Quetzalcoatl
+# 33	chosen god: Tezcatlipoca
+# 34	chosen god: Xipe-Totec
+# 50	liege has mortal trait, chance to gain claim on main title
+# 51	liege notified about vassal gaining claim on title
+# 100	mictlantec siege event to capture more prisoners
 
 namespace = mictlan
 
@@ -7,15 +26,12 @@ narrative_event = {
 	desc = EVTDESC_mictlan_god
 	picture = GFX_evt_mictlantec_sacrifice
 	
-	age = 16
-	is_prisoner = no
 	is_ruler = yes
+	prisoner = no
 	
 	trigger = {
 		NOT = { trait = incarnate }
-		NOT = { trait = mortal }
 		NOT = { has_character_flag = attempt_incarnation }
-		NOT = { has_character_modifier = postponed_incarnation }
 		independent = yes
 		religion = mictlantec
 		war = no
@@ -24,7 +40,7 @@ narrative_event = {
 	
 	mean_time_to_happen = {
 		months = 6
-		modifier = { factor = 2 trait = zealous }
+		modifier = { factor = 10 trait = mortal }
 	}
 	
 	immediate = {
@@ -32,37 +48,83 @@ narrative_event = {
 	}
 	
 	option = {
-		name = EVTOPT_mictlan_god
-		narrative_event = { id = mictlan.9 days = 10 }
-		ai_chance = {
-			factor = 10
-			modifier = { factor = 2 piety = 1000 }
-			modifier = { factor = 2 trait = zealous }
-			modifier = { factor = 2 num_of_prisoners = 10 }
-			modifier = { factor = 0 NOT = { num_of_prisoners = 2 } }
+		name = EVTOPT_mictlan_martial
+		trigger = {
+			martial = 10
+			prestige = 300
 		}
+		prestige = 25
+		narrative_event = { id = mictlan.9 days = 10 }
+		tooltip_info = martial
+		ai_chance = { factor = 100 }
 	}
 	
 	option = {
-		name = EVTOPT_mictlan_wait
-		add_character_modifier = { name = postponed_incarnation duration = 720 }
-		clr_character_flag = attempt_incarnation
-		prestige = -25
-		piety = -10
-		ai_chance = {
-			factor = 5
-			modifier = { factor = 5 NOT = { piety = 500 } }
+		name = EVTOPT_mictlan_learning
+		trigger = {
+			learning = 10
+			piety = 200
 		}
+		piety = 20
+		narrative_event = { id = mictlan.9 days = 10 }
+		tooltip_info = learning
+		ai_chance = { factor = 100 }
+	}
+	
+	option = {
+		name = EVTOPT_mictlan_blood
+		trigger = {
+			OR = {
+				trait = genius
+				trait = quick
+				trait = strong
+				trait = fair
+			}
+			father_even_if_dead = { trait = incarnate }
+		}
+		prestige = 25
+		narrative_event = { id = mictlan.9 days = 10 }
+		custom_tooltip = { text = TXT_mictlan_blood }
+		ai_chance = { factor = 100 }
+	}
+	
+	option = {
+		name = EVTOPT_mictlan_sac
+		trigger = {
+			NOT = { AND = {
+				martial = 10
+				prestige = 300
+			} }
+			NOT = { AND = {
+				learning = 10
+				piety = 200
+			} }
+			NOT = { AND = {
+				OR = {
+					trait = genius
+					trait = quick
+					trait = strong
+					trait = fair
+				}
+				father_even_if_dead = { trait = incarnate }
+			} }
+		}
+		piety = 10
+		wealth = -10
+		narrative_event = { id = mictlan.9 days = 10 }
+		ai_chance = { factor = 10 }
 	}
 	
 	option = {
 		name = EVTOPT_mictlan_mortal
 		add_trait = mortal
-		add_trait = humble
-		add_trait = honest
-		prestige = -50
-		piety = -50
-		ai_chance = { factor = 0 }
+		random_list = {
+			10 = { add_trait = humble }
+			10 = { add_trait = honest }
+		}
+		prestige = -25
+		custom_tooltip = { text = TXT_mictlan_mortal }
+		ai_chance = { factor = 1 }
 	}
 }
 
@@ -323,7 +385,7 @@ narrative_event = {
 character_event = {
 	id = mictlan.20
 	hide_window = yes
-	desc = "debug test"
+	desc = EVTDESC_bounce
 	is_triggered_only = yes
 	
 	trigger = {
@@ -368,7 +430,7 @@ character_event = {
 			change_variable = { which = "incarnate_ceremony" value = 1 }
 		}
 		if = {
-			limit = { piety = 250 }
+			limit = { piety = 200 }
 			change_variable = { which = "incarnate_ceremony" value = 1 }
 		}
 		if = {
@@ -376,27 +438,66 @@ character_event = {
 			change_variable = { which = "incarnate_ceremony" value = 1 }
 		}
 		if = {
-			limit = { piety = 750 }
-			change_variable = { which = "incarnate_ceremony" value = 1 }
-		}
-		if = {
 			limit = { piety = 1000 }
 			change_variable = { which = "incarnate_ceremony" value = 1 }
 		}
 		if = {
-			limit = { piety = 1500 }
+			limit = { prestige = 300 }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		if = {
+			limit = { prestige = 1000 }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		
+		if = {
+			limit = { martial = 10 }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		if = {
+			limit = { martial = 20 }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		if = {
+			limit = { learning = 10 }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		if = {
+			limit = { learning = 20 }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		
+		if = {
+			limit = { trait = genius }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		if = {
+			limit = { trait = quick }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		if = {
+			limit = { trait = strong }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		if = {
+			limit = { trait = fair }
+			change_variable = { which = "incarnate_ceremony" value = 1 }
+		}
+		
+		if = {
+			limit = { father_even_if_dead = { trait = incarnate } }
 			change_variable = { which = "incarnate_ceremony" value = 1 }
 		}
 		
 		clr_character_flag = attempt_incarnation
 		
 		if = {
-			limit = { check_variable = { which = "incarnate_ceremony" value = 6 } }
+			limit = { check_variable = { which = "incarnate_ceremony" value = 7 } }
 			narrative_event = { id = mictlan.21 }
 		}
 		if = {
 			limit = { check_variable = { which = "incarnate_ceremony" value = 4 } }
-			limit = { NOT = { check_variable = { which = "incarnate_ceremony" value = 6 } } }
+			limit = { NOT = { check_variable = { which = "incarnate_ceremony" value = 7 } } }
 			narrative_event = { id = mictlan.22 }
 		}
 		if = {
@@ -420,6 +521,7 @@ narrative_event = {
 	option = {
 		name = EVTOPT_mictlan_incarnate_huitz
 		add_trait = incarnate
+		religion_authority = { modifier = a_god_made_flesh }
 		hidden_tooltip = {
 			narrative_event = { id = mictlan.31 days = 10 random = 10 }
 		}
@@ -434,6 +536,7 @@ narrative_event = {
 	option = {
 		name = EVTOPT_mictlan_incarnate_quetz
 		add_trait = incarnate
+		religion_authority = { modifier = a_god_made_flesh }
 		hidden_tooltip = {
 			narrative_event = { id = mictlan.32 days = 10 random = 10 }
 		}
@@ -448,6 +551,7 @@ narrative_event = {
 	option = {
 		name = EVTOPT_mictlan_incarnate_tezca
 		add_trait = incarnate
+		religion_authority = { modifier = a_god_made_flesh }
 		hidden_tooltip = {
 			narrative_event = { id = mictlan.33 days = 10 random = 10 }
 		}
@@ -462,6 +566,7 @@ narrative_event = {
 	option = {
 		name = EVTOPT_mictlan_incarnate_xipe
 		add_trait = incarnate
+		religion_authority = { modifier = a_god_made_flesh }
 		hidden_tooltip = {
 			narrative_event = { id = mictlan.34 days = 10 random = 10 }
 		}
@@ -499,6 +604,19 @@ narrative_event = {
 		random_list = {
 			50 = { add_trait = cruel }
 			50 = { add_trait = cynical }
+		}
+		random_courtier = {
+			limit = { 
+				trait = cynical
+				NOT = { is_close_relative = FROM }
+			}
+			death = { death_reason = death_execution killer = ROOT }
+		}
+		random_demesne_province = {
+			add_province_modifier = { name = peasant_unrest duration = 900 }
+		}
+		any_vassal = {
+			opinion = { modifier = opinion_tyrant who = ROOT years = 5 }
 		}
 		narrative_event = { id = mictlan.21 }
 	}
@@ -754,6 +872,93 @@ narrative_event = {
 		}
 		prestige = 25
 		piety = 25
+	}
+}
+
+character_event = {
+	id = mictlan.50
+	desc = EVTDESC_mictlan_mortal_liege
+	picture = GFX_evt_mictlantec_sacrifice
+	
+	is_ruler = yes
+	prisoner = no
+	
+	trigger = {
+		religion = mictlantec
+		primary_title = { higher_tier_than = BARON } 
+		independent = no
+		war = no
+		OR = {
+			trait = zealous
+			trait = incarnate
+			trait = ambitious
+			trait = envious
+			trait = proud
+		}
+		liege = {
+			trait = mortal
+		}
+		NOT = {
+			any_claim = {
+				higher_tier_than = DUKE
+			}
+		}
+	}
+	
+	mean_time_to_happen = {
+		months = 120
+	}
+	
+	option = {
+		name = EVTOPT_mictlan_mortal_liege_accept
+		piety = -20
+		liege = {
+			primary_title = { add_claim = ROOT }
+			character_event = { id = mictlan.51 }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = ambitious }
+			modifier = { factor = 2 trait = brave }
+			modifier = { factor = 2 trait = incarnate }
+			modifier = { factor = 2 prestige = 1000 }
+			modifier = { factor = 2 piety = 1000 }
+			modifier = { factor = 0 trait = craven }
+			modifier = { factor = 0 trait = humble }
+			modifier = { factor = 0 trait = content }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_mictlan_mortal_liege_reject
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 NOT = { prestige = 300 } }
+			modifier = { factor = 2 NOT = { piety = 200 } }
+			modifier = { factor = 2 NOT = { martial = 10 } }
+			modifier = { factor = 2 NOT = { learning = 10 } }
+		}
+	}
+}
+
+character_event = {
+	id = mictlan.51
+	desc = EVTDESC_mictlan_mortal_liege_notify
+	picture = GFX_evt_mictlantec_sacrifice
+	
+	is_triggered_only = yes
+	trigger = { religion = mictlantec }
+	
+	option = {
+		name = EVTOPT_mictlan_mortal_liege_notify
+		trigger = { intrigue = 10 }
+		tooltip_info = intrigue
+		opinion = { modifier = opinion_traitor who = FROM years = 5 }
+	}	
+	
+	option = {
+		name = OK
+		opinion = { modifier = opinion_angry who = FROM years = 5 }
 	}
 }
 

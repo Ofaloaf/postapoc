@@ -16,6 +16,9 @@
 # 72	you learned a lot from the fight
 # 73	you didn't learn much from a crushing victory
 # 74	the identity of your opponent is revealed
+# 100	[hidden] sacred heart character dies, informing santa muerte relatives
+# 101	relative of follower of santa muerte dies, choose rites
+# 102	killer informed of santa muerte vendetta against him
 
 namespace = sacredheart
  
@@ -91,6 +94,8 @@ character_event = {
 		}
 	}
 }
+
+# ************************* El Santo ************************
 
 character_event = {
 	id = sacredheart.10
@@ -713,8 +718,158 @@ character_event = {
 	}
 }
 
+# ************************* Santa Muerte ************************
 
+character_event = {
+	id = sacredheart.100
+	desc = EVTDESC_bounce
+	picture = GFX_evt_death
+	is_triggered_only = yes
+	hide_window = yes
+	trigger = {
+		religion = sacred_heart
+	}
+	immediate = {
+		father = {
+			character_event = { id = sacredheart.101 days = 5 }
+		}
+		mother = {
+			character_event = { id = sacredheart.101 days = 5 }
+		}
+		any_sibling = {
+			character_event = { id = sacredheart.101 days = 5 }
+		}
+		any_child = {
+			character_event = { id = sacredheart.101 days = 5 }
+		}
+	}
+	option = { }
+}
 
+character_event = {
+	id = sacredheart.101
+	desc = EVTDESC_muerte_inform
+	picture = GFX_evt_death
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = sacred_heart
+		trait = marian_santa_muerte
+	}
+	
+	option = {
+		name = EVTOPT_muerte_inform_revenge
+		trigger = {
+			age = 10
+			OR = {
+				FROM = { death_reason = death_murder }
+				FROM = { death_reason = death_execution }
+				FROM = { death_reason = death_battle }
+				FROM = { death_reason = death_dungeon }
+			}
+			FROM = { killer = { NOT = { character = ROOT } } }
+		}
+		custom_tooltip = { text = TXT_muerte_revenge }
+		add_character_modifier = { name = seeking_revenge duration = 1500 }
+		FROM = {
+			killer = {
+				add_rival = ROOT
+				character_event = { id = sacredheart.102 days = 5 }
+			}
+		}
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 2 trait = lunatic }
+			modifier = { factor = 2 trait = wroth }
+			modifier = { factor = 2 trait = brave }
+			modifier = { factor = 1.5 trait = proud }
+			modifier = { factor = 1.5 trait = just }
+			modifier = { factor = 0.1 trait = content }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_muerte_inform_guide
+		trigger = {
+			age = 10
+		}
+		piety = 25
+		random = { chance = 10 add_trait = zealous }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 2 trait = humble }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_muerte_inform_protect
+		trigger = {
+			age = 10
+		}
+		piety = 25
+		random = { chance = 10 add_trait = brave }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 2 trait = brave }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_muerte_inform_cynic
+		trigger = {
+			age = 10
+		}
+		piety = -10
+		random_list = {
+			10 = { add_trait = cynical }
+			10 = { add_trait = slothful }
+			80 = { }
+		}
+		ai_chance = {
+			factor = 1
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 2 trait = slothful }
+			modifier = { factor = 2 trait = arbitrary }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_muerte_inform_learn
+		trigger = {
+			NOT = { has_character_flag = santa_muerte_rites }
+			NOT = { age = 10 }
+		}
+		custom_tooltip = { text = TXT_muerte_learnrites }
+		set_character_flag = santa_muerte_rites
+		change_learning = 1
+		change_intrigue = 1
+		random = { chance = 10 add_trait = zealous }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_muerte_inform_learn
+		trigger = {
+			has_character_flag = santa_muerte_rites
+			NOT = { age = 10 }
+		}
+		custom_tooltip = { text = TXT_muerte_learnrites }
+		piety = 10
+		random = { chance = 10 add_trait = zealous }
+		ai_chance = { factor = 5 }
+	}
+}
 
-
+character_event = {
+	id = sacredheart.102
+	desc = EVTDESC_muerte_vedetta
+	picture = GFX_evt_death
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+	}
+}
 

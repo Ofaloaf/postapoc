@@ -1,6 +1,6 @@
 AFTER THE END
 A post-apocalyptic North America mod for Crusader Kings II
-Version 0.3
+Version 0.4
 
 
 	INSTALLATION

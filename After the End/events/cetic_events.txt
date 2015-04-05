@@ -4,9 +4,22 @@
 # 4		letter: emperor notified that claims were removed
 # 5		letter: emperor notified that claimant refused the request
 # 10	[hidden] char: figurehead trait passed onto next emperor
+# 20	[hidden] prov: trigger cetic border claim event
+# 21	char: discover tenuous claim on border province, request imperial sanction of the claim
+# 22	char: emperor receives request to sanction claim
+# 23	char: claim is granted by the emperor
+# 24	char: claim is rejected by the emperor
+# 30	char: imperial court visit: terrible gaffe
+# 31	char: imperial court visit: brilliant insights (learning)
+# 32	char: imperial court visit: political machinations (intrigue)
+# 33	char: imperial court visit: skilled networking (diplomacy)
+# 34	char: imperial court visit: discussion of tactics (martial)
+# 35	char: imperial court visit: impress other court visitors
+# 36	char: imperial court visit: anger other court visitors
 
 namespace = cetic
 
+# ************************** emperor requests dissolution of claims ***********************
 character_event = {
 	id = cetic.1
 	desc = EVTDESC_bounce
@@ -108,6 +121,23 @@ letter_event = {
 	
 	option = {
 		name = EVTOPT_cetic_claims_agree
+		trigger = { has_character_modifier = imperial_censure }
+		prestige = -20
+		piety = 50
+		remove_character_modifier = imperial_censure
+		remove_claim = e_california
+		remove_claim = k_sacramento
+		remove_claim = d_sacramento
+		remove_claim = c_sacramento
+		FROM = { letter_event = { id = cetic.4 days = 5 random = 3 } }
+		ai_chance = {
+			factor = 20
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_claims_agree
+		trigger = { NOT = { has_character_modifier = imperial_censure } }
 		prestige = -20
 		piety = 50
 		add_character_modifier = { name = imperial_favor duration = 1500 }
@@ -123,6 +153,27 @@ letter_event = {
 	
 	option = {
 		name = EVTOPT_cetic_claims_reject
+		trigger = { has_character_modifier = imperial_favor }
+		prestige = 50
+		piety = -50
+		add_trait = cynical
+		remove_character_modifier = imperial_favor
+		set_character_flag = previous_imperial_request
+		FROM = { letter_event = { id = cetic.5 days = 5 random = 3 } }
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 1.5 trait = ambitious }
+			modifier = { factor = 0 NOT = { trait = cynical } }
+			modifier = { factor = 0 trait = humble }
+			modifier = { factor = 0 trait = content }
+			modifier = { factor = 0 trait = charitable }
+			modifier = { factor = 0 trait = honest }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_claims_reject
+		trigger = { NOT = { has_character_modifier = imperial_favor } }
 		prestige = 50
 		piety = -50
 		add_trait = cynical
@@ -165,6 +216,7 @@ letter_event = {
 	}
 }
 
+# ************************** pass figurehead trait to next emperor *******************
 character_event = {
 	id = cetic.10
 	desc = EVTDESC_bounce
@@ -185,18 +237,633 @@ character_event = {
 	option = { name = OK }
 }
 
+# ************************** request claim from emperor ****************************
+province_event = {
+	id = cetic.20
+	desc = EVTDESC_bounce
+	picture = GFX_evt_library
+	hide_window = yes
+	
+	trigger = {
+		religion = cetic
+		empire = { title = e_california }
+		owner = {
+			controls_religion = no
+		}
+	}
 
+	mean_time_to_happen = {
+		years = 10
+	}
+	
+	immediate = {
+		random_neighbor_province = {
+			random_list = {
+				10 = { owner = { character_event = { id = cetic.21 } } }
+				10 = { owner = { top_liege = { character_event = { id = cetic.21 } } } }
+			}
+		}
+	}
+	
+	option = {
+		name = OK
+	}
+}
 
+character_event = {
+	id = cetic.21
+	desc = EVTDESC_cetic_border
+	picture = GFX_evt_library
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+		controls_religion = no
+		has_character_modifier = imperial_favor
+		FROM = {
+			owner = {
+				NOT = {
+					same_realm = ROOT
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_border_claim
+		religion_head = {
+			character_event = { id = cetic.22 days = 5 random = 5 }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5 trait = ambitious }
+			modifier = { factor = 2 trait = greedy }
+			modifier = { factor = 2 trait = envious }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_border_no
+		piety = 20
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5 trait = content }
+			modifier = { factor = 3 trait = humble }
+			modifier = { factor = 2 trait = craven }
+			modifier = { factor = 2 trait = slothful }
+		}
+	}
+}
 
+character_event = {
+	id = cetic.22
+	desc = EVTDESC_cetic_claim_request
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+	}
+	
+	option = {
+		name = EVTOPT_cetic_border_sanction
+		FROM = {
+			opinion = { modifier = opinion_happy who = ROOT years = 10 }
+			character_event = { id = cetic.23 days = 5 random = 5 }
+		}
+		FROMFROM = {
+			owner = {
+				opinion = { modifier = opinion_annoyed who = ROOT years = 10 }
+				top_liege = {
+					opinion = { modifier = opinion_annoyed who = ROOT years = 10 }
+				}
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0 NOT = { opinion = { who = FROM value = -20 } } }
+			modifier = { factor = 1.5 opinion = { who = FROM value = 20 } }
+			modifier = { factor = 1.5 opinion = { who = FROM value = 40 } }
+			modifier = { factor = 1.5 opinion = { who = FROM value = 60 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_border_repudiate
+		FROM = {
+			opinion = { modifier = opinion_disappointed who = ROOT years = 10 }
+			character_event = { id = cetic.24 days = 5 random = 5 }
+		}
+		FROMFROM = {
+			owner = {
+				opinion = { modifier = opinion_pleased who = ROOT years = 10 }
+				top_liege = {
+					opinion = { modifier = opinion_pleased who = ROOT years = 10 }
+				}
+			}
+		}
+		piety = -20
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = arbitrary }
+			modifier = { factor = 2 trait = lunatic }
+			modifier = { factor = 0 opinion = { who = FROM value = 80 } }
+		}
+	}
+}
 
+character_event = {
+	id = cetic.23
+	desc = EVTDESC_cetic_claim_granted
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+	}
+	
+	option = {
+		name = EVTOPT_cetic_claim_granted_intrigue
+		trigger = { intrigue = 10 }
+		tooltip_info = intrigue
+		prestige = 20
+		random = { chance = 40 remove_character_modifier = imperial_favor }
+		FROMFROMFROM = { county = { add_claim = ROOT } }
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_claim_granted_diplo
+		trigger = { diplomacy = 10 }
+		tooltip_info = diplomacy
+		prestige = 20
+		random = { chance = 40 remove_character_modifier = imperial_favor }
+		FROMFROMFROM = { county = { add_claim = ROOT } }
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = OK
+		prestige = 20
+		remove_character_modifier = imperial_favor
+		FROMFROMFROM = { county = { add_claim = ROOT } }
+		ai_chance = { factor = 5 }
+	}
+}
 
+character_event = {
+	id = cetic.24
+	desc = EVTDESC_cetic_claim_denied
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+	}
+	
+	option = {
+		name = EVTOPT_cetic_claim_denied_insult
+		opinion = { modifier = opinion_annoyed who = FROM years = 10 }
+		prestige = -20
+		piety = -10
+		random_list = {
+			10 = { add_trait = cynical }
+			10 = { add_trait = envious }
+			10 = { add_trait = ambitious }
+			10 = { add_trait = proud }
+			10 = { add_trait = wroth }
+			50 = { }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 2 trait = envious }
+			modifier = { factor = 2 trait = ambitious }
+			modifier = { factor = 2 trait = proud }
+			modifier = { factor = 2 trait = wroth }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_claim_denied_forgive
+		prestige = -20
+		random_list = {
+			10 = { add_trait = humble }
+			10 = { add_trait = content }
+			10 = { add_trait = zealous }
+			70 = { }
+		}
+		ai_chance = {
+			factor = 30
+			modifier = { factor = 2 trait = humble }
+			modifier = { factor = 2 trait = content }
+			modifier = { factor = 2 trait = zealous }
+		}
+	}
+}
 
+# ************************** visiting the imperial court ***********************
+character_event = {
+	id = cetic.30
+	desc = EVTDESC_cetic_impcourt_gaffe
+	picture = GFX_evt_scandal
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+	}
+	
+	mean_time_to_happen = {
+		months = 30
+		modifier = { factor = 2 intrigue = 4 }
+		modifier = { factor = 3 intrigue = 8 }
+		modifier = { factor = 4 intrigue = 12 }
+		modifier = { factor = 2 diplomacy = 4 }
+		modifier = { factor = 3 diplomacy = 8 }
+		modifier = { factor = 4 diplomacy = 12 }
+		modifier = { factor = 3 learning = 8 }
+		modifier = { factor = 0.1 trait = lunatic }
+		modifier = { factor = 0.2 trait = possessed }
+		modifier = { factor = 0.5 trait = arbitrary }
+		modifier = { factor = 0.5 trait = drunkard }
+		modifier = { factor = 0.5 trait = slow }
+		modifier = { factor = 0.5 trait = imbecile }
+		modifier = { factor = 5 trait = quick }
+		modifier = { factor = 10 trait = genius }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_luna
+		trigger = { trait = lunatic }
+		tooltip_info = lunatic
+		prestige = -20
+		piety = -20
+		add_character_modifier = { name = imperial_censure duration = 1500 }
+		remove_character_modifier = imperial_favor
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_poss
+		trigger = { trait = possessed }
+		tooltip_info = possessed
+		prestige = -20
+		piety = -20
+		add_character_modifier = { name = imperial_censure duration = 1500 }
+		remove_character_modifier = imperial_favor
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_gaffe
+		prestige = -20
+		piety = -20
+		add_character_modifier = { name = imperial_censure duration = 1500 }
+		remove_character_modifier = imperial_favor
+	}
+}
 
+character_event = {
+	id = cetic.31
+	desc = EVTDESC_cetic_impcourt_learn
+	picture = GFX_evt_courtiers_talking
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+		learning = 6
+	}
+	
+	mean_time_to_happen = {
+		months = 60
+		modifier = { factor = 0.3 trait = genius }
+		modifier = { factor = 0.5 trait = quick }
+		modifier = { factor = 0.7 learning = 8 }
+		modifier = { factor = 0.7 learning = 12 }
+		modifier = { factor = 0.7 learning = 16 }
+		modifier = { factor = 0.7 learning = 20 }
+		modifier = { factor = 0.8 trait = diligent }
+		modifier = { factor = 0.8 trait = zealous }
+		modifier = { factor = 0.8 trait = scholar }
+		modifier = { factor = 0.8 trait = theologian }
+		modifier = { factor = 2 trait = slothful }
+		modifier = { factor = 2 trait = drunkard }
+		modifier = { factor = 5 trait = slow }
+		modifier = { factor = 10 trait = imbecile }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { trait = genius }
+		tooltip_info = genius
+		piety = 50
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_character_modifier = imperial_censure
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { has_character_modifier = imperial_censure }
+		piety = 25
+		remove_character_modifier = imperial_censure
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { NOT = { has_character_modifier = imperial_censure } }
+		piety = 25
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+}
 
+character_event = {
+	id = cetic.32
+	desc = EVTDESC_cetic_impcourt_intrigue
+	picture = GFX_evt_courtiers_talking
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+		intrigue = 6
+	}
+	
+	mean_time_to_happen = {
+		months = 60
+		modifier = { factor = 0.3 trait = genius }
+		modifier = { factor = 0.5 trait = quick }
+		modifier = { factor = 0.7 intrigue = 8 }
+		modifier = { factor = 0.7 intrigue = 12 }
+		modifier = { factor = 0.7 intrigue = 16 }
+		modifier = { factor = 0.7 intrigue = 20 }
+		modifier = { factor = 0.8 trait = deceitful }
+		modifier = { factor = 0.8 trait = cynical }
+		modifier = { factor = 0.8 trait = schemer }
+		modifier = { factor = 0.8 trait = impaler }
+		modifier = { factor = 2 trait = honest }
+		modifier = { factor = 2 trait = drunkard }
+		modifier = { factor = 5 trait = slow }
+		modifier = { factor = 10 trait = imbecile }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { trait = elusive_shadow }
+		tooltip_info = elusive_shadow
+		prestige = 60
+		remove_character_modifier = imperial_censure
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { has_character_modifier = imperial_censure }
+		prestige = 40
+		remove_character_modifier = imperial_censure
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { NOT = { has_character_modifier = imperial_censure } }
+		prestige = 40
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+}
 
+character_event = {
+	id = cetic.33
+	desc = EVTDESC_cetic_impcourt_diplo
+	picture = GFX_evt_courtiers_talking
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+		diplomacy = 6
+	}
+	
+	mean_time_to_happen = {
+		months = 60
+		modifier = { factor = 0.3 trait = genius }
+		modifier = { factor = 0.5 trait = quick }
+		modifier = { factor = 0.7 diplomacy = 8 }
+		modifier = { factor = 0.7 diplomacy = 12 }
+		modifier = { factor = 0.7 diplomacy = 16 }
+		modifier = { factor = 0.7 diplomacy = 20 }
+		modifier = { factor = 0.8 trait = gregarious }
+		modifier = { factor = 0.8 trait = kind }
+		modifier = { factor = 0.8 trait = socializer }
+		modifier = { factor = 0.8 trait = hedonist }
+		modifier = { factor = 2 trait = shy }
+		modifier = { factor = 2 trait = drunkard }
+		modifier = { factor = 5 trait = slow }
+		modifier = { factor = 10 trait = imbecile }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { trait = fair }
+		tooltip_info = fair
+		prestige = 60
+		remove_character_modifier = imperial_censure
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { has_character_modifier = imperial_censure }
+		prestige = 40
+		remove_character_modifier = imperial_censure
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { NOT = { has_character_modifier = imperial_censure } }
+		prestige = 40
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+}
 
+character_event = {
+	id = cetic.34
+	desc = EVTDESC_cetic_impcourt_martial
+	picture = GFX_evt_courtiers_talking
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+		martial = 6
+	}
+	
+	mean_time_to_happen = {
+		months = 60
+		modifier = { factor = 0.3 trait = genius }
+		modifier = { factor = 0.5 trait = quick }
+		modifier = { factor = 0.7 martial = 8 }
+		modifier = { factor = 0.7 martial = 12 }
+		modifier = { factor = 0.7 martial = 16 }
+		modifier = { factor = 0.7 martial = 20 }
+		modifier = { factor = 0.8 trait = brave }
+		modifier = { factor = 0.8 trait = duelist }
+		modifier = { factor = 0.8 trait = strategist }
+		modifier = { factor = 0.8 trait = gamer }
+		modifier = { factor = 2 trait = craven }
+		modifier = { factor = 2 trait = weak }
+		modifier = { factor = 5 trait = slow }
+		modifier = { factor = 10 trait = imbecile }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { trait = strong }
+		tooltip_info = strong
+		prestige = 60
+		remove_character_modifier = imperial_censure
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { has_character_modifier = imperial_censure }
+		prestige = 40
+		remove_character_modifier = imperial_censure
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { NOT = { has_character_modifier = imperial_censure } }
+		prestige = 40
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+}
 
+character_event = {
+	id = cetic.35
+	desc = EVTDESC_cetic_impcourt_impress
+	picture = GFX_evt_courtiers_talking
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+	}
+	
+	mean_time_to_happen = {
+		months = 12
+		modifier = { factor = 0.5 trait = genius }
+		modifier = { factor = 0.8 trait = quick }
+		modifier = { factor = 0.8 trait = strong }
+		modifier = { factor = 0.8 trait = fair }
+		modifier = { factor = 0.8 martial = 8 }
+		modifier = { factor = 0.8 learning = 8 }
+		modifier = { factor = 0.8 diplomacy = 8 }
+		modifier = { factor = 0.8 trait = gregarious }
+		modifier = { factor = 1.2 trait = shy }
+		modifier = { factor = 1.5 trait = ugly }
+		modifier = { factor = 5 trait = slow }
+		modifier = { factor = 5 trait = infirm }
+		modifier = { factor = 5 trait = inbred }
+		modifier = { factor = 10 trait = imbecile }
+		modifier = { factor = 20 trait = incapable }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_impress
+		prestige = 10
+		religion_head = {
+			opinion = { modifier = opinion_impressed who = ROOT years = 5 }
+			random_vassal = {
+				limit = { religion = cetic }
+				opinion = { modifier = opinion_impressed who = ROOT years = 5 }
+			}
+		}
+		any_playable_ruler = {
+			limit = {
+				religion = cetic
+				trait = on_pilgrimage
+			}
+			opinion = { modifier = opinion_impressed who = ROOT years = 5 }
+		}
+	}
+}
 
-
-
+character_event = {
+	id = cetic.36
+	desc = EVTDESC_cetic_impcourt_pitiful
+	picture = GFX_evt_courtiers_talking
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+		NOT = { trait = genius }
+		NOT = { trait = quick }
+		NOT = { trait = strong }
+		NOT = { trait = fair }
+	}
+	
+	mean_time_to_happen = {
+		months = 12
+		modifier = { factor = 4 martial = 8 }
+		modifier = { factor = 4 learning = 8 }
+		modifier = { factor = 4 diplomacy = 8 }
+		modifier = { factor = 4 intrigue = 8 }
+		modifier = { factor = 1.5 trait = gregarious }
+		modifier = { factor = 0.8 trait = shy }
+		modifier = { factor = 0.7 trait = ugly }
+		modifier = { factor = 0.5 trait = lunatic }
+		modifier = { factor = 0.5 trait = possessed }
+		modifier = { factor = 0.3 trait = slow }
+		modifier = { factor = 0.3 trait = infirm }
+		modifier = { factor = 0.3 trait = inbred }
+		modifier = { factor = 0.2 trait = imbecile }
+		modifier = { factor = 0.1 trait = incapable }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_pitiful
+		prestige = -10
+		religion_head = {
+			opinion = { modifier = opinion_pitiful who = ROOT years = 5 }
+			random_vassal = {
+				limit = { religion = cetic }
+				opinion = { modifier = opinion_pitiful who = ROOT years = 5 }
+			}
+		}
+		any_playable_ruler = {
+			limit = {
+				religion = cetic
+				trait = on_pilgrimage
+			}
+			opinion = { modifier = opinion_pitiful who = ROOT years = 5 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_pitiful_leave
+		prestige = -10
+		remove_trait = on_pilgrimage
+		religion_head = {
+			opinion = { modifier = opinion_pitiful who = ROOT years = 5 }
+			random_vassal = {
+				limit = { religion = cetic }
+				opinion = { modifier = opinion_pitiful who = ROOT years = 5 }
+			}
+		}
+		any_playable_ruler = {
+			limit = {
+				religion = cetic
+				trait = on_pilgrimage
+			}
+			opinion = { modifier = opinion_pitiful who = ROOT years = 5 }
+		}
+	}
+}
 

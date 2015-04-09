@@ -4,6 +4,7 @@
 # 4		letter: emperor notified that claims were removed
 # 5		letter: emperor notified that claimant refused the request
 # 10	[hidden] char: figurehead trait passed onto next emperor
+# 11	choose cetic path to follow
 # 20	[hidden] prov: trigger cetic border claim event
 # 21	char: discover tenuous claim on border province, request imperial sanction of the claim
 # 22	char: emperor receives request to sanction claim
@@ -16,6 +17,14 @@
 # 34	char: imperial court visit: discussion of tactics (martial)
 # 35	char: imperial court visit: impress other court visitors
 # 36	char: imperial court visit: anger other court visitors
+# 37	char: imperial court visit: attempt to buy influence
+# 50	char: emperor writing: writer's block
+# 51	char: emperor writing: inspired writings
+# 52	char: emperor writing: competent writings
+# 53	char: emperor writing: terrible writings
+# 54	char: emperor writing: inspired by a ruler visiting the court
+# 55	char: inform cetic character of inspired writings
+# 56	char: inform cetic character of terrible writings
 
 namespace = cetic
 
@@ -70,7 +79,7 @@ character_event = {
 		trigger = { diplomacy = 12 }
 		tooltip_info = diplomacy
 		custom_tooltip = { text = TXT_cetic_claim_request }
-		FROM = { letter_event = { id = cetic.3 days = 5 random = 3 } }
+		FROM = { letter_event = { id = cetic.3 } }
 		ai_chance = {
 			factor = 500
 		}
@@ -81,7 +90,7 @@ character_event = {
 		trigger = { learning = 12 }
 		tooltip_info = learning
 		custom_tooltip = { text = TXT_cetic_claim_request }
-		FROM = { letter_event = { id = cetic.3 days = 5 random = 3 } }
+		FROM = { letter_event = { id = cetic.3 } }
 		ai_chance = {
 			factor = 500
 		}
@@ -91,7 +100,7 @@ character_event = {
 		name = EVTOPT_cetic_claims_request
 		custom_tooltip = { text = TXT_cetic_claim_request }
 		transfer_scaled_wealth = { to = FROM value = 0.5 }
-		FROM = { letter_event = { id = cetic.3 days = 5 random = 3 } }
+		FROM = { letter_event = { id = cetic.3 } }
 		ai_chance = {
 			factor = 20
 		}
@@ -216,7 +225,7 @@ letter_event = {
 	}
 }
 
-# ************************** pass figurehead trait to next emperor *******************
+# ************************** on action events *********************************
 character_event = {
 	id = cetic.10
 	desc = EVTDESC_bounce
@@ -235,6 +244,140 @@ character_event = {
 	}
 	
 	option = { name = OK }
+}
+
+character_event = {
+	id = cetic.11
+	desc = EVTDESC_cetic_choose_way
+	picture = GFX_evt_knight_kneeling
+	is_triggered_only = yes
+
+	trigger = {
+		religion = cetic
+	}
+	
+	option = {
+		name = EVTOPT_cetic_choose_same
+		trigger = {
+			religion_head = {
+				NOT = {
+					reverse_has_opinion_modifier = { who = ROOT modifier = opinion_unenlightened }
+				}
+			}
+		}
+		piety = 20
+		ai_chance = {
+			factor = 100
+			modifier = { factor = 2	trait = zealous }
+			modifier = { factor = 0.3 trait = arbitrary }
+			modifier = { factor = 0.5 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_choose_book
+		trigger = { NOT = { trait = way_book } }
+		hidden_tooltip = {
+			remove_trait = way_fist
+			remove_trait = way_cowl
+			remove_trait = way_dove
+		}
+		add_trait = way_book
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 5	trait = mastermind_theologian }
+			modifier = { factor = 4	trait = scholarly_theologian }
+			modifier = { factor = 3	trait = martial_cleric }
+			modifier = { factor = 2	trait = detached_priest }
+			modifier = { factor = 4	trait = theologian }
+			modifier = { factor = 3	trait = scholar }
+			modifier = { factor = 2	trait = mystic }
+			modifier = { factor = 2	trait = zealous }
+			modifier = { factor = 1.5 trait = diligent }
+			modifier = { factor = 1.5 trait = humble }
+			modifier = { factor = 0.2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_choose_fist
+		trigger = { NOT = { trait = way_fist } }
+		hidden_tooltip = {
+			remove_trait = way_book
+			remove_trait = way_cowl
+			remove_trait = way_dove
+		}
+		add_trait = way_fist
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5 trait = brilliant_strategist }
+			modifier = { factor = 4 trait = skilled_tactician }
+			modifier = { factor = 3 trait = tough_soldier }
+			modifier = { factor = 2 trait = misguided_warrior }
+			modifier = { factor = 4	trait = strategist }
+			modifier = { factor = 3	trait = duelist }
+			modifier = { factor = 2	trait = hunter }
+			modifier = { factor = 2	trait = brave }
+			modifier = { factor = 1.5 trait = wroth }
+			modifier = { factor = 1.5 trait = strong }
+			modifier = { factor = 0.2 trait = craven }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_choose_cowl
+		trigger = { NOT = { trait = way_cowl } }
+		hidden_tooltip = {
+			remove_trait = way_fist
+			remove_trait = way_book
+			remove_trait = way_dove
+		}
+		add_trait = way_cowl
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5	trait = elusive_shadow }
+			modifier = { factor = 4	trait = intricate_webweaver }
+			modifier = { factor = 3	trait = flamboyant_schemer }
+			modifier = { factor = 2	trait = amateurish_plotter }
+			modifier = { factor = 4	trait = impaler }
+			modifier = { factor = 3	trait = schemer }
+			modifier = { factor = 2	trait = seducer }
+			modifier = { factor = 2	trait = seductress  }
+			modifier = { factor = 2	trait = cruel }
+			modifier = { factor = 1.5 trait = deceitful }
+			modifier = { factor = 1.5 trait = envious }
+			modifier = { factor = 1.5 trait = greedy }
+			modifier = { factor = 0.3 trait = kind }
+			modifier = { factor = 0.3 trait = just }
+			modifier = { factor = 0.3 trait = honest }
+			modifier = { factor = 0.3 trait = content }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_choose_dove
+		trigger = { NOT = { trait = way_dove } }
+		hidden_tooltip = {
+			remove_trait = way_fist
+			remove_trait = way_cowl
+			remove_trait = way_book
+		}
+		add_trait = way_dove
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5	trait = grey_eminence }
+			modifier = { factor = 4	trait = charismatic_negotiator }
+			modifier = { factor = 3	trait = underhanded_rogue }
+			modifier = { factor = 2	trait = naive_appeaser }
+			modifier = { factor = 4	trait = socializer }
+			modifier = { factor = 3	trait = hedonist }
+			modifier = { factor = 2	trait = kind }
+			modifier = { factor = 1.5 trait = charitable }
+			modifier = { factor = 1.5 trait = just }
+			modifier = { factor = 0.3 trait = cruel }
+			modifier = { factor = 0.3 trait = arbitrary }
+		}
+	}
 }
 
 # ************************** request claim from emperor ****************************
@@ -334,7 +477,6 @@ character_event = {
 		}
 		FROMFROM = {
 			owner = {
-				opinion = { modifier = opinion_annoyed who = ROOT years = 10 }
 				top_liege = {
 					opinion = { modifier = opinion_annoyed who = ROOT years = 10 }
 				}
@@ -357,7 +499,6 @@ character_event = {
 		}
 		FROMFROM = {
 			owner = {
-				opinion = { modifier = opinion_pleased who = ROOT years = 10 }
 				top_liege = {
 					opinion = { modifier = opinion_pleased who = ROOT years = 10 }
 				}
@@ -551,6 +692,14 @@ character_event = {
 		modifier = { factor = 10 trait = imbecile }
 	}
 	
+	immediate = {
+		hidden_tooltip = {
+			religion_head = {
+				random = { chance = 35 character_event = { id = cetic.54 } }
+			}
+		}
+	}
+	
 	option = {
 		name = EVTOPT_cetic_impcourt_favor
 		trigger = { trait = genius }
@@ -719,6 +868,14 @@ character_event = {
 		modifier = { factor = 10 trait = imbecile }
 	}
 	
+	immediate = {
+		hidden_tooltip = {
+			religion_head = {
+				random = { chance = 15 character_event = { id = cetic.54 } }
+			}
+		}
+	}
+	
 	option = {
 		name = EVTOPT_cetic_impcourt_favor
 		trigger = { trait = strong }
@@ -754,6 +911,8 @@ character_event = {
 	trigger = {
 		religion = cetic
 		trait = on_pilgrimage
+		NOT = { trait = imbecile }
+		NOT = { trait = incapable }
 	}
 	
 	mean_time_to_happen = {
@@ -771,8 +930,14 @@ character_event = {
 		modifier = { factor = 5 trait = slow }
 		modifier = { factor = 5 trait = infirm }
 		modifier = { factor = 5 trait = inbred }
-		modifier = { factor = 10 trait = imbecile }
-		modifier = { factor = 20 trait = incapable }
+	}
+	
+	immediate = {
+		hidden_tooltip = {
+			religion_head = {
+				random = { chance = 8 character_event = { id = cetic.54 } }
+			}
+		}
 	}
 	
 	option = {
@@ -866,4 +1031,530 @@ character_event = {
 		}
 	}
 }
+
+character_event = {
+	id = cetic.37
+	desc = EVTDESC_cetic_impcourt_buy
+	picture = GFX_evt_courtiers_talking
+	
+	trigger = {
+		religion = cetic
+		trait = on_pilgrimage
+		stewardship = 6
+	}
+	
+	mean_time_to_happen = {
+		months = 80
+		modifier = { factor = 0.3 trait = genius }
+		modifier = { factor = 0.5 trait = quick }
+		modifier = { factor = 0.7 stewardship = 8 }
+		modifier = { factor = 0.7 stewardship = 12 }
+		modifier = { factor = 0.7 stewardship = 16 }
+		modifier = { factor = 0.7 stewardship = 20 }
+		modifier = { factor = 0.8 trait = cynical }
+		modifier = { factor = 0.8 trait = administrator }
+		modifier = { factor = 5 trait = slow }
+		modifier = { factor = 10 trait = imbecile }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { has_character_modifier = imperial_censure }
+		scaled_wealth = -0.5
+		piety = -10
+		remove_character_modifier = imperial_censure
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_favor
+		trigger = { NOT = { has_character_modifier = imperial_censure } }
+		scaled_wealth = -0.5
+		piety = -10
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		remove_trait = on_pilgrimage
+	}
+	
+	option = {
+		name = EVTOPT_cetic_impcourt_poor
+		piety = 10
+	}
+}
+
+# ************************** emperor writes new teachings ****************************
+character_event = {
+	id = cetic.50
+	desc = EVTDESC_cetic_write_block
+	picture = GFX_evt_library
+	
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_character_modifier = intense_writing
+	}
+	
+	mean_time_to_happen = {
+		months = 24
+		modifier = { factor = 0.7 trait = slothful }
+		modifier = { factor = 0.5 trait = stressed }
+		modifier = { factor = 0.5 trait = depressed }
+		modifier = { factor = 2 trait = diligent }
+		modifier = { factor = 5 has_character_modifier = writing_inspiration }
+	}
+	
+	immediate = {
+		remove_character_modifier = intense_writing
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_block_dil
+		trigger = { trait = diligent }
+		tooltip_info = diligent
+		add_character_modifier = { name = intense_writing duration = -1 }
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_block_greg
+		trigger = { trait = gregarious }
+		tooltip_info = gregarious
+		add_character_modifier = { name = intense_writing duration = -1 }
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_block_quit
+		piety = -20
+		prestige = -20
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_block_stress
+		random_list = {
+			30 = { add_trait = stressed }
+			10 = { add_trait = depressed }
+			10 = { add_trait = drunkard }
+			50 = { add_character_modifier = { name = intense_writing duration = -1 } }
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+narrative_event = {
+	id = cetic.51
+	title = EVTNAME_cetic_write_inspire
+	desc = EVTDESC_cetic_write_inspire
+	picture = GFX_evt_library
+	
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_character_modifier = intense_writing
+		OR = {
+			learning = 12
+			has_character_modifier = writing_inspiration
+		}
+		NOT = { trait = slow }
+		NOT = { trait = imbecile }
+		NOT = { trait = inbred }
+		NOT = { trait = incapable }
+	}
+	
+	mean_time_to_happen = {
+		months = 60
+		modifier = { factor = 1.5 trait = slothful }
+		modifier = { factor = 0.8 trait = diligent }
+		modifier = { factor = 0.8 has_character_modifier = writing_inspiration }
+		modifier = { factor = 0.4 trait = genius }
+		modifier = { factor = 0.6 trait = quick }
+		modifier = { factor = 0.9 learning = 14 }
+		modifier = { factor = 0.9 learning = 16 }
+		modifier = { factor = 0.9 learning = 18 }
+		modifier = { factor = 0.9 learning = 20 }
+		modifier = { factor = 0.9 learning = 22 }
+		modifier = { factor = 0.9 learning = 24 }
+		modifier = { factor = 10 NOT = { learning = 12 } }
+	}
+	
+	immediate = {
+		remove_character_modifier = intense_writing
+		add_character_modifier = { name = recent_writings duration = 180 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_inspire
+		religion_authority = { modifier = inspired_teachings }
+		prestige = 100
+		piety = 100
+		hidden_tooltip = {
+			any_playable_ruler = {
+				limit = { religion = cetic }
+				character_event = { id = cetic.55 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = cetic.52
+	desc = EVTDESC_cetic_write_competent
+	picture = GFX_evt_library
+	
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_character_modifier = intense_writing
+		NOT = { trait = imbecile }
+		NOT = { trait = inbred }
+		NOT = { trait = incapable }
+	}
+	
+	mean_time_to_happen = {
+		months = 24
+		modifier = { factor = 1.5 trait = slothful }
+		modifier = { factor = 0.8 trait = diligent }
+		modifier = { factor = 0.8 has_character_modifier = writing_inspiration }
+		modifier = { factor = 2 NOT = { learning = 6 } }
+		modifier = { factor = 3 NOT = { learning = 4 } }
+		modifier = { factor = 5 NOT = { learning = 2 } }
+		modifier = { factor = 1.5 learning = 12 }
+		modifier = { factor = 1.2 learning = 16 }
+		modifier = { factor = 1.2 learning = 20 }
+	}
+	
+	immediate = {
+		remove_character_modifier = intense_writing
+		add_character_modifier = { name = recent_writings duration = 180 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_better
+		piety = 10
+		random_list = {
+			10 = { add_trait = stressed }
+			10 = { add_trait = zealous }
+			10 = { add_trait = diligent }
+			10 = { add_trait = proud }
+			10 = { add_trait = ambitious }
+			50 = { }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_goodenough
+		prestige = 10
+		random_list = {
+			10 = { add_trait = humble }
+			10 = { add_trait = slothful }
+			10 = { add_trait = cynical }
+			10 = { add_trait = content }
+			40 = { }
+		}
+	}
+}
+
+narrative_event = {
+	id = cetic.53
+	title = EVTNAME_cetic_write_terrible
+	desc = EVTDESC_cetic_write_terrible
+	picture = GFX_evt_lunatic
+	
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_character_modifier = intense_writing
+		NOT = { trait = genius }
+		NOT = { trait = quick }
+		OR = {
+			NOT = { learning = 7 }
+			trait = lunatic
+			trait = possessed
+			trait = slow
+			trait = imbecile
+			trait = inbred
+		}
+	}
+	
+	mean_time_to_happen = {
+		months = 24
+		modifier = { factor = 1.5 trait = slothful }
+		modifier = { factor = 0.8 trait = diligent }
+		modifier = { factor = 0.5 trait = lunatic }
+		modifier = { factor = 0.8 trait = possessed }
+		modifier = { factor = 0.8 trait = slow }
+		modifier = { factor = 0.8 trait = imbecile }
+		modifier = { factor = 0.8 trait = inbred }
+		modifier = { factor = 1.5 has_character_modifier = writing_inspiration }
+		modifier = { factor = 0.8 NOT = { learning = 2 } }
+		modifier = { factor = 0.8 NOT = { learning = 3 } }
+		modifier = { factor = 0.8 NOT = { learning = 4 } }
+		modifier = { factor = 0.8 NOT = { learning = 5 } }
+		modifier = { factor = 0.8 NOT = { learning = 7 } }
+		modifier = { factor = 2 learning = 10 }
+		modifier = { factor = 2 learning = 14 }
+		modifier = { factor = 2 learning = 18 }
+	}
+	
+	immediate = {
+		remove_character_modifier = intense_writing
+		any_playable_ruler = {
+			limit = { religion = cetic }
+			character_event = { id = cetic.56 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_lapse
+		trigger = { learning = 16 }
+		tooltip_info = learning
+		prestige = -100
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_abdicate
+		prestige = -100
+		abdicate = yes
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 2 trait = humble }
+			modifier = { factor = 2 trait = craven }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_gurus
+		prestige = -100
+		scaled_wealth = -1
+		random = { chance = 50 change_learning = 1 }
+		religion_authority = { modifier = unenlightened_emperor }
+		ai_chance = {
+			factor = 30
+			modifier = { factor = 2 trait = humble }
+			modifier = { factor = 2 trait = diligent }
+			modifier = { factor = 2 trait = patient }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_tyrant
+		prestige = -100
+		piety = -200
+		religion_authority = { modifier = unenlightened_emperor }
+		custom_tooltip = { text = TXT_cetic_unrest }
+		hidden_tooltip = {
+			any_independent_ruler = {
+				limit = { religion = cetic }
+				any_realm_province = {
+					limit = { religion = cetic }
+					add_province_modifier = { name = unenlightened_emperor duration = 365 }
+				}
+			}
+		}
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 2 trait = ambitious }
+			modifier = { factor = 2 trait = proud }
+			modifier = { factor = 2 trait = slothful }
+			modifier = { factor = 2 trait = arbitrary }
+		}
+	}
+}
+
+character_event = {
+	id = cetic.54
+	desc = EVTDESC_cetic_write_discuss
+	picture = GFX_evt_courtiers_talking
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_character_modifier = intense_writing
+		NOT = { has_character_modifier = writing_inspiration }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_discuss_proud
+		prestige = 10
+		piety = 5
+	}
+	
+	option = {
+		name = EVTOPT_cetic_write_discuss_inspire
+		add_character_modifier = { name = writing_inspiration duration = 120 }
+		opinion = { modifier = opinion_inspiring who = FROM years = 10 }
+	}
+}
+
+character_event = {
+	id = cetic.55
+	desc = EVTDESC_cetic_inspire_inform
+	picture = GFX_evt_library
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+		controls_religion = no
+	}
+	
+	option = {
+		name = EVTOPT_cetic_inspire_inform_switch
+		trigger = {
+			NOT = { trait = way_book }
+			FROM = { trait = way_book }
+		}
+		add_trait = way_book
+		opinion = { modifier = opinion_inspiring who = FROM years = 10 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = diligent }
+			modifier = { factor = 2 trait = humble }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_inspire_inform_switch
+		trigger = {
+			NOT = { trait = way_dove }
+			FROM = { trait = way_dove }
+		}
+		add_trait = way_dove
+		opinion = { modifier = opinion_inspiring who = FROM years = 10 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = kind }
+			modifier = { factor = 2 trait = just }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_inspire_inform_switch
+		trigger = {
+			NOT = { trait = way_cowl }
+			FROM = { trait = way_cowl }
+		}
+		add_trait = way_cowl
+		opinion = { modifier = opinion_inspiring who = FROM years = 10 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 2 trait = cruel }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_inspire_inform_switch
+		trigger = {
+			NOT = { trait = way_fist }
+			FROM = { trait = way_fist }
+		}
+		add_trait = way_fist
+		opinion = { modifier = opinion_inspiring who = FROM years = 10 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = brave }
+			modifier = { factor = 2 trait = wroth }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_inspire_inform_praise
+		piety = 10
+		opinion = { modifier = opinion_inspiring who = FROM years = 10 }
+		ai_chance = {
+			factor = 100
+			modifier = { factor = 2 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_inspire_inform_cynic
+		piety = -10
+		add_trait = cynical
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 10 trait = cynical }
+		}
+	}
+}
+
+character_event = {
+	id = cetic.56
+	desc = EVTDESC_cetic_terrible_inform
+	picture = GFX_evt_lunatic
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+		controls_religion = no
+	}
+	
+	option = {
+		name = EVTOPT_cetic_terrible_inform_abdicate
+		piety = 25
+		reverse_opinion = { modifier = opinion_desired_abdication who = FROM years = 10 }
+		opinion = { modifier = opinion_unenlightened who = FROM years = 10 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = brave }
+			modifier = { factor = 2 learning = 8 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_terrible_inform_switch
+		trigger = {
+			OR = {
+				AND = {
+					trait = way_book
+					FROM = { trait = way_book }
+				}
+				AND = {
+					trait = way_fist
+					FROM = { trait = way_fist }
+				}
+				AND = {
+					trait = way_cowl
+					FROM = { trait = way_cowl }
+				}
+				AND = {
+					trait = way_dove
+					FROM = { trait = way_dove }
+				}
+			}
+		}
+		opinion = { modifier = opinion_unenlightened who = FROM years = 10 }
+		custom_tooltip = { text = TXT_cetic_switch_way }
+		hidden_tooltip = { character_event = { id = cetic.11 } }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = arbitrary }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_terrible_inform_insult
+		opinion = { modifier = opinion_unenlightened who = FROM years = 10 }
+		random = { chance = 25 add_trait = cynical }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_terrible_inform_zeal
+		piety = 10
+		random = { chance = 25 add_trait = zealous }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 3 trait = zealous }
+		}
+	}
+}
+
 

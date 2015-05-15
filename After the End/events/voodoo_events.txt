@@ -1,0 +1,941 @@
+# 1		you have been drugged and turned into a zombi
+# 2		you have turned a prisoner into a zombi
+# 10	houngan is holding a voodoo ceremony
+# 11	letter inviting liege to ceremony
+# 20	choose offering at ceremony
+# 21	[hidden] houngan used to determine ceremony outcome
+# 30	you don't feel anything at ceremony
+# 31	you have vague spiritual feeling at ceremony
+# 32	you are possessed at ceremony
+# 38	[hidden] houngan used to determine type of loa to possess you
+# 40	wise loa
+# 41	shrewd loa
+# 42	friendly loa
+# 43	gentle loa
+# 44	devious loa
+# 45	decadent loa
+# 46	combative loa
+# 47	madness loa
+# 50	loa leaves the human world
+# 51	loa is enraged
+# 70	naturally possessed character has a loa inducing dream
+# 80	clean up flags
+
+namespace = voodoo
+
+character_event = {
+	id = voodoo.1
+	desc = EVTDESC_zombi_jailer
+	picture = GFX_evt_torture
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+	}
+}
+
+character_event = {
+	id = voodoo.2
+	desc = EVTDESC_zombi_prisoner
+	picture = GFX_evt_torture
+	
+	hide_from = yes
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+	}
+}
+
+character_event = {		# for the houngan
+	id = voodoo.10
+	desc = EVTDESC_bounce
+	picture = GFX_evt_feast
+	
+	age = 16
+	is_prisoner = no
+	is_ruler = yes
+	capable_only = yes
+	
+	trigger = {
+		religion = voodoo
+		is_theocracy = yes
+	}
+	
+	mean_time_to_happen = {
+		months = 120
+	}
+	
+	option = {
+		liege = {
+			letter_event = { id = voodoo.11 }
+		}
+	}
+}
+
+letter_event = {
+	id = voodoo.11
+	desc = EVTDESC_voodoo_invite
+	border = GFX_event_letter_frame_religion
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = voodoo
+		NOT = { has_character_flag = loa_ceremony }
+	}
+
+	option = {
+		name = EVTOPT_voodoo_invite_accept
+		set_character_flag = loa_ceremony
+		character_event = { id = voodoo.20 days = 4 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_invite_decline
+		piety = -2
+	}
+}
+
+character_event = {
+	id = voodoo.20
+	desc = EVTDESC_voodoo_offer
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = { trait = possessed }
+			set_character_flag = naturally_possessed
+		}
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_offer_animal
+		set_character_flag = loa_animal
+		wealth = -15
+		prestige = 20
+		hidden_tooltip = {
+			FROMFROM = { character_event = { id = voodoo.21 } }
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_offer_formal
+		set_character_flag = loa_formal
+		wealth = -10
+		piety = 5
+		random_list = {
+			10 = { add_trait = diligent }
+			10 = { add_trait = chaste }
+			80 = { prestige = 10 }
+		}
+		hidden_tooltip = {
+			FROMFROM = { character_event = { id = voodoo.21 } }
+		}
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = diligent }
+			modifier = { factor = 2 trait = chaste }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_offer_dance
+		set_character_flag = loa_dance
+		random_list = {
+			10 = { add_trait = gregarious }
+			10 = { add_trait = lustful }
+			80 = { prestige = 10 }
+		}
+		hidden_tooltip = {
+			FROMFROM = { character_event = { id = voodoo.21 } }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 4 trait = gregarious }
+			modifier = { factor = 2 trait = lustful }
+			modifier = { factor = 2 trait = gluttonous }
+		}
+	}
+}
+
+character_event = {		# for the houngan
+	id = voodoo.21
+	desc = EVTDESC_bounce
+	picture = GFX_evt_feast
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = voodoo
+		is_theocracy = yes
+	}
+	
+	option = {
+		FROM = { character_event = { id = voodoo.30 } }
+		ai_chance = {
+			factor = 20
+		}
+	}
+	
+	option = {
+		FROM = { character_event = { id = voodoo.31 } }
+		ai_chance = {
+			factor = 10
+		}
+	}
+	
+	option = {
+		FROM = { character_event = { id = voodoo.32 } }
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 2 learning = 12 }
+			modifier = { factor = 3 FROM = { has_character_flag = naturally_possessed } }
+		}
+	}
+}
+
+character_event = {
+	id = voodoo.30
+	desc = EVTDESC_voodoo_others
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_fakeit
+		random = { chance = 50 add_trait = deceitful }
+		prestige = 10
+		piety = -10
+		hidden_tooltip = { character_event = { id = voodoo.80 } }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 4 trait = deceitful }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_silence
+		random = { chance = 20 add_trait = honest }
+		prestige = -5
+		hidden_tooltip = { character_event = { id = voodoo.80 } }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = honest }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_forsake
+		prestige = -5
+		random_list = {
+			30 = { add_trait = cynical }
+			10 = { add_trait = depressed }
+			60 = { }
+		}
+		hidden_tooltip = { character_event = { id = voodoo.80 } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = cynical }
+		}
+	}
+}
+
+character_event = {
+	id = voodoo.31
+	desc = EVTDESC_voodoo_feel
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_fakeit
+		random = { chance = 25 add_trait = deceitful }
+		prestige = 20
+		piety = -10
+		hidden_tooltip = { character_event = { id = voodoo.80 } }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = deceitful }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_feltit
+		piety = 5
+		random_list = {
+			10 = { add_trait = honest }
+			10 = { add_trait = zealous }
+			80 = { prestige = 10 }
+		}
+		hidden_tooltip = { character_event = { id = voodoo.80 } }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = honest }
+		}
+	}
+}
+
+character_event = {
+	id = voodoo.32
+	desc = EVTDESC_voodoo_possess
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_vessel
+		add_trait = possessed
+		prestige = 20
+		piety = 10
+		hidden_tooltip = {
+			FROM = { character_event = { id = voodoo.38 } }
+		}
+		ai_chance = { factor = 40 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = { add_trait = cynical }
+			10 = { add_trait = shy }
+			80 = { prestige = 10 }
+		}
+		hidden_tooltip = { character_event = { id = voodoo.80 } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = shy }
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 0 trait = zealous }
+		}
+	}
+}
+
+character_event = {		# for the houngan
+	id = voodoo.38
+	desc = EVTDESC_bounce
+	picture = GFX_evt_feast
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = voodoo
+		is_theocracy = yes
+	}
+	
+	option = {
+		random_list = {
+			10 = { FROM = { character_event = { id = voodoo.40 } } }
+			10 = { FROM = { character_event = { id = voodoo.43 } } }
+		}
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 1.5 FROM = { has_character_flag = loa_formal } }
+			modifier = { factor = 0.8 FROM = { has_character_flag = loa_animal } }
+			modifier = { factor = 0.8 FROM = { has_character_flag = loa_dance } }
+		}
+	}
+	
+	option = {
+		random_list = {
+			10 = { FROM = { character_event = { id = voodoo.41 } } }
+			10 = { FROM = { character_event = { id = voodoo.44 } } }
+		}
+		ai_chance = {
+			factor = 20
+		}
+	}
+	
+	option = {
+		random_list = {
+			10 = { FROM = { character_event = { id = voodoo.42 } } }
+			10 = { FROM = { character_event = { id = voodoo.45 } } }
+		}
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 0.5 FROM = { has_character_flag = loa_formal } }
+			modifier = { factor = 1.2 FROM = { has_character_flag = loa_animal } }
+			modifier = { factor = 1.5 FROM = { has_character_flag = loa_dance } }
+		}
+	}
+	
+	option = {
+		random_list = {
+			10 = { FROM = { character_event = { id = voodoo.46 } } }
+			10 = { FROM = { character_event = { id = voodoo.47 } } }
+		}
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 0.5 FROM = { has_character_flag = loa_formal } }
+			modifier = { factor = 1.5 FROM = { has_character_flag = loa_animal } }
+			modifier = { factor = 4 FROM = { trait = lunatic } }
+		}
+	}
+}
+
+character_event = {
+	id = voodoo.40
+	desc = EVTDESC_voodoo_loa_wise
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_scholar
+		trigger = { NOT = { lifestyle_traits = 1 } }
+		piety = 10
+		add_trait = scholar
+		add_character_modifier = { name = loa_learning duration = 1500 }
+		hidden_tooltip = { character_event = { id = voodoo.40 days = 30 random = 60 } }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = patient }
+			10 = { add_trait = diligent }
+			10 = { add_trait = chaste }
+			10 = { add_trait = temperate }
+			40 = { add_character_modifier = { name = loa_learning duration = 1000 } }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.40 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			10 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = voodoo.41
+	desc = EVTDESC_voodoo_loa_shrewd
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = ambitious }
+			10 = { add_trait = proud }
+			10 = { add_trait = greedy }
+			10 = { add_trait = envious }
+			40 = { add_character_modifier = { name = loa_stewardship duration = 1200 } }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.41 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			10 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = voodoo.42
+	desc = EVTDESC_voodoo_loa_friendly
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_poet
+		trigger = { NOT = { lifestyle_traits = 1 } }
+		piety = 10
+		add_trait = poet
+		add_character_modifier = { name = loa_diplomacy duration = 1500 }
+		hidden_tooltip = { character_event = { id = voodoo.42 days = 30 random = 60 } }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = kind }
+			10 = { add_trait = gregarious }
+			10 = { add_trait = just }
+			10 = { add_trait = charitable }
+			40 = { add_character_modifier = { name = loa_diplomacy duration = 1000 } }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.42 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			5 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = voodoo.43
+	desc = EVTDESC_voodoo_loa_gentle
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_gardener
+		trigger = { NOT = { lifestyle_traits = 1 } }
+		piety = 10
+		add_trait = gardener
+		hidden_tooltip = { character_event = { id = voodoo.43 days = 30 random = 60 } }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = humble }
+			10 = { add_trait = honest }
+			10 = { add_trait = trusting }
+			10 = { add_trait = content }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.43 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			5 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = voodoo.44
+	desc = EVTDESC_voodoo_loa_devious
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_mystic
+		trigger = { NOT = { lifestyle_traits = 1 } }
+		piety = 10
+		add_trait = mystic
+		add_character_modifier = { name = loa_intrigue duration = 1500 }
+		hidden_tooltip = { character_event = { id = voodoo.44 days = 30 random = 60 } }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = deceitful }
+			10 = { add_trait = paranoid }
+			10 = { add_trait = envious }
+			10 = { add_trait = patient }
+			40 = { add_character_modifier = { name = loa_intrigue duration = 1000 } }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.44 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			15 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = voodoo.45
+	desc = EVTDESC_voodoo_loa_decadent
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_hedonist
+		trigger = { NOT = { lifestyle_traits = 1 } }
+		piety = 10
+		add_trait = hedonist
+		hidden_tooltip = { character_event = { id = voodoo.45 days = 30 random = 60 } }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = lustful }
+			10 = { add_trait = gluttonous }
+			10 = { add_trait = slothful }
+			10 = { add_trait = greedy }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.45 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			10 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = voodoo.46
+	desc = EVTDESC_voodoo_loa_combative
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_duelist
+		trigger = { NOT = { lifestyle_traits = 1 } }
+		piety = 10
+		add_trait = duelist
+		add_character_modifier = { name = loa_martial duration = 1500 }
+		hidden_tooltip = { character_event = { id = voodoo.46 days = 30 random = 60 } }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = brave }
+			10 = { add_trait = zealous }
+			10 = { add_trait = wroth }
+			10 = { add_trait = cruel }
+			40 = { add_character_modifier = { name = loa_martial duration = 1000 } }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.46 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			20 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = voodoo.47
+	desc = EVTDESC_voodoo_loa_madness
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_impaler
+		trigger = { NOT = { lifestyle_traits = 1 } }
+		piety = 10
+		add_trait = impaler
+		hidden_tooltip = { character_event = { id = voodoo.47 days = 30 random = 60 } }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_learn
+		piety = 5
+		random_list = {
+			10 = { add_trait = arbitrary }
+			10 = { add_trait = craven }
+			10 = { add_trait = cynical }
+			10 = { add_trait = stressed }
+			5 = { add_trait = lunatic }
+			5 = { add_trait = depressed }
+		}
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.47 days = 30 random = 60 } }
+				5 = { character_event = { id = voodoo.50 days = 30 random = 60 } }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			30 = {
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = voodoo.50
+	desc = EVTDESC_voodoo_loa_leave
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	immediate = {
+		character_event = { id = voodoo.80 }
+	}
+	
+	option = {
+		name = OK
+		trigger = { has_character_flag = naturally_possessed }
+		piety = 10
+	}
+	
+	option = {
+		name = OK
+		trigger = { NOT = { has_character_flag = naturally_possessed } }
+		remove_trait = possessed
+	}
+}
+
+character_event = {
+	id = voodoo.51
+	desc = EVTDESC_voodoo_loa_angry
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_voodoo_loa_angry_powerful
+		trigger = {
+			learning = 16
+		}
+		random = { chance = 10 add_trait = stressed }
+		hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_angry_potent
+		trigger = {
+			NOT = { learning = 16 }
+			learning = 8
+		}
+		random = { chance = 40 add_trait = stressed }
+		hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_loa_angry_weak
+		trigger = {
+			NOT = { learning = 8 }
+		}
+		add_trait = stressed
+		hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+	}
+}
+
+character_event = {
+	id = voodoo.70
+	desc = EVTDESC_voodoo_dream
+	picture = GFX_evt_feast
+	
+	trigger = {
+		religion = voodoo
+		trait = possessed
+		NOT = { has_character_flag = loa_ceremony }
+		NOT = { has_character_flag = loa_possession }
+	}
+	
+	mean_time_to_happen = {
+		months = 120
+		modifier = { factor = 2	trait = zealous }
+		modifier = { factor = 0.5 trait = cynical }
+	}
+	
+	immediate = {
+		set_character_flag = naturally_possessed
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_dream_sacrifice
+		wealth = -10
+		piety = 10
+		set_character_flag = loa_possession
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.40 days = 5 } }
+				10 = { character_event = { id = voodoo.41 days = 5 } }
+				10 = { character_event = { id = voodoo.42 days = 5 } }
+				10 = { character_event = { id = voodoo.43 days = 5 } }
+				10 = { character_event = { id = voodoo.44 days = 5 } }
+				10 = { character_event = { id = voodoo.45 days = 5 } }
+				10 = { character_event = { id = voodoo.46 days = 5 } }
+				10 = { character_event = { id = voodoo.47 days = 5 } }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_dream_rite
+		piety = 5
+		set_character_flag = loa_possession
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = voodoo.40 days = 5 } }
+				10 = { character_event = { id = voodoo.41 days = 5 } }
+				10 = { character_event = { id = voodoo.42 days = 5 } }
+				10 = { character_event = { id = voodoo.43 days = 5 } }
+				5 = { character_event = { id = voodoo.44 days = 5 } }
+				5 = { character_event = { id = voodoo.45 days = 5 } }
+				5 = { character_event = { id = voodoo.46 days = 5 } }
+				5 = { character_event = { id = voodoo.47 days = 5 } }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_voodoo_begone
+		piety = -5
+		random = { chance = 20 add_trait = cynical }
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_loa_leaves }
+				hidden_tooltip = { character_event = { id = voodoo.50 days = 10 random = 10 } }
+			}
+			10 = {
+				set_character_flag = loa_possession
+				custom_tooltip = { text = TXT_loa_angry }
+				hidden_tooltip = { character_event = { id = voodoo.51 days = 10 random = 10 } }
+			}
+		}
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 0 trait = zealous }
+		}
+	}
+}
+
+character_event = {
+	id = voodoo.80
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		clr_character_flag = loa_ceremony
+		clr_character_flag = loa_animal
+		clr_character_flag = loa_formal
+		clr_character_flag = loa_dance
+		clr_character_flag = loa_possession
+	}
+}

@@ -1,0 +1,272 @@
+# Presidential actions
+decisions = {
+	# Found Men in Black
+	found_mib = {
+		potential = {
+			has_landed_title = c_americanist
+			NOT = { 
+				has_global_flag = assassins_founded 
+				has_global_flag = assassins_destroyed
+			}
+			b_langley_VA = {
+				has_holder = no
+			}
+			93 = { # Bull Run
+				NOT = { num_of_settlements = 5 }
+			}
+		}
+		allow = {
+			wealth = 100
+		}
+		effect = {
+			wealth = -100
+			narrative_event = { id = 88000 }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.1
+			}
+			modifier = { # Under attack by non-Americanists
+				factor = 100
+				war = yes
+				any_war = {
+					attacker = {
+						NOT = { religion_group = oldworld }
+					}
+				}
+			}
+		}
+	}
+	
+	run_for_president = {
+		is_high_prio = yes
+		potential = {
+			has_global_flag = pres_election
+			has_global_flag = declare_candidacy
+			religion = americanist
+			NOT = { trait = on_campaign }
+			NOT = { has_character_flag = dropped_out }
+			NOT = { has_landed_title = d_electoral_college }
+		}
+		allow = {
+			age = 35
+			NOT = { trait = in_hiding }
+			NOT = { trait = incapable }
+			is_landed = yes
+			OR = {
+				is_patrician = no
+				primary_title = { higher_tier_than = BARON }
+			}
+			# Reduce the number of candidates somewhat
+			hidden_tooltip = { OR = {
+				ai = no
+				diplomacy = 10
+				learning = 10
+				intrigue = 10
+				trait = ambitious
+				has_ambition = obj_become_president
+			} }
+		}
+		effect = {
+			add_trait = on_campaign
+			set_character_flag = pres_candidate
+			hidden_tooltip = {
+				any_playable_ruler = { # Inform players
+					limit = { religion = americanist }
+					character_event = { id = prez.4 }
+				}
+				d_electoral_college = { holder_scope = { change_variable = { which = num_candidates value = 1 } } }
+				any_independent_ruler = {
+					any_realm_character = {
+						limit = {
+							trait = on_campaign
+							has_character_flag = pres_candidate
+						}
+						opinion = { modifier = opposing_candidate who = ROOT }
+						reverse_opinion = { modifier = opposing_candidate who = ROOT }
+					}
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.2
+			}
+			modifier = {
+				factor = 8
+				num_of_count_titles = 1
+			}
+			modifier = {
+				factor = 0
+				d_electoral_college = { holder_scope = { check_variable = { which = num_candidates value = 15 } } }
+			}
+			modifier = {
+				factor = 0.15
+				d_electoral_college = { holder_scope = { check_variable = { which = num_candidates value = 8 } } }
+			}
+			modifier = {
+				factor = 0.4
+				d_electoral_college = { holder_scope = { check_variable = { which = num_candidates value = 4 } } }
+			}
+			modifier = {
+				factor = 100
+				has_landed_title = c_americanist # Incumbent wants to run for re-election
+			}
+			modifier = {
+				factor = 10
+				has_ambition = obj_become_president
+			}
+			modifier = {
+				factor = 2
+				trait = ambitious
+			}
+			modifier = {
+				factor = 0.5
+				trait = content
+			}
+			modifier = {
+				factor = 1.5
+				trait = diligent
+			}
+			modifier = {
+				factor = 0.5
+				trait = slothful
+			}
+			modifier = {
+				factor = 1.5
+				trait = zealous
+			}
+			modifier = {
+				factor = 1.5
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+			
+			modifier = {
+				factor = 1.25
+				diplomacy = 15
+			}
+			modifier = {
+				factor = 1.25
+				intrigue = 15
+			}
+			modifier = {
+				factor = 1.5
+				learning = 15
+			}
+			modifier = {
+				factor = 1.25
+				diplomacy = 20
+			}
+			modifier = {
+				factor = 1.25
+				intrigue = 20
+			}
+			modifier = {
+				factor = 1.5
+				learning = 20
+			}
+		}
+	}
+	
+	
+	drop_out_of_campaign = {
+		is_high_prio = yes
+		potential = {
+			trait = on_campaign
+			has_global_flag = pres_election
+			NOT = { has_global_flag = pres_voting }
+			d_electoral_college = { holder_scope = { check_variable = { which = num_candidates value = 1.9 } } } # last candidate can't drop out
+		}
+		allow = {
+			always = yes
+		}
+		effect = {
+			hidden_tooltip = { character_event = { id = prez.8 } }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.01
+			}
+			modifier = {
+				factor = 5
+				NOT = { wealth = 0 }
+			}
+		}
+	}
+	
+	show_candidates = {
+		is_high_prio = yes
+		potential = {
+			ai = no
+			religion = americanist
+			has_global_flag = pres_election
+		}
+		allow = {
+			always = yes
+		}
+		effect = {
+			character_event = { id = prez.6 }
+		}
+		revoke_allowed = { always = no }
+		ai_will_do = { factor = 0 }
+	}
+	
+	hold_opinion_poll = {
+		is_high_prio = yes
+		potential = {
+			religion = americanist
+			trait = on_campaign
+		}
+		allow = {
+			wealth = 5
+		}
+		effect = {
+			wealth = -5
+			hidden_tooltip = {
+				save_event_target_as = candidate
+				d_electoral_college = { holder_scope = { character_event = { id = prez.205 } } }
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	
+	# # Maintenance decision to hold elections if the Presidency gets vacant somehow
+	# fill_vacant_presidency = {
+		# potential = {
+			# has_landed_title = d_electoral_college
+			# NOT = { c_americanist = { has_holder = yes } }
+			# NOT = { has_global_flag = pres_election }
+		# }
+		# allow = { }
+		# effect = {
+			# character_event = { id = president.11 }
+		# }
+		# revoke_allowed = {
+			# always = no
+		# }
+		# ai_will_do = {
+			# factor = 1
+		# }
+	# }
+}

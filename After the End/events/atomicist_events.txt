@@ -610,3 +610,234 @@ narrative_event = {
 	}
 }
 
+####################################################
+# Atomicist torture events
+# By Henrik "Groogy" Hansson, modified by Sam
+####################################################
+character_event = {
+	id = event_atomicist.15000
+	
+	desc = "EVTDESCATOM15000"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		add_character_modifier = {
+			name = atom_judgement
+			duration = -1
+		}
+		
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+	
+	option = {
+		name = "OK"
+	}
+}
+
+character_event = {
+	id = event_atomicist.15001
+	
+	hide_window = yes
+	#desc = "EVTDESCATOM15001"
+	#picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+				NOT = { trait = zealous }
+				NOT = { trait = cynical }
+				NOT = { religion = atomicist }
+				NOT = { trait = lunatic }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				10 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				5 = { character_event = { id = event_atomicist.15005 } } # Character goes insane
+				5 = { character_event = { id = event_atomicist.15006 } } # Character goes zealous
+				5 = { character_event = { id = event_atomicist.15007 } } # Character goes atomicist
+				10 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+				NOT = { trait = zealous }
+				NOT = { trait = cynical }
+				NOT = { religion = atomicist }
+				trait = lunatic
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				5 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				5 = { character_event = { id = event_atomicist.15006 } } # Character goes zealous
+				5 = { character_event = { id = event_atomicist.15007 } } # Character goes atomicist
+				20 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+				NOT = { trait = lunatic }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				5 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				5 = { character_event = { id = event_atomicist.15005 } } # Character goes insane
+				20 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				5 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				20 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				trait = incapable
+				NOT = { has_character_flag = passing_atom_judgement }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				40 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				10 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+	}
+}
+
+character_event = {	# End torture
+	id = event_atomicist.15002
+	
+	desc = "EVTDESCATOM15002"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_modifier = atom_judgement
+		prisoner = yes
+	}
+	
+	option = {
+		name = "EVTOPTACM15002"
+		remove_character_modifier = atom_judgement
+		clr_character_flag = passing_atom_judgement
+		prisoner = no
+	}
+}
+
+character_event = {	# Character lives
+	id = event_atomicist.15003
+	
+	#desc = "EVTDESCATOM15003"
+	#picture = GFX_evt_emissary
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTAATOM15003"
+		clr_character_flag = passing_atom_judgement
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}
+
+character_event = {	# Character dies
+	id = event_atomicist.15004
+	
+	desc = "EVTDESCATOM15004"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTACM15004"
+		remove_character_modifier = atom_judgement
+		clr_character_flag = passing_atom_judgement
+		host = {
+			ROOT = {
+				death = { 
+					killer = PREV
+					death_reason = death_sacrificed
+				}
+			}
+		}
+
+	}
+}
+
+character_event = {	# Character goes insane
+	id = event_atomicist.15005
+	
+	desc = "EVTDESCCM15005"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTACM15005"
+		clr_character_flag = passing_atom_judgement
+		add_trait = lunatic
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}
+
+character_event = {	# Character goes zealous
+	id = event_atomicist.15006
+	
+	desc = "EVTDESCCM15006"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTACM15006"
+		clr_character_flag = passing_atom_judgement
+		add_trait = zealous
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}
+
+character_event = {	# Character goes atomicist
+	id = event_atomicist.15007
+	
+	desc = "EVTDESCATOM15007"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTAATOM15007"
+		clr_character_flag = passing_atom_judgement
+		religion = atomicist
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}

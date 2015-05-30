@@ -23,6 +23,7 @@ Klonself
 SteelyGlint
 Celt de Brun
 Shadeoses
+thecookiemaster
 
 Other Mod Content:
 Clothing and headgear by the Game of Thrones mod team

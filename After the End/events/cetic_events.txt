@@ -4,8 +4,12 @@
 # 4		letter: emperor notified that claims were removed
 # 5		letter: emperor notified that claimant refused the request
 # 10	[hidden] char: figurehead trait passed onto next emperor
-# 11	[hidden] char: figurehead trait passed to character usurping imperial throne
-# 15	choose cetic path to follow
+# 11	[hidden] narr: ruler usurps the imperial throne
+# 12	[hidden] on-action: check on usurpation if imperial title has been destroyed
+# 13	narr: notify cetic ruler of imperial destruction
+# 14	[hidden] on-action: check on title creation if imperial title has been restored
+# 15	narr: notify cetic ruler of imperial restoration
+# 19	choose cetic path to follow
 # 20	[hidden] prov: trigger cetic border claim event
 # 21	char: discover tenuous claim on border province, request imperial sanction of the claim
 # 22	char: emperor receives request to sanction claim
@@ -14,7 +18,7 @@
 # 30	char: imperial court visit: terrible gaffe
 # 31	char: imperial court visit: brilliant insights (learning)
 # 32	char: imperial court visit: political machinations (intrigue)
-# 33	char: imperial court visit: skilled networking (diplomacy)
+# 33	char: imperial court visit: skillful networking (diplomacy)
 # 34	char: imperial court visit: discussion of tactics (martial)
 # 35	char: imperial court visit: impress other court visitors
 # 36	char: imperial court visit: anger other court visitors
@@ -226,7 +230,7 @@ letter_event = {
 	}
 }
 
-# ************************** on action events *********************************
+# ******************** imperial title inheritance, creation, destruction *************
 character_event = {
 	id = cetic.10
 	desc = EVTDESC_bounce
@@ -247,31 +251,224 @@ character_event = {
 	option = { name = OK }
 }
 
-character_event = {
+narrative_event = {
 	id = cetic.11
-	desc = EVTDESC_bounce
-	picture = GFX_evt_throne_room
+	title = EVTNAME_cetic_usurp_emperor
+	desc = EVTDESC_cetic_usurp_emperor
+	picture = GFX_evt_siege
 	is_triggered_only = yes
-	hide_window = yes
 	
 	trigger = {
 		religion = cetic
 		controls_religion = yes
-		dynasty = FROMFROM
 		FROM = { tier = EMPEROR }
-		FROMFROM = { trait = figurehead }
 	}
-	
-	immediate = {
+
+	# same dynasty, previous holder was figurehead
+	option = {
+		name = EVTOPT_cetic_usurp_same
+		trigger = {
+			dynasty = FROMFROM
+			FROMFROM = { trait = figurehead }
+		}
 		add_trait = figurehead
 		FROMFROM = { remove_trait = figurehead }
+		ai_chance = { factor = 100 }
 	}
 	
-	option = { name = OK }
+	# same dynasty, previous holder was not figurehead
+	option = {
+		name = EVTOPT_cetic_usurp_same
+		trigger = {
+			dynasty = FROMFROM
+			FROMFROM = { NOT = { trait = figurehead } }
+		}
+		prestige = 50
+		ai_chance = { factor = 100 }
+	}
+	
+	# different dynasty, high diplo
+	option = {
+		name = EVTOPT_cetic_usurp_diplo
+		trigger = {
+			NOT = { dynasty = FROMFROM }
+			diplomacy = 14
+		}
+		tooltip_info = diplomacy
+		add_trait = figurehead
+		FROMFROM = { remove_trait = figurehead }
+		ai_chance = { factor = 100 }
+	}
+	
+	# different dynasty, high learning
+	option = {
+		name = EVTOPT_cetic_usurp_learn
+		trigger = {
+			NOT = { dynasty = FROMFROM }
+			learning = 14
+		}
+		tooltip_info = learning
+		add_trait = figurehead
+		FROMFROM = { remove_trait = figurehead }
+		ai_chance = { factor = 100 }
+	}
+	
+	# different dynasty
+	option = {
+		name = EVTOPT_cetic_usurp_destroy
+		trigger = {
+			NOT = { dynasty = FROMFROM }
+		}
+		piety = -50
+		e_california = { destroy_landed_title = THIS }
+		FROMFROM = { remove_trait = figurehead }
+		set_global_flag = cali_emperor_destroyed
+		religion_authority = { modifier = emperor_overthrown }
+		hidden_tooltip = {
+			narrative_event = { id = cetic.13 }
+			any_playable_ruler = {
+				limit = {
+					religion = cetic
+				}
+				narrative_event = { id = cetic.13 }
+			}
+		}
+		ai_chance = { factor = 1 }
+	}
 }
 
 character_event = {
+	id = cetic.12
+	desc = EVTDESC_bounce
+	picture = GFX_evt_siege
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		NOT = { has_global_flag = cali_emperor_destroyed }
+		FROMFROM = {
+			religion = cetic
+			controls_religion = yes
+			NOT = { num_of_county_titles = 1 }
+		}
+	}
+	
+	immediate = {
+		set_global_flag = cali_emperor_destroyed
+		religion_authority = { modifier = emperor_overthrown }
+		narrative_event = { id = cetic.13 }
+		any_playable_ruler = {
+			limit = {
+				religion = cetic
+			}
+			narrative_event = { id = cetic.13 }
+		}
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+narrative_event = {
+	id = cetic.13
+	title = EVTNAME_cetic_emperor_destroyed
+	desc = EVTDESC_cetic_emperor_destroyed
+	picture = GFX_evt_siege
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+	}
+	
+	option = {
+		name = EVTOPT_cetic_emperor_cynic
+		trigger = {
+			trait = cynical
+		}
+		tooltip_info = cynical
+		prestige = 10
+		piety = -5
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_destroyed_zeal
+		trigger = {
+			NOT = { character = FROM }
+		}
+		piety = 10
+		opinion = { modifier = opinion_unenlightened who = FROM years = 10 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 0 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_destroyed_lost
+		ai_chance = { factor = 5 }
+	}
+}
+
+character_event = {
+	id = cetic.14
+	desc = EVTDESC_bounce
+	picture = GFX_evt_siege
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		has_global_flag = cali_emperor_destroyed
+		e_california = { has_holder = yes }
+	}
+	
+	immediate = {
+		clr_global_flag = cali_emperor_destroyed
+		narrative_event = { id = cetic.15 }
+		any_playable_ruler = {
+			limit = {
+				religion = cetic
+			}
+			narrative_event = { id = cetic.15 }
+		}
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+narrative_event = {
 	id = cetic.15
+	title = EVTNAME_cetic_emperor_restored
+	desc = EVTDESC_cetic_emperor_restored
+	picture = GFX_evt_holy_emperor
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = cetic
+	}
+	
+	option = {
+		name = EVTOPT_cetic_emperor_cynic
+		trigger = {
+			trait = cynical
+		}
+		tooltip_info = cynical
+		prestige = 10
+		piety = -5
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_cetic_emperor_restored
+	}
+}
+
+character_event = {
+	id = cetic.19
 	desc = EVTDESC_cetic_choose_way
 	picture = GFX_evt_knight_kneeling
 	is_triggered_only = yes
@@ -1553,7 +1750,7 @@ character_event = {
 		}
 		opinion = { modifier = opinion_unenlightened who = FROM years = 10 }
 		custom_tooltip = { text = TXT_cetic_switch_way }
-		hidden_tooltip = { character_event = { id = cetic.15 } }
+		hidden_tooltip = { character_event = { id = cetic.19 } }
 		ai_chance = {
 			factor = 20
 			modifier = { factor = 2 trait = arbitrary }

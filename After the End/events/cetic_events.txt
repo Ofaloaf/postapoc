@@ -30,6 +30,7 @@
 # 54	char: emperor writing: inspired by a ruler visiting the court
 # 55	char: inform cetic character of inspired writings
 # 56	char: inform cetic character of terrible writings
+# 60	letter: emperor requests military aid
 
 namespace = cetic
 
@@ -1778,7 +1779,7 @@ character_event = {
 	}
 }
 
-
+# ******************************** imperial power faction **************************
 #e_california = { ROOT = { approve_law = PREV } }
 
 # Ultimatum - pro_imperial
@@ -2135,3 +2136,48 @@ letter_event = {
 		prestige = 100
 	}
 }
+
+# *************************** emperor requests military aid **************************
+letter_event = {
+	id = cetic.60
+	desc = EVTDESC_cetic_aid_request
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_cetic_aid_accept
+		join_defender_wars = FROM
+		custom_tooltip = { text = TXT_newline }
+		piety = 100
+		add_character_modifier = { name = imperial_favor duration = 1500 }
+		hidden_tooltip = {
+			remove_character_modifier = imperial_censure
+			FROM = { letter_event = { id = 238 } }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 0 NOT = { opinion = { who = FROM value = 0 } } }
+			modifier = { factor = 1.3 opinion = { who = FROM value = 40 } }
+			modifier = { factor = 1.3 opinion = { who = FROM value = 60 } }
+			modifier = { factor = 1.3 opinion = { who = FROM value = 80 } }
+		}
+	}
+
+	option = {
+		name = EVTOPT_cetic_aid_deny
+		trigger = { NOT = { has_character_modifier = imperial_censure } }
+		piety = -25
+		prestige = -25
+		hidden_tooltip = {
+			FROM = { letter_event = { id = 239 } }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 4 war = yes }
+			modifier = { factor = 3 trait = cynical }
+			modifier = { factor = 2 trait = craven }
+		}
+	}
+}
+

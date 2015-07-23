@@ -7,8 +7,10 @@
 # 11	narr: ruler usurps the imperial throne
 # 12	[hidden] on-action: check on usurpation if imperial title has been destroyed
 # 13	narr: notify cetic ruler of imperial destruction
-# 14	[hidden] on-action: check on title creation if imperial title has been restored
+# 14	[hidden] check if imperial title has been restored by this character
 # 15	narr: notify cetic ruler of imperial restoration
+# 16	[hidden] hack event to check if emperor has lost his title
+# 18	prov: cetic controls sacramento, option to return it to emperor
 # 19	choose cetic path to follow
 # 20	[hidden] prov: trigger cetic border claim event
 # 21	char: discover tenuous claim on border province, request imperial sanction of the claim
@@ -350,6 +352,28 @@ character_event = {
 		FROMFROM = {
 			religion = cetic
 			controls_religion = yes
+		}
+	}
+	
+	immediate = {
+		character_event = { id = cetic.16 days = 2 }
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+character_event = {
+	id = cetic.16
+	desc = EVTDESC_bounce
+	picture = GFX_evt_siege
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		NOT = { has_global_flag = cali_emperor_destroyed }
+		FROMFROMFROM = {
 			NOT = { demesne_size = 1 }
 		}
 	}
@@ -417,12 +441,16 @@ character_event = {
 	id = cetic.14
 	desc = EVTDESC_bounce
 	picture = GFX_evt_siege
-	is_triggered_only = yes
 	hide_window = yes
 	
 	trigger = {
 		has_global_flag = cali_emperor_destroyed
-		e_california = { has_holder = yes }
+		religion = cetic
+		controls_religion = yes
+	}
+	
+	mean_time_to_happen = {
+		months = 1
 	}
 	
 	immediate = {
@@ -465,6 +493,64 @@ narrative_event = {
 	
 	option = {
 		name = EVTOPT_cetic_emperor_restored
+	}
+}
+
+province_event = {
+	id = cetic.18
+	desc = EVTDESC_cetic_sacramento
+	picture = GFX_evt_holy_emperor
+	
+	trigger = {
+		2046 = { province = ROOT } # Sacramento
+		e_california = { has_holder = yes }
+		holder_scope = {
+			religion = cetic
+			controls_religion = no
+			NOT = { has_character_modifier = imperial_censure }
+		}
+	}
+	
+	mean_time_to_happen = {
+		years = 1
+	}
+	
+	option = {
+		name = EVTOPT_cetic_sacramento_accept
+		c_sacramento = {
+			holder_scope = {
+				religion_head = {
+					grant_title = PREVPREV
+				}
+			}
+		}
+		holder_scope = {
+			piety = 100
+			add_character_modifier = { name = imperial_favor duration = 1500 }
+		}
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 2 trait = just }
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 2 trait = humble }
+			modifier = { factor = 2 trait = charitable }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_cetic_sacramento_deny
+		holder_scope = {
+			piety = -50
+			add_trait = cynical
+			remove_character_modifier = imperial_favor
+			add_character_modifier = { name = imperial_censure duration = 1500 }
+		}
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 5 trait = cynical }
+			modifier = { factor = 2 trait = arbitrary }
+		}
 	}
 }
 

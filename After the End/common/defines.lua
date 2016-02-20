@@ -14,10 +14,13 @@ NDiplomacy = {
 	PAPAL_INVEST_PIETY_COST_MULT = 0.5, 		-- The effect of Papal investiture on the piety cost of the special Papal actions
 	SHORT_REIGN_YEARS_END = 9,
 	LONG_REIGN_YEARS_START = 10,
-	SHORT_REIGN_OPINION_MULT = 2,				-- Opinion penalty multiplier to short reign years
+	SHORT_REIGN_OPINION_MULT = 1.0,				-- Opinion penalty multiplier to short reign years
+	LONG_REIGN_OPINION_MULT = 0.5,				-- Opinion penalty boost to long reign years
 	DOW_ON_ALLY_PRESTIGE_COST = 50,
-	MINIMUM_SEND_GIFT_COST = 20,
-	SEND_GIFT_INCOME_SCALEFACTOR = 24, 
+	MINIMUM_SEND_GIFT_COST = 15,
+	SEND_GIFT_INCOME_SCALEFACTOR = 15, 
+	MINIMUM_BUY_FAVOR_COST = 40,
+	BUY_FAVOR_INCOME_SCALEFACTOR = 40, 
 	RELEASE_PRISONER_PIETY = 5,
 	USURP_TITLE_PRESTIGE_MULT = 0.25, 			-- Multiplier on Creation Prestige
 	
@@ -47,6 +50,11 @@ NDiplomacy = {
 	VASSAL_LIMIT_TAX_BASE = 4,					-- Used for tax penalty calculation for being over vassal limit.
 	VASSAL_LIMIT_COUNT_BARONS = 0,				-- If set to 1, baron-tier vassals will also count towards vassal limit.
 	
+	CONCLAVE_VASSAL_LIMIT_DUKE_MULT = 8.0, 				-- Extra Vassal Limit from the ruler's rank
+	CONCLAVE_VASSAL_LIMIT_KING_MULT = 15.0, 				-- Extra Vassal Limit from the ruler's rank
+	CONCLAVE_VASSAL_LIMIT_EMPEROR_MULT = 20.0, 			-- Extra Vassal Limit from the ruler's rank
+	CONCLAVE_VASSAL_LIMIT_GREAT_DUKE_BONUS = 3.0, 		-- Extra Vassal Limit for Dukes with more than one Duchy
+
 	DIPLO_FRIEND_OPINION_THRESHOLD = 40,		-- OBSOLETE
 	DIPLO_RIVAL_OPINION_THRESHOLD = -40,		-- OBSOLETE
 	OBJECTIVE_DISCARD_WEIGHT_THRESHOLD = 0.05,	-- AI will not pick ambitions or plots below this evaluated weight
@@ -65,28 +73,32 @@ NDiplomacy = {
 	DOWRY_MULTIPLIER = 1.0,						-- The Dowry cost for a Patrician is prestige gain from marriage * this
 	PAGAN_PEACE_MONTHS = 24,					-- Months before the Peace Prestige loss kicks in for certain Pagan religions
 	PAGAN_PEACE_MONTHLY_PRESTIGE_LOSS = 2.0,	-- Prestige loss for being at peace, for certain Pagan religions
-	PRESTIGE_OPINION_DIV = 100,					-- Divider for prestige to vassal opinion (5x higher effect for negative prestige)
-	PRESTIGE_OPINION_MAX = 20,					-- Max opinion impact of prestige (positive OR negative)
-	PIETY_OPINION_DIV = 25,						-- Divider for piety to church opinion
-	PIETY_OPINION_MAX = 20,						-- Max opinion impact of piety (positive OR negative)	
+	PRESTIGE_OPINION_DIV = 200,					-- Divider for prestige to vassal opinion (5x higher effect for negative prestige)
+	PRESTIGE_OPINION_MAX = 10,					-- Max opinion impact of prestige (positive OR negative)
+	PIETY_OPINION_DIV = 50,						-- Divider for piety to church opinion
+	PIETY_OPINION_MAX = 10,						-- Max opinion impact of piety (positive OR negative)	
 	MIN_PREP_INV_TARGET_HOLDINGS = 9,			-- The target must control at least this many holdings within the target kingdom to be a valid prepared invasion target
 	MAX_PREP_INV_TARGET_HOLDINGS = 40,			-- The target must control at the most this many holdings within the target kingdom to be a valid prepared invasion target
 	MAX_PREP_INV_ATTACKER_HOLDINGS = 40,		-- The attacker must have fewer Holdings than this in the realm (disallow Prepared Invasions for rulers who are already very powerful)
 	PREP_INV_REQ_PRESTIGE = 1000,				-- Need to have this much Prestige to prepare an invasion
 	BASE_REVOLT_CHANCE_MOD = 250,				-- Pre Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO.
 	TOG_REVOLT_CHANCE_MOD = 100,				-- Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO. 
-	JAIN_LIEGE_OPINION_BONUS = 30,				-- Jain Lieges Get Vassal Opinion Bonus
+	JAIN_LIEGE_OPINION_BONUS = 15,				-- Jain Lieges Get Vassal Opinion Bonus
 	MAX_DIPLO_DISTANCE = 700,					-- Most diplomacy is disallowed if two rulers are too distant
 	MAX_DIPLO_DISTANCE_SAME_RELIGION = 100,		-- Bonus to max diplo distance for being of the same religion
 	MAX_DIPLO_DISTANCE_SAME_RELIGION_GROUP = 0, -- Bonus to max diplo distance for being of the same religion group
 	MAX_DIPLO_DISTANCE_SAME_CULTURE = 100, 		-- Bonus to max diplo distance for being of the same culture
 	MAX_DIPLO_DISTANCE_SAME_CULTURE_GROUP = 100, -- Bonus to max diplo distance for being of the same culture group
 	
+	DUKE_POWERFUL_VASSAL_COUNT = 4,				-- The x most powerful vassal will expect a seat in the council
+	KING_POWERFUL_VASSAL_COUNT = 5,				-- The x most powerful vassal will expect a seat in the council
+	EMPEROR_POWERFUL_VASSAL_COUNT = 6,			-- The x most powerful vassal will expect a seat in the council
+
 	IMPRISON_CHARACTER_INTERACTION_MONEY = 0,
 	IMPRISON_CHARACTER_INTERACTION_PIETY = 10,
 	IMPRISON_CHARACTER_INTERACTION_PRESTIGE = 0,
-	IMPRISON_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 0,
-	IMPRISON_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 0,
+	IMPRISON_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 25,
+	IMPRISON_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 25,
 	IMPRISON_CHARACTER_INTERACTION_MUST_HAVE_COST = 0,				-- Is having prestige/piety >= cost required for this action?
 	IMPRISON_CHARACTER_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
@@ -117,24 +129,24 @@ NDiplomacy = {
 	RETIRE_TO_MONASTERY_INTERACTION_MONEY = 0,
 	RETIRE_TO_MONASTERY_INTERACTION_PIETY = 0,
 	RETIRE_TO_MONASTERY_INTERACTION_PRESTIGE = 0,
-	RETIRE_TO_MONASTERY_INTERACTION_THRESHOLD_FOR_NO = 0,
-	RETIRE_TO_MONASTERY_INTERACTION_THRESHOLD_FOR_YES = 0,
+	RETIRE_TO_MONASTERY_INTERACTION_THRESHOLD_FOR_NO = 25,
+	RETIRE_TO_MONASTERY_INTERACTION_THRESHOLD_FOR_YES = 25,
 	RETIRE_TO_MONASTERY_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	RETIRE_TO_MONASTERY_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
 	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_MONEY = 0,
 	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_PIETY = 0,
 	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_PRESTIGE = 0,
-	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_THRESHOLD_FOR_NO = 0,
-	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_THRESHOLD_FOR_YES = 0,
+	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_THRESHOLD_FOR_NO = 25,
+	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_THRESHOLD_FOR_YES = 25,
 	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	DEMAND_RELIGIOUS_CONVERSION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
 	INVITE_TO_COURT_INTERACTION_MONEY = 0,
 	INVITE_TO_COURT_INTERACTION_PIETY = 0,
 	INVITE_TO_COURT_INTERACTION_PRESTIGE = 0,
-	INVITE_TO_COURT_INTERACTION_THRESHOLD_FOR_NO = 0,
-	INVITE_TO_COURT_INTERACTION_THRESHOLD_FOR_YES = 0,
+	INVITE_TO_COURT_INTERACTION_THRESHOLD_FOR_NO = 10,
+	INVITE_TO_COURT_INTERACTION_THRESHOLD_FOR_YES = 10,
 	INVITE_TO_COURT_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	INVITE_TO_COURT_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
@@ -153,7 +165,7 @@ NDiplomacy = {
 	CLAIM_TITLE_INTERACTION_THRESHOLD_FOR_YES = 0,
 	CLAIM_TITLE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	CLAIM_TITLE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
-	
+
 	REVOKE_TITLE_INTERACTION_MONEY = 0,
 	REVOKE_TITLE_INTERACTION_PIETY = 0,
 	REVOKE_TITLE_INTERACTION_PRESTIGE = 0,
@@ -177,6 +189,22 @@ NDiplomacy = {
 	REVOKE_HONORARY_TITLE_INTERACTION_THRESHOLD_FOR_YES = 0,
 	REVOKE_HONORARY_TITLE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	REVOKE_HONORARY_TITLE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+
+	ASSIGN_VOTER_TITLE_INTERACTION_MONEY = 0,
+	ASSIGN_VOTER_TITLE_INTERACTION_PIETY = 0,
+	ASSIGN_VOTER_TITLE_INTERACTION_PRESTIGE = 0,
+	ASSIGN_VOTER_TITLE_INTERACTION_THRESHOLD_FOR_NO = 0,
+	ASSIGN_VOTER_TITLE_INTERACTION_THRESHOLD_FOR_YES = 0,
+	ASSIGN_VOTER_TITLE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
+	ASSIGN_VOTER_TITLE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
+	
+	REVOKE_VOTER_TITLE_INTERACTION_MONEY = 0,
+	REVOKE_VOTER_TITLE_INTERACTION_PIETY = 0,
+	REVOKE_VOTER_TITLE_INTERACTION_PRESTIGE = 0,
+	REVOKE_VOTER_TITLE_INTERACTION_THRESHOLD_FOR_NO = 0,
+	REVOKE_VOTER_TITLE_INTERACTION_THRESHOLD_FOR_YES = 0,
+	REVOKE_VOTER_TITLE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
+	REVOKE_VOTER_TITLE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
 	
 	SEND_ASSASSIN_INTERACTION_MONEY = 50,
 	SEND_ASSASSIN_INTERACTION_PIETY = 0,
@@ -209,28 +237,32 @@ NDiplomacy = {
 	SEND_GIFT_INTERACTION_THRESHOLD_FOR_YES = 0,
 	SEND_GIFT_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	SEND_GIFT_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
-		
+
+	SEND_GIFT_DIPLOMACY_MULT = 0.5,							-- Diplomacy affects the opinion bonus multiplied with this	
+	SEND_GIFT_NOT_LIEGE_BONUS = 7,							-- Not being the liege of the receiver affects the opinon bonus by this much
+	SEND_GIFT_GREED_MULT = 0.15,							-- Changes how much greed affects the opinion
+	
 	OFFER_VASSALIZATION_INTERACTION_MONEY = 0,
 	OFFER_VASSALIZATION_INTERACTION_PIETY = 0,
 	OFFER_VASSALIZATION_INTERACTION_PRESTIGE = 0,
-	OFFER_VASSALIZATION_INTERACTION_THRESHOLD_FOR_NO = 0,
-	OFFER_VASSALIZATION_INTERACTION_THRESHOLD_FOR_YES = 0,
+	OFFER_VASSALIZATION_INTERACTION_THRESHOLD_FOR_NO = 25,
+	OFFER_VASSALIZATION_INTERACTION_THRESHOLD_FOR_YES = 25,
 	OFFER_VASSALIZATION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	OFFER_VASSALIZATION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
 	ASK_FOR_VASSALIZATION_INTERACTION_MONEY = 0,
 	ASK_FOR_VASSALIZATION_INTERACTION_PIETY = 0,
 	ASK_FOR_VASSALIZATION_INTERACTION_PRESTIGE = 0,
-	ASK_FOR_VASSALIZATION_INTERACTION_THRESHOLD_FOR_NO = 0,
-	ASK_FOR_VASSALIZATION_INTERACTION_THRESHOLD_FOR_YES = 0,
+	ASK_FOR_VASSALIZATION_INTERACTION_THRESHOLD_FOR_NO = 25,
+	ASK_FOR_VASSALIZATION_INTERACTION_THRESHOLD_FOR_YES = 25,
 	ASK_FOR_VASSALIZATION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	ASK_FOR_VASSALIZATION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
 	ARRANGE_BETROTHAL_INTERACTION_MONEY = 0,
 	ARRANGE_BETROTHAL_INTERACTION_PIETY = 0,
 	ARRANGE_BETROTHAL_INTERACTION_PRESTIGE = 0,
-	ARRANGE_BETROTHAL_INTERACTION_THRESHOLD_FOR_NO = 0,
-	ARRANGE_BETROTHAL_INTERACTION_THRESHOLD_FOR_YES = 0,
+	ARRANGE_BETROTHAL_INTERACTION_THRESHOLD_FOR_NO = 25,
+	ARRANGE_BETROTHAL_INTERACTION_THRESHOLD_FOR_YES = 25,
 	ARRANGE_BETROTHAL_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	ARRANGE_BETROTHAL_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
@@ -245,40 +277,40 @@ NDiplomacy = {
 	OFFER_SUCCESSION_MARRIGE_INTERACTION_MONEY = 0,
 	OFFER_SUCCESSION_MARRIGE_INTERACTION_PIETY = 0,
 	OFFER_SUCCESSION_MARRIGE_INTERACTION_PRESTIGE = 0,
-	OFFER_SUCCESSION_MARRIGE_INTERACTION_THRESHOLD_FOR_NO = 0,
-	OFFER_SUCCESSION_MARRIGE_INTERACTION_THRESHOLD_FOR_YES = 0,
+	OFFER_SUCCESSION_MARRIGE_INTERACTION_THRESHOLD_FOR_NO = 25,
+	OFFER_SUCCESSION_MARRIGE_INTERACTION_THRESHOLD_FOR_YES = 25,
 	OFFER_SUCCESSION_MARRIGE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	OFFER_SUCCESSION_MARRIGE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
 	OFFER_MARRIGE_INTERACTION_MONEY = 0,
 	OFFER_MARRIGE_INTERACTION_PIETY = 0,
 	OFFER_MARRIGE_INTERACTION_PRESTIGE = 0,
-	OFFER_MARRIGE_INTERACTION_THRESHOLD_FOR_NO = 0,
-	OFFER_MARRIGE_INTERACTION_THRESHOLD_FOR_YES = 0,
+	OFFER_MARRIGE_INTERACTION_THRESHOLD_FOR_NO = 25,
+	OFFER_MARRIGE_INTERACTION_THRESHOLD_FOR_YES = 25,
 	OFFER_MARRIGE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	OFFER_MARRIGE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
 	RANSOM_CHARACTER_INTERACTION_MONEY = 0,
 	RANSOM_CHARACTER_INTERACTION_PIETY = 0,
 	RANSOM_CHARACTER_INTERACTION_PRESTIGE = 0,
-	RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 0,
-	RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 0,
+	RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 25,
+	RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 25,
 	RANSOM_CHARACTER_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	RANSOM_CHARACTER_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
 	EDUCATE_CHARACTER_INTERACTION_MONEY = 0,
 	EDUCATE_CHARACTER_INTERACTION_PIETY = 0,
 	EDUCATE_CHARACTER_INTERACTION_PRESTIGE = 0,
-	EDUCATE_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 0,
-	EDUCATE_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 0,
+	EDUCATE_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 25,
+	EDUCATE_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 25,
 	EDUCATE_CHARACTER_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	EDUCATE_CHARACTER_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 
 	ABANDON_AMBITION_INTERACTION_MONEY = 0,
 	ABANDON_AMBITION_INTERACTION_PIETY = 0,
 	ABANDON_AMBITION_INTERACTION_PRESTIGE = 0,
-	ABANDON_AMBITION_INTERACTION_THRESHOLD_FOR_NO = 0,
-	ABANDON_AMBITION_INTERACTION_THRESHOLD_FOR_YES = 0,
+	ABANDON_AMBITION_INTERACTION_THRESHOLD_FOR_NO = 25,
+	ABANDON_AMBITION_INTERACTION_THRESHOLD_FOR_YES = 25,
 	ABANDON_AMBITION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	ABANDON_AMBITION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 
@@ -293,8 +325,8 @@ NDiplomacy = {
 	JOIN_AMBITION_INTERACTION_MONEY = 0,
 	JOIN_AMBITION_INTERACTION_PIETY = 0,
 	JOIN_AMBITION_INTERACTION_PRESTIGE = 0,
-	JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_NO = 0,
-	JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_YES = 0,
+	JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_NO = 25,
+	JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_YES = 25,
 	JOIN_AMBITION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	JOIN_AMBITION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 
@@ -317,8 +349,8 @@ NDiplomacy = {
 	SETTLE_ADVENTURER_INTERACTION_MONEY = 0,
 	SETTLE_ADVENTURER_INTERACTION_PIETY = 0,
 	SETTLE_ADVENTURER_INTERACTION_PRESTIGE = 0,
-	SETTLE_ADVENTURER_INTERACTION_THRESHOLD_FOR_NO = 0,
-	SETTLE_ADVENTURER_INTERACTION_THRESHOLD_FOR_YES = 0,
+	SETTLE_ADVENTURER_INTERACTION_THRESHOLD_FOR_NO = 25,
+	SETTLE_ADVENTURER_INTERACTION_THRESHOLD_FOR_YES = 25,
 	SETTLE_ADVENTURER_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	SETTLE_ADVENTURER_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 
@@ -381,8 +413,8 @@ NDiplomacy = {
 	DIVORCE_INTERACTION_MONEY = 1.0, 										-- Multiplier of yearly income
 	DIVORCE_INTERACTION_PIETY = 0,
 	DIVORCE_INTERACTION_PRESTIGE = 0,
-	DIVORCE_INTERACTION_THRESHOLD_FOR_NO = 0,
-	DIVORCE_INTERACTION_THRESHOLD_FOR_YES = 0,
+	DIVORCE_INTERACTION_THRESHOLD_FOR_NO = 25,
+	DIVORCE_INTERACTION_THRESHOLD_FOR_YES = 25,
 	DIVORCE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	DIVORCE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 	
@@ -413,16 +445,16 @@ NDiplomacy = {
 	ASK_TO_RANSOM_CHARACTER_INTERACTION_MONEY = 0,
 	ASK_TO_RANSOM_CHARACTER_INTERACTION_PIETY = 0,
 	ASK_TO_RANSOM_CHARACTER_INTERACTION_PRESTIGE = 0,
-	ASK_TO_RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 0,
-	ASK_TO_RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 0,
+	ASK_TO_RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_NO = 25,
+	ASK_TO_RANSOM_CHARACTER_INTERACTION_THRESHOLD_FOR_YES = 25,
 	ASK_TO_RANSOM_CHARACTER_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	ASK_TO_RANSOM_CHARACTER_INTERACTION_ENABLED = 1,						-- Should this action be used at all?		
 	
 	ASK_TO_JOIN_WAR_INTERACTION_MONEY = 0,
 	ASK_TO_JOIN_WAR_INTERACTION_PIETY = 0,
 	ASK_TO_JOIN_WAR_INTERACTION_PRESTIGE = 0,
-	ASK_TO_JOIN_WAR_INTERACTION_THRESHOLD_FOR_NO = 0,
-	ASK_TO_JOIN_WAR_INTERACTION_THRESHOLD_FOR_YES = 0,
+	ASK_TO_JOIN_WAR_INTERACTION_THRESHOLD_FOR_NO = 25,
+	ASK_TO_JOIN_WAR_INTERACTION_THRESHOLD_FOR_YES = 25,
 	ASK_TO_JOIN_WAR_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	ASK_TO_JOIN_WAR_INTERACTION_ENABLED = 1,						-- Should this action be used at all?		
 	
@@ -437,8 +469,8 @@ NDiplomacy = {
 	ASK_TO_EMBARGO_INTERACTION_MONEY = 0,
 	ASK_TO_EMBARGO_INTERACTION_PIETY = 0,
 	ASK_TO_EMBARGO_INTERACTION_PRESTIGE = 0,
-	ASK_TO_EMBARGO_INTERACTION_THRESHOLD_FOR_NO = 0,
-	ASK_TO_EMBARGO_INTERACTION_THRESHOLD_FOR_YES = 0,
+	ASK_TO_EMBARGO_INTERACTION_THRESHOLD_FOR_NO = 25,
+	ASK_TO_EMBARGO_INTERACTION_THRESHOLD_FOR_YES = 25,
 	ASK_TO_EMBARGO_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	ASK_TO_EMBARGO_INTERACTION_ENABLED = 1,						-- Should this action be used at all?		
 	
@@ -453,8 +485,8 @@ NDiplomacy = {
 	MAKE_CONSORT_INTERACTION_MONEY = 0,
 	MAKE_CONSORT_INTERACTION_PIETY = 0,
 	MAKE_CONSORT_INTERACTION_PRESTIGE = 0,
-	MAKE_CONSORT_INTERACTION_THRESHOLD_FOR_NO = 0,
-	MAKE_CONSORT_INTERACTION_THRESHOLD_FOR_YES = 0,
+	MAKE_CONSORT_INTERACTION_THRESHOLD_FOR_NO = 25,
+	MAKE_CONSORT_INTERACTION_THRESHOLD_FOR_YES = 25,
 	MAKE_CONSORT_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	MAKE_CONSORT_INTERACTION_ENABLED = 1,						-- Should this action be used at all?		
 	
@@ -537,7 +569,119 @@ NDiplomacy = {
 	SETTLE_FEUD_INTERACTION_THRESHOLD_FOR_YES = 50,
 	SETTLE_FEUD_INTERACTION_MUST_HAVE_COST = 1,					-- Is having prestige/piety >= cost required for this action?
 	SETTLE_FEUD_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+
+	FORM_ALLIANCE_INTERACTION_MONEY = 0,
+	FORM_ALLIANCE_INTERACTION_PIETY = 0,
+	FORM_ALLIANCE_INTERACTION_PRESTIGE = 0,
+	FORM_ALLIANCE_INTERACTION_THRESHOLD_FOR_NO = 25,
+	FORM_ALLIANCE_INTERACTION_THRESHOLD_FOR_YES = 25,
+	FORM_ALLIANCE_INTERACTION_MUST_HAVE_COST = 1,					-- Is having prestige/piety >= cost required for this action?
+	FORM_ALLIANCE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
 	
+	DISSOLVE_ALLIANCE_INTERACTION_MONEY = 0,
+	DISSOLVE_ALLIANCE_INTERACTION_PIETY = 0,
+	DISSOLVE_ALLIANCE_INTERACTION_PRESTIGE = 0,
+	DISSOLVE_ALLIANCE_INTERACTION_THRESHOLD_FOR_NO = 0,
+	DISSOLVE_ALLIANCE_INTERACTION_THRESHOLD_FOR_YES = 0,
+	DISSOLVE_ALLIANCE_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
+	DISSOLVE_ALLIANCE_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+	
+	START_COALITION_INTERACTION_MONEY = 0,
+	START_COALITION_INTERACTION_PIETY = 0,
+	START_COALITION_INTERACTION_PRESTIGE = 0,
+	START_COALITION_INTERACTION_THRESHOLD_FOR_NO = 0,
+	START_COALITION_INTERACTION_THRESHOLD_FOR_YES = 0,
+	START_COALITION_INTERACTION_MUST_HAVE_COST = 0,					-- Is having prestige/piety >= cost required for this action?
+	START_COALITION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+	
+	LEAVE_COALITION_INTERACTION_MONEY = 0,
+	LEAVE_COALITION_INTERACTION_PIETY = 0,
+	LEAVE_COALITION_INTERACTION_PRESTIGE = 0,
+	LEAVE_COALITION_INTERACTION_THRESHOLD_FOR_NO = 0,
+	LEAVE_COALITION_INTERACTION_THRESHOLD_FOR_YES = 0,
+	LEAVE_COALITION_INTERACTION_MUST_HAVE_COST = 0,					-- Is having prestige/piety >= cost required for this action?
+	LEAVE_COALITION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+	
+	BUY_FAVOR_INTERACTION_MONEY = 0,
+	BUY_FAVOR_INTERACTION_PIETY = 0,
+	BUY_FAVOR_INTERACTION_PRESTIGE = 0,
+	BUY_FAVOR_INTERACTION_THRESHOLD_FOR_NO = 25,
+	BUY_FAVOR_INTERACTION_THRESHOLD_FOR_YES = 25,
+	BUY_FAVOR_INTERACTION_MUST_HAVE_COST = 0,					-- Is having prestige/piety >= cost required for this action?
+	BUY_FAVOR_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+
+	REQUEST_SUPPORT_INTERACTION_MONEY = 0,
+	REQUEST_SUPPORT_INTERACTION_PIETY = 0,
+	REQUEST_SUPPORT_INTERACTION_PRESTIGE = 0,
+	REQUEST_SUPPORT_INTERACTION_THRESHOLD_FOR_NO = 25,
+	REQUEST_SUPPORT_INTERACTION_THRESHOLD_FOR_YES = 25,
+	REQUEST_SUPPORT_INTERACTION_MUST_HAVE_COST = 0,					-- Is having prestige/piety >= cost required for this action?
+	REQUEST_SUPPORT_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+	
+	CALL_IN_FAVOR_INTERACTION_MONEY = 0,
+	CALL_IN_FAVOR_INTERACTION_PIETY = 0,
+	CALL_IN_FAVOR_INTERACTION_PRESTIGE = 0,
+	CALL_IN_FAVOR_INTERACTION_THRESHOLD_FOR_NO = 25,
+	CALL_IN_FAVOR_INTERACTION_THRESHOLD_FOR_YES = 25,
+	CALL_IN_FAVOR_INTERACTION_MUST_HAVE_COST = 0,					-- Is having prestige/piety >= cost required for this action?
+	CALL_IN_FAVOR_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+
+	REPLACE_MERCENARY_CAPTAIN_INTERACTION_MONEY = 0,
+	REPLACE_MERCENARY_CAPTAIN_INTERACTION_PIETY = 0,
+	REPLACE_MERCENARY_CAPTAIN_INTERACTION_PRESTIGE = 0,
+	REPLACE_MERCENARY_CAPTAIN_INTERACTION_THRESHOLD_FOR_NO = 25,
+	REPLACE_MERCENARY_CAPTAIN_INTERACTION_THRESHOLD_FOR_YES = 25,
+	REPLACE_MERCENARY_CAPTAIN_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
+	REPLACE_MERCENARY_CAPTAIN_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
+
+	STOP_ENFORCE_PEACE_INTERACTION_MONEY = 0,
+	STOP_ENFORCE_PEACE_INTERACTION_PIETY = 0,
+	STOP_ENFORCE_PEACE_INTERACTION_PRESTIGE = 0,
+	STOP_ENFORCE_PEACE_INTERACTION_THRESHOLD_FOR_NO = 25,
+	STOP_ENFORCE_PEACE_INTERACTION_THRESHOLD_FOR_YES = 25,
+	STOP_ENFORCE_PEACE_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
+	STOP_ENFORCE_PEACE_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
+
+	ASK_TO_DECLARE_WAR_INTERACTION_MONEY = 0,
+	ASK_TO_DECLARE_WAR_INTERACTION_PIETY = 0,
+	ASK_TO_DECLARE_WAR_INTERACTION_PRESTIGE = 0,
+	ASK_TO_DECLARE_WAR_INTERACTION_THRESHOLD_FOR_NO = 0,	-- useless since this is an auto accepted interaction.
+	ASK_TO_DECLARE_WAR_INTERACTION_THRESHOLD_FOR_YES = 0,	-- useless since this is an auto accepted interaction.
+	ASK_TO_DECLARE_WAR_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
+	ASK_TO_DECLARE_WAR_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
+	
+	FORM_NON_AGGRESSION_PACT_INTERACTION_MONEY = 0,
+	FORM_NON_AGGRESSION_PACT_INTERACTION_PIETY = 0,
+	FORM_NON_AGGRESSION_PACT_INTERACTION_PRESTIGE = 0,
+	FORM_NON_AGGRESSION_PACT_INTERACTION_THRESHOLD_FOR_NO = 25,
+	FORM_NON_AGGRESSION_PACT_INTERACTION_THRESHOLD_FOR_YES = 25,
+	FORM_NON_AGGRESSION_PACT_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
+	FORM_NON_AGGRESSION_PACT_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
+		
+	FORCE_JOIN_FACTION_INTERACTION_MONEY = 0,
+	FORCE_JOIN_FACTION_INTERACTION_PIETY = 0,
+	FORCE_JOIN_FACTION_INTERACTION_PRESTIGE = 0,
+	FORCE_JOIN_FACTION_INTERACTION_THRESHOLD_FOR_NO = 0,	-- useless since this is an auto accepted interaction.
+	FORCE_JOIN_FACTION_INTERACTION_THRESHOLD_FOR_YES = 0,   -- useless since this is an auto accepted interaction.
+	FORCE_JOIN_FACTION_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
+	FORCE_JOIN_FACTION_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
+		
+	ASK_REALM_PEACE_INTERACTION_MONEY = 0,
+	ASK_REALM_PEACE_INTERACTION_PIETY = 0,
+	ASK_REALM_PEACE_INTERACTION_PRESTIGE = 0,
+	ASK_REALM_PEACE_INTERACTION_THRESHOLD_FOR_NO = 0,		-- useless since this is an auto accepted interaction.
+	ASK_REALM_PEACE_INTERACTION_THRESHOLD_FOR_YES = 0,  	-- useless since this is an auto accepted interaction.
+	ASK_REALM_PEACE_INTERACTION_MUST_HAVE_COST = 0,			-- Is having prestige/piety >= cost required for this action?
+	ASK_REALM_PEACE_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
+		
+	ASK_COUNCIL_POSITION_INTERACTION_MONEY = 0,
+	ASK_COUNCIL_POSITION_INTERACTION_PIETY = 0,
+	ASK_COUNCIL_POSITION_INTERACTION_PRESTIGE = 0,
+	ASK_COUNCIL_POSITION_INTERACTION_THRESHOLD_FOR_NO = 0,		-- useless since this is an auto accepted interaction.
+	ASK_COUNCIL_POSITION_INTERACTION_THRESHOLD_FOR_YES = 0,     -- useless since this is an auto accepted interaction.
+	ASK_COUNCIL_POSITION_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
+	ASK_COUNCIL_POSITION_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
+		
 	LANDED_SIBLING_PRESTIGE_BONUS = 5,							-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
 	LANDED_HALF_SIBLING_PRESTIGE_BONUS = 5,						-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
 	LANDED_NIECE_PRESTIGE_BONUS = 2,							-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
@@ -553,7 +697,53 @@ NDiplomacy = {
 	BANISH_TAKE_WEALTH_PERCENTAGE_COURTIER = 1,
 	BANISH_REALM_SIZE_CHANCE_RATIO_MODIFIER = 2,
 	
+	COALITION_INFAMY_LIMIT = 25,								-- The amount of provinces in a realm that is needed for beeing a valid target of a coalition
+	COALITION_SIZE_RATIO = 0.9,									-- Realms larger than the target * COALITION_SIZE_RATIO are not allowed in a coalition
+	
 	RELEASE_VASSAL_TRUCE_DAYS = 3650,
+	
+	REALM_DIPLOMACY_OPINION_MUL_FACTOR = 0.25,					-- Realm diplomacy factor affecting opinion value
+	
+	LAW_CHANGE_PIETY_COST_ABSOLUTISM = 100,					-- Piety cost for Iqta government when changing normal demesne laws with no council
+	CROWN_LAW_CHANGE_PIETY_COST_ABSOLUTISM = 100,			-- Piety cost for Iqta government when changing Crown laws with no council
+	LAW_CHANGE_PRESTIGE_COST_ABSOLUTISM = 100,				-- Prestige cost for Nomadic government when changing normal demesne laws with no council
+	CROWN_LAW_CHANGE_PRESTIGE_COST_ABSOLUTISM = 100,		-- Prestige cost for Nomadic government when changing Crown laws with no council
+
+	FAVOR_THRESHOLD_TO_FORCE_HUMANS = 250,					-- Mininum importance of issue for us to consider forcing a human to do it by using the favor they owe us
+	CHANCES_TO_USE_FAVOR = 75,								-- Chance to use favor to change the outcome of a diplomatic request (as a percentage)
+	
+	NON_AGGRESSION_PACT_REJECTED_COOLDOWN = 1,				-- Number of years before a character can ask to form a non-aggression pact again
+},
+
+NCouncil = {
+	MONTHS_OF_DISCONTENT_COUNCIL = 24,
+	CHANGE_POSITION_COOLDOWN = 12,
+	FAVOR_USE_DURATION = 36,									-- How long a favor last when used in council in amount of months
+	COUNCIL_REJECTED_LAW_TIMEOUT = 10,							-- How many years the timeout for a law is when council reject the law change
+	COUNCIL_REJECTED_CROWN_LAW_TIMEOUT = 5,						-- How many years the timeout for a crown law is when council reject the law change
+	LAW_VOTE_CHANGE_TIME_LIMIT = 1,								-- The time limit abstained council members have to vote before their vote becomes automatically an against vote					
+	ENFORCE_PEACE_LENGTH = 60,									-- How many months Enforce Peace is active for
+	ENFORCE_PEACE_START_DELAY = 3,								-- How many months it takes before the enforce peace becomes active
+	ENFORCE_PEACE_BLOCK_LENGTH = 24,							-- How many months Enforce peace is blocked when vassal uses the interaction.
+	ENFORCE_PEACE_COOLDOWN = 60,								-- How many months liege has to wait before he can use enforce peace again.
+	LAW_VOTE_CHANGE_TIME_LIMIT = 1,								-- The time limit abstained council members have to vote before their vote becomes automatically an against vote
+	NO_VOTING_PIETY_OVERRIDE = 1,								-- Flag that disables law voting when Conclave is enabled for groups that otherwise change laws based on piety without Conclave
+	NO_VOTING_PRESTIGE_OVERRIDE = 1,							-- Flag that disables law voting when Conclave is enabled for groups that otherwise change laws based on prestige without Conclave 	
+	REGENCY_VOTING = "laws declare_war_interaction revoke_title_interaction imprison_character_interaction grant_landed_title_interaction exile_imprisoned_interaction execute_imprisoned_interaction",					-- In regencies the council votes on these issues
+	COUNCIL_REJECTION_ALL_LAWS_TIMEOUT = 1,						-- How many years the timeout for doing a law change (for any law) is when the council has rejected a law change.
+	COUNCIL_REJECTION_ALL_CROWN_LAWS_TIMEOUT = 1,				-- How many years the timeout for doing a crown law change (for any crown law) is when the council has rejected a crown law change.
+},
+
+NInfamy = {
+	REALM_SIZE_BASE_MODIFIER = 1,
+	REALM_SIZE_GROWTH_MODIFIER = 0.125,							-- The bigger you are, the more dangerous you are, modifier for when nation is growing
+	REALM_SIZE_SHRINK_MODIFIER = 0.0,							-- The bigger you are, the more dangerous you are, modifier for when nation is shrinking
+	WAR_REALM_CHANGE_VALUE = 0.55, 								-- How much base value for realm growth/shrink is worth in a war.
+	INDEPENDENCE_REALM_CHANGE_VALUE = 10.0,	 					-- How much base value for realm growth/shrink is worth when giving a vassal independence.
+	INHERITANCE_CHANGE_VALUE = 0.15,	 						-- How much base value for realm growth/shrink is worth when inheriting titles.
+	VASSAL_CHANGE_VALUE = 0.3,	 								-- How much base value for realm growth/shrink is worth when inheriting titles.
+	INFAMY_DECAY_BASE = 0.8,									-- How many percent that decay each month as base.
+	MILITARY_STRENGTH_DECAY_BASE = 600,							-- Divider on military strength value that is used for the logarithmic part of the decay value.
 },
 
 NCharacter = {
@@ -579,7 +769,8 @@ NCharacter = {
 	CONSORT_TIER_PRESTIGE_MULT = 25,				-- Prestige multiplier for rank of consort	
 	RAISED_TROOPS_VASSAL_OPINION_DAYS = 61,			-- After 61 days of having their troops raised, vassals will get -1 opinion more of you
 	MAX_GENERATED_TRAITS_FOR_HISTORICAL = 4,		-- Generate random traits up this number for adult historical characters
-	MUSLIM_NUM_WIVES_MONTHLY_PRESTIGE = 0.4,		-- The prestige effect from each extra or lacking expected wife
+	MUSLIM_NUM_WIVES_MONTHLY_PRESTIGE_BONUS = 0.4,	-- The prestige effect from each extra expected wife
+	MUSLIM_NUM_WIVES_MONTHLY_PRESTIGE_PENALTY = 1.0,-- The prestige effect from each lacking expected wife
 	PAGAN_NUM_CONSORTS_MONTHLY_PRESTIGE = 0.2,		-- The monthly prestige effect for pagans for each young Concubine
 	INBRED_TRAIT_CHANCE_FACTOR = 1.0,				-- Inbreeding: Multiplier to the base chance
 	LUNATIC_TRAIT_CHANCE_FACTOR = 0.2,				-- Inbreeding: Multiplier to the base chance
@@ -595,6 +786,7 @@ NCharacter = {
 	AGE_OF_ADULTHOOD_FEMALE = 16,					-- Female can rule at this age.
 	AGE_OF_MARRIAGE_MALE = 16,						-- Male allowed to marry at this age.
 	AGE_OF_MARRIAGE_FEMALE = 16,					-- Female allowed to marry at this age.
+	AGE_ADOLESCENT = 12,							-- Children are considered to be adolescent from this age
 	AGE_YOUNG = 20,									-- Non-child characters below this age have the 'teen' static modifier applied
 	AGE_ADULT = 30,									-- Non-child characters below this age have the 'young' static modifier applied
 	AGE_OLD = 50,									-- Non-child characters below this age have the 'adult' static modifier applied
@@ -624,13 +816,30 @@ NCharacter = {
 	NOT_SPOUSE_FERTILITY_MULT = 0.50,				-- Applied to fertility when two lovers are not married
 	MARRIED_LOVERS_FERTILITY_MULT = 1.5,			-- Applied to fertility when lovers are married
 	INFANT_DEATH_CHANCE = 0.0,						-- Chance of stillbirth / death at birth
-	EARLY_PORTRAIT_AND_UNIT_BEFORE_YEAR = 1000,		-- Before this date, early versions of Units and Portraits will be used if available
-	LATE_PORTRAIT_AND_UNIT_AFTER_YEAR = 8000,		-- After this date, late versions of Units and Portraits will be used if available
+	EARLY_PORTRAIT_AND_UNIT_BEFORE_YEAR = 950,		-- Before this date, early versions of Units and Portraits will be used if available
+	LATE_PORTRAIT_AND_UNIT_AFTER_YEAR = 1250,		-- After this date, late versions of Units and Portraits will be used if available
 	TRIBAL_EMPTY_HOLDING_LEVY_MULTIPLIER = 0.5,
 	TRIBAL_EMPTY_HOLDING_GARRISON_MULTIPLIER = 0.5,
 	TRIBAL_EMPTY_HOLDING_TAX_MULTIPLIER = 0.5,
 	MALE_ATTRACTION_CUTOFF = 65,					-- After this age, the sex appeal of traits no longer have any effect
-	FEMALE_ATTRACTION_CUTOFF = 45					-- After this age, the sex appeal of traits no longer have any effect
+	FEMALE_ATTRACTION_CUTOFF = 45,					-- After this age, the sex appeal of traits no longer have any effect
+	ADULT_DIPLOMACY_OPINION_SUB_FACTOR = 4,			-- Adult diplomacy factor affecting opinion value
+	ADULT_DIPLOMACY_OPINION_MUL_FACTOR = 1.5,			-- Adult diplomacy factor affecting opinion value
+	CHILD_DIPLOMACY_OPINION_SUB_FACTOR = 4,			-- Adult diplomacy factor affecting opinion value
+	CHILD_DIPLOMACY_OPINION_MUL_FACTOR = 1.5,			-- Adult diplomacy factor affecting opinion value
+	DYNAMIC_MERCENARY_HEIR_WEALTH_MULT = 0.10,		-- How much a dynamic mercenary get from his wealth when he is an heir and the parent dies.
+	NUM_INHERITABLE_DYNAMIC_MERCENARIES = 1,		-- How many dynamic mercenary bands that can be inheritable. The ones not inherited are cut loose and become independent.
+	BASE_MAX_ATTRIBUTE = 10,						-- The max attribute value you can get from growing up
+	CONCLAVE_CHILDHOOD_ATTRIBUTE_INCREASE_CHANCE = 20,	-- The chance of increasing an attribute during childhood
+	CONCLAVE_ADOLESCENCE_ATTRIBUTE_INCREASE_CHANCE = 25, -- The chance of increasing an attribute during adolescence
+	CONCLAVE_UNKNOWN_PARENT_DEFAULT_STAT = 5,			-- If a child has no parents represented as characters in the game, this stat value is used when getting stat increases
+	CONCLAVE_INHERITED_ATTRIBUTE_INCREASE_CHANCE = 1.0,	-- The parent's base stats influence stat increases in children by this much
+
+	INHERITED_OPINION_END_AGE = 30,					-- Inherited opinions end when the inheritor hits this age
+	INHERITED_OPINION_MIN_MONTHS = 12,				-- This is the minimum number of months for inherited opinions
+	INHERITED_OPINION_FACTOR = 0.5,					-- This is the factor of the opinion of the previous holder that gets inherited
+	CHILDHOOD_FOCUS_ALERT_AGE = 5,					-- The childhood focus alert is shown for children this old
+	AGE_CHILDHOOD_PULSE = 6,						-- The childhood pulse events start from this age
 },
 
 NTitle = {
@@ -670,11 +879,18 @@ NTitle = {
 	EMPEROR_GRANT_TO_CHURCH_PIETY = 0,
 	
 -- Title Creation Cost	
-	BARON_CREATION_COST = 1, -- Unused, impossible
-	COUNT_CREATION_COST = 100, -- Unused, impossible
-	DUKE_CREATION_COST = 200,
-	KING_CREATION_COST = 400,
-	EMPEROR_CREATION_COST = 600,
+	BARON_GOLD_CREATION_COST = 1, -- Unused, impossible
+	COUNT_GOLD_CREATION_COST = 100, -- Unused, impossible
+	DUKE_GOLD_CREATION_COST = 200,
+	KING_GOLD_CREATION_COST = 400,
+	EMPEROR_GOLD_CREATION_COST = 600,
+	
+-- Title Creation Cost	
+	BARON_PIETY_CREATION_COST = 0, -- Unused, impossible
+	COUNT_PIETY_CREATION_COST = 0, -- Unused, impossible
+	DUKE_PIETY_CREATION_COST = 0,
+	KING_PIETY_CREATION_COST = 200,
+	EMPEROR_PIETY_CREATION_COST = 400,
 
 -- Title Creation Prestige Gain
 	BARON_CREATION_PRESTIGE = 50, -- Granted when building a new settlement
@@ -713,7 +929,8 @@ NTitle = {
 	
 	CLAIM_VASSAL_TITLE_COST_MOD = 0.75,
 	CLAIM_DE_JURE_TITLE_COST_MOD = 0.5,
-	NORMAL_LAW_CHANGE_MONTHS = 60,
+	NORMAL_LAW_CHANGE_COUNCIL_MONTHS = 60,
+	NORMAL_LAW_CHANGE_ABSOLUTISM_MONTHS = 120,
 	MAX_CROWN_LAW_CHANGES = 1,
 	TITLE_USURP_COOLDOWN_MONTHS = 60,
 	DE_JURE_ASSIMILATION_YEARS = 100,			-- Duchies a under the de facto control of another kingdom will change de jure liege after this many years
@@ -722,6 +939,9 @@ NTitle = {
 	REQ_DUCHIES_FOR_KINGDOM_CREATION = 2, 		-- Number of held duchies required to create a kingdom (for rulers who are not already kings or emperors)
 	REQ_KINGDOMS_FOR_EMPIRE_CREATION = 2, 		-- Number of held kingdoms required to create an Empire (for rulers who are not already emperors)
 	TITULAR_TITLE_CREATION_COST_MULT = 2,		-- Titular titles are more expensive to create
+	TITULAR_TITLE_CREATION_COST_MULT = 2,		-- Titular titles are more expensive to create
+	BECOME_KING_TITLE_GOLD_CREATION_COST_MULT = 0.5,	-- The de-jure kingdom of your capital is cheaper to create with the become king ambition
+	BECOME_KING_TITLE_PIETY_CREATION_COST_MULT = 0.5,	-- The de-jure kingdom of your capital is cheaper to create with the become king ambition
 	ENFORCE_ONE_OF_EACH_HOLDING = 1,			-- Require players to build at least one City, Temple and Castle in each province
 	MAX_REPUBLIC_COUNTIES_IN_REALM = 0.1,		-- 10% of a feudal realm is allowed to be under vassal republics (affects title grants)
 	MAX_THEOCRACY_COUNTIES_IN_REALM = 0.1,		-- 10% of a feudal realm is allowed to be under vassal theocracies/bishoprics (affects title grants)
@@ -746,8 +966,6 @@ NReligion = {
 	POPE_DIPLO_TO_AUTHORITY_DIV = 10000,
 	EXCOM_MIN_AUTHORITY = 0.4,
 	INVASION_MIN_AUTHORITY = 0.5,
-	KINGDOM_CREATION_PIETY_COST = 200,
-	EMPIRE_CREATION_PIETY_COST = 400,
 	CRUSADE_AUTHORITY_COST = 0.05,
 	REFORM_RELIGION_MIN_AUTHORITY = 0.5,			-- Moral authority required to reform a pagan faith
 	REFORM_RELIGION_MIN_HOLY_SITES = 3,				-- Number of holy sites you must control to reform a pagan faith
@@ -758,7 +976,7 @@ NReligion = {
 	AUTHORITY_FROM_IMMORAL_HEAD = -0.1,				-- Authority from having an immoral religious head
 	AUTHORITY_FROM_RELHEAD_DIPLOMACY = 0.05,		-- Authority from each 10 diplomacy of religious head
 	AUTHORITY_FROM_RELHEAD_HOLY_SITE = 0.05,		-- Authority from religious head controlling a holy site (does not stack)
-	AUTHORITY_FROM_ORG_RELIGION = 0.2,				-- Authority from being an organized religion§ki§
+	AUTHORITY_FROM_ORG_RELIGION = 0.2,				-- Authority from being an organized religion?ki?
 	DIVINE_BLOOD_FERTILITY_MULT = 0.25,				-- Fertility multiplier in a religious close kin marriage
 	ELECTOR_TITLE_CAMPAIGN_FUND_FACTOR = 1,			-- The effect of money in the Campaign Fund when the Pope is choosing a new Cardinal (money * factor)
 	ELECTOR_TITLE_OPINION_FACTOR = 3.5,
@@ -840,14 +1058,14 @@ NDecadence = {
 }, 
 
 NNomad = {
-	POPULATION_INCREASE_MULTIPLIER = 0.01,			-- The rate current population grows or declines to max population
-	MANPOWER_INCREASE_MULTIPLIER = 0.1,				-- The rate current manpower grows or declines to max manpower
+	POPULATION_INCREASE_MULTIPLIER = 0.005,			-- The rate current population grows or declines to max population
+	MANPOWER_INCREASE_MULTIPLIER = 0.075,			-- The rate current manpower grows or declines to max manpower
 	MANPOWER_LOW_SENTIMENT_INCREASE_MULTIPLIER = 2.0, -- The manpower effect of a negative Clan Sentiment vs the ruling Clan. At a value of 2, -100 Sentiment is 200% faster manpower regrowth.
-	POPULATION_TAX_MULTIPLIER = 0.00075,			-- Montly tax income determined by the current population
-	MAX_POPULATION_EMPTY_HOLDING_MULTIPLIER = 1250, -- Max population increase for each empty holding in provinces where the capital is also an empty holding
-	MAX_MANPOWER_POPULATION_MULTIPLIER = 0.25,		-- How big max manpower will be, determined by the current population value
+	POPULATION_TAX_MULTIPLIER = 0.0005,			-- Montly tax income determined by the current population
+	MAX_POPULATION_EMPTY_HOLDING_MULTIPLIER = 1250,  -- Max population increase for each empty holding in provinces where the capital is also an empty holding
+	MAX_MANPOWER_POPULATION_MULTIPLIER = 0.20,		-- How big max manpower will be, determined by the current population value
 	UNITS_FOR_OCCUPATION = 100,						-- Number of hostile units needing to stand on settlement-less nomad provinces to be considered occupied
-	START_POPULATION = 0.30,						-- Starting population, multiplied with max population
+	START_POPULATION = 0.40,						-- Starting population, multiplied with max population
 	START_MANPOWER = 0.60,							-- Starting manpower, multiplied with max manpower
 	MERCENARY_CREATE_MANPOWER_RATIO = 0.1,			-- Amount of manpower taken when a nomad creates a mercenary band
 	CLAN_GRAZING_LAND_MALUS_TRESHHOLD = 0.65, 		-- When we've reached 75% of our max population we want more grazing land
@@ -876,15 +1094,19 @@ NNomad = {
 	
 	GARRISON_UNUSED_MANPOWER_MULTIPLIER = 0.05,		-- How much of the unused manpower that is used for the garrison
 	GARRISON_MAX_UNUSED_MANPOWER_MODIFIER = 500,	-- The max value for how much unused manpower can modifiy the garrison
+	
+	MAX_HOLDINGS_IN_NOMADIC_PROVINCE = 1,			-- Counties with this number of holdings or less are counted as a nomadic province that clans can demand
+
+	ALWAYS_GENERATE_NOMADS = 0,						-- If turned on will generate nomads even if they are not playable
 }, 
 
 NMilitary = {
 	CONTROLLER_MONTHS_BEFORE_OWNER_CHANGE = 120,	-- Number of months before ownership change of province, for certain cb:s that have contested titles
-	MORALE_COLLAPSE_THRESHOLD = 0.25,				-- Threshold before unit runs away
-	MORALELOSS_FACTOR = 1.0,						-- Affects the morale loss rate in combats(higher gives bigger losses)
-	ATTACK_TO_DAMAGE_MULT = 0.015,					-- Attack value of troops is multiplied by this when doing damage
+	MORALE_COLLAPSE_THRESHOLD = 0.20,				-- Threshold before unit runs away
+	MORALELOSS_FACTOR = 3.0,						-- Affects the morale loss rate in combats (higher gives bigger losses)
+	ATTACK_TO_DAMAGE_MULT = 0.01,					-- Attack value of troops is multiplied by this when doing damage
 	MIN_COMBAT_DAYS = 8,							-- Minimum number of days in combat
-	NUMBER_OF_RETREAT_DAYS = 4,						-- Number of days before you retreat successfully
+	NUMBER_OF_RETREAT_DAYS = 8,					-- Number of days before you retreat successfully
 	NUMBER_OF_TROOPS_PER_GALLEY = 100,				-- Number of men each galley can hold
 	FRIENDLY_TERRITORY_LEVY_RETURN_PERCENT = 1.0,	-- Percent of subunit that returns to levy when unit is disbanded in friendly territory
 	OTHER_TERRITORY_LEVY_RETURN_PERCENT = 0.5,		-- Percent of subunit that returns to levy when unit is disbanded in non-friendly territory
@@ -906,7 +1128,7 @@ NMilitary = {
 	MIN_LEVY_RAISE_OPINION_THRESHOLD = 0,			-- Below this opinion value you'll get the least amount of troops possible
 	MAX_LEVY_RAISE_OPINION_THRESHOLD = 100,			-- Above this opinion value you'll get the max amount of troops possible
 	MIN_LEVIES_ABOVE_OPINION_THRESHOLD = 0,			-- The minimum percentage of levies that will be provided if opinion is above threshold
-	LEVY_PERCENT_BEFORE_CAN_RAISE = 0.2,			-- Needs at least this much % of full levy before we can raise it
+	LEVY_PERCENT_BEFORE_CAN_RAISE = 1.1,			-- Needs at least this much % of full levy before we can raise it again, not used in vanilla anymore
 	SIEGE_DAMAGE = 0,								-- Siege attack values are multiplied by this value(when not doing a sally)
 	PERCENT_OF_GARRISON_DETACHED = 0.1,				-- This percent of the garrison is detached from the winning unit of a siege
 	NUM_DAYS_BETWEEN_SIEGE_MORALE_LOSS = 12,		-- Number of days between morale loss for defender in a siege
@@ -1023,8 +1245,8 @@ NMilitary = {
 	LIGHT_INFANTRY_PHASE_MELEE_ATTACK = 1,
 	LIGHT_INFANTRY_PHASE_PURSUE_ATTACK = 2,
 	LIGHT_INFANTRY_PHASE_SKIRMISH_DEFENSE = 2,
-	LIGHT_INFANTRY_PHASE_MELEE_DEFENSE = 2,
-	LIGHT_INFANTRY_PHASE_PURSUE_DEFENSE = 2,
+	LIGHT_INFANTRY_PHASE_MELEE_DEFENSE = 1,
+	LIGHT_INFANTRY_PHASE_PURSUE_DEFENSE = 2.5,
 	LIGHT_INFANTRY_GRAPHICAL_FACTOR = 1,
 
 	HEAVY_INFANTRY_MORALE = 4,
@@ -1032,9 +1254,9 @@ NMilitary = {
 	HEAVY_INFANTRY_PHASE_SKIRMISH_ATTACK = 0.25,
 	HEAVY_INFANTRY_PHASE_MELEE_ATTACK = 6,
 	HEAVY_INFANTRY_PHASE_PURSUE_ATTACK = 1,
-	HEAVY_INFANTRY_PHASE_SKIRMISH_DEFENSE = 4,
+	HEAVY_INFANTRY_PHASE_SKIRMISH_DEFENSE = 3,
 	HEAVY_INFANTRY_PHASE_MELEE_DEFENSE = 4,
-	HEAVY_INFANTRY_PHASE_PURSUE_DEFENSE = 1,
+	HEAVY_INFANTRY_PHASE_PURSUE_DEFENSE = 4,
 	HEAVY_INFANTRY_GRAPHICAL_FACTOR = 1.25,
 
 	PIKEMEN_MORALE = 6,
@@ -1042,29 +1264,29 @@ NMilitary = {
 	PIKEMEN_PHASE_SKIRMISH_ATTACK = 0.1,
 	PIKEMEN_PHASE_MELEE_ATTACK = 5,
 	PIKEMEN_PHASE_PURSUE_ATTACK = 0.2,
-	PIKEMEN_PHASE_SKIRMISH_DEFENSE = 3,
-	PIKEMEN_PHASE_MELEE_DEFENSE = 6,
+	PIKEMEN_PHASE_SKIRMISH_DEFENSE = 3.5,
+	PIKEMEN_PHASE_MELEE_DEFENSE = 4.5,
 	PIKEMEN_PHASE_PURSUE_DEFENSE = 2,
 	PIKEMEN_GRAPHICAL_FACTOR = 1.5,
 
-	LIGHT_CAVALRY_MORALE = 3,
+	LIGHT_CAVALRY_MORALE = 4,
 	LIGHT_CAVALRY_MAINTENANCE = 3,
 	LIGHT_CAVALRY_PHASE_SKIRMISH_ATTACK = 2,
 	LIGHT_CAVALRY_PHASE_MELEE_ATTACK = 3,
-	LIGHT_CAVALRY_PHASE_PURSUE_ATTACK = 10,
-	LIGHT_CAVALRY_PHASE_SKIRMISH_DEFENSE = 5,
+	LIGHT_CAVALRY_PHASE_PURSUE_ATTACK = 6,
+	LIGHT_CAVALRY_PHASE_SKIRMISH_DEFENSE = 4.5,
 	LIGHT_CAVALRY_PHASE_MELEE_DEFENSE = 3,
-	LIGHT_CAVALRY_PHASE_PURSUE_DEFENSE = 8,
+	LIGHT_CAVALRY_PHASE_PURSUE_DEFENSE = 4.5,
 	LIGHT_CAVALRY_GRAPHICAL_FACTOR = 1,
 	
 	KNIGHTS_MORALE = 10,
 	KNIGHTS_MAINTENANCE = 6,
 	KNIGHTS_PHASE_SKIRMISH_ATTACK = 0.5,
 	KNIGHTS_PHASE_MELEE_ATTACK = 10,
-	KNIGHTS_PHASE_PURSUE_ATTACK = 6,
-	KNIGHTS_PHASE_SKIRMISH_DEFENSE = 8,
-	KNIGHTS_PHASE_MELEE_DEFENSE = 8,
-	KNIGHTS_PHASE_PURSUE_DEFENSE = 4,
+	KNIGHTS_PHASE_PURSUE_ATTACK = 4,
+	KNIGHTS_PHASE_SKIRMISH_DEFENSE = 4,
+	KNIGHTS_PHASE_MELEE_DEFENSE = 5,
+	KNIGHTS_PHASE_PURSUE_DEFENSE = 7.5,
 	KNIGHTS_GRAPHICAL_FACTOR = 3,
 
 	ARCHERS_MORALE = 1,
@@ -1072,9 +1294,9 @@ NMilitary = {
 	ARCHERS_PHASE_SKIRMISH_ATTACK = 2,
 	ARCHERS_PHASE_MELEE_ATTACK = 1,
 	ARCHERS_PHASE_PURSUE_ATTACK = 2,
-	ARCHERS_PHASE_SKIRMISH_DEFENSE = 1,
-	ARCHERS_PHASE_MELEE_DEFENSE = 1,
-	ARCHERS_PHASE_PURSUE_DEFENSE = 2,
+	ARCHERS_PHASE_SKIRMISH_DEFENSE = 1.5,
+	ARCHERS_PHASE_MELEE_DEFENSE = 1.5,
+	ARCHERS_PHASE_PURSUE_DEFENSE = 2.25,
 	ARCHERS_GRAPHICAL_FACTOR = 1,
 	
 	SPECIAL_TROOPS_MORALE = 5,
@@ -1082,9 +1304,9 @@ NMilitary = {
 	SPECIAL_TROOPS_PHASE_SKIRMISH_ATTACK = 4,
 	SPECIAL_TROOPS_PHASE_MELEE_ATTACK = 3,
 	SPECIAL_TROOPS_PHASE_PURSUE_ATTACK = 7,
-	SPECIAL_TROOPS_PHASE_SKIRMISH_DEFENSE = 4,
-	SPECIAL_TROOPS_PHASE_MELEE_DEFENSE = 4,
-	SPECIAL_TROOPS_PHASE_PURSUE_DEFENSE = 7,
+	SPECIAL_TROOPS_PHASE_SKIRMISH_DEFENSE = 1,
+	SPECIAL_TROOPS_PHASE_MELEE_DEFENSE = 1,
+	SPECIAL_TROOPS_PHASE_PURSUE_DEFENSE = 1,
 	SPECIAL_TROOPS_GRAPHICAL_FACTOR = 20.0,
 
 	GALLEYS_MORALE = 1,
@@ -1129,7 +1351,34 @@ NMilitary = {
 	FORAGING_PILLAGE_MODIFIER = 0.15,			-- Modifies how much loot the army takes when re-supplying itself in enemy territory},
 	
 	MONTHS_OF_UNDECIDED_WAR = 36,				-- Number of months before a war can be won by an attacker unless a major battle is won
-	MAJOR_BATTLE_WARSCORE = 5.0					-- The minimum warscore gain needed for a battle to be considered major
+	MAJOR_BATTLE_WARSCORE = 5.0,				-- The minimum warscore gain needed for a battle to be considered major
+
+	DEATH_MORALE_DAMAGE = 2.5,					-- How much morale damage is done by a soldier dying
+	
+	SHATTERED_RETREAT_ENABLED_COMBAT = 1,		-- Enables shattered retreat for combat if set to 1
+	SHATTERED_RETREAT_ENABLED_SIEGE = 0,		-- Enables shattered retreat for sieges if set to 1
+	SIMPLE_RETREAT_ENABLED_SIEGE = 0,			-- Enables simple retreat for sieges if set to 1
+	
+	SHATTERED_RETREAT_MOVEMENT_MULTIPLIER = 1.3,-- Multiplier of unit movement speed when shattered
+	SHATTERED_RETREAT_MORALE_MULTIPLIER = 1.5,	-- Multiplier of morale regain when shattered
+	
+	SHATTERED_RETREAT_PREFERRED_PROVINCES = 4,	-- Units will try to move at least this many provinces away in shattered retreat
+	SHATTERED_RETREAT_MAX_PROVINCES = 10,		-- Units can not move longer than this many provinces during a shattered retreat
+	SHATTERED_RETREAT_DISTANCE_MULTIPLIER = -2, -- Multiplier for distance after the SHATTERED_RETREAT_PREFERRED_PROVINCES first provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_OWN_UNIT_MULTIPLIER = 0.1, -- Multiplier of own units in province when evaluating retreat provinces
+	SHATTERED_RETREAT_WAR_FRIEND_UNIT_MULTIPLIER = 0.05, -- Multiplier of war friend units in province when evaluating retreat provinces
+	SHATTERED_RETREAT_ENEMY_UNIT_MULTIPLIER = -0.3, -- Multiplier of war friend units in province when evaluating retreat provinces
+	SHATTERED_RETREAT_NEIGHBOUR_UNIT_MULTIPLIER = 0.3, -- Multiplier for all unit bonuses/penalties in neighbouring provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_OCCUPIED = -20,			-- Added for occupied provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_OWN_REALM = 200,			-- Added for own realm controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_OWN_CAPITAL = 30,			-- Added for own realm controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_WAR_FRIEND = 150,			-- Added for war friend controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_ENEMY = -250,				-- Added for enemy controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_SAME_RELIGION	= 30,		-- Added for same religion controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_SAME_CULTURE = 10,		-- Added for same culture controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_SAME_GOVERNMENT = 15,		-- Added for same government controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_RANDOM = 10,				-- Added random factor when evaluating shattered retreat provinces
+	MERCENARY_CREATE_LEVY_RATIO = 0.25,			-- Amount of max levies used to calculate the maximum size of non-nomadic dynamic mercenaries.
 },
 
 NTechnology = {
@@ -1144,8 +1393,8 @@ NTechnology = {
 	TRADEPOST_SPREAD_BONUS = 0.002, 			-- Spread from trade posts
 	SPYACTION_SPREAD_BONUS = 0.006,				-- Spread from the target of the study technology spymaster action
 	
-	IDEAL_YEAR_LEVEL_0 = 2450, 					-- the chance to get a progress to this level will increase after this date and decrease before it
-	IDEAL_YEAR_LEVEL_8 = 3250,
+	IDEAL_YEAR_LEVEL_0 = 700, 					-- the chance to get a progress to this level will increase after this date and decrease before it
+	IDEAL_YEAR_LEVEL_8 = 1500,
 	IDEAL_YEAR_AHEAD_PENALTY = -0.2,			-- UNUSED
 	IDEAL_YEAR_AHEAD_PENALTY_INVEST = 0.6,		-- Percent increase in cost pre level ahead of ideal date
 	
@@ -1161,7 +1410,7 @@ NDisease = {
 	SMALL_TOWN_INCOME = 11.0, -- A coastal town with this income has no chance of starting an outbreak
 	BIG_TOWN_INCOME = 30.0, -- A coastal town with this income is always a candidate for starting an outbreak
 	MIN_OUTBREAK_CHANCE = 0.1, -- Min chance that an outbreak will happen in a particular town
-	CROWDED_THRESHOLD_MODIFIER = 30, -- How many courtiers in a court to make it crowded and increase chance for disease.
+	CROWDED_THRESHOLD_MODIFIER = 75, -- How many courtiers in a court to make it crowded and increase chance for disease.
 },
 
 NGraphics = {
@@ -1180,7 +1429,7 @@ NEngine = {
 	EVENT_PROCESS_OFFSET = 20, 	 -- Events are checked every X day per character or province (1 is ideal, but CPU heavy)
 	POPULATION_BASELINE = 20000, -- The baseline of what would be considered normal amount of population
 	COURTIERS_MTTTH_EVENTS = 1,  -- Toggles if courtiers are allowed to run MTTH events or not
-	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_YEAR = 2670, -- The missing scripted successor error will not be shown before this date
+	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_YEAR = 1066, -- The missing scripted successor error will not be shown before this date
 	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_MONTH = 8,
 	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_DAY = 16,
 },
@@ -1199,7 +1448,7 @@ NAI =
 	MIL_AI_COUNTER_INVADE_DISTANCE_THRESHOLD = 120,			-- Defenders in wars will not counter invade past this distance
 	CRUSADE_CREATION_MONTH_DELAY = 360,						-- Months from the end of one Crusade before the AI will call a new one
 	NAVAL_INVASION_RANGE = 100,								-- Factor which increase AI invasion range if set higher
-	DOW_AGGRESSION_FACTOR = 0.5,							-- General aggressiveness declarations of war
+	DOW_AGGRESSION_FACTOR = 0.75,							-- General aggressiveness declarations of war
 	REVOLT_AGGRESSION_FACTOR = 0.75,						-- General aggressiveness for revolts against the liege
 	REVOLT_DISTANCE_FACTOR = 1.0,							-- Multiplier for how much distance from capital affects independence minded revolters
 	REVOLT_OTHER_INDEP_RISK = 10,							-- Each ongoing other independence revolt increases revolt risk by this amount for all independence-minded revolters
@@ -1253,6 +1502,56 @@ NAI =
 	NOMAD_LOW_MANPOWER_AGRESSION_MULTIPLIER = 0.5,			-- Nomad agression multiplier for having low manpower
 	NOMAD_KEEPS_BARON_TRIBAL_SETTLEMENTS = 1,				-- If set to 1, Independent AI Nomads will never give away baron tribal settlements in owned provinces (they will instead use the decision to pillage these holdings)
 	NOMAD_BUILDS_TEMPLES = 0,								-- If set to 1, AI Nomads will build temples like any other government would (when at 0 they will only build them in holy sites lacking a temple province)
+	
+	COALITION_JOIN_THRESHOLD = 110,							-- AI will join a coalition if the coalition score is above this value
+	COALITION_LEAVE_THRESHOLD = 70,							-- AI will leave a coalition if the coalition score is below this value
+	COALITION_TROOP_STRENGTH_THREAT_RATIO = 0.8,			-- AI will consider a realm to be a threat if it has a valid CB against you and the AI is this much smaller in army strength
+	COALITION_PROVINCE_THREAT_RATIO = 0.2,					-- AI will consider a realm to be a threat if the AI is this much smaller in number of provinces, regardless of CB's
+	COALITION_TROOP_STRENGTH_PROTECTION_RATIO = 0.7,		-- AI will consider a coalition to need assistance if a member is of your religion/culture/dynasty and the target is not, and the coalition is this much smaller in army strength
+	COALITION_PROVINCE_MULTIPLIER = 1.0,					-- Multiplier of realm provinces, added to coalition score
+	COALITION_INFAMY_MULTIPLIER = 4.0,						-- Multiplier of realm infamy, added to coalition score
+	COALITION_DISTANCE_MULTIPLIER = -1.1,					-- Multiplier of distance between two rulers, added to coalition score
+	COALITION_SMALL_THREAT_MULTIPLIER = 0.6,				-- Multiplier to the entire coalition score for small nations target has no CB on
+	
+	MARRIAGE_THREATENING_FOR_THEM_MODIFIER = -5,			-- How much AI will pay attention to marriages with realms they have a CB on and are considerably stronger than
+	MARRIAGE_NEW_NON_AGG_PACT_TIER_MULTIPLIER = 3,			-- How much AI will pay attention to new non-aggression pacts for OTHER realms, multiplied by the tier of that realm
+	MARRIAGE_OLD_NON_AGG_PACT_TIER_MULTIPLIER = 2,			-- How much AI will pay attention to old non-aggression pacts for OTHER realms, multiplied by the tier of that realm
+	BETROTHAL_MIN_AGE = 12,									-- AI will not arrange betrothals for children below this age
+	
+	FACTION_EXPIRATION_MONTHS = 12,							-- How long AI will cling onto weak factions
+	FACTION_EXPIRATION_MONTHS_RANDOMNESS = 5,				-- Randomness to how long AI will cling onto weak factions
+	FACTION_EXPIRATION_SIZE_LIEGE = 0.5,					-- How much smaller a faction must be compared to liege to be considered weak
+	FACTION_EXPIRATION_SIZE_OTHER_FACTION = 0.5,			-- How much smaller a faction must be compared to the strongest faction to be considered weak
+	FACTION_EXPIRED_MONTHS = 24,							-- How long AI will avoid factions after they have been expired
+	BASE_PERCENTAGE_CHANCE_OF_VOTING_FOR_LAW = 30,				-- This is the chance of an abstaining voter picking a stance anyway each month
+	PERCENTAGE_CHANCE_OF_VOTING_FOR_LAW_PER_VOTE_CAST = 5,	-- Each voter that already has cast a vote increases the chance of abstaining to decide by this much
+	BASE_LAW_CHANGE_NO_DIPLOMACY = 50,						-- This is the base diplomacy used when deciding no from an abstaining law voter
+	BASE_LAW_CHANGE_YES_DIPLOMACY = 5,						-- This is the base diplomacy used when deciding yes from an abstaining law voter
+
+	COUNCILOR_LIEGE_LAW_CHANGE_BASE = 40,					-- The base value the score start at when councilor attempts to propose a law change in liege's realm, score decides if it will happen or not
+	COUNCILOR_LIEGE_LAW_CHANGE_IS_RULER = -10,				-- If the councilor is a ruler when attempting to propose law change in liege's realm.
+	COUNCILOR_LIEGE_LAW_CHANGE_COUNCIL_DISCONTENT = 15,		-- If the council the councilor belongs to (liege's council) is discontent.
+	COUNCILOR_LIEGE_LAW_CHANGE_MAX_SCORE = 65,				-- Max score limit for councilor attempting to propose law change in liege's realm.
+	COUNCILOR_LIEGE_LAW_CHANGE_VOTING_ISSUES_MULT = -3.0, 	-- Multiplier factor used with number of voting issues available for the liege when councilor attempts to propose a law change in liege's realm
+	COUNCILOR_LIEGE_LAW_CHANGE_LIEGE_OPINION_MULT = -0.2,	-- Multiplier factor used with the liege's opinion of councilor when councilor attempts to propose a law change in liege's realm
+
+	EXPANDING_HORDE_TRESHOLD = 10000,						-- How many event spawned troops needed for AI to think it is still expanding
+
+	CONTINUE_WAR_TRESHOLD = 5, 								-- How much warscore needed for the AI to consider using a favor to sto pthe liege enforce peace
+	STOP_WAR_THRESHOLD = -50,								-- How much warscore needed for the AI to consider using a favor to force the liege to start enforcing peace
+	TROOP_STRENGTH_PER_TIER_ENFORCE_PEACE = 2500,			-- For AI to consider how powerful a vassal is
+
+	GO_AGAINST_COUNCIL_SCORE = 100.0,						-- How much score needed to make AI want to oppose the council
+	GO_AGAINST_COUNCIL_RATIONALITY_MODIFIER = 5.0,			-- Modifier on the rationality value to go against the council
+	GO_AGAINST_COUNCIL_HONOR_MODIFIER = -2.0,				-- Modifier on the honor value to go against the council
+	GO_AGAINST_COUNCIL_AMBITION_MODIFIER = 2.0,				-- Modifier on the ambition value to go against the council
+	GO_AGAINST_COUNCIL_GREED_MODIFIER = 0.0,				-- Modifier on the greed value to go against the council
+	GO_AGAINST_COUNCIL_ZEAL_MODIFIER = 0.0,					-- Modifier on the zeal value to go against the council
+	GO_AGAINST_COUNCIL_OPINION_MODIFIER = -1.5,				-- Modifier on the average opinion value of vassals to go against the council
+	RAISE_FORCES_ENEMY_TROOP_AMOUNT	= 1.25,					-- Threshold that checks if AI should employ holy order or raise controlled/uncontrolled landless forces if AI has less troops than threshold multiplied by raised enemy troop
+	
+	ASK_FOR_COUNCIL_POSITION_BASE_DESIRE = 25,				-- Base score for the AI to use the AskForCouncilPosition interaction when they have a favor on their liege
+	ASK_FOR_COUNCIL_POSITION_DESIRE_MULTIPLIER = 2,			-- Multiplier to the "goodness" value of the AI for the position, added as extra incentive to the AskForCouncilPosition desire
 },
 
 NFrontend = 
@@ -1274,7 +1573,7 @@ NFrontend =
 	TIME_UNTIL_ROTATE = 1.5, 			-- Time when rotation start (from beginning of time)
 	CAMERA_SPEED_START = 0.04,  			-- Initial animation speed
 	CAMERA_SPEED_ROTATE = 0.04,			-- Rotation speed
-	GUI_MOVE_SPEED = 300,				-- How fast sliding gui objects move ( pixels/s )
+	GUI_MOVE_SPEED = 800,				-- How fast sliding gui objects move ( pixels/s )
 	
 	FADE_IN_DONE_TIME = 2.2,
 	GUI_START_MOVE_TIME = 1.4,
@@ -1321,35 +1620,35 @@ NFrontend =
 NEndGame = 
 {
 	DYN1_SCORE = 100000,
-	DYN1_ID = 1782000, -- Royall (HCC)
+	DYN1_ID = 743,
 	DYN2_SCORE = 90000,
-	DYN2_ID = 1776013, -- Rodham (Hudsonia)
+	DYN2_ID = 51,
 	DYN3_SCORE = 80000,
-	DYN3_ID = 1519000, -- Iturbide (Mexico)
+	DYN3_ID = 705,
 	DYN4_SCORE = 70000,
-	DYN4_ID = 1779000, -- Yoder (Deitsch)
+	DYN4_ID = 681,
 	DYN5_SCORE = 60000,
-	DYN5_ID = 1795000, -- Creaux (Louisiana)
+	DYN5_ID = 699,
 	DYN6_SCORE = 50000,
-	DYN6_ID = 1491003, -- Nokona (Comanche)
+	DYN6_ID = 634,
 	DYN7_SCORE = 40000,
-	DYN7_ID = 1650002, -- Sulley (Moskitia)
+	DYN7_ID = 106,
 	DYN8_SCORE = 30000,
-	DYN8_ID = 1789000, -- Avondale (Chicago)
+	DYN8_ID = 487,
 	DYN9_SCORE = 20000,
-	DYN9_ID = 1889009, -- Pitchstone (Dakota)
+	DYN9_ID = 155,
 	DYN10_SCORE = 15000,
-	DYN10_ID = 650, 
+	DYN10_ID = 650,
 	DYN11_SCORE = 10000,
 	DYN11_ID = 100239,
 	DYN12_SCORE = 7500,
 	DYN12_ID = 261,
 	DYN13_SCORE = 5000,
-	DYN13_ID = 1788046, -- Mahonic (New England)
+	DYN13_ID = 4003,
 	DYN14_SCORE = 2000,
-	DYN14_ID = 1796003, -- Castel (Quebcec)
+	DYN14_ID = 756,
 	DYN15_SCORE = 1000,
-	DYN15_ID = 1790001, -- Soady
+	DYN15_ID = 7290,
 },
 
 NRulerDesigner =
@@ -1394,10 +1693,10 @@ NRulerDesigner =
 
 NLearningScenario = 
 {
-	START_YEAR = 2666,
-	START_MONTH = 7,
-	START_DAY = 4,
-	START_CHARACTER = 1788001,
+	START_YEAR = 1066,
+	START_MONTH = 8,
+	START_DAY = 14,
+	START_CHARACTER = 108500,
 	FIRST_EVENT = 107000,
 	HAS_WIFE_EVENT = 107100,
 	ANGRY_VASSAL = 108510,
@@ -1406,6 +1705,7 @@ NLearningScenario =
 	TOG_REVOLT_EVENT = 107200,
 	COMBAT_EVENT = 107202,
 	AFTER_REVOLT_EVENT = 107250,
+	FABRICATE_CLAIM_PROVINCE = 849,
 	FABRICATE_CLAIM_EVENT = 913,
 	HAS_CLAIM_EVENT = 107300,
 	WAR_EVENT = 107301,

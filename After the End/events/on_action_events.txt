@@ -2,6 +2,8 @@
 # Reserved IDs: 0-999, 40000 - 44999
 ####################################
 
+namespace = diploresponse
+
 # ID 1 and 2 are empty dummy events that are used by the message system to spawn messages
 # that should be displayed as events, their descriptions are filled in by the message system
 letter_event = {
@@ -38,14 +40,14 @@ character_event = {
 			character_event = { id = prez.200 days = 1 } # Killer of candidate loses public support - candidate dies
 		}
 	
-		if = {
-			limit = {
-				ai = no
-				event_target:target_victim = { any_spouse = { character = ROOT } }
-				NOT = { has_character_flag = achievement_spouse_killer } 
-			}
-			set_character_flag = achievement_spouse_killer
-		}
+		#if = { # Moved to on death instead to cover undiscovered murders.
+		#	limit = {
+		#		ai = no
+		#		event_target:target_victim = { any_spouse = { character = ROOT } }
+		#		NOT = { has_character_flag = achievement_spouse_killer } 
+		#	}
+		#	set_character_flag = achievement_spouse_killer
+		#}
 	
 		if = {
 			limit = { NOT = { has_character_modifier = known_murderer } }
@@ -217,12 +219,10 @@ character_event = {
 					NOT = { character = ROOT }
 					NOT = { dynasty = ROOT }
 				}
-				if = {
-					opinion = {
-						who = ROOT
-						modifier = opinion_dishonorable
-						months = 60
-					}
+				opinion = {
+					who = ROOT
+					modifier = opinion_dishonorable
+					months = 60
 				}
 			}
 			
@@ -315,6 +315,12 @@ character_event = {
 	
 	immediate = {
 		set_character_flag = adultery_discovered
+		if = {
+			limit = {
+				any_spouse = { character = event_target:target_adulterer }
+			}
+			break = yes
+		}
 		
 		if = {
 			limit = {
@@ -385,6 +391,44 @@ character_event = {
 							years = 5
 						}
 					}
+
+					
+					any_consort = { #Extra check for concubines
+						limit = { character = FROM }
+						opinion = {
+							who = PREV
+							modifier = opinion_unfaithful_wife
+							months = 120
+						}
+						opinion = {
+							who = PREVPREV
+							modifier = opinion_cuckolded
+							months = 120
+						}
+						if = {
+							limit = {
+								NOT = { is_rival = PREVPREV }
+								NOT = { is_lover = PREVPREV }
+								NOT = { is_friend = PREVPREV }
+								NOT = { trait = kind }
+								NOT = { trait = content }
+							}
+							add_rival = PREVPREV
+						}
+						if = {
+							limit = { is_lover = PREV }
+							remove_lover = PREV
+						}
+						if = {
+							limit = { is_lover = PREVPREV }
+							remove_lover = PREVPREV
+						}
+						if = {
+							limit = { is_friend = PREVPREV }
+							remove_friend = PREVPREV
+						}
+					}
+
 					
 					any_spouse = {
 						limit = { PREVPREV = { is_female = no } }
@@ -489,9 +533,23 @@ character_event = {
 					
 					if = {
 						limit = { same_sex = PREV }
-						add_character_modifier = {
-							name = known_sodomite
-							years = 20
+						if = {
+							limit = {
+								religion_group = pagan_group
+							}
+							add_character_modifier = {
+								name = known_sodomite_pagan
+								years = 20
+							}
+						}
+						if = {
+							limit = {
+								NOT = { religion_group = pagan_group }
+							}
+							add_character_modifier = {
+								name = known_sodomite
+								years = 20
+							}
 						}
 					}
 					
@@ -515,9 +573,14 @@ character_event = {
 								religion = zoroastrian
 							}
 						}
-						add_character_modifier = {
-							name = adulterer
-							years = 10
+						if = {
+							limit = {
+								NOT = { religion_group = pagan_group }
+							}
+							add_character_modifier = {
+								name = adulterer
+								years = 10
+							}
 						}
 					}
 				}
@@ -695,7 +758,7 @@ character_event = {
 					any_spouse = { character = ROOT }
 				}
 				
-				set_character_flag = achievement_spouse_killer
+				#set_character_flag = achievement_spouse_killer #Moved to on_death to also cover undiscovered murder plots.
 				
 				spouse = {
 					any_dynasty_member = {
@@ -2359,6 +2422,20 @@ diploresponse_event = {
 	trigger = {
 		ai = no
 	}
+	
+	#immediate = { # TODO
+	#	if = {
+	#		limit = {
+	#			has_dlc = "Zeus"
+	#			new_character = {
+	#				NOT = { has_focus = focus_ch_heritage }
+	#			}
+	#		}
+	#		new_character = {
+	#			set_focus = focus_ch_heritage
+	#		}
+	#	}
+	#}
 
 	option = {
 		name = "OK"
@@ -2742,7 +2819,7 @@ diploresponse_event = {
 	desc = EVTDESC238
 
 	option = {
-		name = "OK"
+		name = OK
 	}
 }
 
@@ -3607,6 +3684,7 @@ letter_event = {
 	is_triggered_only = yes
 	
 	trigger = {
+		NOT = { has_dlc = "Zeus" }
 		ai = no
 	}
 
@@ -3620,12 +3698,42 @@ letter_event = {
 	}
 }
 
+
+# Zeus Version Approve or disapprove of de facto Law Change
+letter_event = {
+	id = 675
+	desc = "EVTDESC290"
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		has_dlc = "Zeus"
+		ai = no
+		is_voter = yes
+	}
+
+	option = {
+		name = "EVTOPTA290"
+		approve_law = FROM
+	}
+
+	option = {
+		name = "EVTOPTC290"
+		decline_law = FROM
+	}
+	
+	option = {
+		name = "EVTOPTB290"
+	}
+}
+
 # Approve or disapprove of de jure Law Change
 letter_event = {
 	id = 291
 	is_triggered_only = yes
 	trigger = {
 		ai = no
+		NOT = { has_dlc = "Zeus" }
 		FROM = {
 			holder_scope = {
 				is_vassal_or_below = ROOT
@@ -3644,6 +3752,37 @@ letter_event = {
 	}
 }
 
+# Zeus Version Approve or disapprove of de jure Law Change
+letter_event = {
+	id = 676
+	is_triggered_only = yes
+	trigger = {
+		has_dlc = "Zeus"
+		ai = no
+		is_voter = yes
+		FROM = {
+			holder_scope = {
+				is_vassal_or_below = ROOT
+			}
+		}
+	}
+
+	desc = "EVTDESC291"
+	option = {
+		name = "EVTOPTA290"
+		approve_law = FROM
+	}
+
+	option = {
+		name = "EVTOPTC290"
+		decline_law = FROM
+	}
+	
+	option = {
+		name = "EVTOPTB290"
+	}
+}
+
 # Approve or disapprove of de jure Law Change
 letter_event = {
 	id = 292
@@ -3653,6 +3792,7 @@ letter_event = {
 	
 	trigger = {
 		ai = no
+		NOT = { has_dlc = "Zeus" }
 		FROM = {
 			holder_scope = {
 				NOT = { is_vassal_or_below = ROOT }
@@ -3781,6 +3921,41 @@ diploresponse_event = {
 	}
 }
 
+# FORM_ALLIANCE_INTERACTION_ACCEPT_EVENT =
+diploresponse_event = {
+	id = diploresponse.1
+	desc = "EVTDESCdiploresponse.1"
+
+	is_triggered_only = yes
+	major = no
+	is_friendly = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
+	}
+}
+
+# FORM_ALLIANCE_INTERACTION_DECLINE_EVENT =
+diploresponse_event = {
+	id = diploresponse.2
+	desc = "EVTDESCdiploresponse.2"
+
+	is_triggered_only = yes
+	major = no
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
+	}
+}
+
 
 # Rebels spawn
 # NOTE THAT WITH "THE OLD GODS" DLC, THIS IS NO LONGER FIRED
@@ -3807,16 +3982,16 @@ province_event = {
 					create_random_soldier = {
 						random_traits = yes
 						dynasty = random
-						religion = prev
-						culture = prev
+						religion = ROOT
+						culture = ROOT
 						female = no
 						age = 30
 						employer = e_rebels
 					}
 					new_character = {
 						spawn_unit = {
-							province = prev
-							home = prev
+							province = PREV
+							home = PREV
 							scaled_by_biggest_garrison = 1.0
 							troops = {
 								archers = { 6 6 }
@@ -3830,16 +4005,16 @@ province_event = {
 					create_random_soldier = {
 						random_traits = yes
 						dynasty = random
-						religion = prev
-						culture = prev
+						religion = ROOT
+						culture = ROOT
 						female = no
 						age = 30
 						employer = e_rebels
 					}
 					new_character = {
 						spawn_unit = {
-							province = prev
-							home = prev
+							province = PREV
+							home = PREV
 							scaled_by_biggest_garrison = 1.0
 							troops = {
 								archers = { 6 6 }
@@ -3853,16 +4028,16 @@ province_event = {
 					create_random_soldier = {
 						random_traits = yes
 						dynasty = random
-						religion = prev
-						culture = prev
+						religion = ROOT
+						culture = ROOT
 						female = no
 						age = 30
 						employer = e_rebels
 					}
 					new_character = {
 						spawn_unit = {
-							province = prev
-							home = prev
+							province = PREV
+							home = PREV
 							scaled_by_biggest_garrison = 1.0
 							troops = {
 								archers = { 6 6 }
@@ -4019,7 +4194,6 @@ narrative_event = {
 # On-action event: On Death - hidden - clear stuff
 character_event = {
 	id = 650
-	desc = "NotShown"
 	
 	is_triggered_only = yes 
 	
@@ -4038,10 +4212,6 @@ character_event = {
 				diplomatic_immunity = no
 			}
 		}
-	}
-
-	option = {
-		name = "NotShown"
 	}
 }
 
@@ -4487,5 +4657,236 @@ character_event = {
 			}
 			clr_character_flag = do_not_disturb
 		}
+	}
+}
+
+# BUY_FAVOR_ACCEPT_EVENT =
+diploresponse_event = {
+	id = 520
+	desc = "EVTDESC520"
+
+	is_triggered_only = yes
+	major = no
+	is_friendly = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "EVTOPTA520"
+	}
+}
+
+# BUY_FAVOR_DECLINE_EVENT =
+diploresponse_event = {
+	id = 521
+	desc = "EVTDESC521"
+
+	is_triggered_only = yes
+	major = no
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "EVTOPTA521"
+	}
+}
+
+# REQUEST_SUPPORT_ACCEPT_EVENT =
+diploresponse_event = {
+	id = 522
+	desc = "EVTDESC522"
+
+	is_triggered_only = yes
+	major = no
+	is_friendly = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "EVTOPTA522"
+	}
+}
+
+# REQUEST_SUPPORT_DECLINE_EVENT =
+diploresponse_event = {
+	id = 523
+	desc = "EVTDESC523"
+
+	is_triggered_only = yes
+	major = no
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "EVTOPTA523"
+	}
+}
+
+# FORM_NON_AGGRESSION_PACT_ACCEPT_EVENT =
+diploresponse_event = {
+	id = 524
+	desc = "EVTDESC524"
+
+	is_triggered_only = yes
+	major = no
+	is_friendly = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "EVTOPTA524"
+	}
+}
+
+# FORM_NON_AGGRESSION_PACT_DECLINE_EVENT =
+diploresponse_event = {
+	id = 525
+	desc = "EVTDESC525"
+
+	is_triggered_only = yes
+	major = no
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "EVTOPTA525"
+	}
+}
+
+letter_event = {
+	id = 750
+	desc = "EVTDESC750"
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		ai = no
+		is_voter = yes
+	}
+
+	option = {
+		name = "EVTOPTA290"
+		approve_law = FROM
+	}
+	
+	option = {
+		name = "EVTOPTB290"
+	}
+}
+
+# ASK_COUNCIL_POSITION_INTERACTION_ACCEPT_EVENT =
+diploresponse_event = {
+	id = 526
+	desc = "EVTDESC526"
+
+	is_triggered_only = yes
+	major = no
+	is_friendly = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
+	}
+}
+
+# ASK_COUNCIL_POSITION_INTERACTION_DECLINE_EVENT =
+diploresponse_event = {
+	id = 527
+	desc = "EVTDESC527"
+
+	is_triggered_only = yes
+	major = no
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
+	}
+}
+
+# ASK_REALM_PEACE_INTERACTION_ACCEPT_EVENT =
+diploresponse_event = {
+	id = 528
+	desc = "EVTDESC528"
+
+	is_triggered_only = yes
+	major = no
+	is_friendly = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
+	}
+}
+
+# ASK_REALM_PEACE_INTERACTION_DECLINE_EVENT =
+diploresponse_event = {
+	id = 529
+	desc = "EVTDESC529"
+
+	is_triggered_only = yes
+	major = no
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
+	}
+}
+
+# FORCE_JOIN_FACTION_INTERACTION_ACCEPT_EVENT =
+diploresponse_event = {
+	id = 530
+	desc = "EVTDESC530"
+
+	is_triggered_only = yes
+	major = no
+	is_friendly = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
+	}
+}
+
+# FORCE_JOIN_FACTION_INTERACTION_DECLINE_EVENT =
+diploresponse_event = {
+	id = 531
+	desc = "EVTDESC531"
+
+	is_triggered_only = yes
+	major = no
+
+	trigger = {
+		ai = no
+	}
+
+	option = {
+		name = "OK"
 	}
 }

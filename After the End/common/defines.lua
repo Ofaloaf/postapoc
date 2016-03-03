@@ -21,6 +21,7 @@ NDiplomacy = {
 	SEND_GIFT_INCOME_SCALEFACTOR = 15, 
 	MINIMUM_BUY_FAVOR_COST = 40,
 	BUY_FAVOR_INCOME_SCALEFACTOR = 40, 
+	BUY_FAVOR_TIER_REDUCTION_FOR_NOMADS = 0.25,	-- Reduction for nomads since they're always considered emperors
 	RELEASE_PRISONER_PIETY = 5,
 	USURP_TITLE_PRESTIGE_MULT = 0.25, 			-- Multiplier on Creation Prestige
 	
@@ -61,6 +62,7 @@ NDiplomacy = {
 	CROWN_LAW_REVOLTRISK_INCREMENT = 10,		-- Revoltrisk reduction/decrease due to crown laws
 	MAX_DUCHIES_LEGALLY_HELD = 2,				-- Max duchies that a king or above can hold before vassals start getting angry
 	MAX_ELECTOR_TITLES_LEGALLY_HELD = 1,		-- Max elector titles that a king or above can hold before vassals start getting angry
+	TITULAR_TITLES_COUNT_TOWARDS_DUCHY_LIMIT = 1,	-- If set to 1 then titular duchy titles (duchy titles with no de-jure land) will count towards the maximum duchy titles held before vassals will get upset.
 	ASSASSINATION_COST_RANK_MULT = 100,			-- Additional cost for assassinations multiplied by rank (count = 1, emperor = 4). Also applies to children of rulers.
 	WOMEN_INHERIT_PRESSED_CLAIMS = 1,			-- If set to 1, they will get pressed claims on their parents' titles
 	BASTARDS_INHERIT_PRESSED_CLAIMS = 1,		-- If set to 1, they will get pressed claims on their parents' titles
@@ -697,9 +699,18 @@ NDiplomacy = {
 	BANISH_TAKE_WEALTH_PERCENTAGE_COURTIER = 1,
 	BANISH_REALM_SIZE_CHANCE_RATIO_MODIFIER = 2,
 	
-	COALITION_INFAMY_LIMIT = 25,								-- The amount of provinces in a realm that is needed for beeing a valid target of a coalition
-	COALITION_SIZE_RATIO = 0.9,									-- Realms larger than the target * COALITION_SIZE_RATIO are not allowed in a coalition
+	DEFENSIVE_PACT_THREAT_LIMIT = 0.05,							-- The amount of provinces in a realm that is needed for beeing a valid target of a defensive pact
+	DEFENSIVE_PACT_SIZE_RATIO = 1.0,							-- Relative size requirement is this at 100% threat
+	DEFENSIVE_PACT_MAX_RANGE = 400,								-- At 100% threat characters are able to join defensive pacts against targets of this distance
+	DEFENSIVE_PACT_MAX_RANGE_SAME_GROUP = 300,					-- At 100% threat characters are able to join defensive pacts against targets of this distance
+	DEFENSIVE_PACT_THREAT_SIZE_START = 0.0,						-- Relative size requirement starts from this level of threat
+	DEFENSIVE_PACT_BASE_SIZE = 0.0,								-- This is the base size requirement at 0% threat
+	MAX_INFAMY_GAIN = 50,										-- This is the max infamy gained from a single source
 	
+	EVERY_DEFENSIVE_PACT_JOIN_THREAT = 0.95,					-- If threat is this high, members of all defensive pacts against a target will join
+	EVERY_DEFENSIVE_PACT_EXCEPT_HEADS_JOIN_THREAT = 0.75,		-- If threat is this high, members of all defensive pacts against a target will join, except religious heads that only joins when their own group is attacked
+	OTHER_DEFENSIVE_PACT_JOIN_THREAT = 0.5,						-- If threat is this high, other religious groups band together when attacked, if it's lower every defensive pact acts on it's own
+
 	RELEASE_VASSAL_TRUCE_DAYS = 3650,
 	
 	REALM_DIPLOMACY_OPINION_MUL_FACTOR = 0.25,					-- Realm diplomacy factor affecting opinion value
@@ -743,7 +754,11 @@ NInfamy = {
 	INHERITANCE_CHANGE_VALUE = 0.15,	 						-- How much base value for realm growth/shrink is worth when inheriting titles.
 	VASSAL_CHANGE_VALUE = 0.3,	 								-- How much base value for realm growth/shrink is worth when inheriting titles.
 	INFAMY_DECAY_BASE = 0.8,									-- How many percent that decay each month as base.
+	MIN_INFAMY_DECAY = 0.21,									-- The minimum infamy decay regardless of troop strength.
+	MAX_INFAMY_DECAY = 0.4,										-- The maximum infamy decay regardless of troop strength.
 	MILITARY_STRENGTH_DECAY_BASE = 600,							-- Divider on military strength value that is used for the logarithmic part of the decay value.
+	MAX_INFAMY_PER_WAR_PROVINCE = 15,							-- A single province taken in war can give at most this much threat
+	MIN_INFAMY_PER_WAR_PROVINCE = 2,							-- A single province taken in war can give at most this much threat
 },
 
 NCharacter = {
@@ -778,6 +793,7 @@ NCharacter = {
 	LUNATIC_DIVINE_BLOOD_TRAIT_CHANCE_FACTOR = 1.0,	-- Inbreeding: Multiplier to the base chance
 	MAX_LED_FACTIONS = 2,							-- Maximum number of led Factions
 	MAX_JOINED_FACTIONS = 2,						-- Maximum number of Factions a character can be a member of (including led factions)
+	NON_AGGRESSION_PACT_BLOCKS_FACTIONS = 1,		-- If set to 1 then factions will be blocked for vassals that have a non-aggression pact with their liege.
 	PORTRAIT_ADULT_MALE_AGE_THRESHOLD = 16,			-- Male child to adult age portrait switch
 	PORTRAIT_ADULT_FEMALE_AGE_THRESHOLD = 16,		-- Female child to adult age portrait switch
 	PORTRAIT_MID_AGE_THRESHOLD = 30,				-- Middle age switch for character portraits
@@ -840,6 +856,7 @@ NCharacter = {
 	INHERITED_OPINION_FACTOR = 0.5,					-- This is the factor of the opinion of the previous holder that gets inherited
 	CHILDHOOD_FOCUS_ALERT_AGE = 5,					-- The childhood focus alert is shown for children this old
 	AGE_CHILDHOOD_PULSE = 6,						-- The childhood pulse events start from this age
+	CHILDHOOD_AUTO_EDUCATION_FOCUS_AGE = 15,		-- Children automatically get education focus at this age.
 },
 
 NTitle = {
@@ -1041,7 +1058,8 @@ NEconomy = {
 	LOOT_EVERY_X_DAYS = 4,							-- Loot every this many days
 	LOOT_IDEAL_MIN_TROOPS = 500,					-- Minimum troops for maximum loot, less than this scales down the amount looted
 	BUILDING_COST_MULT = 0.5,						-- Increase to the build cost of all buildings that cost GOLD
-	SILK_ROAD_TP_BUILD_COST_MOT = 0.333				-- Build cost modifier for non-Merchant republic Trade Posts
+	SILK_ROAD_TP_BUILD_COST_MOT = 0.333,			-- Build cost modifier for non-Merchant republic Trade Posts
+	FORT_CONSUMED_IN_SETTLEMENT_CONTRUCTION = 1		-- If set to 1 then fort holdings are consumed by the construction of another holding in the province while giving a discount to the construction cost in return.
 },
 
 NDecadence = {
@@ -1124,12 +1142,15 @@ NMilitary = {
 	OPINION_WHEN_NO_LEADER = 0,						-- Below this opinion a vassal will not supply a leader for subunits at all
 	BATTLE_WARSCORE_WORTH = 75,						-- Warscore from battles are multiplied with this value
 	BATTLE_WARSCORE_DEFENDER_MULTIPLIER = 1.5,		-- Defenders wins are multiplied with this value, which also means they get more prestige for a win
+	BATTLE_WARSCORE_WORTH_MULTIPLIER = 1.25,		-- Multiplier applied to the warscore value of individual battles (doesn't affect prestige)
+	BATTLE_WARSCORE_HOSTS_MULTIPLIER = 2,			-- Multiplier applied to the warscore value of major battle (replaces BATTLE_WORTH_SCORE_MULTIPLIER in that case
 	BATTLE_MINIMUM_WARSCORE = 0.2,					-- Battles below this value(in actual percentage) are removed from warscore calculations
 	MIN_LEVY_RAISE_OPINION_THRESHOLD = 0,			-- Below this opinion value you'll get the least amount of troops possible
 	MAX_LEVY_RAISE_OPINION_THRESHOLD = 100,			-- Above this opinion value you'll get the max amount of troops possible
 	MIN_LEVIES_ABOVE_OPINION_THRESHOLD = 0,			-- The minimum percentage of levies that will be provided if opinion is above threshold
 	LEVY_PERCENT_BEFORE_CAN_RAISE = 1.1,			-- Needs at least this much % of full levy before we can raise it again, not used in vanilla anymore
-	SIEGE_DAMAGE = 0,								-- Siege attack values are multiplied by this value(when not doing a sally)
+	ATTACKER_SIEGE_DAMAGE = 0,						-- Siege attack values are multiplied by this value(when not doing a sally), for attackers
+	DEFENDER_SIEGE_DAMAGE = 0,						-- Siege attack values are multiplied by this value(when not doing a sally), for defenders
 	PERCENT_OF_GARRISON_DETACHED = 0.1,				-- This percent of the garrison is detached from the winning unit of a siege
 	NUM_DAYS_BETWEEN_SIEGE_MORALE_LOSS = 12,		-- Number of days between morale loss for defender in a siege
 	SIEGE_MORALE_LOSS = 0.2,						-- Monthly morale loss in a siege
@@ -1307,7 +1328,7 @@ NMilitary = {
 	SPECIAL_TROOPS_PHASE_SKIRMISH_DEFENSE = 1,
 	SPECIAL_TROOPS_PHASE_MELEE_DEFENSE = 1,
 	SPECIAL_TROOPS_PHASE_PURSUE_DEFENSE = 1,
-	SPECIAL_TROOPS_GRAPHICAL_FACTOR = 20.0,
+	SPECIAL_TROOPS_GRAPHICAL_FACTOR = 15.0,
 
 	GALLEYS_MORALE = 1,
 	GALLEYS_MAINTENANCE = 300,
@@ -1358,27 +1379,38 @@ NMilitary = {
 	SHATTERED_RETREAT_ENABLED_COMBAT = 1,		-- Enables shattered retreat for combat if set to 1
 	SHATTERED_RETREAT_ENABLED_SIEGE = 0,		-- Enables shattered retreat for sieges if set to 1
 	SIMPLE_RETREAT_ENABLED_SIEGE = 0,			-- Enables simple retreat for sieges if set to 1
+	SHATTERED_RETREAT_HOSTILE_ATTRITION = 10,	-- Attrition taken when traversing hostile territory durring a shattered retreat (as a percentage)
+	SHATTERED_RETREAT_NEUTRAL_ATTRITION = 5,	-- Attrition taken when traversing neutral territory durring a shattered retreat (as a percentage)
+	SHATTERED_RETREAT_FRIENDLY_ATTRITION = 0,	-- Attrition taken when traversing friendly territory durring a shattered retreat (as a percentage)
 	
 	SHATTERED_RETREAT_MOVEMENT_MULTIPLIER = 1.3,-- Multiplier of unit movement speed when shattered
 	SHATTERED_RETREAT_MORALE_MULTIPLIER = 1.5,	-- Multiplier of morale regain when shattered
 	
-	SHATTERED_RETREAT_PREFERRED_PROVINCES = 4,	-- Units will try to move at least this many provinces away in shattered retreat
-	SHATTERED_RETREAT_MAX_PROVINCES = 10,		-- Units can not move longer than this many provinces during a shattered retreat
-	SHATTERED_RETREAT_DISTANCE_MULTIPLIER = -2, -- Multiplier for distance after the SHATTERED_RETREAT_PREFERRED_PROVINCES first provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_OWN_UNIT_MULTIPLIER = 0.1, -- Multiplier of own units in province when evaluating retreat provinces
-	SHATTERED_RETREAT_WAR_FRIEND_UNIT_MULTIPLIER = 0.05, -- Multiplier of war friend units in province when evaluating retreat provinces
-	SHATTERED_RETREAT_ENEMY_UNIT_MULTIPLIER = -0.3, -- Multiplier of war friend units in province when evaluating retreat provinces
-	SHATTERED_RETREAT_NEIGHBOUR_UNIT_MULTIPLIER = 0.3, -- Multiplier for all unit bonuses/penalties in neighbouring provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_OCCUPIED = -20,			-- Added for occupied provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_OWN_REALM = 200,			-- Added for own realm controlled provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_OWN_CAPITAL = 30,			-- Added for own realm controlled provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_WAR_FRIEND = 150,			-- Added for war friend controlled provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_ENEMY = -250,				-- Added for enemy controlled provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_SAME_RELIGION	= 30,		-- Added for same religion controlled provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_SAME_CULTURE = 10,		-- Added for same culture controlled provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_SAME_GOVERNMENT = 15,		-- Added for same government controlled provinces when evaluating retreat provinces
-	SHATTERED_RETREAT_RANDOM = 10,				-- Added random factor when evaluating shattered retreat provinces
-	MERCENARY_CREATE_LEVY_RATIO = 0.25,			-- Amount of max levies used to calculate the maximum size of non-nomadic dynamic mercenaries.
+	SHATTERED_RETREAT_PREFERRED_PROVINCES = 4,				-- Units will try to move at least this many provinces away in shattered retreat
+	SHATTERED_RETREAT_MAX_PROVINCES = 10,					-- Units can not move longer than this many provinces during a shattered retreat
+	SHATTERED_RETREAT_DISTANCE_MULTIPLIER = -20,			-- Value added for each province away from the prefered distance (whether too close or too far)
+	SHATTERED_RETREAT_OWN_UNIT_MULTIPLIER = 0.1, 			-- Multiplier of own units in province when evaluating retreat provinces
+	SHATTERED_RETREAT_WAR_FRIEND_UNIT_MULTIPLIER = 0.025, 	-- Multiplier of war friend units in province when evaluating retreat provinces
+	SHATTERED_RETREAT_ENEMY_UNIT_MULTIPLIER = -0.3, 		-- Multiplier of war friend units in province when evaluating retreat provinces
+	SHATTERED_RETREAT_NEIGHBOUR_UNIT_MULTIPLIER = 0.3, 		-- Multiplier for all unit bonuses/penalties in neighbouring provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_OCCUPIED = -20,			            -- Added for occupied provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_OWN_REALM = 200,			            -- Added for own realm controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_OWN_CAPITAL = 30,			            -- Added for own realm controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_WAR_FRIEND = 150,			            -- Added for war friend controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_ENEMY = -250,				            -- Added for enemy controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_SAME_RELIGION	= 30,		            -- Added for same religion controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_SAME_CULTURE = 10,		            -- Added for same culture controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_SAME_GOVERNMENT = 15,		            -- Added for same government controlled provinces when evaluating retreat provinces
+	SHATTERED_RETREAT_MAX_DISTANCE_DIVIDER = 4,				-- The previous values are now divided by distance away from the prefered distance, but won't be divided by more than this
+	SHATTERED_RETREAT_RANDOM = 10,				            -- Added random factor when evaluating shattered retreat provinces
+	SHATTERED_RETREAT_BOAT_ADJACENCY_COASTAL_BONUS = 20, 	-- Bonus added to coastal provinces adjacent to boats the unit can board
+	MERCENARY_CREATE_LEVY_RATIO = 0.25,						-- Amount of max levies used to calculate the maximum size of non-nomadic dynamic mercenaries.
+	SHATTERED_RETREAT_BIG_PROVINCE_LIMIT = 100.0, 			-- Province movement cost value above which a province will be considered "big" for purpose of distance computation when choosing a target for shattered retreat.
+	SHATTERED_RETREAT_MAX_PROVINCE_COST = 2,				-- Maximum cost-value of a province when considering distance for shattered retreat targetting
+	SHATTERED_RETREAT_FORBIDDEN_LOOT_MONTHS = 60, 			-- How many months a character will be forbidden to raid an enemy after their armies shatter
+	
+	MAX_WARSCORE_FROM_BATTLE_ATTACKERS = 75,				-- Max total warscore attackers can get from battles 
+	MAX_WARSCORE_FROM_BATTLE_DEFENDERS = 100,				-- Max total warscore defenders can get from battles
 },
 
 NTechnology = {
@@ -1503,15 +1535,15 @@ NAI =
 	NOMAD_KEEPS_BARON_TRIBAL_SETTLEMENTS = 1,				-- If set to 1, Independent AI Nomads will never give away baron tribal settlements in owned provinces (they will instead use the decision to pillage these holdings)
 	NOMAD_BUILDS_TEMPLES = 0,								-- If set to 1, AI Nomads will build temples like any other government would (when at 0 they will only build them in holy sites lacking a temple province)
 	
-	COALITION_JOIN_THRESHOLD = 110,							-- AI will join a coalition if the coalition score is above this value
-	COALITION_LEAVE_THRESHOLD = 70,							-- AI will leave a coalition if the coalition score is below this value
+	COALITION_JOIN_THRESHOLD = 110,							-- AI will join a defensive pact if the defensive pact score is above this value
+	COALITION_LEAVE_THRESHOLD = 70,							-- AI will leave a defensive pact if the defensive pact score is below this value
 	COALITION_TROOP_STRENGTH_THREAT_RATIO = 0.8,			-- AI will consider a realm to be a threat if it has a valid CB against you and the AI is this much smaller in army strength
 	COALITION_PROVINCE_THREAT_RATIO = 0.2,					-- AI will consider a realm to be a threat if the AI is this much smaller in number of provinces, regardless of CB's
-	COALITION_TROOP_STRENGTH_PROTECTION_RATIO = 0.7,		-- AI will consider a coalition to need assistance if a member is of your religion/culture/dynasty and the target is not, and the coalition is this much smaller in army strength
-	COALITION_PROVINCE_MULTIPLIER = 1.0,					-- Multiplier of realm provinces, added to coalition score
-	COALITION_INFAMY_MULTIPLIER = 4.0,						-- Multiplier of realm infamy, added to coalition score
-	COALITION_DISTANCE_MULTIPLIER = -1.1,					-- Multiplier of distance between two rulers, added to coalition score
-	COALITION_SMALL_THREAT_MULTIPLIER = 0.6,				-- Multiplier to the entire coalition score for small nations target has no CB on
+	COALITION_TROOP_STRENGTH_PROTECTION_RATIO = 0.7,		-- AI will consider a defensive pact to need assistance if a member is of your religion/culture/dynasty and the target is not, and the defensive pact is this much smaller in army strength
+	COALITION_PROVINCE_MULTIPLIER = 1.0,					-- Multiplier of realm provinces, added to defensive pact score
+	COALITION_INFAMY_MULTIPLIER = 150,						-- Multiplier of realm threat, added to defensive pact score
+	COALITION_DISTANCE_MULTIPLIER = -1.1,					-- Multiplier of distance between two rulers, added to defensive pact score
+	COALITION_SMALL_THREAT_MULTIPLIER = 0.6,				-- Multiplier to the entire defensive pact score for small nations target has no CB on
 	
 	MARRIAGE_THREATENING_FOR_THEM_MODIFIER = -5,			-- How much AI will pay attention to marriages with realms they have a CB on and are considerably stronger than
 	MARRIAGE_NEW_NON_AGG_PACT_TIER_MULTIPLIER = 3,			-- How much AI will pay attention to new non-aggression pacts for OTHER realms, multiplied by the tier of that realm
@@ -1541,17 +1573,19 @@ NAI =
 	STOP_WAR_THRESHOLD = -50,								-- How much warscore needed for the AI to consider using a favor to force the liege to start enforcing peace
 	TROOP_STRENGTH_PER_TIER_ENFORCE_PEACE = 2500,			-- For AI to consider how powerful a vassal is
 
-	GO_AGAINST_COUNCIL_SCORE = 100.0,						-- How much score needed to make AI want to oppose the council
-	GO_AGAINST_COUNCIL_RATIONALITY_MODIFIER = 5.0,			-- Modifier on the rationality value to go against the council
+	GO_AGAINST_COUNCIL_SCORE = 50.0,						-- How much score needed to make AI want to oppose the council
+	GO_AGAINST_COUNCIL_RATIONALITY_MODIFIER = -4.0,			-- Modifier on the rationality value to go against the council
 	GO_AGAINST_COUNCIL_HONOR_MODIFIER = -2.0,				-- Modifier on the honor value to go against the council
 	GO_AGAINST_COUNCIL_AMBITION_MODIFIER = 2.0,				-- Modifier on the ambition value to go against the council
 	GO_AGAINST_COUNCIL_GREED_MODIFIER = 0.0,				-- Modifier on the greed value to go against the council
 	GO_AGAINST_COUNCIL_ZEAL_MODIFIER = 0.0,					-- Modifier on the zeal value to go against the council
-	GO_AGAINST_COUNCIL_OPINION_MODIFIER = -1.5,				-- Modifier on the average opinion value of vassals to go against the council
+	GO_AGAINST_COUNCIL_OPINION_MODIFIER = 2.0,				-- Modifier on the average opinion value of vassals to go against the council
 	RAISE_FORCES_ENEMY_TROOP_AMOUNT	= 1.25,					-- Threshold that checks if AI should employ holy order or raise controlled/uncontrolled landless forces if AI has less troops than threshold multiplied by raised enemy troop
 	
 	ASK_FOR_COUNCIL_POSITION_BASE_DESIRE = 25,				-- Base score for the AI to use the AskForCouncilPosition interaction when they have a favor on their liege
 	ASK_FOR_COUNCIL_POSITION_DESIRE_MULTIPLIER = 2,			-- Multiplier to the "goodness" value of the AI for the position, added as extra incentive to the AskForCouncilPosition desire
+	
+	AI_SUPPORT_PARDON_BONUS = 60,							-- bonus to ai request support chance if seeking to get pardoned
 },
 
 NFrontend = 

@@ -1407,7 +1407,7 @@ NMilitary = {
 	MERCENARY_CREATE_LEVY_RATIO = 0.25,						-- Amount of max levies used to calculate the maximum size of non-nomadic dynamic mercenaries.
 	SHATTERED_RETREAT_BIG_PROVINCE_LIMIT = 100.0, 			-- Province movement cost value above which a province will be considered "big" for purpose of distance computation when choosing a target for shattered retreat.
 	SHATTERED_RETREAT_MAX_PROVINCE_COST = 2,				-- Maximum cost-value of a province when considering distance for shattered retreat targetting
-	SHATTERED_RETREAT_FORBIDDEN_LOOT_MONTHS = 60, 			-- How many months a character will be forbidden to raid an enemy after their armies shatter
+	SHATTERED_RETREAT_FORBIDDEN_LOOT_MONTHS = 120, 			-- How many months a character will be forbidden to raid an enemy after their armies shatter
 	
 	MAX_WARSCORE_FROM_BATTLE_ATTACKERS = 75,				-- Max total warscore attackers can get from battles 
 	MAX_WARSCORE_FROM_BATTLE_DEFENDERS = 100,				-- Max total warscore defenders can get from battles
@@ -1499,7 +1499,7 @@ NAI =
 	DESIRED_CONSORTS = 0,									-- AI will always want at least this many concubines, if they lack sons
 	NOMAD_DESIRED_CONSORTS = 2,								-- Nomad bonus to number of desired consorts
 	RAID_MAX_REALM_SIZE = 24,								-- Realms with more holdings than this will never go on Raids
-	RAID_AGGRESSION = 18,									-- General frequency of raids. A LOWER number means more often!
+	RAID_AGGRESSION = 24,									-- General frequency of raids. A LOWER number means more often!
 	RAID_PREP_INV_SPARE_SAME_CULTURE = 1,					-- AI of religions that allow prepared invasions will not raid provinces in their own culture group (to prevent intra-Scandinavian raids)
 	RAID_SPARE_ACCEPTED_RELIGIONS = 1,						-- AI will not raid rulers of other religions in the same religion group, unless heresy vs parent religion
 	TRIBAL_VASSAL_EXTRA_CALL_CHANCE = 40,					-- Extra AI willingness to join calls from their liege if they are tribal vassals

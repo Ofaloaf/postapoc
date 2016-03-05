@@ -1,0 +1,1491 @@
+#######################################
+#
+# Evangelical Religion Events
+#
+# Event ID evangelical.1-evangelical.9999 reserved
+#
+#######################################
+
+namespace = evangelical
+
+#Beginning Events
+#1		[hidden] Reformation begins; fires for patriarch only to lower the amount of characters it fires for
+#2 		Westphalia treatise is published; text for non-Emperor players
+#3		Emperor is informed of the Treatise and chooses how to respond
+#4		Emperor has the monk executed; ends or worsens the Reformation
+#5		Through Martial prowess, the Emperor ends the Reformation
+#6		[hidden] Decide outcome of Option A; Nobility Annoyed or Reformation Ends
+#7		[hidden] Decide outcome of Option B; Martyr or Reformation Ends
+#8		Option A Succeeds; MA boost, General Opinion Boost
+#9		Option A Fails; MA hit, Nobility Furious at Tyranny
+#10		Option B Succeeds; MA boost, Revolt Risk Reduced
+#11		Option B Fails; MA hit, Heretic Rebellions
+#12		Vassals informed of Emperor's success [martial skill]
+#13		Vassals informed of Emperor's failure [martial skill]
+#14		The Council of Augusta is held; Emperor chooses approach
+#15		Through Diplomatic prowess, the Emperor ends the Reformation
+#16 	Through Learning prowess, the Emperor ends the Reformation
+#17		Through Intrigue prowess, the Emperor ends the Reformation
+#18		[hidden] Decide outcome of the Council of Augusta
+#19 	The Council succeeds at ending the Reformation
+#20		The Council is a mixed event; the Reformation goes underground
+#21 	The Council is a disaster; the Reformation is at full strength
+#22		Vassals informed of a successful council
+#23		Vassals informed of a divided council
+#24		Vassals informed of an unsuccessful council
+#25		Vassals informed of Emperor's decision to ignore the monk
+#26		[hidden] Decide whether talk of heresy has died out or worsened
+#27 	Emperor informed that the monk's words have been forgotten
+#28 	Emperor informed that the monk's words have spread like wildfire; Reformation at full force
+#29		Vassals told of an ended reformation
+#30		Vassals told of the reformation strengthening
+#31		Nobles convert to heresy
+#32		Wildfire heresy quietly ends
+
+#101	Convention of Atlanta restored
+#102	Convention of Chapel Hill restored
+#103	Convention of Chicago restored
+#104	Convention of St Louis restored
+#105	Convention of Washington restored
+
+# Antinomian events (temporarily?) removed
+#201	Antinomian Revival Begins in Random Province
+#202	Ruler/Chaplain investigates the revival
+#203	Decides outcome of revival
+#204 	Revival has ended
+#205 	Revival has converted province to Antinomian faith
+#206 	Ruler/Chaplain converts to Antinomian faith
+#207	Liege is informed of Chaplain's conversion
+#208	Liege is informed of Vassal Non-Chaplain's conversion
+#209 	Liege is informed of Chaplain success at ending revival
+#210 	Liege is informed of Chaplains failure to end the revival
+#211 	Liege converts to Antinomian faith
+#212	Liege refuses to convert
+
+#	augusta council event; fires for patriarch; ma authority occurs here
+#	council of augusta; text for players
+#	first conversion decision; sets the HCC into chaos with heresiarchs throughout the empire
+#	reserved
+#	antinomian
+#	charismatic
+#	mormon
+#	americanist
+#	consumerist
+#	revelationist
+#	occultist
+#	high church
+#	Imperial Church is established; 
+#	NOT = { has_global_flag = imperial_church_established }
+#	NOT = { has_global_flag = authority_maintained }
+#	NOT = { has_global_flag = underground_heresy }
+#	NOT = { has_global_flag = evangelical_reformation }
+
+#Initial start to reformation-ONLY FOR PATRIARCH
+character_event = {
+	id = evangelical.1
+	desc = EVTDESC_bounce
+	hide_window = yes
+	
+	trigger = {
+		year = 2667
+		
+		religion = evangelical
+		controls_religion = yes
+		
+		e_dixie = {
+			has_holder = yes
+			holder_scope = { religion = evangelical }
+		}
+		
+		NOT = { has_global_flag = evangelical_reformation }
+		NOT = { has_global_flag = westphalian_treatise }
+		NOT = { has_global_flag = imperial_church_established }
+		NOT = { has_global_flag = authority_maintained }
+		NOT = { has_global_flag = underground_heresy }
+	}
+	
+	mean_time_to_happen = {
+		years = 150
+	}
+	
+	immediate = { set_global_flag = westphalian_treatise }
+	
+	option = {
+		name = EVTOPTA_eva.1
+		any_playable_ruler = {
+			limit = {
+				ai = no
+				religion_group = christian
+			}
+			narrative_event = { id = evangelical.2 days = 5 random = 20 }
+		}
+		
+		any_playable_ruler = {
+			limit = { has_landed_title = e_dixie }
+			narrative_event = { id = evangelical.3 days = 25 random = 30 }
+		}
+	}
+}
+
+#Monk writes treatise on Westphalian religious rights
+narrative_event = {
+	id = evangelical.2
+	title = EVTNAME_eva.2
+	desc = EVTDESC_eva.2
+	
+	picture = GFX_evt_monk
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.2
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.2
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.2
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+#Monk's Treatise; Emperor responds
+narrative_event = {
+	id = evangelical.3
+	title = EVTNAME_eva.3
+	desc = EVTDESC_eva.3
+	picture = GFX_evt_book_carolingian_script
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.3
+		set_global_flag = monk_ignored
+		religion_authority = { modifier = heresy_ignored }
+		
+		prestige = -50
+		piety = -50
+		
+		any_vassal = {
+			limit = {
+				religion = evangelical
+				OR = {
+					is_theocracy = yes
+					trait = zealous
+				}
+			}
+			opinion = { modifier = westphalia_monk_displeased who = ROOT years = 5}
+		}
+	
+		any_vassal = {
+			limit = {
+				OR = {
+					is_feudal = yes
+					is_republic = yes
+					is_tribal = yes
+					is_nomadic = yes
+				}
+				NAND = {
+					religion = evangelical
+					trait = zealous
+				}
+			}
+			opinion = { modifier = westphalia_monk_pleased who = ROOT years = 5}
+		}
+	
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				ai = no
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.25 days = 20 random = 40 }
+		}
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = slothful }
+			modifier = { factor = 2 trait = craven }
+			modifier = { factor = 2 trait = shy }
+			modifier = { factor = 2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.3
+		narrative_event = { id = evangelical.14 days = 8 random = 16 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 3 diplomacy = 18 }
+			modifier = { factor = 3 learning = 18 }
+			modifier = { factor = 3 intrigue = 18 }
+			modifier = { factor = 2 trait = just }
+			modifier = { factor = 2 trait = scholar }
+			modifier = { factor = 2 trait = theologian }
+			modifier = { factor = 2 trait = mastermind_theologian }
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.3
+
+		any_vassal = {
+			limit = {
+				religion = evangelical
+				OR = {
+					is_theocracy = yes
+					trait = zealous
+				}
+			}
+			opinion = { modifier = westphalia_monk_pleased who = ROOT years = 5 }
+		}
+		
+		any_vassal = {
+			limit = {
+				OR = {
+					is_feudal = yes
+					is_republic = yes
+					is_tribal = yes
+					is_nomadic = yes
+				}
+				NAND = {
+					religion = evangelical
+					trait = zealous
+				}
+			}
+			opinion = { modifier = westphalia_monk_displeased who = ROOT years = 5 }
+		}
+		
+		narrative_event =  { id = evangelical.4 days = 8 random = 16 }
+		
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 3 martial = 18 }
+			modifier = { factor = 2 trait = cruel }
+			modifier = { factor = 2 trait = arbitrary }
+			modifier = { factor = 2 trait = wroth }
+		}
+	}
+}
+
+#Monk Executed
+narrative_event = {
+	id = evangelical.4
+	title = EVTNAME_eva.4
+	desc = EVTDESC_eva.4
+	picture = GFX_evt_beheading
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.4
+		character_event = { id = evangelical.6 }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPTB_eva.4
+		character_event = { id = evangelical.7 }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPTC_eva.4
+		trigger = { martial = 18 }
+		tooltip_info = martial
+		ai_chance = { factor = 500 }
+		character_event = { id = evangelical.5 }
+	}
+}
+
+#Reformation Ended through Martial Skill
+character_event = {
+	id = evangelical.5 
+	desc = EVTDESC_eva.5
+	picture = GFX_evt_holy_emperor
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.5
+		prestige = 200
+		piety = 200
+		
+		random = { chance = 30 add_trait = zealous }
+		
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.12 days = 5 random = 10}	
+		}
+	}
+}
+
+character_event = {
+	id = evangelical.6
+	hide_window = yes
+	desc = EVTDESC_bounce
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			70 = { set_global_flag = reformation_bad }
+			30 = { set_global_flag = reformation_good }
+		}
+	
+		if = {
+			limit =	{ has_global_flag = reformation_good
+				has_landed_title = e_dixie }
+			narrative_event = { id = evangelical.8 days = 2 random = 6 }
+		}
+	
+		if = {
+			limit = { has_global_flag = reformation_bad
+				has_landed_title = e_dixie }
+			narrative_event = { id = evangelical.9 days = 2 random = 6 }
+		}
+	}
+	option = { }
+}
+
+character_event = {
+	id = evangelical.7
+	desc = EVTDESC_bounce
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			75 = { set_global_flag = reformation_bad }
+			25 = { set_global_flag = reformation_good }
+		}
+	
+		if = {
+			limit =	{ 
+			has_global_flag = reformation_good
+			has_landed_title = e_dixie }
+			narrative_event = { id = evangelical.10 days = 2 random = 6 }
+		}
+	
+		if = {
+			limit = { has_global_flag = reformation_bad 
+				has_landed_title = e_dixie }
+			narrative_event = { id = evangelical.11 days = 2 random = 6 }
+		}
+	}
+	option = { }
+}
+
+# Nobility Intimidated
+narrative_event = {
+	id = evangelical.8
+	desc = EVTDESC_eva.8
+	title = EVTNAME_eva.8
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_global_flag = reformation_good 
+		any_realm_character = {
+			limit = { is_landed = yes }
+			remove_opinion = { who = THIS modifier = westphalia_monk_displeased }
+			opinion = {
+				modifier = opinion_defeated_rebels
+				who = ROOT
+				years = 5
+			}
+		}
+	}
+
+	option = {
+		name = EVTOPTA_eva.8
+		piety = 100
+		prestige = 250
+		random = { chance = 30 add_trait = zealous }
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				ai = no
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.12 days = 10 random = 15}
+		}
+	}
+}
+
+#Nobility Furious
+narrative_event = {
+	id = evangelical.9
+	desc = EVTDESC_eva.9
+	title = EVTNAME_eva.9
+	picture = GFX_evt_shadowy_cabal
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_global_flag = reformation_bad
+		any_realm_character = {
+			limit = {
+				is_landed = yes
+				is_feudal = yes
+			}
+			remove_opinion = { who = PREV modifier = westphalia_monk_displeased }
+			opinion = {
+				modifier = westphalian_tyranny
+				who = ROOT
+				months = 30
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_eva.9
+		religion_authority = { modifier = evangelical_reformation }
+		piety = 100
+		prestige = -100
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				ai = no
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.13 days = 10 random = 15}
+		}
+	}
+}
+
+#Revolt Risk Reduction
+narrative_event = {
+	id = evangelical.10
+	desc = EVTDESC_eva.10
+	title = EVTNAME_eva.10
+	picture = GFX_evt_stone_church
+	
+	is_triggered_only = yes
+	
+	immediate = { clr_global_flag = reformation_good }
+	
+	option = {
+		name = EVTOPTA_eva.10 
+		add_character_modifier = {
+			name = crushed_major_revolt
+			months = 60 
+		}
+		any_realm_character = {
+			limit = {
+				is_landed = yes
+				has_opinion_modifier = { who = ROOT modifier = westphalia_monk_displeased }
+			}
+			remove_opinion = { who = THIS modifier = westphalia_monk_displeased }
+		}
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				ai = no
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.12 days = 10 random = 15}
+		}
+	}
+}
+
+#Heretic Rebellions
+narrative_event = {
+	id = evangelical.11
+	desc = EVTDESC_eva.11
+	title = EVTNAME_eva.11
+	picture = GFX_evt_peasants
+	
+	is_triggered_only = yes
+
+	immediate = { clr_global_flag = reformation_bad }
+	
+	option = {
+		name = EVTOPTA_eva.11
+		religion_authority = { modifier = evangelical_reformation }
+		add_character_modifier = {
+			name = inspirational_martyr 
+			months = 24 
+		}
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				ai = no
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.13 days = 10 random = 15 }
+		}
+	}
+}
+
+#Vassals informed of Success-Execution
+narrative_event = {
+	id = evangelical.12
+	title = EVTNAME_eva.12
+	desc = EVTDESC_eva.12
+	picture = GFX_evt_holy_emperor
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	only_rulers = yes
+	trigger = { religion_group = christian }
+
+	option = {
+		name = EVTOPTA_eva.12
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.12
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.12
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+#Vassals informed of Failure-Execution
+narrative_event = {
+	id = evangelical.13
+	title = EVTNAME_eva.13
+	desc = EVTDESC_eva.13
+	picture = GFX_evt_heretic
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	only_rulers = yes
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.13
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.13
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.13
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+#Council of Augusta occurs
+narrative_event = {
+	id = evangelical.14
+	title = EVTNAME_eva.14
+	desc = EVTDESC_eva.14
+	
+	border = GFX_event_narrative_frame_religion
+	picture = GFX_evt_church_council
+	
+	is_triggered_only = yes
+	only_rulers = yes
+	
+	option = {
+		name = EVTOPTA_eva.14
+		trigger = { diplomacy = 18 }
+		tooltip_info = diplomacy
+		ROOT = {
+			narrative_event = { id = evangelical.15 days = 10 random = 20 }
+		}
+		ai_chance = { factor = 500 }	
+	}
+	
+	option = {
+		name = EVTOPTB_eva.14
+		trigger = { learning = 18 }
+		tooltip_info = learning
+		narrative_event = { id = evangelical.16 days = 10 random = 20 }
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPTC_eva.14
+		trigger = {	intrigue = 18 }
+		tooltip_info = intrigue
+		narrative_event = { id = evangelical.17 days = 10 random = 20 }
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPTD_eva.14
+		character_event = { id = evangelical.18 days = 10 random = 20 }
+		ai_chance = { factor = 5 }
+	}
+}
+
+narrative_event = {
+	id = evangelical.15 # Diplomatic resolution 
+	desc = EVTDESC_eva.15
+	title = EVTNAME_eva.15
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.15
+		prestige = 200
+		piety = 200
+		
+		random = { chance = 45 add_trait = zealous }
+		random = { chance = 45 add_trait = just }
+		random = { chance = 10 add_trait = diligent }
+		
+		any_realm_character = {
+			limit = { is_ruler = yes }
+			opinion = {
+				modifier = opinion_defeated_rebels
+				who = ROOT
+				years = 5 
+			}
+		}
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.22 days = 5 random = 15 }	
+		}
+	}
+}
+
+narrative_event = {
+	id = evangelical.16 # Learning resolution 
+	desc = EVTDESC_eva.16
+	title = EVTNAME_eva.16
+	picture = GFX_evt_icon
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.16
+		prestige = 200
+		piety = 300
+		
+		random = { chance = 70 add_trait = zealous }
+		if = {
+			limit = { NOT = { lifestyle_traits = 1 } }
+			add_trait = theologian
+		}
+		
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.22 days = 5 random = 15 }	
+		}
+	}
+}
+
+narrative_event = {
+	id = evangelical.17 # Intrigue resolution 
+	title = EVTNAME_eva.17
+	desc = EVTDESC_eva.17
+	picture = GFX_evt_shadowy_cabal
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_eva.17
+		prestige = 300
+		piety = -50
+		
+		random = { chance = 30 add_trait = zealous }
+		if = {
+			limit = { NOT = { lifestyle_traits = 1 } }
+			add_trait = schemer
+		}
+		
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.22 days = 5 random = 15 }	
+		}
+	}
+}
+
+character_event = {
+	id = evangelical.18 #decide on outcome of Council of Augusta
+	desc = EVTDESC_bounce
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			15 = { set_variable = { which = "aug_council" value = 0 } }
+			20 = { set_variable = { which = "aug_council" value = 1 } }
+			30 = { set_variable = { which = "aug_council" value = 2 } }
+			20 = { set_variable = { which = "aug_council" value = 3 } }
+			15 = { set_variable = { which = "aug_council" value = 4 } }
+		}
+		if = {
+			limit = { trait = detached_priest }
+			change_variable = { which = "aug_council" value = -1 }
+		}
+		if = {
+			limit = { trait = martial_cleric }
+			change_variable = { which = "aug_council" value = 1 }
+		}
+		if = {
+			limit = { trait = scholarly_theologian }
+			change_variable = { which = "aug_council" value = 2 }
+		}
+		if = {
+			limit = { trait = mastermind_theologian }
+			change_variable = { which = "aug_council" value = 3 }
+		}
+		if = {
+			limit = { trait = quick }
+			change_variable = { which = "aug_council" value = 1 }
+		}
+		if = {
+			limit = { trait = genius }
+			change_variable = { which = "aug_council" value = 2 }
+		}
+		if = {
+			limit = { trait = slow }
+			change_variable = { which = "aug_council" value = -1 }
+		}
+		if = {
+			limit = { trait = imbecile }
+			change_variable = { which = "aug_council" value = -3 }
+		}
+		if = {
+			limit = { trait = inbred }
+			change_variable = { which = "aug_council" value = -5 }
+		}
+		if = {
+			limit = { trait = scholar }
+			change_variable = { which = "aug_council" value = 2 }
+		}
+		if = {
+			limit = { trait = theologian }
+			change_variable = { which = "aug_council" value = 3 }
+		}
+		if = {
+			limit = { trait = mystic }
+			change_variable = { which = "aug_council" value = -2 }
+		}
+		if = {
+			limit = { trait = just }
+			change_variable = { which = "aug_council" value = 2 }
+		}
+		if = {
+			limit = { learning = 12 }
+			change_variable = { which = "aug_council" value = 1 }
+		}
+		if = {
+			limit = { learning = 16 }
+			change_variable = { which = "aug_council" value = 1 }
+		}
+		if = {
+			limit = { NOT = { learning = 8 } }
+			change_variable = { which = "aug_council" value = -1 }
+		}
+		if = {
+			limit = { NOT = { learning = 4 } }
+			change_variable = { which = "aug_council" value = -1 }
+		}
+		if = {
+			limit = { diplomacy = 12 }
+			change_variable = { which = "aug_council" value = 1 }
+		}
+		if = {
+			limit = { intrigue = 12 }
+			change_variable = { which = "aug_council" value = 1 }
+		}
+		
+		if = {
+			limit = { check_variable = { which = "aug_council" value = 11 } }
+			narrative_event = { id = evangelical.19 days = 5 random = 15 }
+		}
+		
+		if = {
+			limit = { check_variable = { which = "aug_council" value = 6 } 
+			NOT = { check_variable = { which = "aug_council" value = 11 } } }
+			narrative_event = { id = evangelical.20 days = 5 random = 15 }
+		}
+		
+		if = {
+			limit = { NOT = { check_variable = { which = "aug_council" value = 6 } } }
+			narrative_event = { id = evangelical.21 days = 5 random = 15 }
+		}
+	}
+
+	option = { }
+}
+
+narrative_event = { #Council Ends the Reformation
+	id = evangelical.19
+	desc = EVTDESC_eva.19
+	title = EVTNAME_eva.19
+	picture = GFX_evt_holy_emperor
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.19
+		prestige = 250
+		piety = 250
+		
+		random = { chance = 30 add_trait = zealous }
+		
+		religion_authority = { modifier = evangelical_authority_maintained }
+		set_global_flag = authority_maintained
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.22 days = 5 random = 15 }
+		}
+	}
+}
+
+narrative_event = { #The Reformation at half-strength
+	id = evangelical.20
+	desc = EVTDESC_eva.20
+	title = EVTNAME_eva.20
+	picture = GFX_evt_shadowy_cabal
+	border = GFX_event_narrative_frame_religion
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.20
+		prestige = 50
+		piety = 50
+		
+		religion_authority = { modifier = underground_heresy }
+		set_global_flag = underground_heresy
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.23 days = 5 random = 15 }
+		}
+	}
+}
+
+#The Reformation at full-strength
+narrative_event = {
+	id = evangelical.21
+	desc = EVTDESC_eva.21
+	title = EVTNAME_eva.21
+	picture = GFX_evt_scandal
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.21
+		prestige = -100
+		piety = -100
+		set_global_flag = evangelical_reformation
+		
+		religion_authority = { modifier = evangelical_reformation }
+		any_playable_ruler = {
+			limit = {
+				religion_group = christian
+				NOT = { has_landed_title = e_dixie }
+			}
+			narrative_event = { id = evangelical.24 }
+		}
+	}
+}
+
+#Council of Augusta succeeds
+narrative_event = {
+	id = evangelical.22 
+	desc = EVTDESC_eva.22
+	title = EVTNAME_eva.22
+	picture = GFX_evt_cathedral
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.22
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.22
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.22
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+narrative_event = { #Council of Augusta sends heresy underground
+	id = evangelical.23 
+	desc = EVTDESC_eva.23
+	title = EVTNAME_eva.23
+	picture = GFX_evt_shadowy_cabal
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.23
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.23
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.23
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+narrative_event = { #Council of Augusta fails
+	id = evangelical.24 
+	desc = EVTDESC_eva.24
+	title = EVTNAME_eva.24
+	picture = GFX_evt_church_council
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.24
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.24
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.24
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+character_event = { #Vassals informed of Emperor's decision to ignore the monk
+	id = evangelical.25 
+	desc = EVTDESC_eva.25
+	picture = GFX_evt_pope_feast
+	
+	is_triggered_only = yes
+	ai = no
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.25
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.25
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.25
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+character_event = { #Decide Ignoring the Monk Outcome
+	id = evangelical.26
+	desc = EVTDESC_bounce
+	hide_window = yes
+	
+	trigger = {
+		has_global_flag = monk_ignored
+		NOT = { has_global_flag = monk_ignored_outcome }
+	
+		religion = evangelical
+		controls_religion = yes
+	}
+	
+	mean_time_to_happen = {
+		months = 18 
+	}
+	
+	immediate = {
+		set_global_flag = monk_ignored_outcome
+	
+		random_list = {
+			80 = { set_global_flag = reformation_bad  }
+			20 = { set_global_flag = reformation_good  }
+		}
+	
+		if = {
+			limit =	{ has_global_flag = reformation_good }
+			any_playable_ruler = {
+				limit = {
+					has_landed_title = e_dixie
+				}
+				narrative_event = { id = evangelical.27 days = 5 random = 15 }
+			}
+		}
+	
+		if = {
+			limit = { has_global_flag = reformation_bad }
+			any_playable_ruler = {
+				limit = {
+					has_landed_title = e_dixie
+				}
+				narrative_event = { id = evangelical.28 days = 5 random = 15 }
+			}
+		}
+	}
+	
+	option = {}
+}
+
+narrative_event = {
+	id = evangelical.27
+	desc = EVTDESC_eva.27
+	title = EVTNAME_eva.27
+	picture = GFX_evt_drunk
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		prestige = 50
+		piety = 50
+		name = EVTOPTA_eva.27
+		
+		hidden_tooltip = {
+			any_playable_ruler = {
+				limit = {
+					religion_group = christian
+					NOT = { has_landed_title = e_dixie }
+				}
+				narrative_event = { id = evangelical.29 days = 5 random = 15 }
+			}
+		}
+	}
+}
+
+narrative_event = {
+	id = evangelical.28
+	desc = EVTDESC_eva.28
+	title = EVTNAME_eva.28
+	picture = GFX_evt_heretic
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_eva.28
+		prestige = -100
+		piety = -100
+		
+		random = { chance = 50 add_trait = slothful }
+		
+		set_global_flag = evangelical_reformation
+		religion_authority = { modifier = evangelical_reformation }
+		
+		hidden_tooltip = {
+			any_playable_ruler = {
+				limit = {
+					religion_group = christian
+					NOT = { has_landed_title = e_dixie }
+				}
+				narrative_event = { id = evangelical.30 days = 5 random = 15 }
+			}
+		}
+	}	
+}
+
+narrative_event = { #Monks Ideas Fail
+	id = evangelical.29 
+	desc = EVTDESC_eva.29
+	title = EVTNAME_eva.29
+	picture = GFX_evt_drunk
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.29
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.29
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.29
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+narrative_event = {
+	id = evangelical.30 
+	desc = EVTDESC_eva.30
+	title = EVTNAME_eva.30
+	picture = GFX_evt_heretic
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	ai = no
+	trigger = { religion_group = christian }
+	
+	option = {
+		name = EVTOPTA_eva.30
+		trigger = {
+			NOT = { religion = evangelical }
+			NOT = { is_heresy_of = evangelical }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.30
+		trigger = {
+			religion = evangelical
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.30
+		trigger = {
+			is_heretic = yes
+			is_heresy_of = evangelical
+		}
+	}
+}
+
+#Ruler converts to heresy after the Council of Augusta
+character_event = {
+	id = evangelical.31
+	desc = { text = EVTDESC_eva.31A trigger = { NOT = { has_global_flag = monk_ignored } } }
+	desc = { text = EVTDESC_eva.31B trigger = { has_global_flag = monk_ignored } }
+	picture = GFX_evt_heretic
+	border = GFX_event_normal_frame_religion
+	
+	only_rulers = yes
+	religion = evangelical
+	min_age = 16
+	prisoner = no
+	
+	trigger = {
+		religion = evangelical
+		#vassal_of = e_dixie	# vassal_of requires a character, not a title
+		
+		has_global_flag = westphalian_treatise
+		has_global_flag = evangelical_reformation
+		NOT = { has_global_flag = end_wildfire_reformation }
+		
+		NOT = { has_global_flag = imperial_church_established }
+		NOT = { has_character_flag = remain_evangelical }
+		NOT = { has_landed_title = e_dixie }
+		NOT = { has_landed_title = k_evangelical }
+		NOT = { holy_order = yes }
+	}
+	
+	mean_time_to_happen = {
+		months = 6
+	}
+	
+	option = {
+		name = EVTOPTA_eva.31
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 2 trait = ambitious }
+		}
+		religion = charismatic
+		add_trait = heresiarch
+		capital_scope = {
+			religion = charismatic
+		}
+		any_courtier = {
+			limit = { is_landed = no }
+			religion = charismatic
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_eva.31
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 2 trait = ambitious }
+		}
+		religion = antinomian
+		add_trait = heresiarch
+		capital_scope = {
+			religion = antinomian
+		}
+		any_courtier = {
+			limit = { is_landed = no }
+			religion = antinomian
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_eva.31
+		set_character_flag = remain_evangelical
+		ai_chance = {
+			factor = 60 
+			modifier = { factor = 2 trait = humble }
+			modifier = { factor = 2 trait = content }
+			modifier = { factor = 2 trait = craven }
+			modifier = { factor = 5 trait = zealous }
+		}
+		random = { chance = 50 add_trait = zealous }
+		piety = 25
+	}
+}
+
+character_event = {
+	id = evangelical.32
+	desc = EVTDESC_bounce
+	hide_window = yes
+	
+	trigger = {
+		religion = evangelical
+		controls_religion = yes
+		
+		has_global_flag = westphalian_treatise
+		has_global_flag = evangelical_reformation
+		NOT = { has_global_flag = end_wildfire_reformation }
+	}
+	
+	mean_time_to_happen = {
+		years = 5
+	}
+	
+	immediate = { set_global_flag = end_wildfire_reformation }
+	
+	option = { }
+}
+
+#Ecumenical Seat of Atlanta
+character_event = {
+	id = evangelical.101
+	desc = EVTDESC_eva.101
+	picture = GFX_evt_bishop_byzantine
+	
+	trigger = {
+		always = no		# just until events to set/clear the flag when lost or gained
+		
+		NOT = { has_global_flag = pat_atlanta }
+		religion = evangelical
+		has_landed_title = e_dixie
+		completely_controls = c_atlanta
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTA_eva.101
+		set_global_flag = pat_atlanta
+		piety = 100
+	}
+}
+
+#Ecumenical Seat of Chapel Hill
+character_event = {
+	id = evangelical.102
+	desc = EVTDESC_eva.102
+	picture = GFX_evt_bishop_byzantine
+	
+	trigger = {
+		always = no		# just until events to set/clear the flag when lost or gained
+		
+		NOT = { has_global_flag = pat_chapel_hill }
+		religion = evangelical
+		has_landed_title = e_dixie
+		completely_controls = c_chapel_hill
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTA_eva.102
+		set_global_flag = pat_chapel_hill
+		piety = 100
+	}
+}
+
+#Ecumenical Seat of Chicago
+character_event = {
+	id = evangelical.103
+	desc = EVTDESC_eva.103
+	picture = GFX_evt_bishop_byzantine
+	
+	trigger = {
+		NOT = { has_global_flag = pat_chicago }
+		religion = evangelical
+		has_landed_title = e_dixie
+		completely_controls = c_chicago
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTA_eva.103
+		set_global_flag = pat_chicago
+		piety = 100
+	}
+}
+
+#Ecumenical Seat of St Louis
+character_event = {
+	id = evangelical.104
+	desc = EVTDESC_eva.104
+	picture = GFX_evt_bishop_byzantine
+	
+	trigger = {
+		NOT = { has_global_flag = pat_st_louis }
+		religion = evangelical
+		has_landed_title = e_dixie
+		completely_controls = c_st_louis
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTA_eva.104
+		set_global_flag = pat_st_louis
+		piety = 100
+	}
+}
+
+#Ecumenical Seat of Washington
+character_event = {
+	id = evangelical.105
+	desc = EVTDESC_eva.105
+	
+	picture = GFX_evt_bishop_byzantine
+	
+	trigger = {
+		NOT = { has_global_flag = pat_washington }
+		religion = evangelical
+		has_landed_title = e_dixie
+		completely_controls = c_washington
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTA_eva.105
+		set_global_flag = pat_washington
+		piety = 100
+	}
+}

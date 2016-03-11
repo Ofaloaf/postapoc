@@ -1,6 +1,7 @@
 AFTER THE END
 A post-apocalyptic North America mod for Crusader Kings II
-Version 0.6.1
+Version 0.7
+Compatible with CK2 2.5.2 and the Conclave DLC
 
 
 	INSTALLATION

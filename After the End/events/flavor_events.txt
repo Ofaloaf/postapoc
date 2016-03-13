@@ -9,6 +9,7 @@
 # 20	[hidden] select courtiers for fate of the old world
 # 21	[hidden] courtier chooses opinion about the fate of the old world
 # 22	fate of the old world
+# 30-32	easter egg events
 
 namespace = flavor
 
@@ -17,7 +18,9 @@ character_event = {
 	desc = EVTDESC_flavor_southernknight
 	picture = GFX_evt_knight_kneeling
 	
-	age = 16
+	min_age = 16
+	prisoner = no
+	only_rulers = yes
 
 	trigger = {
 		OR = {
@@ -86,7 +89,10 @@ narrative_event = {
 	desc = EVTDESC_flavor_convenience
 	picture = GFX_evt_library
 	
-	age = 16
+	min_age = 16
+	prisoner = no
+	only_rulers = yes
+
 
 	trigger = {
 		OR = {
@@ -133,6 +139,9 @@ narrative_event = {
 	title = EVTNAME_flavor_amerdream
 	desc = EVTDESC_flavor_amerdream
 	picture = GFX_evt_courtiers_talking
+
+	prisoner = no
+	only_rulers = yes
 
 	trigger = {
 		OR = {
@@ -336,9 +345,11 @@ narrative_event = {
 	desc = EVTDESC_flavor_baseball
 	picture = GFX_evt_baseball
 	
+	min_age = 16
+	prisoner = no
+	
 	trigger = {
 		num_of_count_titles = 1
-		age = 16
 		war = no
 		month = 5
 		NOT = { month = 8 }
@@ -504,7 +515,9 @@ narrative_event = {
 	picture = GFX_evt_courtiers_talking
 	
 	hide_window = yes
-	age = 16
+	min_age = 16
+	prisoner = no
+	only_rulers = yes
 	ai = no
 	
 	mean_time_to_happen = {
@@ -955,6 +968,87 @@ narrative_event = {
 			NOT = { trait = humble }
 			NOT = { trait = proud }
 			NOT = { trait = zealous }
+		}
+	}
+}
+
+character_event = {
+	id = flavor.30
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = is_person_of_interest
+		NOT = { year = 2669 }
+	}
+	
+	immediate = {
+		character_event = { id = flavor.31 days = 800 random = 400 }
+	}
+}
+
+character_event = {
+	id = flavor.31
+	desc = EVTDESC_flavor_alley
+	picture = GFX_evt_family_feud_republic
+
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = is_person_of_interest
+		any_child = { has_character_flag = is_person_of_interest_son }
+	}
+	
+	option = {
+		name = EVTOPT_no
+		wealth = -5
+		death = { death_reason = death_murder }
+		any_spouse = { death = { death_reason = death_murder } }
+		any_child = {
+			limit = { has_character_flag = is_person_of_interest_son }
+			character_event = { id = flavor.32 days = 7 }
+		}
+	}
+}
+
+character_event = {
+	id = flavor.32
+	desc = EVTDESC_flavor_bat
+	picture = GFX_evt_plague_doctor
+
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = is_person_of_interest_son
+	}
+
+	option = {
+		name = EVTOPT_flavor_bat
+		give_nickname = nick_the_bat
+		add_trait = robust
+		add_trait = shrewd
+		add_trait = brave
+		add_trait = just
+		add_trait = diligent
+		if = {
+			limit = { NOT = { lifestyle_traits = 1 } }
+			add_trait = duelist
+		}
+		if = {
+			limit = { trait = gluttonous }
+			remove_trait = gluttonous
+		}
+		if = {
+			limit = { trait = shy }
+			remove_trait = shy
+		}
+		if = {
+			limit = { trait = trusting }
+			remove_trait = trusting
+		}
+		if = {
+			limit = { trait = cruel }
+			remove_trait = cruel
 		}
 	}
 }

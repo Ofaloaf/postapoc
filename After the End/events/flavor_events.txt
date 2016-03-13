@@ -2,6 +2,7 @@
 # 2		old world conveniences
 # 3		american dream
 # 4 	interact with scholars in center of learning province
+# 5		ancient warfare
 # 10	baseball game
 # 11	baseball team wins
 # 12	baseball team loses
@@ -92,7 +93,6 @@ narrative_event = {
 	min_age = 16
 	prisoner = no
 	only_rulers = yes
-
 
 	trigger = {
 		OR = {
@@ -336,6 +336,202 @@ province_event = {
 	option = {
 		name = EVTOPT_flavor_knowledge_bookworms
 		ai_chance = { factor = 5 }
+	}
+}
+
+narrative_event = {
+	id = flavor.5
+	title = EVTNAME_flavor_warfare
+	desc = EVTDESC_flavor_warfare
+	picture = GFX_evt_siege
+
+	only_rulers = yes
+	min_age = 16
+	prisoner = no
+
+	trigger = {
+		martial = 8
+		num_of_count_titles = 1
+		is_nomadic = no
+		is_tribal = no
+	}
+	
+	mean_time_to_happen = {
+		years = 200
+		modifier = { factor = 0.8 trait = hunter }
+		modifier = { factor = 0.8 trait = strategist }
+		modifier = { factor = 0.8 trait = envious }
+		modifier = { factor = 0.8 trait = wroth }
+		modifier = { factor = 0.8 trait = ambitious }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_seek
+		trigger = {
+			wealth = 300
+			intrigue = 15
+			NOT = { trait = salvage_firearm }
+		}
+		tooltip_info = intrigue
+		wealth = -300
+		custom_tooltip = { text = TXT_flavor_war_seek }
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = flavor.6 days = 350 random = 300 } }
+				10 = { character_event = { id = flavor.7 days = 100 random = 200 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_desire
+		trigger = {
+			OR = {
+				NOT = { wealth = 300 }
+				NOT = { intrigue = 15 }
+			}
+			NOT = { trait = salvage_firearm }
+		}
+		random_list = {
+			50 = { add_trait = envious }
+			40 = { add_trait = proud }
+			10 = { add_trait = ambitious }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 2 trait = envious }
+			modifier = { factor = 2 trait = proud }
+			modifier = { factor = 5 trait = ambitious }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_armed
+		trigger = {
+			trait = salvage_firearm
+		}
+		tooltip_info = salvage_firearm
+		prestige = 25
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_peace
+		random_list = {
+			40 = { add_trait = kind }
+			40 = { add_trait = humble }
+			20 = { add_trait = content }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 4 trait = kind }
+			modifier = { factor = 2 trait = humble }
+			modifier = { factor = 2 trait = content }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_zeal
+		piety = 5
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 5 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_lies
+		prestige = 10
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 5 trait = cynical }
+		}
+	}
+}
+
+character_event = {
+	id = flavor.6
+	desc = EVTDESC_acquire_fail
+	picture = GFX_evt_carriage
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_flavor_acq_cash
+		prestige = -50
+		wealth = 200
+		add_trait = greedy
+		if = {
+			limit = { trait = just }
+			remove_trait = just
+		}
+		if = {
+			limit = { trait = patient }
+			remove_trait = patient
+		}
+		if = {
+			limit = { trait = trusting }
+			remove_trait = trusting
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_fail
+		piety = -20
+		add_trait = cruel
+		add_trait = wroth
+		if = {
+			limit = { NOT = { lifestyle_traits = 1 } }
+			add_trait = impaler
+		}
+		create_random_intriguer = {
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 31
+			random_traits = yes
+		}
+		new_character = {
+			imprison = ROOT
+			reverse_opinion = { modifier = opinion_failed_me who = PREV years = 10 }
+		}
+		custom_tooltip = { text = TXT_flavor_jail }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_kind
+		prestige = -100
+	}
+}
+
+character_event = {
+	id = flavor.7
+	desc = EVTDESC_acquire_success
+	picture = GFX_evt_carriage
+
+	is_triggered_only = yes
+	
+	immediate = {
+		character_event = { id = salvage.70 days = 21 }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_hire
+		wealth = -5
+		create_random_intriguer = {
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 31
+			random_traits = yes
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_fix
 	}
 }
 

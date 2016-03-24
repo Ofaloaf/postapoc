@@ -19,18 +19,18 @@ NDefines.NFrontend.FRONTEND_LOOK_Y = 20.0
 NDefines.NFrontend.FRONTEND_LOOK_Z = 1050.0
 
 NDefines.NFrontend.SETTINGS_POS_X = 900.0
-NDefines.NFrontend.SETTINGS_POS_Y = 50.0
+NDefines.NFrontend.SETTINGS_POS_Y = 500.0
 NDefines.NFrontend.SETTINGS_POS_Z = 950.0
 NDefines.NFrontend.SETTINGS_LOOK_X = 2000.0
-NDefines.NFrontend.SETTINGS_LOOK_Y = 0.0
+NDefines.NFrontend.SETTINGS_LOOK_Y = -300.0
 NDefines.NFrontend.SETTINGS_LOOK_Z = 1600.0
 
-NDefines.NFrontend.MP_OPTIONS_POS_X = 360.0
-NDefines.NFrontend.MP_OPTIONS_POS_Y = 200.0
-NDefines.NFrontend.MP_OPTIONS_POS_Z = 848.0
-NDefines.NFrontend.MP_OPTIONS_LOOK_X = 490.0
-NDefines.NFrontend.MP_OPTIONS_LOOK_Y = 0.0
-NDefines.NFrontend.MP_OPTIONS_LOOK_Z = 1200.0
+NDefines.NFrontend.MP_OPTIONS_POS_X = 2000.0
+NDefines.NFrontend.MP_OPTIONS_POS_Y = 1200.0
+NDefines.NFrontend.MP_OPTIONS_POS_Z = 250.0
+NDefines.NFrontend.MP_OPTIONS_LOOK_X = 800.0
+NDefines.NFrontend.MP_OPTIONS_LOOK_Y = -200.0
+NDefines.NFrontend.MP_OPTIONS_LOOK_Z = 1250.0
 
 NDefines.NFrontend.TUTORIAL_POS_X = 1408.0
 NDefines.NFrontend.TUTORIAL_POS_Y = 650.0

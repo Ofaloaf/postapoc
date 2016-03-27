@@ -40,24 +40,7 @@ decisions = {
 			prestige = 100
 			character_event = { id = 70033 tooltip = "tournament_invite" }
 			hidden_tooltip = {
-				character_event = { id = 70001 days = 60 } # Tournament start
 				clr_character_flag = tournament_has_ended
-				any_realm_character = {
-					limit = {
-						OR = {
-							is_feudal = yes
-							is_tribal = yes
-							is_nomadic = yes
-						}
-						NOT = { has_job_title = job_spiritual }
-						age = 16
-						NOT = { age = 50 }
-						NOT = { trait = incapable }
-						prisoner = no	
-					}
-					clr_character_flag = tournament_has_ended
-					character_event = { id = 70000 }
-				}
 			}
 		}
 		ai_will_do = {
@@ -141,41 +124,53 @@ decisions = {
 		is_high_prio = yes
 		potential = {
 			ai = no
-			NOT = { has_character_flag = requested_de_jure_title }
+			has_ambition = obj_gain_any_title
 			liege = {
 				NOT = { character = ROOT }
 			}
 			is_adult = yes
 			prisoner = no
-			is_playable = yes
-			tier = count
 			NOT = { trait = incapable }
 		}
 		allow = {
+			prestige = 60
 			liege = {
-				opinion = {
-					who = ROOT
-					value = 25
-				}
-			}
-			liege = {
+				has_regent = no
+				NOT = { has_opinion_modifier = { who = ROOT modifier = requested_land } }
+				demesne_size = 3
 				any_demesne_title = {
-					tier = duke
-					has_de_jure_pretension = ROOT
 					can_be_given_away = yes
-					lower_tier_than = PREV
+					tier = COUNT
+					NOT = { location = { is_capital = yes } }
 				}
 			}
 		}
 		effect = {
-			set_character_flag = requested_de_jure_title
-			liege = { letter_event = { id = 63041 days = 4 tooltip = "EVTTOOLTIP63041" } } # "vassal_request_events.txt"
+			prestige = -60
+			liege = {
+				opinion = {
+					who = ROOT
+					years = 2
+					modifier = requested_land
+				}
+				random_demesne_title = {
+					limit = {
+						can_be_given_away = yes
+						tier = COUNT
+						NOT = { location = { is_capital = yes } }
+					}
+					save_event_target_as = vassal_wanted_title
+				}
+			}
+			custom_tooltip = {
+				text = demand_liege_title_tooltip
+				hidden_tooltip = { liege = { letter_event = { id = 63041 days = 4 } } } # "vassal_request_events.txt"
+			}
 		}
 		ai_will_do = {
 			factor = 0 # The AI is limited to the similar event 63040
 		}
 	}
-	
 
 	petition_doge_for_tp = {
 		is_high_prio = yes
@@ -610,15 +605,13 @@ decisions = {
 				}
 			}
 			primary_title = { has_law = tribal_organization_4 }
-			capital_scope = {
-				capital_holding = {
-					OR = {
-						AND = {
-							holding_type = tribal
-							has_building = tb_hillfort_4
-						}
-						holding_type = castle
+			capital_holding = {
+				OR = {
+					AND = {
+						holding_type = tribal
+						has_building = tb_hillfort_4
 					}
+					holding_type = castle
 				}
 			}
 		}
@@ -748,6 +741,18 @@ decisions = {
 				OR = {
 					is_feudal = yes
 					is_republic = yes
+					AND = {
+						is_theocracy = yes
+						custom_tooltip = {
+							text = TT_NOT_UNREFORMED_PAGAN
+							hidden_tooltip = {
+								OR = {
+									NOT = { religion_group = pagan_group }
+									is_reformed_religion = yes
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -908,14 +913,14 @@ decisions = {
 			primary_title = { has_law = tribal_organization_4 }
 			capital_scope = {
 				port = yes
-				capital_holding = {
-					OR = {
-						AND = {
-							holding_type = tribal
-							has_building = tb_market_town_4
-						}
-						holding_type = city
+			}
+			capital_holding = {
+				OR = {
+					AND = {
+						holding_type = tribal
+						has_building = tb_market_town_4
 					}
+					holding_type = city
 				}
 			}
 		}
@@ -941,8 +946,8 @@ decisions = {
 							OR = {
 								is_republic = yes
 								is_tribal = yes
-								is_patrician = no
 							}
+							is_patrician = no
 							prisoner = no
 							NOT = { trait = incapable }
 							is_adult = yes
@@ -1085,5 +1090,4 @@ decisions = {
 	}
 	
 }
-
 

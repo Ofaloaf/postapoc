@@ -2,6 +2,7 @@
 # 2		old world conveniences
 # 3		american dream
 # 4 	interact with scholars in center of learning province
+# 5		ancient warfare
 # 10	baseball game
 # 11	baseball team wins
 # 12	baseball team loses
@@ -9,6 +10,7 @@
 # 20	[hidden] select courtiers for fate of the old world
 # 21	[hidden] courtier chooses opinion about the fate of the old world
 # 22	fate of the old world
+# 30-32	easter egg events
 
 namespace = flavor
 
@@ -17,7 +19,9 @@ character_event = {
 	desc = EVTDESC_flavor_southernknight
 	picture = GFX_evt_knight_kneeling
 	
-	age = 16
+	min_age = 16
+	prisoner = no
+	only_rulers = yes
 
 	trigger = {
 		OR = {
@@ -86,11 +90,13 @@ narrative_event = {
 	desc = EVTDESC_flavor_convenience
 	picture = GFX_evt_library
 	
-	age = 16
+	min_age = 16
+	prisoner = no
+	only_rulers = yes
 
 	trigger = {
 		OR = {
-			learning = 13
+			learning = 10
 			trait = scholar
 			trait = poet
 			trait = salvage_textbooks
@@ -134,6 +140,9 @@ narrative_event = {
 	desc = EVTDESC_flavor_amerdream
 	picture = GFX_evt_courtiers_talking
 
+	prisoner = no
+	only_rulers = yes
+
 	trigger = {
 		OR = {
 			culture_group = afroanglo
@@ -151,12 +160,17 @@ narrative_event = {
 			age = 16
 			learning = 8
 		}
+		NOT = { has_character_flag = flavor_dream }
 	}
 	
 	mean_time_to_happen = {
-		months = 1800
+		months = 1500
 		modifier = { factor = 0.8 trait = gregarious }
 		modifier = { factor = 0.8 trait = scholar }
+	}
+	
+	immediate = {
+		set_character_flag = flavor_dream
 	}
 	
 	option = {
@@ -331,14 +345,217 @@ province_event = {
 }
 
 narrative_event = {
+	id = flavor.5
+	title = EVTNAME_flavor_warfare
+	desc = EVTDESC_flavor_warfare
+	picture = GFX_evt_siege
+
+	only_rulers = yes
+	min_age = 16
+	prisoner = no
+
+	trigger = {
+		martial = 8
+		num_of_count_titles = 1
+		is_nomadic = no
+		is_tribal = no
+		NOT = { has_character_flag = flavor_warfare }
+	}
+	
+	mean_time_to_happen = {
+		years = 150
+		modifier = { factor = 0.8 trait = hunter }
+		modifier = { factor = 0.8 trait = strategist }
+		modifier = { factor = 0.8 trait = envious }
+		modifier = { factor = 0.8 trait = wroth }
+		modifier = { factor = 0.8 trait = ambitious }
+	}
+	
+	immediate = {
+		set_character_flag = flavor_warfare
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_seek
+		trigger = {
+			wealth = 300
+			intrigue = 15
+			NOT = { trait = salvage_firearm }
+		}
+		tooltip_info = intrigue
+		wealth = -300
+		custom_tooltip = { text = TXT_flavor_war_seek }
+		hidden_tooltip = {
+			random_list = {
+				10 = { character_event = { id = flavor.6 days = 350 random = 300 } }
+				10 = { character_event = { id = flavor.7 days = 100 random = 200 } }
+			}
+		}
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_desire
+		trigger = {
+			OR = {
+				NOT = { wealth = 300 }
+				NOT = { intrigue = 15 }
+			}
+			NOT = { trait = salvage_firearm }
+		}
+		random_list = {
+			50 = { add_trait = envious }
+			40 = { add_trait = proud }
+			10 = { add_trait = ambitious }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 2 trait = envious }
+			modifier = { factor = 2 trait = proud }
+			modifier = { factor = 5 trait = ambitious }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_armed
+		trigger = {
+			trait = salvage_firearm
+		}
+		tooltip_info = salvage_firearm
+		prestige = 25
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_peace
+		random_list = {
+			40 = { add_trait = kind }
+			40 = { add_trait = humble }
+			20 = { add_trait = content }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 4 trait = kind }
+			modifier = { factor = 2 trait = humble }
+			modifier = { factor = 2 trait = content }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_zeal
+		piety = 5
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 5 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_war_lies
+		prestige = 10
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 5 trait = cynical }
+		}
+	}
+}
+
+character_event = {
+	id = flavor.6
+	desc = EVTDESC_acquire_fail
+	picture = GFX_evt_carriage
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_flavor_acq_cash
+		prestige = -50
+		wealth = 200
+		add_trait = greedy
+		if = {
+			limit = { trait = just }
+			remove_trait = just
+		}
+		if = {
+			limit = { trait = patient }
+			remove_trait = patient
+		}
+		if = {
+			limit = { trait = trusting }
+			remove_trait = trusting
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_fail
+		piety = -20
+		add_trait = cruel
+		add_trait = wroth
+		if = {
+			limit = { NOT = { lifestyle_traits = 1 } }
+			add_trait = impaler
+		}
+		create_random_intriguer = {
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 31
+			random_traits = yes
+		}
+		new_character = {
+			imprison = ROOT
+			reverse_opinion = { modifier = opinion_failed_me who = PREV years = 10 }
+		}
+		custom_tooltip = { text = TXT_flavor_jail }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_kind
+		prestige = -100
+	}
+}
+
+character_event = {
+	id = flavor.7
+	desc = EVTDESC_acquire_success
+	picture = GFX_evt_carriage
+
+	is_triggered_only = yes
+	
+	immediate = {
+		character_event = { id = salvage.70 days = 21 }
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_hire
+		wealth = -5
+		create_random_intriguer = {
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 31
+			random_traits = yes
+		}
+	}
+	
+	option = {
+		name = EVTOPT_flavor_acq_fix
+	}
+}
+
+narrative_event = {
 	id = flavor.10
 	title = EVTNAME_flavor_baseball
 	desc = EVTDESC_flavor_baseball
 	picture = GFX_evt_baseball
 	
+	min_age = 16
+	prisoner = no
+	
 	trigger = {
 		num_of_count_titles = 1
-		age = 16
 		war = no
 		month = 5
 		NOT = { month = 8 }
@@ -504,7 +721,9 @@ narrative_event = {
 	picture = GFX_evt_courtiers_talking
 	
 	hide_window = yes
-	age = 16
+	min_age = 16
+	prisoner = no
+	only_rulers = yes
 	ai = no
 	
 	mean_time_to_happen = {
@@ -955,6 +1174,87 @@ narrative_event = {
 			NOT = { trait = humble }
 			NOT = { trait = proud }
 			NOT = { trait = zealous }
+		}
+	}
+}
+
+character_event = {
+	id = flavor.30
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = is_person_of_interest
+		NOT = { year = 2669 }
+	}
+	
+	immediate = {
+		character_event = { id = flavor.31 days = 800 random = 400 }
+	}
+}
+
+character_event = {
+	id = flavor.31
+	desc = EVTDESC_flavor_alley
+	picture = GFX_evt_family_feud_republic
+
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = is_person_of_interest
+		any_child = { has_character_flag = is_person_of_interest_son }
+	}
+	
+	option = {
+		name = EVTOPT_no
+		wealth = -5
+		death = { death_reason = death_murder }
+		any_spouse = { death = { death_reason = death_murder } }
+		any_child = {
+			limit = { has_character_flag = is_person_of_interest_son }
+			character_event = { id = flavor.32 days = 7 }
+		}
+	}
+}
+
+character_event = {
+	id = flavor.32
+	desc = EVTDESC_flavor_bat
+	picture = GFX_evt_plague_doctor
+
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = is_person_of_interest_son
+	}
+
+	option = {
+		name = EVTOPT_flavor_bat
+		give_nickname = nick_the_bat
+		add_trait = robust
+		add_trait = shrewd
+		add_trait = brave
+		add_trait = just
+		add_trait = diligent
+		if = {
+			limit = { NOT = { lifestyle_traits = 1 } }
+			add_trait = duelist
+		}
+		if = {
+			limit = { trait = gluttonous }
+			remove_trait = gluttonous
+		}
+		if = {
+			limit = { trait = shy }
+			remove_trait = shy
+		}
+		if = {
+			limit = { trait = trusting }
+			remove_trait = trusting
+		}
+		if = {
+			limit = { trait = cruel }
+			remove_trait = cruel
 		}
 	}
 }

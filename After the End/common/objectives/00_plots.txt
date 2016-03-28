@@ -208,18 +208,16 @@ plot_gain_title = {
 		}
 		modifier = {
 			factor = 4.0
-			AND = {
-				is_primary_holder_title = no
-				is_primary_holder_title_tier = yes
-				is_titular = no
-				holder_scope = {
-					overlord_of = FROM
-				}
-				FROM = {
-					primary_title = {
-						kingdom = {
-							title = PREVPREVPREV
-						}
+			is_primary_holder_title = no
+			is_primary_holder_title_tier = yes
+			is_titular = no
+			holder_scope = {
+				overlord_of = FROM
+			}
+			FROM = {
+				primary_title = {
+					kingdom = {
+						title = PREVPREVPREV
 					}
 				}
 			}
@@ -326,25 +324,23 @@ plot_gain_vassal_title = {
 				AND = {
 					tier = DUKE
 					holder_scope = {
-						AND = {
-							NOT = {
+						NOT = {
+							any_demesne_title = {
+								tier = COUNT
+								location = {
+									duchy = {
+										title = ROOT
+									}
+								}
+							}
+						}
+						NOT = {
+							any_vassal = {
 								any_demesne_title = {
 									tier = COUNT
 									location = {
 										duchy = {
 											title = ROOT
-										}
-									}
-								}
-							}
-							NOT = {
-								any_vassal = {
-									any_demesne_title = {
-										tier = COUNT
-										location = {
-											duchy = {
-												title = ROOT
-											}
 										}
 									}
 								}
@@ -389,6 +385,13 @@ plot_gain_vassal_title = {
 			}
 			holder_scope = {
 				NOT = { reverse_has_truce = FROM }
+			}
+		}
+		
+		# Only if there is no non-aggression-pact with the vassal
+		FROM = {
+			NOT = {
+				has_non_aggression_pact_with = ROOT
 			}
 		}
 	}
@@ -522,25 +525,23 @@ plot_gain_vassal_title = {
 					AND = {
 						tier = DUKE
 						holder_scope = {
-							AND = {
-								NOT = {
+							NOT = {
+								any_demesne_title = {
+									tier = COUNT
+									location = {
+										duchy = {
+											title = ROOT
+										}
+									}
+								}
+							}
+							NOT = {
+								any_vassal = {
 									any_demesne_title = {
 										tier = COUNT
 										location = {
 											duchy = {
 												title = ROOT
-											}
-										}
-									}
-								}
-								NOT = {
-									any_vassal = {
-										any_demesne_title = {
-											tier = COUNT
-											location = {
-												duchy = {
-													title = ROOT
-												}
 											}
 										}
 									}
@@ -664,16 +665,14 @@ plot_kill_character = {
 				}
 				
 				# Character's child is heir or pretender to a title that I don't hold
-				AND = {
-					any_child = {
-						OR = {
-							any_pretender_title = {
-								NOT = { holder = ROOT }
-								NOT = { current_heir = { character = ROOT } }
-							}
-							any_heir_title = {
-								NOT = { holder = ROOT }
-							}
+				any_child = {
+					OR = {
+						any_pretender_title = {
+							NOT = { holder = ROOT }
+							NOT = { current_heir = { character = ROOT } }
+						}
+						any_heir_title = {
+							NOT = { holder = ROOT }
 						}
 					}
 				}
@@ -841,7 +840,7 @@ plot_kill_character = {
 				# A lover of spouse...
 				spouse = {
 					has_lover = yes
-					lover = {
+					any_lover = {
 						character = ROOT
 					}
 					OR = {
@@ -1039,7 +1038,10 @@ plot_kill_character = {
 		}
 	}
 	abort = {
-		is_alive = no
+		OR = {
+			is_alive = no
+			trait = incapable
+		}
 	}
 	abort_effect = {
 		FROM = { clr_character_flag = murder_in_motion }
@@ -1131,7 +1133,7 @@ plot_kill_spouse = {
 			# Spouse has a lover...
 			AND = {
 				has_lover = yes
-				lover = {
+				any_lover = {
 					NOT = { character = FROM }
 				}
 			}
@@ -1235,7 +1237,10 @@ plot_kill_spouse = {
 		}
 	}
 	abort = {
-		is_alive = no
+		OR = {
+			is_alive = no
+			trait = incapable
+		}
 	}
 	abort_effect = {
 		FROM = { clr_character_flag = murder_in_motion }
@@ -2015,7 +2020,15 @@ plot_seize_trade_post = {
 			NOT = { 
 				has_opinion_modifier = { who = FROM modifier = opinion_seized_tp }
 			}
+			
+			# Only if there is no non-aggression-pact with the trade post owner
+			FROM = {
+				NOT = {
+					has_non_aggression_pact_with = PREV
+				}			
+			}
 		}
+		
 		any_neighbor_province = {
 			has_trade_post = yes
 			trade_post_owner = { 

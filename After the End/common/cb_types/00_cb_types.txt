@@ -14,7 +14,7 @@
 # These three all have war scopes, which currently has the following scope changes: 
 # attacker, defender, thirdparty(only valid if thirdparty character is involved), thirdparty_title(only valid if thirdparty title is involved)
 #
-# ai_will_do: modifies value AI places on the CB compared to other CBs (default: 1)
+# ai_will_do: modifies value AI places on the CB compared to other CBs (default: 1) Note: is in title scope
 # can_use_gui: If otherwise valid, the CB is listed in the Diplo View, but you can't declare war unless 'can_use_gui' is also valid (also shows a trigger tooltip.)
 #
 
@@ -26,23 +26,10 @@ claim = {
 	hostile_against_others = yes
 	can_ask_to_join_war = no
 
-	press_claim = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
-	can_use = {
-		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
-		}
-	}
+	press_claim = yes
 	
 	can_use_gui = {
 		ROOT = {
@@ -53,6 +40,8 @@ claim = {
 		}
 	}
 
+	infamy_modifier = 0.85
+	
 	can_use_title = {
 		OR = {
 			ROOT = { is_female = no }
@@ -94,7 +83,6 @@ claim = {
 			}
 		}
 		ROOT = { has_claim = PREV }
-		
 	}
 
 	on_success_title = {
@@ -233,20 +221,14 @@ other_claim = {
 
 	press_claim = yes
 	
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.5
+
 	can_use = {
 		ROOT = {
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 
@@ -302,7 +284,6 @@ other_claim = {
 			}
 		}
 		ROOT = { has_claim = PREV }
-		
 	}
 
 	on_success = {
@@ -347,8 +328,8 @@ other_claim = {
 			if = {
 				limit = {
 					OR = {
-						tag = k_papal_state
-						tag = k_ursuline
+						title = k_papal_state
+						title = k_ursuline
 					}
 				}
 				FROM = {
@@ -580,7 +561,6 @@ other_claim = {
 }
 
 
-
 claim_on_liege = {
 	name = CB_NAME_CLAIM
 	war_name = WAR_NAME_CLAIM_LIEGE
@@ -593,21 +573,12 @@ claim_on_liege = {
 #	attacker_can_call_allies = no
 	major_revolt = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.85
+
 	can_use_title = {
-		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
-		}
-	
 		OR = {
 			FROM = {
 				has_landed_title = PREV
@@ -698,30 +669,34 @@ claim_on_liege = {
 		
 		FROM = {
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -869,20 +844,12 @@ claim_on_liege_plot = {
 	attacker_can_call_allies = no
 	can_ask_to_join_war = no
 	
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.85
+
 	can_use_title = {
-		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
-		}
 		OR = {
 			FROM = {
 				has_landed_title = PREV
@@ -948,30 +915,33 @@ claim_on_liege_plot = {
 			
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
 		
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -1077,20 +1047,12 @@ claim_on_vassal_plot = {
 	attacker_can_call_allies = no
 	can_attack_vassals = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.85
+
 	can_use_title = {
-		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
-		}
 		OR = {
 			FROM = {
 				has_landed_title = PREV
@@ -1134,6 +1096,13 @@ claim_on_vassal_plot = {
 			limit = { NOT = { character = FROM } }
 			hidden_tooltip = { participation_scaled_prestige = 50 }
 		}
+	}
+	
+	on_invalidation = {
+		ROOT = {
+			cancel_plot = plot_gain_vassal_title
+		}
+		
 	}
 
 	on_reverse_demand = {
@@ -1199,20 +1168,12 @@ other_claim_on_liege = {
 #	attacker_can_call_allies = no
 	major_revolt = yes
 	
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.5
+
 	can_use_title = {
-		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
-		}
 		OR = {
 			ROOT = { is_female = no }
 			NOT = { has_law = agnatic_succession }
@@ -1223,10 +1184,8 @@ other_claim_on_liege = {
 			FROMFROM = { has_character_flag = faction_claimant_ultimatum_taken } # Faction war. Ignore claim strength.
 		}
 
-		OR = {
-			FROM = {
-				has_landed_title = PREV
-			}
+		FROM = {
+			has_landed_title = PREV
 		}
 		
 		OR = { 
@@ -1331,30 +1290,33 @@ other_claim_on_liege = {
 		FROM = {
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
 			
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -1574,19 +1536,11 @@ claim_all = {
 	can_ask_to_join_war = no
 	is_claim_all = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			total_claims = {
 				who = FROM
 				strong = yes # Count only strong claims
@@ -1799,30 +1753,34 @@ change_seniority_succession_law = {
 	on_success = {
 		FROM = {
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -1975,30 +1933,33 @@ change_primogeniture_succession_law = {
 		FROM = {
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
 			
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -2170,31 +2131,33 @@ change_feudal_elective_succession_law = {
 		FROM = {
 		
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
-			
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -2300,20 +2263,12 @@ invasion = {
 	hostile_against_others = yes
 	can_ask_to_join_war = no
 	
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		ROOT = {
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 	
@@ -2514,6 +2469,9 @@ tribal_invasion = {
 	is_permanent = yes
 	can_ask_to_join_war = yes
 	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+	
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 
 	can_use_gui = {
 		ROOT = {
@@ -2527,17 +2485,6 @@ tribal_invasion = {
 
 	can_use_title = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			is_nomadic = no
 			OR = {
 				AND = {
@@ -2860,6 +2807,9 @@ crusade = {
 	battle_warscore_mult = 0.5
 	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 	
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use_gui = {
 		ROOT = {
 			has_called_crusade = no
@@ -2907,17 +2857,6 @@ crusade = {
 	can_use = {
 		ROOT = {
 			can_call_crusade = yes
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		
 		FROM = {
@@ -3074,7 +3013,6 @@ crusade = {
 					}
 				}
 			}
-			
 			most_participating_crusader = {
 				gain_settlements_under_title = {
 					title = PREV
@@ -3106,7 +3044,10 @@ crusade = {
 						limit = {
 							NOT = { culture = PREV }
 						}
-						hidden_tooltip = { PREV = { conquest_culture = THIS } }
+						hidden_tooltip = { 
+							save_event_target_as = winning_crusader
+							PREV = { conquest_culture = event_target:winning_crusader } 
+						}
 					}
 				}
 				hidden_tooltip = {
@@ -3349,7 +3290,6 @@ crusade = {
 }
 
 # Holy War CB
-# Many of the requirements are waived base
 religious = {
 	name = CB_NAME_RELIGIOUS
 	war_name = WAR_NAME_RELIGIOUS
@@ -3359,6 +3299,9 @@ religious = {
 	is_holy_war = yes
 	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+	
 	can_use_gui = {
 		ROOT = {
 			#Base conditions
@@ -3371,17 +3314,6 @@ religious = {
 	}
 	can_use = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			is_nomadic = no
 			NOT = { religion_group = pagan_group }
 			NOT = { pacifist = yes }
@@ -3639,7 +3571,6 @@ religious = {
 		factor = 100
 	}
 	
-	# ai importance placed on this CB: scope is the targeted title, ROOT is the attacking character, FROM is the defending character
 	ai_will_do = { 
 		factor = 1
 		modifier = {
@@ -3681,7 +3612,7 @@ religious = {
 			}
 		}
 		modifier = { # This entry is meant to preserve Sagrado Corazon lands a bit.
-			factor = 0.05
+			factor = 0.5
 			ROOT = { religion = catholic }
 			FROM = { religion = sacred_heart }
 		}
@@ -3697,6 +3628,9 @@ excommunicated_ruler = {
 	is_permanent = yes
 	can_ask_to_join_war = no
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		FROM = {
 			excommunicated_for = ROOT
@@ -3711,17 +3645,6 @@ excommunicated_ruler = {
 		}
 		ROOT = {
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 
@@ -4016,30 +3939,33 @@ bid_for_independence = {
 		}
 
 		FROM = {
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -4182,30 +4108,33 @@ depose_liege = {
 	on_success = {
 		FROM = {
 			prestige = -500
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 
@@ -4269,6 +4198,7 @@ overthrow_ruler = {
 	can_call_vassals = yes
 	attacker_can_call_allies = no
 	major_revolt = yes
+	is_tyranny_cb = yes
 
 	can_use = {
 		FROM = {
@@ -4314,30 +4244,33 @@ overthrow_ruler = {
 				who = ROOT
 				modifier = declared_war
 			}
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_2
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_2
+					}
 				}
 			}
 			abdicate = yes
@@ -4460,30 +4393,33 @@ overthrow_ruler_no_calls = {
 				who = ROOT
 				modifier = declared_war
 			}
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_2
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_2
+					}
 				}
 			}
 			abdicate = yes
@@ -4584,30 +4520,35 @@ change_gavelkind_succession_law = {
 	on_success = {
 		FROM = {
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					if = {
+						limit = {
+							OR = {
+								tier = king
+								tier = emperor
+							}
+		#					is_titular = no
+							NOT = { has_law = crown_authority_0 }
+						}
+						if = {
+							limit = { has_law = crown_authority_1 }
+							add_law = crown_authority_0
+						}
+						if = {
+							limit = { has_law = crown_authority_2 }
+							add_law = crown_authority_1
+						}
+						if = {
+							limit = { has_law = crown_authority_3 }
+							add_law = crown_authority_2
+						}
+						if = {
+							limit = { has_law = crown_authority_4 }
+							add_law = crown_authority_3
+						}
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
 				}
 			}
 		}
@@ -4718,6 +4659,7 @@ lower_crown_authority_law = {
 		ROOT = {
 			vassal_of = FROM
 		}
+		NOT = { has_dlc = "Zeus" }
 	}
 	
 	can_use_title = {
@@ -5062,19 +5004,11 @@ coastal_republic = {
 	
 	allow_distant = yes # AI parameter
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			OR = {
 				is_merchant_republic = yes
 				is_patrician = yes
@@ -5089,7 +5023,7 @@ coastal_republic = {
 	can_use_title = {
 		tier = BARON
 		is_capital = no # Minor Holding
-		is_republic = yes
+		holding_type = city
 		
 		location = {
 			port = yes
@@ -5244,19 +5178,11 @@ coastal_county_republic = {
 	
 	allow_distant = yes # AI parameter
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			OR = {
 				is_merchant_republic = yes
 				is_patrician = yes
@@ -5495,30 +5421,33 @@ weaken_vassal_plot = {
 			participation_scaled_prestige = 100
 		}
 		FROM = {
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+	#					is_titular = no
+						NOT = { has_law = crown_authority_0 }
 					}
-#					is_titular = no
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -5558,6 +5487,13 @@ weaken_vassal_plot = {
 			limit = { NOT = { character = FROM } }
 			hidden_tooltip = { participation_scaled_prestige = 50 }
 		}
+	}
+	
+	on_invalidation = {
+		ROOT = {
+			cancel_plot = plot_weaken_fellow_vassal
+		}
+		
 	}
 
 	on_reverse_demand = {
@@ -5620,16 +5556,19 @@ decadence_invasion = {
 
 	on_success = {
 		FROM = {
-			any_demesne_title = { # All titles
-				if = {
-					limit = {
-						OR = {
-							tier = king
-							tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					if = {
+						limit = {
+							OR = {
+								tier = king
+								tier = emperor
+							}
+							NOT = { has_law = crown_authority_0 }
 						}
-						NOT = { has_law = crown_authority_0 }
+						add_law = crown_authority_0
 					}
-					add_law = crown_authority_0
 				}
 			}
 		}
@@ -5790,6 +5729,9 @@ muslim_invasion = {
 	can_ask_to_join_war = yes
 	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 	
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use_gui = {
 		ROOT = {
 			piety = 1000
@@ -5802,17 +5744,6 @@ muslim_invasion = {
 
 	can_use = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			religion_group = muslim
 			
 			# These use 'tribal_invasion' instead:
@@ -5930,7 +5861,7 @@ muslim_invasion = {
 					vassalize_or_take_under_title_destroy_duchies = {
 						title = PREV
 						enemy = FROM
-						is_crusade = yes # Even if the title holder is not participating in the war, gain holdings occupied by all Crusade participants
+						is_crusade = no # Even if the title holder is not participating in the war, gain holdings occupied by all Crusade participants
 						type = invasion
 					}
 					
@@ -6171,30 +6102,32 @@ cb_faction_independence = {
 		FROM = {
 			
 			hidden_tooltip = { disband_event_forces = faction_loyalists }
-		
-			any_demesne_title = { # All titles
-				limit = {
-					OR = {
-						tier = king
-						tier = emperor
+			if = {
+				limit = { NOT = { has_dlc = "Zeus" } }
+				any_demesne_title = { # All titles
+					limit = {
+						OR = {
+							tier = king
+							tier = emperor
+						}
+						NOT = { has_law = crown_authority_0 }
 					}
-					NOT = { has_law = crown_authority_0 }
-				}
-				if = {
-					limit = { has_law = crown_authority_1 }
-					add_law = crown_authority_0
-				}
-				if = {
-					limit = { has_law = crown_authority_2 }
-					add_law = crown_authority_1
-				}
-				if = {
-					limit = { has_law = crown_authority_3 }
-					add_law = crown_authority_2
-				}
-				if = {
-					limit = { has_law = crown_authority_4 }
-					add_law = crown_authority_3
+					if = {
+						limit = { has_law = crown_authority_1 }
+						add_law = crown_authority_0
+					}
+					if = {
+						limit = { has_law = crown_authority_2 }
+						add_law = crown_authority_1
+					}
+					if = {
+						limit = { has_law = crown_authority_3 }
+						add_law = crown_authority_2
+					}
+					if = {
+						limit = { has_law = crown_authority_4 }
+						add_law = crown_authority_3
+					}
 				}
 			}
 		}
@@ -6311,6 +6244,9 @@ imperial_reconquest = {
 	is_permanent = yes
 	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		ROOT = {
 			has_landed_title = e_roman_empire
@@ -6318,17 +6254,6 @@ imperial_reconquest = {
 			religion_group = christian
 			NOT = { same_realm = FROM }
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		FROM = {
 			NOT = { religion_group = muslim }
@@ -6481,22 +6406,14 @@ embargo_cb = {
 	is_permanent = yes
 	can_ask_to_join_war = no
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		ROOT = {
 			independent = yes
 			NOT = { has_embargo = FROM }
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		FROM = {
 			OR = {
@@ -6689,8 +6606,11 @@ seize_trade_post = {
 #	check_all_titles = yes
 	check_all_trade_posts = yes
 	can_ask_to_join_war = no
-	
+	ticking_war_score_multiplier = 5.0
 	allow_distant = yes
+
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 
 	can_use = {
 		ROOT = {
@@ -6712,17 +6632,6 @@ seize_trade_post = {
 				}
 			}
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		FROM = {
 			OR = {
@@ -6867,22 +6776,14 @@ viking_invasion = {
 	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 	apply_short_occ_mod = no # Do not apply the 'recently_conquered' modifier to Holdings
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
 	can_use = {
 		ROOT = {
 			has_opinion_modifier = { who = FROM modifier = preparing_to_invade }
 			NOT = { is_liege_or_above = FROM }
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 	
@@ -6957,7 +6858,7 @@ viking_invasion = {
 				}
 				ROOT = {
 					occupy_minors_of_occupied_settlements = FROM
-					gain_all_occupied_titles = FROM
+					gain_all_occupied_titles = { who = FROM type = invasion }
 					vassalize_or_take_under_title_destroy_duchies = {
 						title = PREV
 						enemy = FROM
@@ -7073,6 +6974,8 @@ pagan_subjugation = {
 	truce_days = 365
 	is_permanent = yes
 	can_ask_to_join_war = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use = {
 		ROOT = {
@@ -7129,18 +7032,6 @@ pagan_subjugation = {
 					}
 				}
 			}
-			
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		
 		OR = {
@@ -7164,8 +7055,8 @@ pagan_subjugation = {
 			}
 			NOT = {
 				any_war = {
-					AND = {
-						defender = { character = PREVPREV }
+					defender = { character = PREVPREV }
+					OR = {
 						using_cb = pagan_subjugation
 						using_cb = nomad_subjugation
 					}
@@ -7213,6 +7104,16 @@ pagan_subjugation = {
 			}
 				
 			hidden_tooltip = {
+				opinion = {
+					modifier = opinion_subjugated 
+					who = ROOT
+				}
+				any_vassal = {
+					opinion = {
+						modifier = opinion_subjugated 
+						who = ROOT
+					}
+				}
 				set_defacto_liege = ROOT
 				
 				any_demesne_title = {
@@ -7221,18 +7122,7 @@ pagan_subjugation = {
 					}
 					ROOT = { grant_title = { target = PREV type = invasion } }
 					add_pressed_claim = PREV
-					set_character_flag = had_higher_titles
 				}
-				
-				if = {
-					limit = {
-						has_character_flag = had_higher_titles
-					}
-					set_defacto_liege = ROOT
-					clr_character_flag = had_higher_titles
-					break = yes
-				}
-				
 				any_demesne_title = {
 					limit = {
 						tier = ROOT
@@ -7459,7 +7349,7 @@ heretic_revolt = {
 			prestige = 200
 			piety = 100
 			occupy_minors_of_occupied_settlements = FROM
-			gain_all_occupied_titles = FROM
+			gain_all_occupied_titles = { who = FROM type = revolt }
 			clr_character_flag = heretic_revolter
 		}
 		
@@ -7863,7 +7753,7 @@ duchy_adventure = {
 					limit = {
 						has_character_flag = seljuk_himself
 					}
-					character_event = {
+					narrative_event = {
 						id = 60206
 						days = 1
 					}
@@ -7874,7 +7764,7 @@ duchy_adventure = {
 					limit = {
 						has_character_flag = timur_himself
 					}
-					character_event = {
+					narrative_event = {
 						id = 60306
 						days = 1
 					}
@@ -7885,7 +7775,7 @@ duchy_adventure = {
 					limit = {
 						has_character_flag = sabuktigin_himself
 					}
-					character_event = {
+					narrative_event = {
 						id = 60406
 						days = 1
 					}
@@ -7975,6 +7865,8 @@ pagan_holy_war = {
 	is_permanent = yes
 	is_holy_war = yes
 	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use_gui = {
 		ROOT = {
@@ -8001,24 +7893,13 @@ pagan_holy_war = {
 
 	can_use = {
 		ROOT = {
-			religion_group = pagan
+			religion_group = pagan_group
 			NOT = { same_realm = FROM }
 			NOT = { religion = FROM }
 			top_liege = {
 				religion = ROOT
 			}
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 	
@@ -8080,7 +7961,7 @@ pagan_holy_war = {
 
 	is_valid = {
 		ROOT = {
-			religion_group = pagan
+			religion_group = pagan_group
 			NOT = { same_realm = FROM }
 			NOT = { religion = FROM }
 			top_liege = {
@@ -8244,6 +8125,8 @@ caliphal_subjugation = {
 	is_permanent = yes
 	can_ask_to_join_war = yes
 	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use_gui = {
 		ROOT = {
@@ -8270,17 +8153,6 @@ caliphal_subjugation = {
 			has_horde_culture = no # Should use tribal invasion instead
 			NOT = { has_character_modifier = launched_subjugation }
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		FROM = {
 			religion = ROOT
@@ -8431,6 +8303,8 @@ muslim_county_conquest = {
 	check_all_titles = yes # if permanent, setting this to true will check against all of someones titles, including vassal held titles
 	press_claim = yes
 	can_ask_to_join_war = no
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use_gui = {
 		ROOT = {
@@ -8447,17 +8321,6 @@ muslim_county_conquest = {
 			NOT = { is_liege_or_above = FROM }
 			mercenary = no
 			is_nomadic = no # Use the 'pagan_county_conquest' CB instead
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 
@@ -8635,21 +8498,12 @@ pagan_county_conquest = {
 	can_ask_to_join_war = no
 	
 	allow_distant = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use = {
 		ROOT = {
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		OR = {
 			ROOT = {
@@ -8894,22 +8748,13 @@ dejure_county_claim = {
 	}
 
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.5
+	
 	can_use_title = {
 		tier = count
-		
-		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
-		}
 		
 		OR = {
 			FROM = {
@@ -9078,21 +8923,12 @@ dejure_barony_claim = {
 	is_permanent = yes
 	check_de_jure_tier = COUNT
 	can_ask_to_join_war = no
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.5
 	
 	can_use = {
-		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
-		}
 		FROM = {
 			OR = {
 				holy_order = no
@@ -9110,6 +8946,18 @@ dejure_barony_claim = {
 				is_liege_or_above = ROOT
 			}
 		}
+		any_direct_de_jure_vassal_title = {
+			holder_scope = {
+				OR = {
+					character = FROM
+					is_liege_or_above = FROM
+				}
+				NOR = {
+					character = ROOT
+					is_liege_or_above = ROOT
+				}
+			}
+		}
 	}
 
 	on_success_title = {
@@ -9123,6 +8971,11 @@ dejure_barony_claim = {
 					OR = {
 						character = FROM
 						is_liege_or_above = FROM
+					}
+					NOR = {
+						character = event_target:target_taker
+						is_liege_or_above = event_target:target_taker
+						is_liege_or_above = ROOT
 					}
 				}
 			}
@@ -9246,6 +9099,11 @@ other_dejure_county_claim = {
 	press_claim = yes
 	can_ask_to_join_war = no
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.3
+	
 	can_use = {
 		NOT = {
 			character = ROOT
@@ -9619,6 +9477,8 @@ depose_antipope = {
 	can_ask_to_join_war = yes
 	
 	attacker_rel_head_is_ally = yes # The attacker can call his (main) Pope into the war
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use = {
 		ROOT = {
@@ -9637,18 +9497,11 @@ depose_antipope = {
 					}
 				}
 			}
-			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
+			rightful_religious_head_scope = {
+				NOT = { has_claim = k_papal_state }
+				NOT = { has_claim = d_fraticelli }
 			}
+			mercenary = no
 		}
 		FROM = {
 			rightful_religious_head_scope = {
@@ -9807,13 +9660,14 @@ cb_install_antiking = {
 		}
 	}
 	
-	is_valid = {
+	is_valid_title = {
 		NOT = {
 			holder_scope = {
 				character = ROOT
 			}
 		}
-	
+	}
+	is_valid = {
 		ROOT = {
 			religion = FROM
 			OR = {
@@ -9916,6 +9770,13 @@ cb_install_antiking = {
 			prestige = 50
 		}
 	}
+	
+	on_invalidation = {
+		ROOT = {
+			cancel_plot = plot_gain_title
+		}
+	}
+	
 
 	on_reverse_demand = {
 		ROOT = {
@@ -9962,6 +9823,8 @@ buddhist_holy_war = {
 	check_all_titles = yes # if permanent, setting this to true will check against all of someones titles, including vassal held titles
 	press_claim = yes
 	can_ask_to_join_war = no
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use = {
 		ROOT = {
@@ -9974,17 +9837,6 @@ buddhist_holy_war = {
 			}
 			mercenary = no
 			is_nomadic = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 	
@@ -9992,40 +9844,38 @@ buddhist_holy_war = {
 		tier = count
 		
 		# The attacker needs a border or be at the most two sea zones away
-		OR = {
-			location = {
-				any_neighbor_province = {
-					OR = {
-						AND = {
-							has_owner = yes
-							owner = {
-								OR = {
-									character = ROOT
-									is_liege_or_above = ROOT
-								}
+		location = {
+			any_neighbor_province = {
+				OR = {
+					AND = {
+						has_owner = yes
+						owner = {
+							OR = {
+								character = ROOT
+								is_liege_or_above = ROOT
 							}
 						}
-						AND = {
-							is_land = no
-							any_neighbor_province = {
-								OR = {
-									AND = {
-										has_owner = yes
+					}
+					AND = {
+						is_land = no
+						any_neighbor_province = {
+							OR = {
+								AND = {
+									has_owner = yes
+									owner = {
+										OR = {
+											character = ROOT
+											is_liege_or_above = ROOT
+										}
+									}
+								}
+								AND = {
+									is_land = no
+									any_neighbor_province = {
 										owner = {
 											OR = {
 												character = ROOT
 												is_liege_or_above = ROOT
-											}
-										}
-									}
-									AND = {
-										is_land = no
-										any_neighbor_province = {
-											owner = {
-												OR = {
-													character = ROOT
-													is_liege_or_above = ROOT
-												}
 											}
 										}
 									}
@@ -10162,6 +10012,8 @@ indian_subjugation = {
 	is_permanent = yes
 	can_ask_to_join_war = yes
 	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use_gui = {
 		ROOT = {
@@ -10181,33 +10033,20 @@ indian_subjugation = {
 			has_horde_culture = no # Should use tribal invasion instead
 			is_nomadic = no
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		FROM = {
 			religion_group = indian_group
 			culture_group = ROOT
 			NOT = {
 				any_war = {
-					AND = {
-						defender = { character = PREVPREV }
-						using_cb = indian_subjugation
-					}
+					defender = { character = PREVPREV }
+					using_cb = indian_subjugation
 				}
 			}
 		}
 	}
 	
-	is_valid_title = {
+	can_use_title = {
 		ROOT = {
 			OR = {
 				NOT = { has_character_modifier = launched_subjugation }
@@ -10630,21 +10469,12 @@ cb_decadence_usurption = {
 	sprite = 11
 	truce_days = 3650
 	is_permanent = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use = {
 		ROOT = { 
 			religion_group = muslim
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	
 		FROM = {
@@ -10758,21 +10588,12 @@ rivalry_cb = {
 	truce_days = 3650
 	is_permanent = yes
 	can_ask_to_join_war = no
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	
 	can_use = {
 		ROOT = {
 			is_rival = FROM
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		FROM = {
 			NOT = {
@@ -10908,7 +10729,10 @@ tributary_cb = {
 	hostile_against_others = yes
 	can_ask_to_join_war = no
 	display_on_map = no
-
+	coalition_threat = no
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+	
 	can_use = {
 		has_dlc = "Horse Lords"
 
@@ -10922,26 +10746,17 @@ tributary_cb = {
 					character = FROM
 				}
 			}
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
+			NAND = {
+				holy_order = yes
+				religion = FROM
 			}
 		}
 		FROM = {
-			independent = yes
-			NOR = {
-				pays_tribute_to = ROOT
-				any_liege = {
-					pays_tribute_to = ROOT
-				}
+			NAND = {
+				holy_order = yes
+				religion = ROOT
 			}
+			independent = yes
 		}
 		
 		# The attacker needs a border, or be at most two sea zones away from one of the target's counties
@@ -11722,6 +11537,9 @@ nomad_dispute = {
 	can_ask_to_join_war = no
 	
 	allow_distant = yes
+
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no	
 	
 	can_use = {
 		has_dlc = "Horse Lords"
@@ -11730,17 +11548,6 @@ nomad_dispute = {
 			is_nomadic = yes
 			same_realm = FROM
 			has_feud_with = FROM
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 		FROM = {
 			is_nomadic = yes
@@ -11854,6 +11661,11 @@ cb_liberate_nomad_duchy = {
 	is_permanent = yes
 	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+
+	infamy_modifier = 0.75
+	
 	can_use = {
 		FROM = {
 			is_nomadic = yes
@@ -11863,17 +11675,6 @@ cb_liberate_nomad_duchy = {
 			NOT = { pacifist = yes }
 			NOT = { same_realm = FROM }
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 		}
 	}
 	
@@ -11893,15 +11694,11 @@ cb_liberate_nomad_duchy = {
 				}
 				location = {
 					any_neighbor_province = {
-						OR = {
-							AND = {
-								has_owner = yes
-								owner = {
-									OR = {
-										character = ROOT
-										is_liege_or_above = ROOT
-									}
-								}
+						has_owner = yes
+						owner = {
+							OR = {
+								character = ROOT
+								is_liege_or_above = ROOT
 							}
 						}
 					}
@@ -12019,8 +11816,21 @@ cb_liberate_nomad_duchy = {
 		factor = 100
 	}
 	
-	ai_will_do = { 
+	ai_will_do = {
 		factor = 1
+		modifier = {
+			factor = 0.1
+			NOT = {
+				any_direct_de_jure_vassal_title = {
+					any_direct_de_jure_vassal_title = {
+						OR = {
+							holding_type = castle
+							holding_type = city
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -12066,15 +11876,16 @@ cb_minor_clan_revolt = {
 	}
 
 	on_success_title = {
+		usurp_title_plus_barony_if_unlanded = { target = ROOT type = revolt }
+	
 		ROOT = {
-			set_government_type = feudal_government
-		
 			primary_title = {
 				set_title_nomad = { title = THIS status = no }
 			}
+			
+			set_government_type = feudal_government
 		}
 	
-		usurp_title_plus_barony_if_unlanded = { target = ROOT type = revolt }
 		ROOT = {		
 			set_government_type = nomadic_government
 			set_defacto_liege = FROM
@@ -12140,6 +11951,10 @@ cb_minor_clan_revolt = {
 			}
 		}
 	}
+	
+	on_attacker_leader_death = {
+		end_war = invalid
+	}
 
 	attacker_ai_victory_worth = {
 		factor = -1 # always accept
@@ -12166,6 +11981,45 @@ nomad_subjugation = {
 	truce_days = 365
 	is_permanent = yes
 	can_ask_to_join_war = yes
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+	
+	can_use_gui = {
+	#higher_tier_than between ROOT and FROM would be better but its tooltip doesn't say anything about comparing character tiers
+		OR = {
+			ROOT = {
+				higher_tier_than = king
+				}
+			NOT = {
+				FROM = {
+					tier = emperor
+					}
+			}
+		}
+		FROM = {
+			is_nomadic = no
+			OR = {
+				AND = {
+					is_tribal = yes
+					ROOT = {
+						population = 2500
+					}
+				}
+				ROOT = {
+					population = 10000
+				}
+			}
+		}
+		ROOT = {
+			prestige = 500
+		}
+	}
+
+	on_add = {
+		ROOT = {
+			prestige = -500
+		}
+	}
 	
 	can_use = {
 		ROOT = {
@@ -12173,17 +12027,6 @@ nomad_subjugation = {
 			NOT = { same_realm = FROM }
 			NOT = { is_liege_or_above = FROM }
 			mercenary = no
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			NOT = { has_character_modifier = launched_subjugation }
 		}
 		
@@ -12192,12 +12035,10 @@ nomad_subjugation = {
 			is_nomadic = no # Nomads cannot be subjugated
 			NOT = {
 				any_war = {
-					AND = {
-						defender = { character = PREVPREV }
-						OR = {
-							using_cb = nomad_subjugation
-							using_cb = pagan_subjugation
-						}
+					defender = { character = PREVPREV }
+					OR = {
+						using_cb = nomad_subjugation
+						using_cb = pagan_subjugation
 					}
 				}
 			}
@@ -12243,34 +12084,59 @@ nomad_subjugation = {
 			}
 				
 			hidden_tooltip = {
+				opinion = {
+					modifier = opinion_subjugated 
+					who = ROOT
+				}
+				any_vassal = {
+					opinion = {
+						modifier = opinion_subjugated 
+						who = ROOT
+					}
+				}
+				
 				set_defacto_liege = ROOT
 				
 				any_demesne_title = {
 					limit = {
 						higher_tier_than = ROOT
+						NOT = { controls_religion = yes }
 					}
 					ROOT = { grant_title = { target = PREV type = invasion } }
 					add_pressed_claim = PREV
-					set_character_flag = had_higher_titles
-				}
-				
-				if = {
-					limit = {
-						has_character_flag = had_higher_titles
-					}
-					set_defacto_liege = ROOT
-					clr_character_flag = had_higher_titles
-					break = yes
 				}
 				
 				any_demesne_title = {
 					limit = {
 						tier = ROOT
+						NOT = { controls_religion = yes }
 					}
 					ROOT = { grant_title = { target = PREV type = invasion } }
 					add_pressed_claim = PREV
 				}
-				set_defacto_liege = ROOT
+
+				if = {
+					limit = {
+						NOT = {
+							any_demesne_title = {
+								controls_religion = yes
+							}
+						}
+					}
+					set_defacto_liege = ROOT
+					break = yes
+				}
+				any_vassal = {
+					set_defacto_liege = ROOT
+				}
+				any_demesne_title = {
+					limit = {
+						NOT = { controls_religion = yes }
+					}
+					ROOT = {
+						grant_title = { target = PREV type = invasion }
+					}
+				}
 			}
 		}
 	}
@@ -12343,7 +12209,7 @@ nomad_subjugation = {
 	}
 	
 	ai_will_do = { 
-		factor = 2
+		factor = 10
 	}
 } 
 
@@ -12358,10 +12224,13 @@ nomad_invasion = {
 	can_ask_to_join_war = yes
 	check_de_jure_tier = KING # this scans all de jure kingdoms for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
 	can_use_gui = {
 		ROOT = {
 			prestige = 100
-			population_factor = 0.9 # 90% of max
+			population = 30000
+			population_factor = 0.75 # 75% of max
 		}
 	}
 	
@@ -12371,17 +12240,6 @@ nomad_invasion = {
 
 	can_use = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			is_nomadic = yes
 		}
 		
@@ -12399,13 +12257,6 @@ nomad_invasion = {
 	}
 
 	on_success = {
-		ROOT = {
-			prestige = 200
-		}
-		any_attacker = {
-			limit = { character = ROOT }
-			participation_scaled_prestige = 200
-		}
 		any_attacker = {
 			limit = { NOT = { character = ROOT } }
 			hidden_tooltip = { participation_scaled_prestige = 200 }
@@ -12547,7 +12398,7 @@ nomad_invasion = {
 	}
 	
 	ai_will_do = { 
-		factor = 2
+		factor = 8
 		
 		modifier = {
 			factor = 0.9 # Prefer using CB's without on_add costs
@@ -12629,9 +12480,23 @@ nomad_expansion = {
 	is_holy_war = yes
 	check_de_jure_tier = DUKE # this scans all de jure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
 
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+	
 	can_use_gui = {
 		ROOT = {
 			prestige = 300
+			population_factor = 0.5
+		}
+		FROM = {
+			OR = {
+				is_nomadic = yes # Nomads no population requirement
+				AND = {
+					is_tribal = yes
+					ROOT = { population = 5000 } # Tribals need 5k
+				}
+				ROOT = { population = 15000 } # Everyone else needs 15k
+			}
 		}
 	}
 	
@@ -12641,17 +12506,6 @@ nomad_expansion = {
 
 	can_use = {
 		ROOT = {
-			NOR = {
-				pays_tribute_to = FROM
-				any_liege = {
-					OR = {
-						pays_tribute_to = FROM
-						FROM = {
-							pays_tribute_to = PREV
-						}
-					}
-				}
-			}
 			is_nomadic = yes
 			NOT = { same_realm = FROM }
 			mercenary = no
@@ -12670,13 +12524,11 @@ nomad_expansion = {
 				}
 				location = {
 					any_neighbor_province = {
-						AND = {
-							has_owner = yes
-							owner = {
-								OR = {
-									character = ROOT
-									is_liege_or_above = ROOT
-								}
+						has_owner = yes
+						owner = {
+							OR = {
+								character = ROOT
+								is_liege_or_above = ROOT
 							}
 						}
 					}
@@ -12706,7 +12558,6 @@ nomad_expansion = {
 	on_success = {
 		any_attacker = {
 			limit = { character = ROOT }
-			participation_scaled_prestige = 100
 			if = {
 				limit = {
 					uses_decadence = yes
@@ -12861,5 +12712,663 @@ nomad_expansion = {
 				}
 			}
 		}
+	}
+}
+
+#64
+increase_council_power_war = { # Started from faction
+	name = CB_NAME_INCREASE_COUNCIL_POWER
+	war_name = WAR_NAME_INCREASE_COUNCIL_POWER
+	sprite = 6
+	truce_days = 3650
+	can_call_allies = no
+	can_ask_to_join_war = no
+	major_revolt = yes
+	
+	can_use = {
+		ROOT = {
+			vassal_of = FROM
+		}
+	}
+	
+	can_use_title = {
+		higher_tier_than = BARON
+		OR = {
+			has_law = law_voting_power_0
+			has_law = banish_voting_power_0
+			has_law = execution_voting_power_0
+			has_law = revoke_title_voting_power_0
+			has_law = grant_title_voting_power_0
+			has_law = imprison_voting_power_0
+			has_law = war_voting_power_0
+		}
+		is_primary_holder_title = yes
+	}
+	
+	is_valid = {
+		FROM = {
+			in_revolt = no
+			liege_before_war = {
+				in_revolt = no
+				liege_before_war = {
+					in_revolt = no
+				}
+			}
+		}
+		ROOT = {
+			OR = {
+				liege = {
+					character = PREV # either independent
+				}
+				liege = { 
+					FROM = { 
+						is_liege_or_above = PREV # or have shared liege
+					}
+				}
+			}
+		}
+	}
+
+	on_success = {
+		ROOT = {
+			opinion = {
+				modifier = opinion_increased_council_power
+				who = FROM
+				months = 12
+			}
+		}
+		any_attacker = {
+			limit = { character = ROOT }
+			participation_scaled_prestige = 100
+			hidden_tooltip = {
+				disband_event_forces = faction_revolters
+			}
+		}
+		any_attacker = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+			hidden_tooltip = {
+				disband_event_forces = faction_revolters
+			}
+		}
+		FROM = { hidden_tooltip = { disband_event_forces = faction_loyalists } }
+	}
+
+	on_success_title = {
+		if = {
+			limit = { has_law = law_voting_power_0 }
+			add_law_w_cooldown = law_voting_power_1
+			break = yes
+		}
+		if = {
+			limit = { has_law = war_voting_power_0 }
+			add_law_w_cooldown = war_voting_power_1
+			break = yes
+		}
+		if = {
+			limit = { has_law = revoke_title_voting_power_0 }
+			add_law_w_cooldown = revoke_title_voting_power_1
+			break = yes
+		}
+		if = {
+			limit = { has_law = imprison_voting_power_0 }
+			add_law_w_cooldown = imprison_voting_power_1
+			break = yes
+		}
+		if = {
+			limit = { has_law = grant_title_voting_power_0 }
+			add_law_w_cooldown = grant_title_voting_power_1
+			break = yes
+		}
+		if = {
+			limit = { has_law = banish_voting_power_0 }
+			add_law_w_cooldown = banish_voting_power_1
+			break = yes
+		}
+		if = {
+			limit = { has_law = execution_voting_power_0 }
+			add_law_w_cooldown = execution_voting_power_1
+			break = yes
+		}
+	}
+
+	on_fail = {
+		ROOT = {
+			prestige = -100
+		}
+		
+		any_defender = {
+			limit = { character = FROM }
+			participation_scaled_prestige = 50
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 50 }
+		}
+		
+		hidden_tooltip = {
+			any_attacker = {
+				disband_event_forces = faction_revolters
+				add_character_modifier = {
+					name = faction_council_power_ultimatum_timer
+					hidden = yes
+					duration = 3650
+				}
+			}
+		}
+		FROM = { hidden_tooltip = { disband_event_forces = faction_loyalists } }
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			prestige = -200
+			prisoner = FROM
+		}
+		
+		any_defender = {
+			limit = { character = FROM }
+			participation_scaled_prestige = 100
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+		
+		hidden_tooltip = {
+			any_attacker = {
+				limit = { liege = { character = FROM } }
+				prisoner = FROM
+				disband_event_forces = faction_revolters
+				add_character_modifier = {
+					name = faction_council_power_ultimatum_timer
+					hidden = yes
+					duration = 3650
+				}
+			}
+		}
+		FROM = { hidden_tooltip = { disband_event_forces = faction_loyalists } }
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}
+
+# 55
+nomad_humiliate_cb = {
+	name = CB_NAME_HUMILIATE
+	war_name = WAR_NAME_HUMILIATE
+	sprite = 1
+	truce_days = 3650
+	is_permanent = yes
+	hostile_against_others = yes
+	can_ask_to_join_war = no
+	display_on_map = no
+	coalition_threat = no
+	allowed_to_target_tributaries = no
+	allowed_to_target_suzerains = no
+	
+	can_use = {
+		has_dlc = "Horse Lords"
+
+		ROOT = {
+			is_nomadic = yes
+			mercenary = no
+			OR = {
+				AND = {
+					same_realm = FROM
+					has_feud_with = FROM
+				}
+				FROM = {
+					is_nomadic = yes
+					independent = yes
+				}
+			}
+		}
+		
+		# The attacker needs a border, or be at most two sea zones away from one of the target's counties
+		FROM = {
+			any_realm_province = {
+				any_neighbor_province = {
+					OR = {
+						AND = {
+							has_owner = yes
+							owner = {
+								OR = {
+									character = ROOT
+									is_liege_or_above = ROOT
+								}
+							}
+						}
+						AND = {
+							is_land = no
+							any_neighbor_province = {
+								OR = {
+									AND = {
+										has_owner = yes
+										owner = {
+											OR = {
+												character = ROOT
+												is_liege_or_above = ROOT
+											}
+										}
+									}
+									AND = {
+										is_land = no
+										any_neighbor_province = {
+											owner = {
+												OR = {
+													character = ROOT
+													is_liege_or_above = ROOT
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_success = {
+		ROOT = {
+			prestige = 300
+			steal_population_scaled = {
+				target = FROM
+				percentage = 0.1
+			}
+		}
+		FROM = {
+			prestige = -300
+		}
+	}
+
+	on_fail = {
+		ROOT = {
+			prestige = -100
+		}
+		FROM = {
+			prestige = 100
+		}
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			prestige = -200
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+
+		FROM = {
+			prestige = 200
+		}
+	}
+	
+	on_attacker_leader_death = {
+		end_war = invalid
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+		
+		modifier = {
+			factor = 2
+			FROM = {
+				trait = proud
+			}
+		}
+		
+		modifier = {
+			factor = 2
+			FROM = {
+				trait = brave
+			}
+		}
+		
+		modifier = {
+			factor = 2
+			FROM = {
+				trait = greedy
+			}
+		}
+		
+		modifier = {
+			factor = 3
+			FROM = {
+				tier = KING
+			}
+		}
+
+		modifier = {
+			factor = 0.85
+			ROOT = {
+				relative_power = { who = FROM power = 1.2 }
+			}
+		}
+
+		modifier = {
+			factor = 0.85
+			ROOT = {
+				relative_power = { who = FROM power = 1.5 }
+			}
+		}
+
+		modifier = {
+			factor = 0.8
+			ROOT = {
+				relative_power = { who = FROM power = 2.0 }
+			}
+		}
+
+		modifier = {
+			factor = 0.8
+			ROOT = {
+				relative_power = { who = FROM power = 2.5 }
+			}
+		}
+
+		modifier = {
+			factor = 0.8
+			ROOT = {
+				relative_power = { who = FROM power = 3 }
+			}
+		}
+
+		modifier = {
+			factor = 0.75
+			ROOT = {
+				relative_power = { who = FROM power = 4 }
+			}
+		}
+
+		modifier = {
+			factor = 0.75
+			ROOT = {
+				relative_power = { who = FROM power = 5 }
+			}
+		}
+
+		modifier = {
+			factor = 0.75
+			ROOT = {
+				relative_power = { who = FROM power = 6 }
+			}
+		}
+
+		modifier = {
+			factor = 0.5
+			ROOT = {
+				relative_power = { who = FROM power = 8 }
+			}
+		}
+
+		modifier = {
+			factor = 0.25
+			ROOT = {
+				relative_power = { who = FROM power = 10 }
+			}
+		}
+
+		modifier = {
+			factor = 2
+			ROOT = {
+				distance_from_realm = { who = FROM value = 20 }
+			}
+		}
+
+		modifier = {
+			factor = 2
+			ROOT = {
+				distance_from_realm = { who = FROM value = 40 }
+			}
+		}
+		
+		modifier = {
+			factor = 3
+			ROOT = {
+				distance_from_realm = { who = FROM value = 80 }
+			}
+		}
+		
+		modifier = {
+			factor = 4
+			ROOT = {
+				distance_from_realm = { who = FROM value = 120 }
+			}
+		}
+	}
+
+	ai_will_do = {
+		factor = 1
+		
+		modifier = {
+			factor = 0.1 # Low prio CB
+		}
+		
+		modifier = {
+			factor = 0.1 # Target has almost no money
+			FROM = {
+				OR = {
+					is_nomadic = yes
+					is_tribal = yes
+				}
+			}
+		}
+
+		modifier = {
+			factor = 4
+			ROOT = {
+				trait = greedy
+			}
+		}
+	}
+}
+
+#64
+powerful_vassal_takeover_war = { # Started from faction
+	name = CB_NAME_POWERFUL_VASSAL_TAKEOVER
+	war_name = WAR_NAME_POWERFUL_VASSAL_TAKEOVER
+	sprite = 6
+	truce_days = 3650
+	can_call_allies = no
+	can_ask_to_join_war = no
+	major_revolt = yes
+	
+	can_use = {
+		ROOT = {
+			vassal_of = FROM
+		}
+	}
+	
+	can_use_title = {
+		higher_tier_than = BARON
+		is_primary_holder_title = yes
+	}
+	
+	is_valid = {
+		FROM = {
+			in_revolt = no
+			liege_before_war = {
+				in_revolt = no
+				liege_before_war = {
+					in_revolt = no
+				}
+			}
+		}
+		ROOT = {
+			OR = {
+				liege = {
+					character = PREV # either independent
+				}
+				liege = { 
+					FROM = { 
+						is_liege_or_above = PREV # or have shared liege
+					}
+				}
+			}
+		}
+	}
+
+	on_success = {
+		any_attacker = {
+			participation_scaled_prestige = 100
+			hidden_tooltip = {
+				disband_event_forces = faction_revolters
+			}
+		}
+		FROM = { hidden_tooltip = { disband_event_forces = faction_loyalists } }
+	}
+
+	on_success_title = { #This is the target title of the faction
+		if = {
+			limit = { has_law = law_voting_power_0 }
+			add_law_w_cooldown = law_voting_power_1 
+		}
+		if = {
+			limit = { has_law = war_voting_power_0 }
+			add_law_w_cooldown = war_voting_power_1
+		}
+		if = {
+			limit = { has_law = succession_voting_power_0 }
+			add_law_w_cooldown = succession_voting_power_1
+		}
+		if = {
+			limit = { NOT =  { has_law = succ_feudal_elective } }
+			add_law_w_cooldown = succ_feudal_elective
+		}
+		holder_scope = {
+			most_popular_vassal = {
+				limit = {
+					higher_tier_than = BARON
+					is_feudal = yes
+					prisoner = no
+					NOR = {
+						trait = in_hiding
+						trait = incapable
+						trait = eunuch
+					}
+					age = 16
+					#can_hold_title = PREVPREV
+					OR = {
+						is_female = no
+						AND = {
+							is_female = yes
+							ROOT = { has_law = true_cognatic_succession }
+						}
+					}
+				}
+				grant_title = PREVPREV
+				save_event_target_as = new_title_holder
+				hidden_tooltip = {
+					any_attacker = {
+						limit = { NOT = { character = PREV } }
+						set_character_flag = helped_win_war
+					}
+				}
+				character_event = { id = 8226 days = 1 }
+			}
+		}
+	}
+
+	on_fail = {
+		ROOT = {
+			prestige = -100
+		}
+		
+		any_defender = {
+			limit = { character = FROM }
+			participation_scaled_prestige = 50
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 50 }
+		}
+		
+		hidden_tooltip = {
+			any_attacker = {
+				disband_event_forces = faction_revolters
+				add_character_modifier = {
+					name = faction_powerful_vassal_takeover_ultimatum_timer
+					hidden = yes
+					duration = 3650
+				}
+			}
+		}
+		FROM = { hidden_tooltip = { disband_event_forces = faction_loyalists } }
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			prestige = -200
+			prisoner = FROM
+		}
+		
+		any_defender = {
+			limit = { character = FROM }
+			participation_scaled_prestige = 100
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+		
+		hidden_tooltip = {
+			any_attacker = {
+				limit = { liege = { character = FROM } }
+				prisoner = FROM
+				disband_event_forces = faction_revolters
+				add_character_modifier = {
+					name = faction_powerful_vassal_takeover_ultimatum_timer
+					hidden = yes
+					duration = 3650
+				}
+			}
+		}
+		FROM = { hidden_tooltip = { disband_event_forces = faction_loyalists } }
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
 	}
 }

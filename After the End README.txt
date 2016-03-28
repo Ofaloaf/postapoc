@@ -1,6 +1,7 @@
 AFTER THE END
 A post-apocalyptic North America mod for Crusader Kings II
-Version 0.6.1
+Version 0.7.1
+Compatible with CK2 2.5.2 and the Conclave DLC
 
 
 	INSTALLATION
@@ -27,6 +28,7 @@ thecookiemaster
 
 Other Mod Content:
 Clothing and headgear by the Game of Thrones mod team
+Clothing and headgear by sifsilver ofthe CPRplus mod
 Chinese portraits by rein005
 Clothing and headgear by Crackdtoothgrin
 Borders from NBRT by EOOQE

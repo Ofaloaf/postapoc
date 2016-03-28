@@ -1,11 +1,12 @@
 # 1		you have been castrated
 # 2		you have castrated a prisoner
+# 10	druids demand you switch away from agnatic succession
 
 namespace = gaian
 
 character_event = {
 	id = gaian.1
-	desc = EVTDESC_cast_jailer
+	desc = EVTDESC_cast_jailer
 	picture = GFX_evt_torture
 	
 	is_triggered_only = yes
@@ -17,7 +18,7 @@ character_event = {
 
 character_event = {
 	id = gaian.2
-	desc = EVTDESC_cast_prisoner
+	desc = EVTDESC_cast_prisoner
 	picture = GFX_evt_torture
 	
 	hide_from = yes
@@ -28,3 +29,102 @@ character_event = {
 		name = EVTOPTALoR.833
 	}
 }
+
+character_event = {
+	id = gaian.10
+	desc = EVTDESC_gaian_laws
+	picture = GFX_evt_courtiers_talking
+	
+	only_playable = yes
+	
+	mean_time_to_happen = {
+		months = 24
+	}
+
+	trigger = {
+		religion = gaian
+		is_landed = yes
+		primary_title = {
+			OR = {
+				has_law = agnatic_succession
+				has_law = cognatic_succession
+			}
+		}
+		NOT = { has_character_flag = gaian_refused_law }
+	}
+	
+	option = {
+		name = EVTOPT_gaian_law_enat
+		trigger = { is_female = yes }
+		primary_title = { add_law = enatic_succession }
+		piety = 20
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_gaian_law_en_cog
+		primary_title = { add_law = enatic_cognatic_succession }
+		piety = 10
+		if = {
+			limit = { is_female = no }
+			prestige = -10
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_gaian_law_true_cog
+		primary_title = { add_law = true_cognatic_succession }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 is_female = no }
+			modifier = { factor = 0.5 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_gaian_law_refuse
+		trigger = {
+			trait = cynical
+			is_female = no
+		}
+		tooltip_info = cynical
+		piety = -20
+		set_character_flag = gaian_refused_law
+		ai_chance = {
+			factor = 40
+			modifier = { factor = 0 is_female = yes }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_gaian_law_refuse
+		trigger = {	
+			NOT = { trait = cynical }
+			is_female = no
+		}
+		piety = -10
+		if = {
+			limit = { NOT = { trait = cynical } }
+			add_trait = cynical
+		}
+		if = {
+			limit = { trait = zealous }
+			remove_trait = zealous
+		}
+		if = {
+			limit = { NOT = { trait = proud } }
+			add_trait = proud
+		}
+		set_character_flag = gaian_refused_law
+		ai_chance = {
+			factor = 25
+			modifier = { factor = 0 is_female = yes }
+			modifier = { factor = 0.2 trait = zealous }
+		}
+	}
+}
+

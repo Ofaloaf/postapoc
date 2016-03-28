@@ -152,15 +152,15 @@ character_event = {
 		}
 		modifier = {
 			factor = 0.75
-			has_province_modifier = force_converting
+			location = {
+				has_province_modifier = force_converting
+			}
 		}
 		modifier = {
 			factor = 3.0
-			has_province_modifier = heretic_stronghold
-		}
-		modifier = {
-			factor = 0.001
-			top_liege = { has_character_flag = the_prophet }
+			location = {
+				has_province_modifier = heretic_stronghold
+			}
 		}
 	}
 
@@ -169,9 +169,11 @@ character_event = {
 		piety = 10
 		location = { religion = ROOT }
 		hidden_tooltip = {
-			if = {
-				limit = { has_province_modifier = heretic_stronghold }
-				remove_province_modifier = heretic_stronghold
+			location = {
+				if = {
+					limit = { has_province_modifier = heretic_stronghold }
+					remove_province_modifier = heretic_stronghold
+				}
 			}
 		}
 		liege = {
@@ -355,7 +357,6 @@ character_event = {
 letter_event = {
 	id = 20010
 	desc = "EVTDESC20010"
-	picture = GFX_evt_heretic
 	border = GFX_event_letter_frame_religion
 	
 	is_triggered_only = yes
@@ -551,6 +552,12 @@ character_event = {
 	border = GFX_event_normal_frame_religion
 	
 	is_triggered_only = yes
+
+	immediate = {
+		location = {
+			save_event_target_as = wounded_location
+		}
+	}
 	
 	option = {
 		name = "EVTOPTA20021"
@@ -637,8 +644,10 @@ character_event = {
 		has_job_action = action_inquisition
 		NOT = { religion_group = pagan_group }
 		NOT = { religion_group = indian_group }
+		trait = zealous
 		location = {
 			any_province_lord = {
+				trait = cynical
 				NOT = { is_liege_of = ROOT }
 				NOT = { has_character_flag = no_heretic }
 				NOT = { has_character_flag = branded_heretic }
@@ -709,8 +718,10 @@ character_event = {
 		location = {
 			random_province_lord = {
 				limit = {
+					trait = cynical
 					NOT = { is_liege_of = ROOT }
 					NOT = { has_character_flag = no_heretic }
+					NOT = { has_character_flag = branded_heretic }
 					NOT = { character = ROOT }
 					age = 20
 					same_realm = ROOT
@@ -718,7 +729,7 @@ character_event = {
 					can_change_religion = yes
 					NOT = { piety = 100 }
 				}
-				set_character_flag = suspected_heretic
+				save_event_target_as = suspected_heretic
 			}
 		}
 	}
@@ -727,25 +738,8 @@ character_event = {
 		name = "EVTOPTA903"
 		ai_chance = { factor = 75 }
 		location = {
-			random_province_lord = {
-				limit = {
-					has_character_flag = suspected_heretic
-				}
-				clr_character_flag = suspected_heretic
+			event_target:suspected_heretic = {
 				character_event = { id = 20030 days = 7 tooltip = "EVTTOOLTIP20030" }
-			}
-		}
-	}
-	option = {
-		name = "EVTOPTB903"
-		ai_chance = { factor = 25 }
-		trigger = { NOT = { trait = zealous } }
-		location = {
-			random_province_lord = {
-				limit = {
-					has_character_flag = suspected_heretic
-				}
-				clr_character_flag = suspected_heretic
 			}
 		}
 	}
@@ -865,7 +859,6 @@ letter_event = {
 			}
 		}
 		piety = 5
-		clr_character_flag = suspected_heretic
 	}
 	option = {
 		name = "EVTOPTB20033"
@@ -873,7 +866,6 @@ letter_event = {
 			religion_group = muslim
 		}
 		piety = 5
-		clr_character_flag = suspected_heretic
 	}
 }
 
@@ -915,7 +907,6 @@ letter_event = {
 			}
 		}
 		piety = -50
-		clr_character_flag = suspected_heretic
 	}
 }
 
@@ -1139,19 +1130,22 @@ character_event = {
 		has_character_flag = preacher_arrives
 		location = {
 			owner = {
+				is_adult = yes
+				NOT = { trait = incapable }
 				NOT = { character = ROOT }
 				NOT = { is_liege_of = ROOT }
 				NOT = { religion = ROOT }
 				religion_group = pagan_group
+				is_reformed_religion = no
 				NOT = { same_realm = ROOT }
 				controls_religion = no
-				at_location = ROOT
+				# at_location = ROOT
 			}
 		}
 	}
 	
 	mean_time_to_happen = {
-		months = 220
+		months = 120
 	
 		modifier = {
 			factor = 1.25
@@ -1201,6 +1195,39 @@ character_event = {
 			factor = 0.75
 			religion_authority = 0.8
 		}
+		# Local Pagan religion authority
+		modifier = {
+			factor = 0.75
+			location = {
+				owner = {
+					NOT = { religion_authority = 0.2 }
+				}
+			}
+		}
+		modifier = {
+			factor = 0.75
+			location = {
+				owner = {
+					NOT = { religion_authority = 0.4 }
+				}
+			}
+		}
+		modifier = {
+			factor = 2
+			location = {
+				owner = {
+					religion_authority = 0.6
+				}
+			}
+		}
+		modifier = {
+			factor = 2
+			location = {
+				owner = {
+					religion_authority = 0.8
+				}
+			}
+		}
 	}
 	
 	option = {
@@ -1233,6 +1260,7 @@ character_event = {
 				NOT = { is_liege_of = ROOT }
 				NOT = { religion = ROOT }
 				religion_group = pagan_group
+				is_reformed_religion = no
 				NOT = { same_realm = ROOT }
 			}
 		}
@@ -1395,10 +1423,6 @@ character_event = {
 	
 	immediate = {
 		clr_character_flag = preacher_arrives
-	}
-	
-	option = {
-		name = OK
 	}
 }
 

@@ -1,0 +1,1921 @@
+# 1		char: you have a vision of the blessed virgin (choose to report it or not)
+# 2		char: idea to fake a vision
+# 10	prov: tales of our lady of <province>
+# 11	char: your vision claims have been rejected
+# 12	char: your vision claims have been accepted
+# 30	narr: describe vision quality, choose manner to investigate the claims
+# 31	char: investigation has improved the credibility of the vision
+# 32	char: investigation has revealed the visions to be fraudulent
+# 33	[hidden] char: investigation was inconclusive
+# 40	narr: describe vision quality, choose manner to shore claim them up (each option only once)
+# 41	char: notify vision seer of increased credibility
+# 42	char: notify vision seer of reduced credibility
+# 50 	narr: describe vision quality, main decision about how to react
+# 51	narr: fundraise or start the cathedral construction
+# 52	char: people angry that you've fundraised a lot but haven't started construction
+# 55	letter: ruler receives request for donation
+# 60	narr: the cathedral is complete [cathedral, large cathedral, or grand cathedral added to temple]
+# 70	[hidden] prov: repeating event to send letters inviting nearby sacred heart rulers to visit
+# 71	letter: nearby sacred heart characters invited to visit cathedral
+# 72	narr: arrive in province, describe vision quality
+# 80	narr: the miraculous spring waters of <province>!
+# 81	char: notify character of the miracle
+# 90	prov: pilgrims form army of our lady of <prov> [spawn event troops]
+# 91	prov: evidence of fraud uncovered
+
+# Important flags/variables
+# event_target:apparition_seer (the character that saw the vision)
+# event_target:apparition_site (location of the vision)
+# vision_quality (variable associated with the site, generally ranged from 1 to 5)
+# vision_true, vision_false (associated with the site, whether it's a hoax or not)
+# marian_investigation, marian_construction (current stage of the event chain)
+
+namespace = apparition
+
+narrative_event = {
+	id = apparition.1
+	title = EVTNAME_apparition_vision
+	desc = EVTDESC_apparition_vision
+	picture = GFX_evt_lady_guadalupe
+
+	only_rulers = yes
+	
+	trigger = {
+		religion_group = cult_of_saints
+		is_tribal = no
+		is_nomadic = no
+		location = {
+			NOT = { has_province_modifier = marian_shrine }
+			owner = {
+				NOT = { has_character_flag = marian_investigation }
+				NOT = { has_character_flag = marian_construction }
+			}
+		}
+		NOT = { has_character_flag = saw_marian_apparition }
+	}
+
+	mean_time_to_happen = {
+		years = 2500
+		modifier = { factor = 0.2 num_of_count_titles = 1 }
+		modifier = { factor = 0.2 trait = possessed }
+		modifier = { factor = 0.5 trait = marian_guadalupe }
+		modifier = { factor = 0.8 trait = zealous }
+		modifier = { factor = 2.5 trait = cynical }
+	}
+	
+	immediate = {
+		save_event_target_as = apparition_seer
+		location = {
+			save_event_target_as = apparition_site
+			set_province_flag = vision_true
+		}
+		set_character_flag = saw_marian_apparition
+	}
+	
+	option = {
+		name = EVTOPT_apparition_vision_honest
+		trigger = { NOT = { learning = 10 } }
+		piety = 30
+		prestige = 10
+		location = { province_event = { id = apparition.10 } }
+		random_list = {
+			10 = {
+				custom_tooltip = { text = TXT_apparition_fradulent }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 1 } } }
+			}
+			60 = {
+				custom_tooltip = { text = TXT_apparition_questionable }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 2 } } }
+			}
+			30 = {
+				custom_tooltip = { text = TXT_apparition_credible }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 3 } } }
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = marian_guadalupe }
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 2 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_vision_honest
+		trigger = { learning = 10 }
+		tooltip_info = learning
+		piety = 40
+		prestige = 20
+		location = { province_event = { id = apparition.10 } }
+		random_list = {
+			20 = {
+				custom_tooltip = { text = TXT_apparition_questionable }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 2 } } }
+			}
+			60 = {
+				custom_tooltip = { text = TXT_apparition_credible }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 3 } } }
+			}
+			20 = {
+				custom_tooltip = { text = TXT_apparition_compelling }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 4 } } }
+			}
+		}
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 2 trait = marian_guadalupe }
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 2 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_vision_embellish
+		trigger = { NOT = { intrigue = 10 } }
+		piety = 10
+		prestige = 30
+		location = { province_event = { id = apparition.10 } }
+		random_list = {
+			30 = {
+				custom_tooltip = { text = TXT_apparition_fradulent }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 1 } } }
+			}
+			30 = { 
+				custom_tooltip = { text = TXT_apparition_questionable }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 2 } } }
+			}
+			30 = {
+				custom_tooltip = { text = TXT_apparition_credible }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 3 } } }
+			}
+			10 = {
+				custom_tooltip = { text = TXT_apparition_compelling }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 4 } } }
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = marian_guadalupe }
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 1.5 trait = ambitious }
+			modifier = { factor = 1.5 trait = proud }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_vision_embellish
+		trigger = { intrigue = 10 }
+		tooltip_info = intrigue
+		piety = 10
+		prestige = 50
+		location = { province_event = { id = apparition.10 } }
+		random_list = {
+			30 = {
+				custom_tooltip = { text = TXT_apparition_questionable } 
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 2 } } }
+			}
+			40 = {
+				custom_tooltip = { text = TXT_apparition_credible } 
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 3 } } }
+			}
+			30 = {
+				custom_tooltip = { text = TXT_apparition_compelling } 
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 4 } } }
+			}
+		}
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 2 trait = marian_guadalupe }
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 1.5 trait = ambitious }
+			modifier = { factor = 1.5 trait = proud }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_vision_secret
+		piety = 30
+		remove_trait = stressed
+		remove_trait = depressed
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = shy }
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 2 trait = craven }
+			modifier = { factor = 1.5 trait = humble }
+			modifier = { factor = 1.5 trait = content }
+			modifier = { factor = 0 trait = gregarious }
+		}
+	}
+}
+
+character_event = {
+	id = apparition.2
+	title = EVTNAME_apparition_fakevision
+	desc = EVTDESC_apparition_fakevision
+	picture = GFX_evt_lady_guadalupe
+
+	only_rulers = yes
+	
+	trigger = {
+		religion_group = cult_of_saints
+		is_tribal = no
+		is_nomadic = no
+		location = {
+			NOT = { has_province_modifier = marian_shrine }
+			owner = {
+				NOT = { has_character_flag = marian_investigation }
+				NOT = { has_character_flag = marian_construction }
+			}
+		}
+		NOT = { has_character_flag = saw_marian_apparition }
+	}
+
+	mean_time_to_happen = {
+		years = 2500
+		modifier = { factor = 0.2 num_of_count_titles = 1 }
+		modifier = { factor = 0.3 trait = lunatic }
+		modifier = { factor = 0.7 trait = deceitful }
+		modifier = { factor = 0.8 trait = cynical }
+		modifier = { factor = 0.8 trait = greedy }
+		modifier = { factor = 2.5 trait = zealous }
+	}
+	
+	immediate = {
+		save_event_target_as = apparition_seer
+		location = {
+			save_event_target_as = apparition_site
+			set_province_flag = vision_false
+		}
+		set_character_flag = saw_marian_apparition
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fakevision_scheme
+		trigger = { NOT = { intrigue = 10 } }
+		prestige = 20
+		location = { province_event = { id = apparition.10 } }
+		random_list = {
+			50 = {
+				custom_tooltip = { text = TXT_apparition_fradulent }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 1 } } }
+			}
+			40 = {
+				custom_tooltip = { text = TXT_apparition_questionable }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 2 } } }
+			}
+			10 = {
+				custom_tooltip = { text = TXT_apparition_credible }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 3 } } }
+			}
+		}
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 2 trait = arbitrary }
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 1.5 trait = cynical }
+			modifier = { factor = 1.5 trait = greedy }
+			modifier = { factor = 1.5 trait = brave }
+			modifier = { factor = 0 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fakevision_scheme
+		trigger = { intrigue = 10 }
+		tooltip_info = intrigue
+		prestige = 50
+		location = { province_event = { id = apparition.10 } }
+		random_list = {
+			20 = {
+				custom_tooltip = { text = TXT_apparition_fradulent }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 1 } } }
+			}
+			60 = {
+				custom_tooltip = { text = TXT_apparition_questionable }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 2 } } }
+			}
+			20 = {
+				custom_tooltip = { text = TXT_apparition_credible }
+				hidden_tooltip = { location = { set_variable = { which = vision_quality value = 3 } } }
+			}
+		}
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = arbitrary }
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 1.5 trait = cynical }
+			modifier = { factor = 1.5 trait = greedy }
+			modifier = { factor = 1.5 trait = brave }
+			modifier = { factor = 0 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fakevision_impious
+		piety = 10
+		ai_chance = { factor = 10 }
+		}
+	
+	option = {
+		name = EVTOPT_apparition_fakevision_risky
+		piety = 10
+		ai_chance = { factor = 10 }
+	}
+}
+
+province_event = {
+	id = apparition.10
+	desc = EVTDESC_apparition_prov
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	
+	trigger = {
+		owner = { NOT = { has_character_flag = marian_investigation } }
+	}
+	
+	immediate = {
+		owner = { set_character_flag = marian_investigation }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_prov_infidel
+		trigger = {
+			owner = { NOT = { religion_group = cult_of_saints } }
+		}
+		event_target:apparition_seer = { character_event = { id = apparition.11 } }
+		owner = { clr_character_flag = marian_investigation }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_prov_dismiss
+		trigger = {
+			owner = { 
+				religion_group = cult_of_saints
+				event_target:apparition_seer = {
+					NOT = { character = PREV }
+					OR = {
+						trait = lunatic
+						trait = possessed
+					}
+				}
+			}
+		}
+		event_target:apparition_seer = { character_event = { id = apparition.11 } }
+		owner = { clr_character_flag = marian_investigation }
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 1.5 owner = { trait = cynical } }
+			modifier = { factor = 0.2 owner = { trait = zealous } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_prov_accept
+		trigger = {
+			owner = { religion_group = cult_of_saints }
+		}
+		event_target:apparition_seer = { character_event = { id = apparition.12 } }
+		owner = { narrative_event = { id = apparition.50 } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0.1 owner = { trait = cynical } }
+			modifier = { factor = 1.5 owner = { trait = zealous } }
+			modifier = { factor = 2.5 owner = { trait = trusting } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_prov_inquiry
+		trigger = {
+			owner = { 
+				religion_group = cult_of_saints
+				event_target:apparition_seer = { NOT = { character = PREV } }
+			}
+		}
+		owner = { narrative_event = { id = apparition.30 } }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2.5 owner = { trait = cynical } }
+			modifier = { factor = 2.0 owner = { trait = paranoid } }
+			modifier = { factor = 0.2 owner = { trait = trusting } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_prov_shoreup
+		trigger = {
+			owner = { religion_group = cult_of_saints }
+		}
+		owner = { narrative_event = { id = apparition.40 } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 1.5 owner = { trait = arbitrary } }
+		}
+	}
+}
+
+character_event = {
+	id = apparition.11
+	desc = EVTDESC_apparition_rejected
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+
+	option = {
+		name = OK
+		prestige = -40
+		piety = -10
+	}
+}
+
+character_event = {
+	id = apparition.12
+	desc = EVTDESC_apparition_accepted
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+
+	option = {
+		name = OK
+		prestige = 20
+		piety = 10
+	}
+}
+
+narrative_event = {
+	id = apparition.30
+	title = EVTNAME_apparition_inquiry
+	desc = {
+		text = EVTDESC_apparition_vqual1
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 2 } } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual2
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual3
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 4 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual4
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 5 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual5
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+		}
+	}
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_apparition_inquire_learning
+		trigger = {	
+			event_target:apparition_seer = {
+				ROOT = {
+					NOT = {
+						attribute_diff = { character = PREV attribute = learning value = 0 }
+					}
+				}
+			}
+		}
+		wealth = -10
+		piety = 10
+		hidden_tooltip = {
+			random_list = {
+				10 = {
+					character_event = { id = apparition.31 }
+					character_event = { id = apparition.32 }
+				}
+				90 = { character_event = { id = apparition.33 } }
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0 NOT = { wealth = 10 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_inquire_learning
+		trigger = {
+			event_target:apparition_seer = {
+				ROOT = {
+					attribute_diff = { character = PREV attribute = learning value = 0 }
+				}
+			}
+		}
+		tooltip_info = learning
+		wealth = -10
+		piety = 10
+		hidden_tooltip = {
+			random_list = {
+				50 = {
+					character_event = { id = apparition.31 }
+					character_event = { id = apparition.32 }
+				}
+				50 = { character_event = { id = apparition.33 } }
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0 NOT = { wealth = 10 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_inquire_intrigue
+		trigger = {	
+			event_target:apparition_seer = {
+				ROOT = {
+					NOT = {
+						attribute_diff = { character = PREV attribute = intrigue value = 0 }
+					}
+				}
+			}
+		}
+		wealth = -5
+		piety = -5
+		hidden_tooltip = {
+			random_list = {
+				10 = {
+					character_event = { id = apparition.31 }
+					character_event = { id = apparition.32 }
+				}
+				90 = { character_event = { id = apparition.33 } }
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0 NOT = { wealth = 5 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_inquire_intrigue
+		trigger = {
+			event_target:apparition_seer = {
+				ROOT = {
+					attribute_diff = { character = PREV attribute = intrigue value = 0 }
+				}
+			}
+		}
+		tooltip_info = intrigue
+		wealth = -5
+		piety = -5
+		hidden_tooltip = {
+			random_list = {
+				50 = {
+					character_event = { id = apparition.31 }
+					character_event = { id = apparition.32 }
+				}
+				50 = { character_event = { id = apparition.33 } }
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0 NOT = { wealth = 5 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_prov_shoreup
+		narrative_event = { id = apparition.40 }
+		ai_chance = { factor = 40 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_inquire_end
+		narrative_event = { id = apparition.50 }
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = apparition.31
+	desc = EVTDESC_apparition_inquire_good
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	trigger = {
+		event_target:apparition_site = { has_province_flag = vision_true }
+	}
+	
+	immediate = {
+		event_target:apparition_site = { change_variable = { which = vision_quality value = 1 } }
+	}
+
+	option = {
+		name = EVTOPT_apparition_inquire_accept
+		piety = 20
+		hidden_tooltip = {
+			event_target:apparition_seer = { character_event = { id = apparition.12 } }
+		}
+		narrative_event = { id = apparition.50 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = honest }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_inquire_shoreup
+		narrative_event = { id = apparition.40 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = deceitful }
+		}
+	}
+}
+
+character_event = {
+	id = apparition.32
+	desc = EVTDESC_apparition_inquire_hoax
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+		trigger = {
+		event_target:apparition_site = { has_province_flag = vision_false }
+	}
+
+	option = {
+		name = EVTOPT_apparition_inquire_reject
+		piety = 10
+		hidden_tooltip = {
+			event_target:apparition_seer = { character_event = { id = apparition.11 } }
+		}
+		clr_character_flag = marian_investigation
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 2 trait = zealous }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_inquire_shoreup
+		piety = -10
+		narrative_event = { id = apparition.40 }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 1.5 trait = greedy }
+		}
+	}
+}
+
+# inquiry into vision didn't turn up anything
+character_event = {
+	id = apparition.33
+	desc = EVTDESC_bounce
+	picture = GFX_evt_lady_guadalupe
+	is_triggered_only = yes
+	hide_window = yes
+	
+	immediate = {
+		narrative_event = { id = apparition.30 days = 15 random = 15 }
+	}
+	
+	option = { }
+}
+
+narrative_event = {
+	id = apparition.40
+	title = EVTNAME_apparition_shoreup
+	desc = {
+		text = EVTDESC_apparition_vqual1
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 2 } } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual2
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual3
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 4 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual4
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 5 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual5
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+		}
+	}
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_apparition_shoreup_dip
+		trigger = {
+			NOT = { has_character_modifier = marian_emissaries }
+			NOT = { diplomacy = 10 }
+		}
+		custom_tooltip = { text = TXT_apparition_risky }
+		prestige = 20
+		wealth = -5
+		add_character_modifier = { name = marian_emissaries duration = 365 }
+		hidden_tooltip = {
+			narrative_event = { id = apparition.40 days = 10 }
+			random_list = {
+				20 = {
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = 1 }
+					}
+					event_target:apparition_seer = {
+						character_event = { id = apparition.41 }
+					}
+				}
+				60 = { }
+				20 = {
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = -1 }
+					}
+					event_target:apparition_seer = {
+						character_event = { id = apparition.42 }
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = gregarious }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_shoreup_dip
+		trigger = {
+			NOT = { has_character_modifier = marian_emissaries }
+			diplomacy = 10
+		}
+		tooltip_info = diplomacy
+		prestige = 20
+		wealth = -5
+		add_character_modifier = { name = marian_emissaries duration = 365 }
+		hidden_tooltip = {
+			narrative_event = { id = apparition.40 days = 10 }
+			random_list = {
+				40 = {
+					event_target:apparition_seer = {
+						character_event = { id = apparition.41 }
+					}
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = 1 }
+					}
+				}
+				60 = { }
+			}
+		}
+		ai_chance = {
+			factor = 50
+			modifier = { factor = 2 trait = gregarious }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_shoreup_learn
+		trigger = {
+			NOT = { has_character_modifier = marian_studies }
+			NOT = { learning = 10 }
+		}
+		custom_tooltip = { text = TXT_apparition_risky }
+		piety = 10
+		wealth = -5
+		add_character_modifier = { name = marian_studies duration = 365 }
+		hidden_tooltip = {
+			narrative_event = { id = apparition.40 days = 10 }
+			random_list = {
+				20 = {
+					event_target:apparition_seer = {
+						character_event = { id = apparition.41 }
+					}
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = 1 }
+					}
+				}
+				60 = { }
+				20 = {
+					event_target:apparition_seer = {
+						character_event = { id = apparition.42 }
+					}
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = -1 }
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = diligent }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_shoreup_learn
+		trigger = {
+			NOT = { has_character_modifier = marian_studies }
+			learning = 10
+		}
+		tooltip_info = learning
+		piety = 10
+		wealth = -5
+		add_character_modifier = { name = marian_studies duration = 365 }
+		hidden_tooltip = {
+			narrative_event = { id = apparition.40 days = 10 }
+			random_list = {
+				40 = {
+					event_target:apparition_seer = {
+						character_event = { id = apparition.41 }
+					}
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = 1 }
+					}
+				}
+				60 = { }
+			}
+		}
+		ai_chance = {
+			factor = 40
+			modifier = { factor = 2 trait = diligent }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_shoreup_intrigue
+		trigger = {
+			NOT = { has_character_modifier = marian_skullduggery }
+			NOT = { intrigue = 10 }
+		}
+		custom_tooltip = { text = TXT_apparition_risky }
+		wealth = -5
+		random = { chance = 20 add_trait = deceitful }
+		add_character_modifier = { name = marian_skullduggery duration = 365 }
+		hidden_tooltip = {
+			narrative_event = { id = apparition.40 days = 10 }
+			random_list = {
+				40 = {
+					event_target:apparition_seer = {
+						character_event = { id = apparition.41 }
+					}
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = 1 }
+					}
+				}
+				60 = { }
+				20 = {
+					event_target:apparition_seer = {
+						character_event = { id = apparition.42 }
+					}
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = -1 }
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = deceitful }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_shoreup_intrigue
+		trigger = {
+			NOT = { has_character_modifier = marian_skullduggery }
+			intrigue = 10
+		}
+		tooltip_info = intrigue
+		wealth = -5
+		random = { chance = 20 add_trait = deceitful }
+		add_character_modifier = { name = marian_skullduggery duration = 365 }
+		hidden_tooltip = {
+			narrative_event = { id = apparition.40 days = 10 }
+			random_list = {
+				40 = {
+					event_target:apparition_seer = {
+						character_event = { id = apparition.41 }
+					}
+					event_target:apparition_site = {
+						change_variable = { which = vision_quality value = 1 }
+					}
+				}
+				60 = { }
+			}
+		}
+		ai_chance = {
+			factor = 40
+			modifier = { factor = 2 trait = deceitful }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_shoreup_end
+		narrative_event = { id = apparition.50 }
+		remove_character_modifier = marian_emissaries
+		remove_character_modifier = marian_studies
+		remove_character_modifier = marian_skullduggery
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 1.5 trait = content }
+			modifier = { factor = 1.5 trait = humble }
+		}
+	}
+}
+
+character_event = {
+	id = apparition.41
+	desc = EVTDESC_apparition_cred_up
+	picture = GFX_evt_lady_guadalupe
+	is_triggered_only = yes
+	hide_FROM = yes
+	option = {
+		name = OK
+		prestige = 10
+		piety = 5
+	}
+}
+
+character_event = {
+	id = apparition.42
+	desc = EVTDESC_apparition_cred_down
+	picture = GFX_evt_lady_guadalupe
+	is_triggered_only = yes
+	hide_FROM = yes
+	option = {
+		name = OK
+		prestige = -10
+		piety = -5
+	}
+}
+
+narrative_event = {
+	id = apparition.50
+	title = EVTNAME_apparition_decision
+	desc = {
+		text = EVTDESC_apparition_vqual1
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 2 } } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual2
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual3
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 4 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual4
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 5 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual5
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+		}
+	}
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPT_apparition_decision_cathedral
+		trigger = {
+			event_target:apparition_site = {
+				any_province_holding = {
+					holding_type = temple
+				}
+			}
+		}
+		hidden_tooltip = { set_variable = { which = marian_funding value = 0 } }
+		narrative_event = { id = apparition.51 }
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 8
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+			}
+			modifier = {
+				factor = 4
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+			}
+			modifier = {
+				factor = 2
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+			}
+			modifier = {
+				factor = 0
+				event_target:apparition_site = { 
+					NOT = { check_variable = { which = vision_quality value = 2 } }
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_decision_shrine
+		wealth = -100
+		piety = 50
+		prestige = 50
+		event_target:apparition_site = {
+			add_province_modifier = { name = marian_shrine duration = 7200 }
+		}
+		clr_character_flag = marian_investigation
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 2
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_decision_nothing
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+		}
+		piety = -50
+		prestige = -50
+		custom_tooltip = { text = TXT_apparition_unrest }
+		event_target:apparition_site = {
+			add_province_modifier = { name = peasants_upset duration = 1500 }
+		}
+		event_target:apparition_seer = { character_event = { id = apparition.11 } }
+		clr_character_flag = marian_investigation
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_decision_nothing
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+		}
+		event_target:apparition_seer = { character_event = { id = apparition.11 } }
+		clr_character_flag = marian_investigation
+		ai_chance = { factor = 50 }
+	}
+}
+
+narrative_event = {
+	id = apparition.51
+	title = EVTNAME_apparition_fund
+	desc = EVTDESC_apparition_fund
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	
+	trigger = {
+		NOT = { has_character_flag = marian_construction }
+	}
+	
+	immediate = {
+		random = { chance = 50 character_event = { id = apparition.52 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fund_postpone
+		trigger = {
+			wealth = 1000
+		}
+		prestige = -10
+		narrative_event = { id = apparition.51 days = 180 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 5 trait = slothful }
+			modifier = { factor = 2 trait = greedy }
+			modifier = { factor = 2 trait = arbitrary }
+		}
+	}
+
+	option = {
+		name = EVTOPT_apparition_fund_begin
+		trigger = {
+			wealth = 1000
+			check_variable = { which = marian_funding value = 1000 }
+		}
+		wealth = -1000
+		add_character_modifier = { name = constructing_cathedral duration = 700 }
+		narrative_event = { id = apparition.60 days = 650 }
+		clr_character_flag = marian_investigation
+		set_character_flag = marian_construction
+		ai_chance = {
+			factor = 80
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 2 trait = just }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fund_begin
+		trigger = {
+			wealth = 1000
+			check_variable = { which = marian_funding value = 1 }
+			NOT = { check_variable = { which = marian_funding value = 1000 } }
+		}
+		custom_tooltip = { text = TXT_apparition_fund_partial }
+		wealth = -1000
+		add_character_modifier = { name = constructing_cathedral duration = 700 }
+		piety = 100
+		prestige = 200
+		narrative_event = { id = apparition.60 days = 650 }
+		clr_character_flag = marian_investigation
+		set_character_flag = marian_construction
+		ai_chance = {
+			factor = 60
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 2 trait = just }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fund_begin
+		trigger = {
+			wealth = 1000
+			NOT = { check_variable = { which = marian_funding value = 1 } }
+		}
+		custom_tooltip = { text = TXT_apparition_fund_all }
+		wealth = -1000
+		add_character_modifier = { name = constructing_cathedral duration = 700 }
+		piety = 250
+		prestige = 500
+		narrative_event = { id = apparition.60 days = 650 }
+		clr_character_flag = marian_investigation
+		set_character_flag = marian_construction
+		ai_chance = {
+			factor = 40
+			modifier = { factor = 2 trait = honest }
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 2 trait = just }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fund_self
+		trigger = {
+			NOT = { wealth = 1000 }
+		}
+		narrative_event = { id = apparition.51 days = 180 }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fund_raise
+		trigger = {
+			NOT = { check_variable = { which = marian_funding value = 1000 } }
+			
+		}
+		custom_tooltip = { text = TXT_apparition_fund_letter }
+		prestige = -10
+		narrative_event = { id = apparition.51 days = 180 }
+		hidden_tooltip = {
+			any_realm_lord = {
+				letter_event = { id = apparition.55 days = 7 random = 7 }
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fund_raise
+		trigger = {
+			check_variable = { which = marian_funding value = 1000 }
+			intrigue = 8
+			NOT = { has_character_flag = extra_funding }
+		}
+		tooltip_info = intrigue
+		custom_tooltip = { text = TXT_apparition_fund_letter2 }
+		prestige = -10
+		piety = -10
+		set_character_flag = extra_funding
+		random_list = {
+			10 = { add_trait = greedy }
+			10 = { add_trait = deceitful }
+			10 = { add_trait = cynical }
+		}
+		narrative_event = { id = apparition.51 days = 180 }
+		hidden_tooltip = {
+			any_realm_lord = {
+				letter_event = { id = apparition.55 days = 7 random = 7 }
+			}
+		}
+		ai_chance = {
+			factor = 15
+			modifier = { factor = 2 trait = greedy }
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fund_keep
+		trigger = {
+			check_variable = { which = marian_funding value = 1 }
+		}
+		prestige = -100
+		piety = -100
+		add_trait = greedy
+		add_trait = deceitful
+		add_trait = cynical
+		religion_authority = { modifier = stolen_cathedral_funding }
+		any_realm_lord = {
+			limit = { religion = ROOT }
+			opinion = { modifier = opinion_money_stolen who = ROOT years = 10 }
+		}
+		clr_character_flag = marian_investigation
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 2 trait = greedy }
+			modifier = { factor = 2 trait = deceitful }
+			modifier = { factor = 2 trait = cynical }
+			modifier = { factor = 2 trait = arbitrary }
+			modifier = { factor = 2 trait = lunatic }
+			modifier = { factor = 0.1 trait = charitable }
+			modifier = { factor = 0.1 trait = honest }
+			modifier = { factor = 0.1 trait = zealous }
+			modifier = { factor = 0.1 trait = just }
+			modifier = { factor = 0.1 NOT = { check_variable = { which = marian_funding value = 1000 } } }
+		}
+	}
+}
+
+character_event = {
+	id = apparition.52
+	desc = EVTDESC_apparition_postpone
+	picture = GFX_evt_lady_guadalupe
+	is_triggered_only = yes
+	
+	trigger = {
+		check_variable = { which = marian_funding value = 1000 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_postpone_war
+		trigger = {
+			war = yes
+		}
+		custom_tooltip = { text = TXT_apparition_war }
+		ai_chance = { factor = 500 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_postpone_dip
+		trigger = {
+			diplomacy = 8
+		}
+		tooltip_info = diplomacy
+		prestige = -10
+		piety = -10
+		ai_chance = { factor = 100 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_postpone_uhh
+		prestige = -20
+		piety = -20
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_postpone_begin
+		custom_tooltip = { text = TXT_apparition_debt }
+		wealth = -1000
+		narrative_event = { id = apparition.60 days = 30 }
+		set_character_flag = marian_construction
+		ai_chance = { factor = 5 }
+	}
+}
+
+letter_event = {
+	id = apparition.55
+	desc = EVTDESC_apparition_fundletter
+	border = GFX_event_letter_frame_religion
+	is_triggered_only = yes
+	
+	trigger = {
+		religion_group = cult_of_saints
+	}
+
+	option = {
+		name = EVTOPT_apparition_fundletter_100
+		trigger = {
+			wealth = 100
+		}
+		wealth = -100
+		piety = 20
+		FROM = {
+			wealth = 100
+			change_variable = { which = marian_funding value = 100 }
+			opinion = { modifier = opinion_cathedral_donation who = ROOT years = 10 }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 2.5 
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+			}
+			modifier = {
+				factor = 1.5
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+			}
+			modifier = { factor = 2 trait = charitable }
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 0.5 NOT = { opinion = { who = FROM value = 80 } } }
+			modifier = { factor = 0 NOT = { opinion = { who = FROM value = 40 } } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fundletter_25
+		trigger = {
+			wealth = 25
+		}
+		wealth = -25
+		piety = 10
+		FROM = {
+			wealth = 25
+			change_variable = { which = marian_funding value = 25 }
+			opinion = { modifier = opinion_cathedral_donation who = ROOT years = 4 }
+		}
+		ai_chance = {
+			factor = 20
+			modifier = {
+				factor = 1.5
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+			}
+			modifier = {
+				factor = 1.5
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+			}
+			modifier = { factor = 2 trait = charitable }
+			modifier = { factor = 2 trait = zealous }
+			modifier = { factor = 0.5 NOT = { opinion = { who = FROM value = 60 } } }
+			modifier = { factor = 0 NOT = { opinion = { who = FROM value = 20 } } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fundletter_5
+		trigger = {
+			wealth = 5
+		}
+		wealth = -5
+		piety = 5
+		FROM = {
+			wealth = 5
+			change_variable = { which = marian_funding value = 5 }
+			opinion = { modifier = opinion_cathedral_donation who = ROOT years = 2 }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 1.5
+				event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+			}
+			modifier = { factor = 0.5 NOT = { opinion = { who = FROM value = 30 } } }
+			modifier = { factor = 0 NOT = { opinion = { who = FROM value = -10 } } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fundletter_zip
+		FROM = {
+			opinion = { modifier = opinion_no_cathedral_donation who = ROOT years = 2 }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 10
+				event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 2 } } }
+			}
+			modifier = {
+				factor = 3
+				event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+			}
+			modifier = { factor = 2 trait = greedy }
+			modifier = { factor = 2 trait = cynical }
+		}
+	}
+}
+
+narrative_event = {
+	id = apparition.60
+	title = EVTNAME_apparition_complete
+	desc = EVTDESC_apparition_complete
+	picture = GFX_evt_cathedral
+
+	is_triggered_only = yes
+
+	immediate = {
+		event_target:apparition_site = {
+			province_event = { id = apparition.70 days = 10 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_complete
+		remove_character_modifier = constructing_cathedral
+		piety = 100
+		prestige = 250
+		religion_authority = { modifier = grand_cathedral }
+		clr_character_flag = marian_construction
+		event_target:apparition_site = {
+			religion = ROOT
+			random_province_holding = {
+				limit = { holding_type = temple }
+				add_building = tp_monastery_1
+				add_building = tp_monastery_2
+				add_building = tp_monastery_3
+				add_building = tp_monastery_4
+				add_building = tp_monastery_5
+			}
+			add_province_modifier = { name = marian_shrine duration = 30000 }
+		}
+	}
+}
+
+province_event = {
+	id = apparition.70
+	desc = EVTDESC_bounce
+	picture = GFX_evt_lady_guadalupe
+
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		religion_group = cult_of_saints
+		owner = { religion_group = cult_of_saints }
+		has_province_modifier = marian_shrine
+	}
+	
+	immediate = {
+		any_independent_ruler = {
+			limit = {
+				ROOT = { NOT = { distance = { who = PREV distance = 250 } } }
+			}
+			any_realm_character = {
+				limit = {
+					age = 16
+					war = no
+					prisoner = no
+					NOT = { trait = incapable }
+					NOT = { has_character_modifier = marian_invite }
+				}
+				letter_event = { id = apparition.71 days = 5 random = 1980 }
+			}
+		}
+		province_event = { id = apparition.70 days = 2000 }
+		random = { chance = 30 province_event = { id = apparition.90 days = 10 } }
+	}
+	
+	option = { }
+}
+
+letter_event = {
+	id = apparition.71
+	desc = EVTDESC_apparition_invite
+	border = GFX_event_letter_frame_religion
+	is_triggered_only = yes
+	hide_FROM = yes
+	
+	trigger = {
+		religion_group = cult_of_saints
+		NOT = { has_character_modifier = marian_invite }
+	}
+	
+	immediate = {
+		add_character_modifier = { name = marian_invite duration = 3000 }
+	}
+
+	option = {
+		name = EVTOPT_apparition_invite_5
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+		}
+		narrative_event = { id = apparition.72 days = 10 }
+		ai_chance = { factor = 100 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_invite_4
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 5 } } }
+		}
+		narrative_event = { id = apparition.72 days = 10 }
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_invite_3
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 4 } } }
+		}
+		narrative_event = { id = apparition.72 days = 10 }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_invite_2
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+		}
+		narrative_event = { id = apparition.72 days = 10 }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_invite_1
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 2 } } }
+		}
+		prestige = -10
+		narrative_event = { id = apparition.72 days = 10 }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_invite_no
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+		}
+		prestige = 10
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_invite_no
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+		}
+		piety = -10
+		ai_chance = { factor = 5 }
+	}
+}
+
+narrative_event = {
+	id = apparition.72
+	title = EVTNAME_apparition_visit
+	desc = {
+		text = EVTDESC_apparition_vqual1
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 2 } } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual2
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 3 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual3
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 4 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 3 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual4
+		trigger = { 
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 5 } } }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 4 } }
+		}
+	}
+	desc = {
+		text = EVTDESC_apparition_vqual5
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+		}
+	}
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_apparition_visit_sick
+		trigger = {
+			trait = ill
+			event_target:apparition_site = { has_province_flag = vision_true }
+		}
+		tooltip_info = ill
+		hidden_tooltip = {
+			random = { chance = 50 narrative_event = { id = apparition.80 days = 5 } }
+		}
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_visit_sick
+		trigger = {
+			trait = ill
+			event_target:apparition_site = { has_province_flag = vision_false }
+		}
+		tooltip_info = ill
+		hidden_tooltip = {
+			random = { chance = 20 narrative_event = { id = apparition.80 days = 5 } }
+		}
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_visit_hoax
+		trigger = {
+			trait = cynical
+			intrigue = 10
+		}
+		tooltip_info = cynical
+		hidden_tooltip = {
+			random = {
+				chance = 10
+				event_target:apparition_site = { province_event = { id = apparition.91 days = 7 } }
+			}
+		}
+		ai_chance = { factor = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_visit_enjoy
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+		prestige = 10
+		random_list = {
+			5 = { add_trait = zealous }
+			10 = { add_trait = gregarious }
+			10 = { add_trait = lustful }
+			10 = { change_diplomacy = 1 }
+			65 = { }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = gregarious }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_visit_study
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+		piety = 10
+		random_list = {
+			10 = { add_trait = zealous }
+			10 = { add_trait = diligent }
+			10 = { add_trait = shy }
+			10 = { change_learning = 1 }
+			60 = { }
+		}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 trait = shy }
+			modifier = { factor = 2 trait = diligent }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_visit_angry
+		trigger = {
+			event_target:apparition_site = { NOT = { check_variable = { which = vision_quality value = 2 } } }
+		}
+		prestige = -10
+		ai_chance = { factor = 10 }
+	}
+}
+
+narrative_event = {
+	id = apparition.80
+	title = EVTNAME_apparition_miracle
+	desc = EVTDESC_apparition_miracle
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_apparition_miracle
+		remove_trait = ill
+		if = {
+			limit = { trait = cynical }
+			remove_trait = cynical
+		}
+		random = { chance = 50 add_trait = zealous }
+		event_target:apparition_seer = { 
+			character_event = { id = apparition.81 days = 5 }
+		}
+		event_target:apparition_site = {
+			owner = {
+				character_event = { id = apparition.81 days = 5 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = apparition.81
+	desc = EVTDESC_apparition_miracle_inform
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		prestige = 50
+	}
+}
+
+province_event = {
+	id = apparition.90
+	desc = EVTDESC_apparition_army
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	trigger = {
+		religion_group = cult_of_saints
+		owner = { religion_group = cult_of_saints }
+		has_province_modifier = marian_shrine
+		event_target:apparition_site = { check_variable = { which = vision_quality value = 5 } }
+	}
+	
+	option = {
+		name = OK
+		owner = {
+			create_character = {
+				dynasty = NONE
+				female = no
+				age = 22
+				religion = ROOT
+				culture = ROOT
+				attributes = {
+					martial = 10
+					learning = 6
+				}
+				trait = mastermind_theologian
+				trait = theologian
+				trait = celibate
+				trait = brave
+				trait = zealous
+				trait = chaste
+				trait = humble
+				trait = diligent
+				trait = holy_warrior
+			}
+			new_character = {
+				give_nickname = nick_the_monk
+				spawn_unit = {
+					province = PREVPREV
+					home = PREVPREV
+					owner = PREV
+					leader = THIS
+					troops = {
+						archers = { 400 400 }
+						light_infantry = { 1200 1200 }
+						heavy_infantry = { 200 200 }
+						light_cavalry = { 200 200 }
+					}
+					attrition = 1.0
+					maintenance_multiplier = 0.1
+				}
+			}
+		}
+		custom_tooltip = { text = TXT_apparition_army }
+	}
+}
+
+province_event = {
+	id = apparition.91
+	desc = EVTDESC_apparition_fraud
+	picture = GFX_evt_lady_guadalupe
+
+	is_triggered_only = yes
+	trigger = {
+		religion_group = cult_of_saints
+		owner = { religion_group = cult_of_saints }
+		has_province_modifier = marian_shrine
+		event_target:apparition_site = { has_province_flag = vision_false }
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fraud_silence
+		trigger = {
+			owner = { intrigue = 8 }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+		tooltip_info = intrigue
+		owner = {
+			scaled_wealth = -0.05
+			piety = -10
+			random_list = {
+				10 = { add_trait = cynical }
+				10 = { add_trait = deceitful }
+				10 = { add_trait = cruel }
+			}
+		}
+		random = { 
+			chance = 10
+			event_target:apparition_site = {
+				change_variable = { which = vision_quality value = -1 }
+			}
+			event_target:apparition_seer = {
+				hidden_tooltip = { character_event = { id = apparition.42 } }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fraud_deflect
+		trigger = {
+			owner = { diplomacy = 8 }
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+		tooltip_info = diplomacy
+		owner = {
+			prestige = -50
+			piety = -10
+		}
+		random = { 
+			chance = 50
+			event_target:apparition_site = {
+				change_variable = { which = vision_quality value = -1 }
+			}
+			event_target:apparition_seer = {
+				hidden_tooltip = { character_event = { id = apparition.42 } }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fraud_deny
+		trigger = {
+			event_target:apparition_site = { check_variable = { which = vision_quality value = 2 } }
+		}
+		owner = {
+			prestige = -50
+			piety = -50
+		}
+		event_target:apparition_site = {
+			change_variable = { which = vision_quality value = -1 }
+		}
+		event_target:apparition_seer = {
+			hidden_tooltip = { character_event = { id = apparition.42 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_apparition_fraud_halt
+		owner = {
+			prestige = -50
+		}
+		religion_authority = { modifier = apparition_hoax }
+		remove_province_modifier = marian_shrine
+		custom_tooltip = { text = TXT_apparition_hoax }
+		hidden_tooltip = { event_target:apparition_seer = { character_event = { id = apparition.42 } } }
+	}
+}
+

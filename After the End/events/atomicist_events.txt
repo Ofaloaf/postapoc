@@ -1,0 +1,853 @@
+# 1		atomic revival occurs in one of their holy sites
+# 2		revival continues, attempting to convert the holy site again
+# 3		revival in adjacent holy city has spread to this province
+# 10	non-atomicist ruler/advisor_spiritual of an atomicist holy city bears witness to the atomic revival
+# 11	your newly-atomicist vassal attempts to convert you
+# 12	you have converted to Atomicism
+# 13	your liege has agreed to convert
+# 14	your liege has refused to convert
+# 15	your advisor has succeeded in disrupting the revival
+# 16	your advisor has failed to disrupt the revival
+
+# should a decision to get blessed as an adult be added?
+#100	atomicist child is born, prepare for the blessing
+#101	parent chooses whether to grant the blessing of the atom
+#102	parent notified that spouse will choose whether blessing is granted
+#103	parent notified that spouse has chosen to undergo the ritual
+#104	parent notified that spouse has chosen not to undergo the ritual
+#110	secretly determine whether the ritual goes well or not
+#120	your ritual has gone well (send to child) [apply benefits]
+#121	your ritual has gone poorly (send to child) [apply penalties]
+#122	the ritual has gone well for your child (send to mom & dad)
+#123	the ritual has gone poorly for your child (send to mom & dad)
+
+namespace = event_atomicist
+
+# ************************* Atomicist Revival ************************
+
+province_event = {
+	id = event_atomicist.1
+	desc = EVTDESC_atom_revival
+	picture = GFX_evt_bishop_pagan_group
+
+	trigger = {
+		OR = { 
+			151 = { province = ROOT }	# knox (oak ridge)
+			170 = { province = ROOT }	# chicago
+			190 = { province = ROOT }	# three mile island (middletown)
+			423 = { province = ROOT }	# los alamos
+			2032 = { province = ROOT }	# alameda (livermore labs)
+		}
+		NOT = { has_province_modifier = atomic_revival }
+		holder_scope = {
+			NOT = { religion = atomicist }
+			NOT = { religion_authority = 0.8 }
+		}
+	}
+
+	mean_time_to_happen = {
+		years = 30
+		#days = 20
+		modifier = { factor = 1.5 NOT = { religion = atomicist } }
+		modifier = { factor = 0.5 holder_scope = { NOT = { religion_authority = 0.6 } } }
+		modifier = { factor = 0.5 holder_scope = { NOT = { religion_authority = 0.4 } } }
+	}
+   
+	immediate = {
+		add_province_modifier = { name = atomic_revival duration = 720 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_assist
+		trigger = { holder_scope = { religion = atomicist } }
+		holder_scope = { piety = 15 }
+		religion = atomicist
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_personal
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+		}
+		holder_scope = { narrative_event = { id = event_atomicist.10 days = 3 } }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_advisor
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+		}
+		holder_scope = { job_spiritual = { narrative_event = { id = event_atomicist.10 days = 3 } } }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_allow
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { NOT = { religion_authority = 0.6 } }
+			holder_scope = { NOT = { trait = zealous } }
+		}
+		holder_scope = { piety = -5 }
+		religion = atomicist
+		add_province_modifier = { name = religious_tension duration = 180 }
+		ai_chance = { factor = 5 }
+	}
+}
+
+province_event = {
+	id = event_atomicist.2
+	hide_window = yes
+	trigger = {
+		has_province_modifier = atomic_revival
+	}
+	mean_time_to_happen = {
+		years = 1
+		modifier = { factor = 2 religion = atomicist }
+		modifier = { factor = 0.8 holder_scope = { NOT = { religion_authority = 0.6 } } }
+		modifier = { factor = 0.5 holder_scope = { NOT = { religion_authority = 0.4 } } }
+	}
+	immediate = {
+		if = {
+			limit = { NOT = { religion = atomicist } }
+			ROOT = { province_event = { id = event_atomicist.3 } }
+		}
+		if = {
+			limit = { religion = atomicist }
+			random_neighbor_province = { province_event = { id = event_atomicist.3 } }
+		}
+	}
+	option = { }
+}
+
+province_event = {
+	id = event_atomicist.3
+	desc = EVTDESC_atom_revival_spread
+	picture = GFX_evt_bishop_pagan_group
+
+	is_triggered_only = yes
+	trigger = {
+		NOT = { religion = atomicist }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_assist
+		trigger = { holder_scope = { religion = atomicist } }
+		holder_scope = { piety = 15 }
+		religion = atomicist
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_spread_heresy
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { realm_learning = 20 }
+			holder_scope = { NOT = { trait = cynical } }
+		}
+		tooltip_info = learning
+		holder_scope = { piety = 10 }
+		add_province_modifier = { name = religious_tension duration = 180 }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_spread_crush
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { realm_martial = 20 }
+			holder_scope = { NOT = { trait = kind } }
+		}
+		tooltip_info = martial
+		holder_scope = { piety = 5 }
+		add_province_modifier = { name = religious_tension duration = 720 }
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_allow
+		trigger = { holder_scope = { NOT = { religion = atomicist } } }
+		holder_scope = { piety = -5 }
+		religion = atomicist
+		add_province_modifier = { name = religious_tension duration = 180 }
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_spread_convert
+		trigger = {
+			holder_scope = { NOT = { religion = atomicist } }
+			holder_scope = { NOT = { trait = zealous } }
+			holder_scope = { NOT = { religion_authority = 0.5 } }
+		}
+		religion = atomicist
+		holder_scope = { religion = atomicist }
+		ai_chance = { factor = 5 }
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.10
+	title = EVTNAME_atom_revival_witness
+	desc = EVTDESC_atom_revival_witness
+	picture = GFX_evt_bishop_pagan_group
+
+	is_triggered_only = yes
+	trigger = {
+		NOT = { religion = atomicist }
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_witness_convert
+		religion = atomicist
+		FROM = { religion = atomicist }
+		custom_tooltip = { text = TXT_atom_revival_convert }
+		hidden_tooltip = { narrative_event = { id = event_atomicist.12 days = 2 } }
+		hidden_tooltip = { liege = { character_event = { id = event_atomicist.11 days = 5 } } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 0.5 religion_authority = 0.5 }
+			modifier = { factor = 0 religion_authority = 0.8 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_witness_resist
+		random = { chance = 50 FROM = { religion = atomicist } }
+		FROM = { add_province_modifier = { name = religious_tension duration = 720 } }
+		hidden_tooltip = { FROM = { holder_scope = { character_event = { id = event_atomicist.16 } } } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 religion_authority = 0.7 }
+			modifier = { factor = 2 religion_authority = 0.6 }
+			modifier = { factor = 2 religion_authority = 0.4 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_witness_heresy
+		trigger = { learning = 12 }
+		tooltip_info = learning
+		piety = 10
+		FROM = { add_province_modifier = { name = religious_tension duration = 720 } }
+		random_list = {
+			50 = {
+				FROM = { remove_province_modifier = atomic_revival }
+				FROM = { holder_scope = { character_event = { id = event_atomicist.15 } } }
+			}
+			50 = { FROM = { holder_scope = { character_event = { id = event_atomicist.16 } } } }
+		}
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 2 religion_authority = 0.6 }
+			modifier = { factor = 2 religion_authority = 0.4 } 
+		}
+	}
+}
+
+character_event = {
+	id = event_atomicist.11
+	desc = EVTDESC_atom_revival_convertup
+	picture = GFX_evt_bishop_pagan_group
+	
+	is_triggered_only = yes
+	trigger = {
+		NOT = { character = FROM }
+	}
+
+	option = {
+		name = EVTOPT_atom_revival_convertup_agree
+		trigger = {
+			NOT = { trait = zealous }
+			NOT = { religion_authority = 0.8 }
+		}
+		religion = atomicist
+		custom_tooltip = { text = TXT_atom_revival_convert }
+		hidden_tooltip = { liege = { character_event = { id = event_atomicist.11 days = 5 } } }
+		hidden_tooltip = { narrative_event = { id = event_atomicist.12 days = 2 } }
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.13 } } }
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 NOT = { religion_authority = 0.7 } }
+			modifier = { factor = 2 NOT = { religion_authority = 0.5 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_convertup_refuse
+		opinion = {
+			who = FROM
+			modifier = opinion_infidel
+			months = 120
+			multiplier = 1
+		}
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.14 } } }
+		ai_chance = {
+			factor = 20
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_convertup_diplomacy
+		trigger = {
+			diplomacy = 8
+		}
+		piety = 5
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.14 } } }
+		hidden_tooltip = { FROM = { character_event = { id = 39023 days = 4 } }	}
+		ai_chance = {
+			factor = 50
+		}
+	}
+	
+	option = {
+		name = EVTOPT_atom_revival_convertup_imprison
+		trigger = {
+			is_liege_of = FROM
+			OR = {
+				trait = wroth
+				trait = zealous
+				trait = lunatic
+			}
+			OR = {
+				NOT = { is_close_relative = FROM }
+				trait = lunatic
+			}
+		}
+		hidden_tooltip = { FROM = { character_event = { id = event_atomicist.14 } } }
+		hidden_tooltip = { FROM = { character_event = { id = 39024 days = 4 } }	}
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 10 trait = zealous }
+		}
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.12
+	title = EVTNAME_atom_revival_converted
+	desc = EVTDESC_atom_revival_converted
+	picture = GFX_evt_bishop_pagan_group
+
+	is_triggered_only = yes
+	trigger = {
+		religion = atomicist
+		primary_title = { higher_tier_than = BARON }
+	}
+	
+	immediate = {
+		religion_authority = { modifier = ruler_converted_to }
+	}
+
+	option = {
+		name = EVTOPT_atom_revival_converted
+	}
+}
+
+
+character_event = {
+	id = event_atomicist.13
+	desc = EVTDESC_atom_revival_liegeconverted
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = { name = EVTOPT_atom_revival_liegeconverted }
+}
+
+character_event = {
+	id = event_atomicist.14
+	desc = EVTDESC_atom_revival_liegerefused
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = { name = EVTOPT_atom_revival_liegerefused }
+}
+
+character_event = {
+	id = event_atomicist.15
+	desc = EVTDESC_atom_revival_advisorsuccess
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = {
+		name = EVTOPT_atom_revival_advisorsuccess
+		# maybe add an opinion bonus?
+	}
+}
+
+character_event = {
+	id = event_atomicist.16
+	desc = EVTDESC_atom_revival_advisorneutral
+	picture = GFX_evt_bishop_pagan_group
+	is_triggered_only = yes
+	trigger = { NOT = { character = FROM } }
+	option = { name = EVTOPT_atom_revival_advisorneutral }
+}
+
+# something to begin demanding conversions from all your vassals/courtiers?
+# perhaps it could require some flag or modifier set during the revival
+# each time a vassal refuses, you get an opinion penalty with all other non-atomicists
+# if you're beloved, you should easily convert most of your vassals
+# otherwise, this is likely to lead to civil war
+
+
+# ************************* Blessing of the Atom ************************
+
+character_event = {
+	id = event_atomicist.100
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		religion = atomicist
+	}
+	immediate = {
+		if = { limit = { is_female = yes }
+			mother = { character_event = { id = event_atomicist.101 days = 5 } }
+			father = { character_event = { id = event_atomicist.102 days = 5 } }
+		}
+		if = { limit = { is_female = no }
+			mother = { character_event = { id = event_atomicist.102 days = 5 } }
+			father = { character_event = { id = event_atomicist.101 days = 5 } }
+		}
+	}
+	option = { }
+}
+
+character_event = {
+	id = event_atomicist.101
+	desc = EVTDESC_atom_birth
+	picture = GFX_evt_birth
+
+	is_triggered_only = yes
+	
+	option = {
+		name = OPTDESC_atom_birth_tradition
+		trigger = {
+			religion = atomicist
+			OR = { 
+				trait = atom_bless
+				trait = atom_curse
+			}
+		}
+		piety = 10
+		any_spouse = { character_event = { id = event_atomicist.103 days = 3 } }
+		FROM = { character_event = { id = event_atomicist.110 days = 5 } }
+		ai_chance = {
+			factor = 100
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 0.2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = OPTDESC_atom_birth_grant
+		trigger = {
+			religion = atomicist
+			NOT = { OR = { 
+					trait = atom_bless
+					trait = atom_curse
+				}	
+			}
+		}
+		piety = 10
+		any_spouse = { character_event = { id = event_atomicist.103 days = 3 } }
+		FROM = { character_event = { id = event_atomicist.110 days = 5 } }
+		ai_chance = {
+			factor = 25
+			modifier = { factor = 5 trait = zealous }
+			modifier = { factor = 0.2 trait = cynical }
+		}
+	}
+	
+	option = {
+		name = OPTDESC_atom_birth_deny
+		piety = -10
+		any_spouse = { character_event = { id = event_atomicist.104 days = 3 } }
+		FROM = { add_trait = atom_deny }
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = event_atomicist.102
+	desc = EVTDESC_atom_birth_spousedecide
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	option = { name = OK }
+}
+
+character_event = {
+	id = event_atomicist.103
+	desc = EVTDESC_atom_birth_spousegrant
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	option = { name = OK }
+}
+
+character_event = {
+	id = event_atomicist.104
+	desc = EVTDESC_atom_birth_spousedeny
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	option = { name = OK }
+}
+
+character_event = {
+	id = event_atomicist.110
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		random_list = {
+			75 = { narrative_event = { id = event_atomicist.120 days = 5 } } # good ritual
+			25 = { narrative_event = { id = event_atomicist.121 days = 5 } } # bad ritual
+		}
+	}
+	option = { }
+}
+
+narrative_event = {
+	id = event_atomicist.120
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualgood
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	immediate = {
+		mother = { narrative_event = { id = event_atomicist.122 } }
+		father = { narrative_event = { id = event_atomicist.122 } }
+	}
+	
+	option = {
+		name = OK
+		add_trait = atom_bless
+		random_list = {
+			2 = { add_trait = genius }
+			3 = { add_trait = quick }
+			5 = { add_trait = strong }
+			20 = { remove_trait = ill }
+			20 = { remove_trait = sickly }
+			50 = { }
+		}
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.121
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualbad
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	immediate = {
+		mother = { narrative_event = { id = event_atomicist.123 } }
+		father = { narrative_event = { id = event_atomicist.123 } }
+	}
+	
+	option = {
+		name = OK
+		add_trait = atom_curse
+		random_list = {
+			40 = { add_trait = ill }
+			15 = { add_trait = wounded }
+			5 = { add_trait = lunatic }
+			5 = { add_trait = possessed }
+			5 = { add_trait = ugly }
+			5 = { add_trait = clubfooted }
+			5 = { add_trait = hunchback }
+			5 = { add_trait = harelip }
+			5 = { add_trait = weak }
+			5 = { add_trait = slow }
+			5 = { add_trait = imbecile }
+		}
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.122
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualgoodparent
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_atom_birth_ritualgoodparent
+	}
+}
+
+narrative_event = {
+	id = event_atomicist.123
+	title = EVTNAME_atom_birth_ritual
+	desc = EVTDESC_atom_birth_ritualbadparent
+	picture = GFX_evt_birth
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_atom_birth_ritualbadparent
+	}
+}
+
+####################################################
+# Atomicist torture events
+# By Henrik "Groogy" Hansson, modified by Sam
+####################################################
+character_event = {
+	id = event_atomicist.15000
+	
+	desc = "EVTDESCATOM15000"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		add_character_modifier = {
+			name = atom_judgement
+			duration = -1
+		}
+		
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+	
+	option = {
+		name = "OK"
+	}
+}
+
+character_event = {
+	id = event_atomicist.15001
+	
+	hide_window = yes
+	#desc = "EVTDESCATOM15001"
+	#picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		set_character_flag = atom_judged
+		
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+				NOT = { trait = zealous }
+				NOT = { trait = cynical }
+				NOT = { religion = atomicist }
+				NOT = { trait = lunatic }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				10 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				5 = { character_event = { id = event_atomicist.15005 } } # Character goes insane
+				5 = { character_event = { id = event_atomicist.15006 } } # Character goes zealous
+				5 = { character_event = { id = event_atomicist.15007 } } # Character goes atomicist
+				10 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+				NOT = { trait = zealous }
+				NOT = { trait = cynical }
+				NOT = { religion = atomicist }
+				trait = lunatic
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				5 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				5 = { character_event = { id = event_atomicist.15006 } } # Character goes zealous
+				5 = { character_event = { id = event_atomicist.15007 } } # Character goes atomicist
+				20 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+				NOT = { trait = lunatic }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				5 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				5 = { character_event = { id = event_atomicist.15005 } } # Character goes insane
+				20 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = passing_atom_judgement }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				5 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				20 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+		
+		if = {
+			limit = {
+				trait = incapable
+				NOT = { has_character_flag = passing_atom_judgement }
+			}
+			
+			set_character_flag = passing_atom_judgement
+			random_list = {
+				60 = { character_event = { id = event_atomicist.15003 } } # Character lives
+				40 = { character_event = { id = event_atomicist.15004 } } # Character dies
+				10 = { character_event = { id = event_atomicist.15002 } }  # Character is freed
+			}
+		}
+	}
+}
+
+character_event = {	# End torture
+	id = event_atomicist.15002
+	
+	desc = "EVTDESCATOM15002"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_modifier = atom_judgement
+		prisoner = yes
+	}
+	
+	option = {
+		name = "EVTOPTACM15002"
+		remove_character_modifier = atom_judgement
+		clr_character_flag = passing_atom_judgement
+		prisoner = no
+	}
+}
+
+character_event = {	# Character lives
+	id = event_atomicist.15003
+	
+	#desc = "EVTDESCATOM15003"
+	#picture = GFX_evt_emissary
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTAATOM15003"
+		clr_character_flag = passing_atom_judgement
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}
+
+character_event = {	# Character dies
+	id = event_atomicist.15004
+	
+	desc = "EVTDESCATOM15004"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTACM15004"
+		remove_character_modifier = atom_judgement
+		clr_character_flag = passing_atom_judgement
+		host = {
+			ROOT = {
+				death = { 
+					killer = PREV
+					death_reason = death_sacrificed
+				}
+			}
+		}
+
+	}
+}
+
+character_event = {	# Character goes insane
+	id = event_atomicist.15005
+	
+	desc = "EVTDESCCM15005"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTACM15005"
+		clr_character_flag = passing_atom_judgement
+		add_trait = lunatic
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}
+
+character_event = {	# Character goes zealous
+	id = event_atomicist.15006
+	
+	desc = "EVTDESCCM15006"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTACM15006"
+		clr_character_flag = passing_atom_judgement
+		add_trait = zealous
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}
+
+character_event = {	# Character goes atomicist
+	id = event_atomicist.15007
+	
+	desc = "EVTDESCATOM15007"
+	picture = GFX_evt_emissary
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTAATOM15007"
+		clr_character_flag = passing_atom_judgement
+		religion = atomicist
+		character_event = { id = event_atomicist.15001 days = 30 }
+	}
+}
+
+# Survivor of radiation gets cancer
+character_event = {
+	id = event_atomicist.15010
+	
+	desc = "EVTDESCATOM15010"
+	picture = GFX_evt_bad_news
+	
+	trigger = {
+		NOT = { has_character_flag = cancer }
+		OR = {
+			has_character_flag = atom_judged
+			trait = atom_curse
+		}
+	}
+	
+	mean_time_to_happen = {
+		years = 10
+		modifier = {
+			factor = 3
+			NOT = { has_character_flag = atom_judged }
+		}
+	}
+	
+	option = {
+		name = "OK"
+		add_trait = ill
+		health = -1
+		set_character_flag = cancer
+	}
+}

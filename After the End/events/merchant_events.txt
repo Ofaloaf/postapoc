@@ -1,0 +1,1611 @@
+# D 	consumerist religion head has annual decision to invest in a merchant and send him into the world
+# 1 	merchant: move randomly to court of random_independent_ruler or random_playable_ruler
+# 2 	CURRENTLY UNUSED ruler: see if the ruler is acceptable, back to #1 if not
+# 3		CURRENTLY UNUSED [hidden] helper bounce event
+# 4 	ruler of court can decide how to react to merchant, allow or deny in court
+# 10	merchant: choose an offer to send to ruler, occurs periodically until he leaves court
+# 11	ruler: merchant offers to trade luxuries, remaining in province
+# 12	ruler: merchant offers a loan, likely if in debt
+# 13	ruler: the loan is called in
+# 14	spiritual: theological conflict with infidel merchant
+# 15	ruler: your job_spiritual is angry about the infidel merchant in your court
+# 16	ruler: your job_spiritual has converted the infidel merchant in your court
+# 17	merchant: ruler rebuffed advisor, attempt to convert ruler
+# 18	ruler: merchant offers gift for ruler to convert to consumerism
+# 19	ruler: old loan is called in
+# 20	merchant: a profit has been made, head of consumerists also gets a cut
+# 21	merchant: choose a type of salvage to buy
+# 22	merchant: choose a type of salvage to sell
+# 30	merchant offers to buy firearm
+# 31	merchant offers to buy calculator
+# 32	merchant offers to buy typewriter
+# 33	merchant offers to buy watch
+# 34	merchant offers to buy telescope
+# 35	merchant offers to buy textbooks
+# 40	merchant offers to sell firearm
+# 41	merchant offers to sell calculator
+# 42	merchant offers to sell typewriter
+# 43	merchant offers to sell watch
+# 44	merchant offers to sell telescope
+# 45	merchant offers to sell textbooks
+# 50	consumerist religion head decides whether to led him keep his spoils or not
+# 51	consumerist religion head receives a payment from a broker
+# 52	you have exiled a broker from your court, pissing him off
+# 60	[hidden] consumerists are pissed
+# 61	dollar coins found among your servants
+# 62	you are attacked by assassin
+# 63	you are poisoned by assassins
+# 64	you are driven mad by long term poisoning
+# 65	[hidden] choose a target close to you
+# 66	[hidden] only unlanded character, see whether they'll be killed, pass back to you
+# 67	someone close to you is murdered
+# 68	someone close to you is injured
+
+namespace = merchant
+
+character_event = {
+	id = merchant.1
+	desc = EVTDESC_bounce
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { 
+		religion = consumerist
+		NOT = { has_character_modifier = merchant_retired }
+		NOT = { num_of_titles = 1 }
+	}
+	
+	option = {
+		trigger = { wealth = 500 }
+		religion_head = { narrative_event = { id = merchant.50 } }
+	}
+	
+	option = {
+		random_independent_ruler = {
+			limit = { age = 35 }
+			narrative_event = { id = merchant.4 }
+		}
+	}
+	
+	option = {
+		random_playable_ruler = {
+			limit = { NOT = { age = 35 } }
+			narrative_event = { id = merchant.4 }
+		}
+	}
+	
+	option = {
+		random_playable_ruler = {
+			narrative_event = { id = merchant.4 }
+		}
+	}
+}
+
+#narrative_event = {
+#	id = merchant.2
+#	picture = GFX_evt_throne_room
+#	hide_window = yes
+#	is_triggered_only = yes
+#	
+#	immediate = {
+#		if = {	# avoid this court
+#			limit = {
+#				OR = {
+#					AND = { NOT = { religion = consumerist } trait = zealous }
+#					trait = lunatic
+#					has_character_modifer = poor_credit
+#					has_character_flag = consumerist_enemy
+#				}
+#			}
+#			FROM = { character_event = { id = merchant.1 } }
+#		}
+#		
+#		if = {	# 50% chance to go here
+#			limit = {
+#				NOT = { AND = { NOT = { religion = consumerist } trait = zealous } }
+#				NOT = { trait = lunatic }
+#				NOT = { has_character_modifer = poor_credit }
+#				NOT = { has_character_flag = consumerist_enemy }
+#				intrigue = 12
+#				trait = cruel
+#				trait = arbitrary
+#			}
+#			random_list = {
+#				50 = { FROM = { character_event = { id = merchant.1 } } }
+#				50 = { character_event = { id = merchant.3 } }
+#			}
+#		}
+#		
+#		if = {	# always go here
+#			limit = {
+#				NOT = { AND = { NOT = { religion = consumerist } trait = zealous } }
+#				NOT = { trait = lunatic }
+#				NOT = { has_character_modifer = poor_credit }
+#				NOT = { has_character_flag = consumerist_enemy }
+#				NOT = { intrigue = 12 }
+#				NOT = { trait = cruel }
+#				NOT = { trait = arbitrary }
+#			}
+#			character_event = { id = merchant.3 }
+#		}
+#	}
+#	
+#	option = { }
+#}
+
+#character_event = {
+#	id = merchant.3
+#	hide_window = yes
+#	is_triggered_only = yes
+#	option = { FROM = { narrative_event = { id = merchant.4 } } }
+#}
+
+narrative_event = {
+	id = merchant.4
+	title = EVTNAME_broker_arrive
+	desc = EVTDESC_broker_arrive
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	#option = {
+	#	name = DEBUG_STAY
+	#	FROM = { move_character = ROOT }
+	#	FROM = { character_event = { id = merchant.10 days = 10 } }
+	#	FROM = { add_character_modifier = { name = merchant_recent_arrive duration = -1 } }
+	#	ai_chance = { factor = 0 }
+	#}
+	
+	option = { 
+		name = EVTOPT_broker_arrive_allow
+		FROM = { move_character = ROOT }
+		FROM = { character_event = { id = merchant.10 days = 5 } }
+		FROM = { add_character_modifier = { name = merchant_recent_arrive duration = 180 } }	
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 50 religion = consumerist }
+			modifier = { factor = 2 trait = gluttonous }
+			modifier = { factor = 2 trait = proud }
+		}
+	}
+	
+	option = { 
+		name = EVTOPT_broker_arrive_deny
+		FROM = { character_event = { id = merchant.1 days = 2 } }
+		ai_chance = {
+			factor = 10
+		}
+	}
+	
+	option = { 
+		name = EVTOPT_broker_arrive_confiscate
+		trigger = { NOT = { religion = consumerist } }
+		wealth = 50
+		FROM = { wealth = -50 }
+		FROM = { character_event = { id = merchant.1 days = 2 } }
+		set_character_flag = consumerist_enemy
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		ai_chance = {
+			factor = 1
+			modifier = { factor = 10 trait = greedy }
+			modifier = { factor = 5 trait = arbitrary }
+			modifier = { factor = 5 trait = envious }
+			modifier = { factor = 5 trait = deceitful }
+		}
+	}
+}
+
+character_event = {
+	id = merchant.10
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		religion = consumerist
+		NOT = { has_character_modifier = merchant_retired }
+	}
+	
+	# skip town
+	option = {
+		trigger = {
+			OR = {
+				NOT = { has_character_modifier = merchant_recent_arrive }
+				liege = { has_character_flag = consumerist_enemy }
+			}
+		}
+		character_event = { id = merchant.1 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 20 liege = { has_character_flag = consumerist_enemy } }
+		}
+	}
+	
+	# ask for privileges
+	option = {
+		trigger = { liege = { NOT = { has_character_modifier = consumerist_privileges } } }
+		liege = { character_event = { id = merchant.11 } }
+		character_event = { id = merchant.10 days = 30 random = 30 }
+		ai_chance = { factor = 50 }
+	}
+	
+	# make a bit of money
+	option = {
+		trigger = { liege = { has_character_modifier = consumerist_privileges } }
+		wealth = 10
+		character_event = { id = merchant.10 days = 30 random = 30 }
+		ai_chance = { factor = 30 }
+	}
+	
+	# offer loan
+	option = {
+		trigger = { 
+			liege = { NOT = { has_character_modifier = consumerist_loan } }
+			liege = { NOT = { has_character_modifier = poor_credit } }
+			liege = { NOT = { wealth = 50 } }
+		}
+		liege = { character_event = { id = merchant.12 } }
+		character_event = { id = merchant.10 days = 30 random = 30 }
+		ai_chance = { factor = 50 }
+	}
+	
+	# collect loan
+	option = {
+		trigger = {
+			liege = { has_character_modifier = consumerist_loan }
+			liege = { wealth = 25 }
+			OR = { 
+				liege = { wealth = 250 }
+				liege = { trait = salvage_firearm }
+				liege = { trait = salvage_typewriter }
+				liege = { trait = salvage_calculator }
+				liege = { trait = salvage_watch }
+				liege = { trait = salvage_telescope }
+				liege = { trait = salvage_textbooks }
+			}
+		}
+		liege = { character_event = { id = merchant.13 } }
+		character_event = { id = merchant.10 days = 30 random = 30 }
+		ai_chance = { factor = 20 }
+	}
+	
+	# conflict with spiritual advisor
+	option = {
+		trigger = {
+			liege = { NOT = { religion = consumerist } }
+		}
+		liege = { job_spiritual = { character_event = { id = merchant.14 } } }
+		character_event = { id = merchant.10 days = 30 random = 30 }
+		ai_chance = { factor = 10 }
+	}
+	
+	# offer to buy salvage
+	option = {
+		trigger = {
+			liege = { NOT = { has_character_modifier =  precious_heirloom } }
+			OR = { 
+				liege = { trait = salvage_firearm }
+				liege = { trait = salvage_typewriter }
+				liege = { trait = salvage_calculator }
+				liege = { trait = salvage_watch }
+				liege = { trait = salvage_telescope }
+				liege = { trait = salvage_textbooks }
+			}
+		}
+		character_event = { id = merchant.21 }
+		character_event = { id = merchant.10 days = 30 random = 30 }
+		ai_chance = { factor = 15 }
+	}
+	
+	# offer to sell salvage
+	option = {
+		trigger = {
+			liege = { wealth = 500 }
+			OR = {
+				liege = { NOT = { trait = salvage_firearm } }
+				liege = { NOT = { trait = salvage_typewriter } }
+				liege = { NOT = { trait = salvage_calculator } }
+				liege = { NOT = { trait = salvage_watch } }
+				liege = { NOT = { trait = salvage_telescope } }
+				liege = { NOT = { trait = salvage_textbooks } }
+			}
+		}
+		character_event = { id = merchant.22 }
+		character_event = { id = merchant.10 days = 30 random = 30 }
+		ai_chance = { factor = 10 }
+	}
+}
+
+narrative_event = {
+	id = merchant.11
+	title = EVTNAME_broker_luxury
+	desc = EVTDESC_broker_luxury
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_luxury_accept
+		trigger = { wealth = 20 }
+		wealth = -20
+		add_character_modifier = { name = consumerist_privileges duration = 180 } 
+		FROM = { wealth = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_luxury_deny
+	}
+}
+
+character_event = {
+	id = merchant.12
+	desc = EVTDESC_broker_loan
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { NOT = { has_character_modifier = consumerist_loan } }
+	
+	option = {
+		name = EVTOPT_broker_loan_accept
+		add_character_modifier = { name = consumerist_loan duration = -1 }
+		hidden_tooltip = { character_event = { id = merchant.19 days = 900 random = 900} }
+		wealth = 200
+		FROM = { wealth = -25 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_loan_reject
+	}
+}
+
+character_event = {
+	id = merchant.13
+	desc = EVTDESC_broker_repay
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { has_character_modifier = consumerist_loan }
+	
+	option = {
+		name = EVTOPT_broker_repay_repay
+		trigger = { wealth = 250 }
+		wealth = -250
+		FROM = { wealth = 50 }
+		remove_character_modifier = consumerist_loan
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_minimum
+		wealth = -10
+		FROM = { wealth = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_reject
+		FROM = { character_event = { id = merchant.1 } }
+		remove_character_modifier = consumerist_privileges
+		add_character_modifier = { name = poor_credit duration = -1 } 
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_firearm
+		trigger = { trait = salvage_firearm }
+		remove_trait = salvage_firearm
+		remove_character_modifier = consumerist_loan
+		FROM = { wealth = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_typewriter
+		trigger = { trait = salvage_typewriter }
+		remove_trait = salvage_typewriter
+		remove_character_modifier = consumerist_loan
+		FROM = { wealth = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_calculator
+		trigger = { trait = salvage_calculator }
+		remove_trait = salvage_calculator
+		remove_character_modifier = consumerist_loan
+		FROM = { wealth = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_watch
+		trigger = { trait = salvage_watch }
+		remove_trait = salvage_watch
+		remove_character_modifier = consumerist_loan
+		FROM = { wealth = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_telescope
+		trigger = { trait = salvage_telescope }
+		remove_trait = salvage_telescope
+		remove_character_modifier = consumerist_loan
+		FROM = { wealth = 50 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_repay_textbooks
+		trigger = { trait = salvage_textbooks }
+		remove_trait = salvage_textbooks
+		remove_character_modifier = consumerist_loan
+		FROM = { wealth = 50 }
+	}
+}
+
+character_event = {
+	id = merchant.14
+	desc = EVTDESC_broker_dispute
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_dispute_complain
+		liege = { character_event = { id = merchant.15 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_dispute_lazy
+		random = { chance = 10 add_trait = slothful }
+	}
+}
+
+character_event = {
+	id = merchant.15
+	desc = EVTDESC_broker_complain
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_complain_keep
+		reverse_opinion = {
+			who = FROM
+			modifier = opinion_insulted
+			months = 60
+			multiplier = 1
+		}
+		FROMFROM = { character_event = { id = merchant.17 } }
+		ai_chance = { factor = 40 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_complain_leave
+		reverse_opinion = {
+			who = FROM
+			modifier = opinion_happy 
+			months = 24
+			multiplier = 1
+		}
+		FROMFROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = merchant.17
+	hide_window = yes
+	is_triggered_only = yes
+	option = { FROM = { narrative_event = { id = merchant.18 } } }
+}
+
+narrative_event = {
+	id = merchant.18
+	title = EVTNAME_broker_converthost
+	desc = EVTDESC_broker_converthost
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_converthost_reject
+		piety = 10
+		ai_chance = { factor = 10 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_converthost_convert
+		trigger = { wealth = 100 }
+		wealth = -100
+		religion = consumerist
+		ai_chance = { factor = 0 }
+	}
+}
+
+narrative_event = {
+	id = merchant.19
+	title = EVTNAME_broker_oldloan
+	desc = EVTDESC_broker_oldloan
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { has_character_modifier = consumerist_loan }
+	
+	option = {
+		name = EVTOPT_broker_oldloan_pay
+		remove_character_modifier = consumerist_loan
+		remove_character_modifier = poor_credit
+		wealth = -300
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 2 wealth = 500 }
+			modifier = { factor = 5 wealth = 300 }
+			modifier = { factor = 2 wealth = 200 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_broker_oldloan_reject
+		random_list = {
+			10 = { add_trait = arbitrary }
+			10 = { add_trait = greedy }
+			10 = { add_trait = deceitful }
+		}
+		add_character_modifier = { name = poor_credit duration = -1 }
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		set_character_flag = consumerist_enemy
+		hidden_tooltip = { narrative_event = { id = merchant.60 days = 180 random = 360 } }
+		ai_chance = { factor = 10 }
+	}
+}
+
+character_event = {
+	id = merchant.20
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = { religion = consumerist }
+	
+	option = {
+		wealth = 100
+		religion_head = { character_event = { id = merchant.51 } }
+	}
+}
+
+character_event = {
+	id = merchant.21
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = { religion = consumerist }
+	
+	option = {
+		trigger = { liege = { trait = salvage_firearm } }
+		liege = { character_event = { id = merchant.30 } }
+	}
+	
+	option = {
+		trigger = { liege = { trait = salvage_typewriter } }
+		liege = { character_event = { id = merchant.31 } }
+	}
+	
+	option = {
+		trigger = { liege = { trait = salvage_calculator } }
+		liege = { character_event = { id = merchant.32 } }
+	}
+	
+	option = {
+		trigger = { liege = { trait = salvage_watch } }
+		liege = { character_event = { id = merchant.33 } }
+	}
+	
+	option = {
+		trigger = { liege = { trait = salvage_telescope } }
+		liege = { character_event = { id = merchant.34 } }
+	}
+	
+	option = {
+		trigger = { liege = { trait = salvage_textbooks } }
+		liege = { character_event = { id = merchant.35 } }
+	}
+}
+
+character_event = {
+	id = merchant.22
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = { religion = consumerist }
+	
+	option = {
+		random_list = {
+			10 = { liege = { character_event = { id = merchant.40 } } }
+			10 = { liege = { character_event = { id = merchant.41 } } }
+			10 = { liege = { character_event = { id = merchant.42 } } }
+			10 = { liege = { character_event = { id = merchant.43 } } }
+			10 = { liege = { character_event = { id = merchant.44 } } }
+			10 = { liege = { character_event = { id = merchant.45 } } }
+		}
+	}
+}
+
+# ************************* Buy Salvage  ************************
+
+narrative_event = {
+	id = merchant.30
+	title = EVTNAME_broker_buy
+	desc = EVTDESC_broker_buy_firearm
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { trait = salvage_firearm }
+	
+	option = {
+		name = EVTOPT_broker_buy_gold
+		trigger = {	NOT = { stewardship = 10 } }
+		remove_trait = salvage_firearm
+		wealth = 250
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_stewardship
+		trigger = {	stewardship = 10 }
+		tooltip_info = stewardship
+		remove_trait = salvage_firearm
+		wealth = 300
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_refuse
+		prestige = 5
+		add_character_modifier = { name = precious_heirloom duration = 1500 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 50 has_nickname = nick_the_firebringer }
+			modifier = { factor = 50 has_nickname = nick_the_thunderhand }
+			modifier = { factor = 50 has_nickname = nick_the_marksman }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.31
+	title = EVTNAME_broker_buy
+	desc = EVTDESC_broker_buy_typewriter
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { trait = salvage_typewriter }
+	
+	option = {
+		name = EVTOPT_broker_buy_gold
+		trigger = {	NOT = { stewardship = 10 } }
+		remove_trait = salvage_typewriter
+		wealth = 250
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_stewardship
+		trigger = {	stewardship = 10 }
+		tooltip_info = stewardship
+		remove_trait = salvage_typewriter
+		wealth = 300
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_refuse
+		prestige = 5
+		add_character_modifier = { name = precious_heirloom duration = 1500 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 50 has_nickname = nick_the_chronicler }
+			modifier = { factor = 50 has_nickname = nick_the_poet }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.32
+	title = EVTNAME_broker_buy
+	desc = EVTDESC_broker_buy_calculator
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { trait = salvage_calculator }
+	
+	option = {
+		name = EVTOPT_broker_buy_gold
+		trigger = {	NOT = { stewardship = 10 } }
+		remove_trait = salvage_calculator
+		wealth = 250
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_stewardship
+		trigger = {	stewardship = 10 }
+		tooltip_info = stewardship
+		remove_trait = salvage_calculator
+		wealth = 300
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_refuse
+		prestige = 5
+		add_character_modifier = { name = precious_heirloom duration = 1500 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 50 has_nickname = nick_the_shrewd }
+			modifier = { factor = 50 has_nickname = nick_the_calculator }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.33
+	title = EVTNAME_broker_buy
+	desc = EVTDESC_broker_buy_watch
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { trait = salvage_watch }
+	
+	option = {
+		name = EVTOPT_broker_buy_gold
+		trigger = {	NOT = { stewardship = 10 } }
+		remove_trait = salvage_watch
+		wealth = 250
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_stewardship
+		trigger = {	stewardship = 10 }
+		tooltip_info = stewardship
+		remove_trait = salvage_watch
+		wealth = 300
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_refuse
+		prestige = 5
+		add_character_modifier = { name = precious_heirloom duration = 1500 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 50 has_nickname = nick_the_stylish }
+			modifier = { factor = 50 has_nickname = nick_the_timekeeper }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.34
+	title = EVTNAME_broker_buy
+	desc = EVTDESC_broker_buy_telescope
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { trait = salvage_telescope }
+	
+	option = {
+		name = EVTOPT_broker_buy_gold
+		trigger = {	NOT = { stewardship = 10 } }
+		remove_trait = salvage_telescope
+		wealth = 250
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_stewardship
+		trigger = {	stewardship = 10 }
+		tooltip_info = stewardship
+		remove_trait = salvage_telescope
+		wealth = 300
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_refuse
+		prestige = 5
+		add_character_modifier = { name = precious_heirloom duration = 1500 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 50 has_nickname = nick_the_astronomer }
+			modifier = { factor = 50 has_nickname = nick_the_farseer }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.35
+	title = EVTNAME_broker_buy
+	desc = EVTDESC_broker_buy_textbooks
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { trait = salvage_textbooks }
+	
+	option = {
+		name = EVTOPT_broker_buy_gold
+		trigger = {	NOT = { stewardship = 10 } }
+		remove_trait = salvage_textbooks
+		wealth = 250
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_stewardship
+		trigger = {	stewardship = 10 }
+		tooltip_info = stewardship
+		remove_trait = salvage_textbooks
+		wealth = 300
+		FROM = { character_event = { id = merchant.1 } }
+		ai_chance = { factor = 5 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_buy_refuse
+		prestige = 5
+		add_character_modifier = { name = precious_heirloom duration = 1500 }
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 50 has_nickname = nick_the_healer }
+			modifier = { factor = 50 has_nickname = nick_the_learned }
+		}
+	}
+}
+
+# ************************* Sell Salvage  ************************
+
+narrative_event = {
+	id = merchant.40
+	title = EVTNAME_broker_sell
+	desc = EVTDESC_broker_sell_firearm
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { NOT = { trait = salvage_firearm } }
+	
+	option = {
+		name = EVTOPT_broker_sell_gold
+		trigger = {
+			NOT = { stewardship = 10 }
+			wealth = 500
+		}
+		wealth = -500
+		add_trait = salvage_firearm
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_stewardship
+		trigger = {
+			stewardship = 10
+			wealth = 400
+		}
+		tooltip_info = stewardship
+		wealth = -400
+		add_trait = salvage_firearm
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_refuse
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_intrigue
+		trigger = {
+			wealth = 50
+			attribute_diff = {
+				character = FROM
+				attribute = intrigue
+				value = 0
+			}
+		}
+		tooltip_info = intrigue
+		FROM = { wealth = -50 }
+		wealth = -50
+		random = { chance = 80 add_trait = salvage_firearm }
+		random_list = {
+			20 = { add_trait = arbitrary }
+			20 = { add_trait = greedy }
+			20 = { add_trait = deceitful }
+		}
+		FROM = { character_event = { id = merchant.1 } }
+		set_character_flag = consumerist_enemy
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		hidden_tooltip = { narrative_event = { id = merchant.60 days = 180 random = 360 } }
+	}
+}
+
+narrative_event = {
+	id = merchant.41
+	title = EVTNAME_broker_sell
+	desc = EVTDESC_broker_sell_typewriter
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { NOT = { trait = salvage_typewriter } }
+	
+	option = {
+		name = EVTOPT_broker_sell_gold
+		trigger = {
+			NOT = { stewardship = 10 }
+			wealth = 500
+		}
+		wealth = -500
+		add_trait = salvage_typewriter
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_stewardship
+		trigger = {
+			stewardship = 10
+			wealth = 400
+		}
+		tooltip_info = stewardship
+		wealth = -400
+		add_trait = salvage_typewriter
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_refuse
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_intrigue
+		trigger = {
+			wealth = 50
+			attribute_diff = {
+				character = FROM
+				attribute = intrigue
+				value = 0
+			}
+		}
+		tooltip_info = intrigue
+		FROM = { wealth = -50 }
+		wealth = -50
+		random = { chance = 80 add_trait = salvage_typewriter }
+		random_list = {
+			20 = { add_trait = arbitrary }
+			20 = { add_trait = greedy }
+			20 = { add_trait = deceitful }
+		}
+		FROM = { character_event = { id = merchant.1 } }
+		set_character_flag = consumerist_enemy
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		hidden_tooltip = { narrative_event = { id = merchant.60 days = 180 random = 360 } }
+	}
+}
+
+narrative_event = {
+	id = merchant.42
+	title = EVTNAME_broker_sell
+	desc = EVTDESC_broker_sell_calculator
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { NOT = { trait = salvage_calculator } }
+	
+	option = {
+		name = EVTOPT_broker_sell_gold
+		trigger = {
+			NOT = { stewardship = 10 }
+			wealth = 500
+		}
+		wealth = -500
+		add_trait = salvage_calculator
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_stewardship
+		trigger = {
+			stewardship = 10
+			wealth = 400
+		}
+		tooltip_info = stewardship
+		wealth = -400
+		add_trait = salvage_calculator
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_refuse
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_intrigue
+		trigger = {
+			wealth = 50
+			attribute_diff = {
+				character = FROM
+				attribute = intrigue
+				value = 0
+			}
+		}
+		tooltip_info = intrigue
+		FROM = { wealth = -50 }
+		wealth = -50
+		random = { chance = 80 add_trait = salvage_calculator }
+		random_list = {
+			20 = { add_trait = arbitrary }
+			20 = { add_trait = greedy }
+			20 = { add_trait = deceitful }
+		}
+		FROM = { character_event = { id = merchant.1 } }
+		set_character_flag = consumerist_enemy
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		hidden_tooltip = { narrative_event = { id = merchant.60 days = 180 random = 360 } }
+	}
+}
+
+narrative_event = {
+	id = merchant.43
+	title = EVTNAME_broker_sell
+	desc = EVTDESC_broker_sell_watch
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { NOT = { trait = salvage_watch } }
+	
+	option = {
+		name = EVTOPT_broker_sell_gold
+		trigger = {
+			NOT = { stewardship = 10 }
+			wealth = 500
+		}
+		wealth = -500
+		add_trait = salvage_watch
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_stewardship
+		trigger = {
+			stewardship = 10
+			wealth = 400
+		}
+		tooltip_info = stewardship
+		wealth = -400
+		add_trait = salvage_watch
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_refuse
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_intrigue
+		trigger = {
+			wealth = 50
+			attribute_diff = {
+				character = FROM
+				attribute = intrigue
+				value = 0
+			}
+		}
+		tooltip_info = intrigue
+		FROM = { wealth = -50 }
+		wealth = -50
+		random = { chance = 80 add_trait = salvage_watch }
+		random_list = {
+			20 = { add_trait = arbitrary }
+			20 = { add_trait = greedy }
+			20 = { add_trait = deceitful }
+		}
+		FROM = { character_event = { id = merchant.1 } }
+		set_character_flag = consumerist_enemy
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		hidden_tooltip = { narrative_event = { id = merchant.60 days = 180 random = 360 } }
+	}
+}
+
+narrative_event = {
+	id = merchant.44
+	title = EVTNAME_broker_sell
+	desc = EVTDESC_broker_sell_telescope
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { NOT = { trait = salvage_telescope } }
+	
+	option = {
+		name = EVTOPT_broker_sell_gold
+		trigger = {
+			NOT = { stewardship = 10 }
+			wealth = 500
+		}
+		wealth = -500
+		add_trait = salvage_telescope
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_stewardship
+		trigger = {
+			stewardship = 10
+			wealth = 400
+		}
+		tooltip_info = stewardship
+		wealth = -400
+		add_trait = salvage_telescope
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_refuse
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_intrigue
+		trigger = {
+			wealth = 50
+			attribute_diff = {
+				character = FROM
+				attribute = intrigue
+				value = 0
+			}
+		}
+		tooltip_info = intrigue
+		FROM = { wealth = -50 }
+		wealth = -50
+		random = { chance = 80 add_trait = salvage_telescope }
+		random_list = {
+			20 = { add_trait = arbitrary }
+			20 = { add_trait = greedy }
+			20 = { add_trait = deceitful }
+		}
+		FROM = { character_event = { id = merchant.1 } }
+		set_character_flag = consumerist_enemy
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		hidden_tooltip = { narrative_event = { id = merchant.60 days = 180 random = 360 } }
+	}
+}
+
+narrative_event = {
+	id = merchant.45
+	title = EVTNAME_broker_sell
+	desc = EVTDESC_broker_sell_textbooks
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	trigger = { NOT = { trait = salvage_textbooks } }
+	
+	option = {
+		name = EVTOPT_broker_sell_gold
+		trigger = {
+			NOT = { stewardship = 10 }
+			wealth = 500
+		}
+		wealth = -500
+		add_trait = salvage_textbooks
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_stewardship
+		trigger = {
+			stewardship = 10
+			wealth = 400
+		}
+		tooltip_info = stewardship
+		wealth = -400
+		add_trait = salvage_textbooks
+		FROM = { character_event = { id = merchant.1 } }
+		FROM = { character_event = { id = merchant.20 days = 5 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_refuse
+	}
+	
+	option = {
+		name = EVTOPT_broker_sell_intrigue
+		trigger = {
+			wealth = 50
+			attribute_diff = {
+				character = FROM
+				attribute = intrigue
+				value = 0
+			}
+		}
+		tooltip_info = intrigue
+		FROM = { wealth = -50 }
+		wealth = -50
+		random = { chance = 80 add_trait = salvage_textbooks }
+		random_list = {
+			20 = { add_trait = arbitrary }
+			20 = { add_trait = greedy }
+			20 = { add_trait = deceitful }
+		}
+		FROM = { character_event = { id = merchant.1 } }
+		set_character_flag = consumerist_enemy
+		custom_tooltip = { text = TXT_consumerist_become_enemy }
+		hidden_tooltip = { narrative_event = { id = merchant.60 days = 180 random = 360 } }
+	}
+}
+
+# ************************* Head of Consumerists  ************************
+
+narrative_event = {
+	id = merchant.50
+	title = EVTNAME_broker_return
+	desc = EVTDESC_broker_return
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_return_take
+		FROM = { move_character = ROOT }
+		trigger = { FROM = { wealth = 300 } }
+		wealth = 300
+		FROM = { wealth = -300 }
+		FROM = { add_character_modifier = { name = merchant_retired duration = -1 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_return_split
+		FROM = { move_character = ROOT }
+		trigger = { FROM = { wealth = 150 } }
+		wealth = 150
+		FROM = { wealth = -150 }
+		piety = 20
+		random = { chance = 40 FROM = { add_trait = content } }
+		FROM = { add_character_modifier = { name = merchant_retired duration = -1 } }
+	}
+	
+	option = {
+		name = EVTOPT_broker_return_give
+		FROM = { move_character = ROOT }
+		piety = 50
+		religion_authority = { modifier = brokers_returned }
+		FROM = { add_trait = content }
+		FROM = { add_character_modifier = { name = merchant_retired duration = -1 } }
+	}
+}
+
+character_event = {
+	id = merchant.51
+	desc = EVTDESC_broker_payment
+	picture = GFX_evt_throne_room
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		wealth = 100
+	}
+}
+
+character_event = {
+	id = merchant.52
+	is_triggered_only = yes
+	desc = EVTNAME_bounce
+	picture = GFX_evt_throne_room
+	
+	trigger = {
+		religion = consumerist
+		has_character_flag = consumerist_broker
+	}
+	
+	immediate = {
+		FROM = { character_event = { id = merchant.60 days = 180 random = 360 } }
+	}
+	
+	option = { }
+}
+
+# ************************* Consumerists are Pissed ************************
+
+narrative_event = {
+	id = merchant.60
+	picture = GFX_evt_throne_room
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = { 
+				NOT = { realm_intrigue = 20 }
+			}
+			narrative_event = { id = merchant.65 days = 5 }
+			narrative_event = { id = merchant.62 days = 10 }
+			narrative_event = { id = merchant.64 days = 15 }
+		}
+	
+		if = {
+			limit = { 
+				realm_intrigue = 20
+				NOT = { realm_intrigue = 30 }
+			}
+			narrative_event = { id = merchant.61 days = 2 }
+			narrative_event = { id = merchant.65 days = 5 }
+			random_list = {
+				50 = { narrative_event = { id = merchant.62 days = 10 } }
+				50 = { narrative_event = { id = merchant.63 days = 10 } }
+			}
+			random = { chance = 50 narrative_event = { id = merchant.64 days = 15 } }
+		}
+		
+		if = {
+			limit = {
+				realm_intrigue = 30
+				NOT = { realm_intrigue = 40 }
+			}
+			narrative_event = { id = merchant.61 days = 2 }
+			random = { chance = 60 narrative_event = { id = merchant.65 days = 5 } }
+			random_list = {
+				15 = { narrative_event = { id = merchant.62 days = 10 } }
+				35 = { narrative_event = { id = merchant.63 days = 10 } }
+				50 = { }
+			}
+		}
+		
+		if = {
+			limit = {
+				realm_intrigue = 40
+			}
+			narrative_event = { id = merchant.61 days = 2 }
+			random = { chance = 40 narrative_event = { id = merchant.65 days = 5 } }
+		}
+	}
+	option = { }
+}
+
+narrative_event = {
+	id = merchant.61
+	title = EVTNAME_broker_revenge
+	desc = EVTDESC_broker_revenge
+	picture = GFX_evt_shadowy_cabal
+	hide_from = yes
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_revenge_wits
+		random_list = {
+			20 = { add_trait = brave }
+			10 = { add_trait = proud }
+			10 = { add_trait = slothful }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_broker_revenge_guards
+		trigger = { wealth = 10 }
+		wealth = -10
+		add_character_modifier = { name = well_protected duration = 20 }
+	}
+	
+	option = {
+		name = EVTOPT_broker_revenge_torture
+		random_list = {
+			10 = { add_trait = cruel }
+			10 = { add_trait = arbitrary }
+			10 = { add_trait = paranoid }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.62
+	title = EVTNAME_broker_assassin
+	desc = EVTDESC_broker_assassin
+	picture = GFX_evt_shadow
+	hide_from = yes
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTDESC_broker_assassin_skilled
+		trigger = { 
+			OR = { 
+				has_character_modifier = well_protected
+				martial = 10
+			}
+		}
+		tooltip_info = martial
+		random_list = {
+			60 = { prestige = 20 }
+			20 = { add_trait = wounded }
+			10 = { add_trait = maimed }
+			10 = { death = { death_reason = death_murder } }
+		}
+	}
+	
+	option = {
+		name = EVTDESC_broker_assassin_duelist
+		trigger = { trait = duelist }
+		tooltip_info = duelist
+		random_list = {
+			60 = { prestige = 20 }
+			20 = { add_trait = wounded }
+			10 = { add_trait = maimed }
+			10 = { death = { death_reason = death_murder } }
+		}
+	}
+	
+	option = {
+		name = EVTDESC_broker_assassin_firearm
+		trigger = { trait = salvage_firearm }
+		tooltip_info = salvage_firearm
+		random_list = {
+			60 = { prestige = 20 }
+			20 = { add_trait = wounded }
+			10 = { add_trait = maimed }
+			10 = { death = { death_reason = death_murder } }
+		}
+	}
+	
+	option = {
+		name = EVTDESC_broker_assassin_unskilled
+		trigger = {
+			NOT = { martial = 12 }
+			NOT = { trait = duelist }
+			NOT = { trait = salvage_firearm }
+		}
+		random_list = {
+			50 = { add_trait = wounded }
+			30 = { add_trait = maimed }
+			20 = { death = { death_reason = death_murder } }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.63
+	title = EVTNAME_broker_assassin
+	desc = EVTDESC_broker_poison
+	picture = GFX_evt_shadow
+	hide_from = yes
+	is_triggered_only = yes
+	
+	immediate = { add_trait = ill }
+	
+	option = {
+		name = EVTDESC_broker_poison_doctor
+		random = { chance = 30 remove_trait = ill }
+	}
+	
+	option = {
+		name = EVTDESC_broker_poison_paranoid
+		random_list = {
+			50 = { add_trait = paranoid }
+			50 = { add_trait = stressed }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.64
+	title = EVTNAME_broker_madness
+	desc = EVTDESC_broker_madness
+	picture = GFX_evt_lunatic
+	hide_from = yes
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_madness
+		random_list = {
+			10 = { add_trait = depressed }
+			10 = { add_trait = lunatic }
+			10 = { add_trait = possessed }
+		}
+	}
+}
+
+narrative_event = {
+	id = merchant.65
+	picture = GFX_evt_shadow
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			10 = { random_spouse = { narrative_event = { id = merchant.66 } } }
+			10 = { random_sibling = { narrative_event = { id = merchant.66 } } }
+			10 = { random_child = { narrative_event = { id = merchant.66 } } }
+			10 = { current_heir = { narrative_event = { id = merchant.66 } } }
+			10 = { random_lover = { narrative_event = { id = merchant.66 } } }
+			10 = { random_friend = { narrative_event = { id = merchant.66 } } }
+		}
+	}
+	option = { }
+}
+
+narrative_event = {
+	id = merchant.66
+	picture = GFX_evt_shadow
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = { NOT = { num_of_count_titles = 1 } }
+	
+	option = {
+		trigger = { martial = 16 }
+		FROM = { narrative_event = { id = merchant.68 } }
+		ai_chance = { factor = 100 }
+	}
+	
+	option = {
+		trigger = { intrigue = 16 }
+		FROM = { narrative_event = { id = merchant.68 } }
+		ai_chance = { factor = 100 }
+	}
+	
+	option = {
+		trigger = { martial = 10 }
+		random_list = {
+			10 = { FROM = { narrative_event = { id = merchant.67 } } }
+			10 = { FROM = { narrative_event = { id = merchant.68 } } }
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		trigger = { intrigue = 10 }
+		random_list = {
+			10 = { FROM = { narrative_event = { id = merchant.67 } } }
+			10 = { FROM = { narrative_event = { id = merchant.68 } } }
+		}
+		ai_chance = { factor = 20 }
+	}
+	
+	option = {
+		FROM = { narrative_event = { id = merchant.67 } }
+		ai_chance = { factor = 5 }
+	}
+}
+
+narrative_event = {
+	id = merchant.67
+	title = EVTNAME_broker_assassin
+	desc = EVTDESC_broker_family_kill
+	picture = GFX_evt_shadow
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_family
+		prestige = -20
+		FROM = { death = { death_reason = death_murder } }
+		random = { chance = 20 add_trait = stressed }
+	}
+}
+
+narrative_event = {
+	id = merchant.68
+	title = EVTNAME_broker_assassin
+	desc = EVTDESC_broker_family_wound
+	picture = GFX_evt_shadow
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_broker_family
+		prestige = -10
+		FROM = { 
+			random_list = {
+				10 = { FROM = { add_trait = wounded } }
+				10 = { FROM = { add_trait = maimed } }
+			}
+		}
+	}
+}
+

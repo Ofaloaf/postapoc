@@ -1,0 +1,396 @@
+
+# Targetted decisions are possible vs _all_ other characters and shown are in the Diplomacy View, not the Intrigue View. The taker is in the FROM scope.
+#
+# filter = [self/court/home_court/vassals/sub_realm/realm/dynasty/all] ('self' MUST be set for decisions targetting only the taker, the other filter types can be set to lessen CPU load)
+# ai_target_filter = [self/court/home_court/vassals/sub_realm/realm/dynasty/all] (which characters for which the AI evaluates the decision.)
+#	court: all characters in the AI's host court, including prisoners, and characters currently away (wards, prisoners, etc)
+#	home_court: all characters in the AI's home court, including prisoners, and characters currently away (wards, prisoners, etc)
+#	vassals: direct vassal rulers of the AI's employer
+#	sub_realm: all characters below the AI's employer
+#	realm: all characters in the same top realm as the AI
+#	dynasty: all members of the same dynasty
+#	rivals: your rivals plus any character you have an opinion modifier with 'crime = yes' set (the same set of characters the 'is_foe' trigger evaluates)
+#	all: all living characters (Avoid if possible. VERY CPU-HEAVY!)
+#
+
+targetted_decisions = {
+	zombi_decision = {
+		filter = court
+		ai_target_filter = court
+		
+		from_potential = {
+			religion = voodoo
+		}
+		potential = {
+			prisoner = yes
+			NOT = { trait = zombi }
+			host = { character = FROM }
+		}
+		allow = {
+			prisoner = yes
+		}
+		effect = {
+			hidden_tooltip = {
+				FROM = {
+					character_event = { id = voodoo.1 }
+				}
+			}
+			character_event = { id = voodoo.2 }
+			add_trait = zombi
+			remove_trait = ambitious
+			remove_trait = brave
+			remove_trait = gregarious
+			remove_trait = zealous
+			remove_trait = diligent
+			remove_trait = lustful
+			remove_trait = proud
+			remove_trait = envious
+			random_list = {
+				80 = { add_trait = ill }
+				20 = { add_trait = incapable }
+			}
+			prisoner = no
+			opinion = {
+				modifier = opinion_puppetmaster
+				who = FROM
+				years = 50
+			}
+			FROM = {
+				if = {
+					limit = { NOT = { trait = cruel } }
+					random = { chance = 25 add_trait = cruel }
+				}
+				piety = -30
+				add_character_modifier = { name = bokor_consort duration = 720 }
+			}
+			hidden_tooltip = {
+				any_dynasty_member = {
+					opinion = {
+						modifier = opinion_zombi_family
+						who = FROM
+						years = 10
+					}
+				}
+				FROM = {
+					remove_opinion = { who = ROOT modifier = opinion_traitor }
+					remove_opinion = { who = ROOT modifier = opinion_rebel_traitor }
+					remove_opinion = { who = ROOT modifier = opinion_dishonorable }
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				reverse_opinion = { who = FROM value = 40 }
+			}
+			modifier = {
+				factor = 0
+				FROM = { trait = kind }
+			}
+			modifier = {
+				factor = 0.3
+			}
+		}
+	}
+	
+	gaian_castrate = {
+		filter = court
+		ai_target_filter = court
+		
+		from_potential = {
+			religion = gaian
+			is_female = yes
+		}
+		potential = {
+			prisoner = yes
+			is_female = no
+			NOT = { trait = eunuch }
+			host = { character = FROM }
+		}
+		allow = {
+			prisoner = yes
+		}
+		effect = {
+			hidden_tooltip = {
+				FROM = {
+					character_event = { id = gaian.1 }
+				}
+			}
+			character_event = { id = gaian.2 }
+			add_trait = eunuch
+			random_list = {
+				25 = { add_trait = ill }
+				25 = { add_trait = depressed }
+				50 = { }
+			}
+			prisoner = no
+			opinion = {
+				modifier = opinion_castrated_me
+				who = FROM
+			}
+			FROM = {
+				if = {
+					limit = { NOT = { trait = cruel } }
+					random = {
+						chance = 10
+						add_trait = cruel
+						hidden_tooltip = {
+							character_event = { id = 38259 }
+						}
+					}
+				}
+				piety = 10
+			}
+			hidden_tooltip = {
+				any_dynasty_member = {
+					opinion = {
+						modifier = opinion_castrated_family
+						who = FROM
+					}
+				}
+				FROM = {
+					remove_opinion = { who = ROOT modifier = opinion_traitor }
+					remove_opinion = { who = ROOT modifier = opinion_rebel_traitor }
+					remove_opinion = { who = ROOT modifier = opinion_dishonorable }
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				reverse_opinion = { who = FROM value = 40 }
+			}
+			modifier = {
+				factor = 0
+				FROM = { trait = kind }
+			}
+			modifier = {
+				factor = 1.4
+				FROM = { trait = zealous }
+			}
+			modifier = {
+				factor = 1.4
+				FROM = { trait = cruel }
+			}
+			modifier = {
+				factor = 0.1
+			}
+		}
+	}
+	
+	vassal_atom_judgement_decision = {
+		filter = court
+		ai_target_filter = court
+		
+		from_potential = {
+			religion = atomicist
+		}
+	
+		potential = {
+			prisoner = yes
+			NOT = { has_character_modifier = atom_judgement }
+			host = { character = FROM }
+		}
+		allow = {
+			prisoner = yes
+		}
+		effect = {
+			character_event = { id = event_atomicist.15000 days = 1 }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				reverse_opinion = { who = FROM value = 40 }
+			}
+			modifier = {
+				factor = 0
+				FROM = { trait = kind }
+			}
+			modifier = {
+				factor = 2
+				FROM = { trait = cruel }
+			}
+			modifier = {
+				factor = 0.4 # Less likely to do it
+			}
+			modifier = {
+				factor = 2
+				is_pretender = yes
+				FROM = {
+					OR = {
+						is_pretender = yes
+						is_primary_heir = yes
+					}
+				}
+			}
+		}
+	}
+	
+	consumerism_reward_decision = {
+		filter = court
+		ai_target_filter = court
+		
+		from_potential = {
+			religion = consumerist
+			controls_religion = yes
+			NOT = { trait = incapable }
+			prisoner = no
+			over_max_demesne_size = 1
+			has_nickname = nick_the_prophet
+		}
+
+		potential = {
+			host = { character = FROM }
+			trait = investor
+			age = 16
+			NOT = { is_landed = yes }
+		}
+		allow = {
+			prisoner = no
+		}
+		effect = {
+			FROM = { character_event = { id = consumer.3 } }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0.8
+			}
+			modifier = {
+				factor = 0.1
+				NOT = { reverse_opinion = { who = FROM value = 10 } }
+			}
+		}
+	}
+	
+	prisoner_to_oubilette = {
+		filter = court
+		ai_target_filter = court
+
+		from_potential = {
+			ai = no
+		}
+	
+		potential = {
+			host = { character = FROM }
+			prisoner = yes
+			NOT = { has_character_modifier = the_oubliette }
+		}
+		allow = {
+			prisoner = yes
+		}
+		effect = {
+			add_character_modifier = { 
+				name = the_oubliette
+				duration = -1
+			}
+			hidden_tooltip = {
+				remove_character_modifier = the_dungeon
+				remove_character_modifier = house_arrest
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	
+	prisoner_to_dungeon = {
+		filter = court
+		ai_target_filter = court
+
+		from_potential = {
+			ai = no
+		}
+	
+		potential = {
+			host = { character = FROM }
+			prisoner = yes
+			OR = {
+				has_character_modifier = the_oubliette
+				has_character_modifier = house_arrest
+			}
+		}
+		allow = {
+			prisoner = yes
+		}
+		effect = {
+			add_character_modifier = { 
+				name = the_dungeon
+				duration = -1
+			}
+			hidden_tooltip = {
+				remove_character_modifier = the_oubliette
+				remove_character_modifier = house_arrest
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	
+	prisoner_to_suite = {
+		filter = court
+		ai_target_filter = court
+
+		from_potential = {
+			ai = no
+		}
+	
+		potential = {
+			host = { character = FROM }
+			prisoner = yes
+			NOT = { has_character_modifier = house_arrest }
+		}
+		allow = {
+			prisoner = yes
+		}
+		effect = {
+			add_character_modifier = { 
+				name = house_arrest
+				duration = -1
+			}
+			hidden_tooltip = {
+				remove_character_modifier = the_oubliette
+				remove_character_modifier = the_dungeon
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	
+}

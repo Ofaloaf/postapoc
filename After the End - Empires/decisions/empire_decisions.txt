@@ -54,6 +54,10 @@ decisions = {
 					religion_authority = 1
 				}
 				AND = {
+					has_landed_title = e_nys
+					religion_authority = 1
+				}
+				AND = {
 					OR = {
 						religion_group = christian
 						religion_group = oldworld
@@ -177,4 +181,243 @@ decisions = {
 			factor = 1
 		}
 	}
+	form_the_empire_state = {
+		is_high_prio = yes
+		potential = {
+			NOT = { has_global_flag = nys_formed }
+			NOT = { has_global_flag = usa_restored }
+			independent = yes
+			OR = {
+				culture = gothamite
+				culture = hudsonian
+			}
+			higher_tier_than = DUKE
+			e_usa = {
+				has_holder = no
+			}
+			NOT = { has_landed_title = e_dixie }
+		}
+		allow = {
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			prestige = 1500
+			scaled_wealth = 2
+			war = no
+			has_landed_title = k_new_york
+			has_landed_title = k_hudsonia
+			completely_controls = d_adirondack
+			completely_controls = d_finger_lakes
+			completely_controls = d_cayuga
+			completely_controls = d_mohawk_valley
+			completely_controls = d_hudson_valley
+			completely_controls = d_champlain
+			completely_controls = d_catskill
+			completely_controls = d_new_york
+			completely_controls = d_long_island
+			completely_controls = c_buffalo
+			completely_controls = c_chautauqua
+			completely_controls = c_genesee
+		}
+		effect = {
+			activate_title = { title = e_nys status = yes }
+			primary_title = {
+				e_nys = {
+					grant_title = ROOT
+					copy_title_laws = PREV
+				}
+			}
+			scaled_wealth = -2
+			if = {
+				limit = { has_nickname = no }
+				give_nickname = nick_the_great
+			}
+			k_hudsonia = {
+				de_jure_liege = e_nys
+				destroy_landed_title = THIS
+			}
+			k_new_york = {
+				de_jure_liege = e_nys
+				destroy_landed_title = THIS
+			}
+			any_demesne_title = {
+				limit = { 
+					tier = KING
+					#capital_scope = { #Most of these kingdoms don't have capitals!
+						#region = custom_usa
+					#}
+				}
+				de_jure_liege = e_nys
+			}
+			hidden_tooltip = {
+				primary_title = {
+					if = {
+						limit = { tier = EMPEROR }
+						any_direct_de_jure_vassal_title = {
+							de_jure_liege = e_nys
+						}
+					}
+				}
+			}
+			any_demesne_title = {
+				limit = {
+					tier = EMPEROR
+					NOT = { title = e_nys }
+				}
+				destroy_landed_title = THIS
+				hidden_tooltip = { activate_title = { title = THIS status = no } }
+			}
+			custom_tooltip = { #If the duchy of Green Mountains is controlled, make it de jure under the Kingdom of Vermont
+				text = form_the_empire_state_tooltip_1
+				hidden_tooltip = {
+					if = {
+						limit = { 
+							completely_controls = d_green_mountains 
+							OR = {
+								k_vermont = {
+									is_titular = yes
+								}
+								AND = {
+									k_vermont = {
+										is_titular = no
+									}
+									completely_controls = k_vermont
+								}
+							}
+							OR = {
+								has_landed_title = k_vermont
+								k_vermont = {
+									has_holder = no
+								}
+								k_vermont = {
+									holder_scope = {
+										top_liege = {
+											character = ROOT
+										}
+									}
+								}
+							}
+						}
+						d_green_mountains = {
+							de_jure_liege = k_vermont
+						}
+						k_vermont = {
+							de_jure_liege = e_nys
+						}
+					}
+				}
+			}
+			custom_tooltip = { #If the duchies of Raritan and South Jersey are controlled, make them de jure under the Kingdom of Jersey
+				text = form_the_empire_state_tooltip_2
+				hidden_tooltip = {
+					if = {
+						limit = { 
+							completely_controls = d_north_jersey 
+							completely_controls = d_jersey
+							OR = {
+								k_jersey = {
+									is_titular = yes
+								}
+								AND = {
+									k_jersey = {
+										is_titular = no
+									}
+									completely_controls = k_jersey
+								}
+							}
+							OR = {
+								has_landed_title = k_jersey
+								k_jersey = {
+									has_holder = no
+								}
+								k_jersey = {
+									holder_scope = {
+										top_liege = {
+											character = ROOT
+										}
+									}
+								}
+							}
+						}
+						d_north_jersey = {
+							de_jure_liege = k_jersey
+						}
+						d_jersey = {
+							de_jure_liege = k_jersey
+						}
+						k_jersey = {
+							de_jure_liege = e_nys
+						}
+					}
+				}
+				set_global_flag = nys_formed
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	vassalize_knights_of_columbus = {
+		is_high_prio = yes
+		
+		potential = {
+			OR = {
+				religion = catholic
+				religion = neognostic
+				religion = sedevacantist
+			}
+			is_heretic = no
+			
+			is_title_active = d_knights_of_columbus
+			
+			has_landed_title = e_nys
+			
+			d_knights_of_columbus = {
+				holder_scope = {
+					NOT = { has_truce = ROOT }
+					ROOT = { NOT = { has_truce = PREV } }
+					liege = {
+						NOT = { character = ROOT }
+					}
+					NOT = { num_of_count_titles = 3 }
+					independent = yes
+					primary_title = { title = d_knights_of_columbus }
+				}
+			}
+		}
+		
+		allow = {
+			wealth = 500
+			piety = 2500
+			completely_controls = c_quinnipiac
+		}
+		
+		effect = {
+			wealth = -500
+			piety = -50
+			d_knights_of_columbus = {
+				holder_scope = {
+					wealth = 500
+					ROOT = {
+						set_defacto_vassal = PREV
+					}
+				}
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	
+	
 }

@@ -40,5 +40,5 @@ Version 0.7.1. Compatible with CK2 2.5.2 and the Conclave DLC.
 
 **Music:**
 * "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead" by [Kevin MacLeod](incompetech.com)
-* "Lazy Days" by Purple Planet (purple-planet.com), licensed under [Creative Commons Attribution 3.0](http://creativecommons.org/licenses/by/3.0/)
+* "Lazy Days" by [Purple Planet](http://purple-planet.com), licensed under [Creative Commons Attribution 3.0](http://creativecommons.org/licenses/by/3.0/)
 * ["Native American Flute" by karshkov](https://soundcloud.com/karshkov/native-american-flute), licensed under [Creative Commons Attribution-NonCommercial-NoDerivs 3.0](http://creativecommons.org/licenses/by-nc-nd/3.0/)

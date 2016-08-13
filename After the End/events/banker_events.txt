@@ -1,0 +1,1110 @@
+# 1		letter: character receives a loan
+# 2		char: loan comes due
+# 10	char: stop banking and cash out
+# 11	[hidden] char: forced to cash out due to regent, prison, etc.
+# 15	char: notify nearby bankers of a loan default
+# 20	[hidden] char: banker died, pass banking capital to heir
+# 21	char: heir inherits banking capital
+# 22	char: heir inherits debt
+# 30	[hidden] char: annual banking results event, chooses from this list
+# 31	char: windfall
+# 32	char: long term payoff
+# 33	char: wise debtor selection
+# 34	char: war profiteering
+# 35	char: risky returns
+# 36	char: profitable fraud
+# 37	char: consistent profits
+# 38	char: disaster averted
+# 39	char: soft-hearted lending
+# 40	char: timid lending
+# 41	char: break even
+# 42	char: war disruption
+# 43	char: reckless losses
+# 44	char: foolish losses
+# 45	char: deadbeat borrowers
+# 46	char: mad banker
+
+namespace = bank
+
+# Inform character they got loan
+letter_event = {
+	id = bank.1
+	desc = EVTDESC_bank_loan
+	is_triggered_only = yes
+	
+	option = {
+		name = loan.3.optA
+		if = {
+			limit = { has_character_flag = loan_100 }
+			wealth = 100
+		}
+		if = {
+			limit = { has_character_flag = loan_200 }
+			wealth = 200
+		}
+		if = {
+			limit = { has_character_flag = loan_400 }
+			wealth = 400
+		}
+		if = {
+			limit = { has_character_flag = loan_600 }
+			wealth = 600
+		}
+		if = {
+			limit = { has_character_flag = loan_800 }
+			wealth = 800
+		}
+		if = {
+			limit = { has_character_flag = loan_1000 }
+			wealth = 1000
+		}
+		add_character_modifier = { name = loan_timer days = 1825 }
+	}
+}
+
+# Debtor: Choose whether to pay back loan
+character_event = {
+	id = bank.2
+	desc = loan.22.desc
+	picture = GFX_evt_council
+	
+	trigger = {
+		has_character_flag = loan_taken
+		NOT = { has_character_modifier = loan_timer }
+	}
+	
+	mean_time_to_happen = { days = 1 }
+	
+	option = { # Pay it back
+		name = loan.22.optA
+		trigger = {
+			OR = {
+				AND = {
+					has_character_flag = loan_100
+					wealth = 125
+				}
+				AND = {
+					has_character_flag = loan_200
+					wealth = 250
+				}
+				AND = {
+					has_character_flag = loan_400
+					wealth = 500
+				}
+				AND = {
+					has_character_flag = loan_600
+					wealth = 750
+				}
+				AND = {
+					has_character_flag = loan_800
+					wealth = 1000
+				}
+				AND = {
+					has_character_flag = loan_1000
+					wealth = 1250
+				}
+			}
+		}
+		ai_chance = {
+			factor = 50
+		}
+		if = {
+			limit = { has_character_flag = loan_100 }
+			wealth = -125
+		}
+		if = {
+			limit = { has_character_flag = loan_200 }
+			wealth = -250
+		}
+		if = {
+			limit = { has_character_flag = loan_400 }
+			wealth = -500
+		}
+		if = {
+			limit = { has_character_flag = loan_600 }
+			wealth = -750
+		}
+		if = {
+			limit = { has_character_flag = loan_800 }
+			wealth = -1000
+		}
+		if = {
+			limit = { has_character_flag = loan_1000 }
+			wealth = -1250
+		}
+		clear_banking_flags_effect = yes
+	}
+	
+	option = { # Extend the loan
+		name = loan.22.optB
+		trigger = {
+			OR = {
+				AND = {
+					has_character_flag = loan_100
+					wealth = 25
+					NOT = { wealth = 125 }
+				}
+				AND = {
+					has_character_flag = loan_200
+					wealth = 50
+					NOT = { wealth = 250 }
+				}
+				AND = {
+					has_character_flag = loan_400
+					wealth = 100
+					NOT = { wealth = 500 }
+				}
+				AND = {
+					has_character_flag = loan_600
+					wealth = 150
+					NOT = { wealth = 750 }
+				}
+				AND = {
+					has_character_flag = loan_800
+					wealth = 200
+					NOT = { wealth = 1000 }
+				}
+				AND = {
+					has_character_flag = loan_1000
+					wealth = 250
+					NOT = { wealth = 1250 }
+				}
+			}
+		}
+		ai_chance = {
+			factor = 50
+		}
+		if = {
+			limit = { has_character_flag = loan_100 }
+			wealth = -25
+		}
+		if = {
+			limit = { has_character_flag = loan_200 }
+			wealth = -50
+		}
+		if = {
+			limit = { has_character_flag = loan_400 }
+			wealth = -100
+		}
+		if = {
+			limit = { has_character_flag = loan_600 }
+			wealth = -150
+		}
+		if = {
+			limit = { has_character_flag = loan_800 }
+			wealth = -200
+		}
+		if = {
+			limit = { has_character_flag = loan_1000 }
+			wealth = -250
+		}
+		custom_tooltip = { text = loan.22.tooltipB }
+		add_character_modifier = { name = loan_timer days = 730 }
+	}
+	
+	option = { # Default on debt
+		name = loan.22.optD
+		ai_chance = {
+			factor = 5
+			modifier = { factor = 0.1 trait = just }
+			modifier = { factor = 0.1 trait = honest }
+			modifier = { factor = 0.2 trait = diligent }
+			modifier = { factor = 0.2 trait = kind }
+			modifier = { factor = 5	trait = lunatic }
+			modifier = { factor = 3	trait = possessed }
+			modifier = { factor = 3	trait = arbitrary }
+			modifier = { factor = 3	trait = deceitful }
+		}
+		clear_banking_flags_effect = yes
+		prestige = -300
+		piety = -100
+		add_character_modifier = {
+			name = poor_credit
+			years = 50
+			inherit = yes
+		}
+		add_character_modifier = {
+			name = defaulted_on_loan
+			years = 20
+			inherit = yes
+		}
+		hidden_tooltip = {
+			any_playable_ruler = {
+				limit = {
+					NOT = { distance = { who = ROOT distance = 400 } }
+					trait = banker
+				}
+				character_event = { id = bank.15 days = 5 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = bank.10
+	desc = EVTDESC_bank_cashout
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_cash_high
+		trigger = {
+			is_dumb_trigger = no
+			OR = {
+				is_smart_trigger = yes	
+				stewardship = 15
+			}
+		}
+		custom_tooltip = { text = TXT_bank_smart }
+		remove_trait = banker
+		wealth = 500
+	}
+	
+	option = {
+		name = EVTOPT_bank_cash_mid
+		trigger = {
+			is_dumb_trigger = no
+			is_smart_trigger = no
+			stewardship = 4
+			NOT = { stewardship = 15 }
+		}
+		remove_trait = banker
+		random_list = {
+			10 = { wealth = 480 }
+			10 = { wealth = 460 }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_bank_cash_low
+		trigger = {
+			is_smart_trigger = no
+			OR = {
+				is_dumb_trigger = yes
+				NOT = { stewardship = 4 }
+			}
+		}
+		custom_tooltip = { text = TXT_bank_dumb }
+		remove_trait = banker
+		random_list = {
+			10 = { wealth = 450 }
+			10 = { wealth = 400 }
+			10 = { wealth = 350 }
+		}
+	}
+}
+
+character_event = {
+	id = bank.11
+	hide_window = yes
+	
+	trigger = {
+		trait = banker
+		OR = {
+			prisoner = yes
+			trait = incapable
+			trait = zombi
+			trait = inbred
+			NOT = { age = 16 }
+		}
+	}
+	
+	mean_time_to_happen = {
+		months = 1
+	}
+	
+	immediate = {
+		character_event = { id = bank.10 }
+	}
+}
+
+character_event = {
+	id = bank.15
+	desc = EVTDESC_bank_deadbeat
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	trigger = {
+		FROM = { is_landed = yes }
+	}
+	
+	option = {
+		name = EVTOPT_bank_deadbeat_forgive
+		reverse_opinion = { modifier = forgave_debts who = FROM years = 20 }
+		piety = 50
+		add_character_modifier = { name = weak_banker duration = 3600 }
+		hidden_tooltip = { set_character_flag = forgave_debtor }
+		ai_will_do = {
+			factor = 5
+			modifier = { factor = 2 trait = charitable }
+			modifier = { factor = 1.5 trait = kind }
+			modifier = { factor = 1.5 trait = zealous }
+			modifier = { factor = 1.5 trait = content }
+			modifier = { factor = 1.5 trait = slothful }
+		}
+	}
+	
+	option = {
+		name = loan.25.optA
+		custom_tooltip = { text = TXT_debt_war_tooltip }
+		ai_will_do = {
+			factor = 10
+			modifier = { factor = 3 trait = greedy }
+			modifier = { factor = 2 trait = wroth }
+			modifier = { factor = 1.5 trait = stubborn }
+			modifier = { factor = 1.5 trait = just }
+			modifier = { factor = 1.5 trait = brave }
+			modifier = { factor = 1.5 trait = proud }
+		}
+	}
+}
+
+character_event = {
+	id = bank.20
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = { trait = banker }
+			current_heir = { character_event = { id = bank.21 days = 3 } }
+		}
+		
+		if = {
+			limit = { has_character_flag = loan_taken }
+			current_heir = {
+				character_event = { id = bank.22 days = 3 }
+			}
+		}
+		if = {
+			limit = { has_character_flag = loan_100 }
+			current_heir = { set_character_flag = loan_100 }
+		}
+		if = {
+			limit = { has_character_flag = loan_200 }
+			current_heir = { set_character_flag = loan_200 }
+		}
+		if = {
+			limit = { has_character_flag = loan_400 }
+			current_heir = { set_character_flag = loan_400 }
+		}
+		if = {
+			limit = { has_character_flag = loan_600 }
+			current_heir = { set_character_flag = loan_600 }
+		}
+		if = {
+			limit = { has_character_flag = loan_800 }
+			current_heir = { set_character_flag = loan_800 }
+		}
+		if = {
+			limit = { has_character_flag = loan_1000 }
+			current_heir = { set_character_flag = loan_1000 }
+		}
+	}
+	option = { }
+}
+
+character_event = {
+	id = bank.21
+	desc = EVTDESC_bank_inherit
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	trigger = {
+		dynasty = FROM
+	}
+	
+	option = {
+		name = EVTOPT_bank_inherit_greedy
+		trigger = {
+			NOT = { trait = banker }
+			trait = greedy
+			prisoner = no
+			NOT = { trait = incapable }
+			age = 16
+		}
+		tooltip_info = greedy
+		prestige = 10
+		add_trait = banker
+		hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
+	}
+	
+	option = {
+		name = EVTOPT_bank_inherit
+		trigger = {
+			NOT = { trait = banker }
+			prisoner = no
+			NOT = { trait = incapable }
+			age = 16
+		}
+		add_trait = banker
+		hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
+	}
+	
+	option = {
+		name = EVTOPT_bank_cashout
+		trigger = {
+			NOT = { trait = banker }
+		}
+		character_event = { id = bank.10 }
+	}
+	
+	option = {
+		name = EVTOPT_bank_double
+		trigger = {
+			trait = banker
+		}
+		wealth = 450
+	}
+}
+
+character_event = {
+	id = bank.22
+	desc = EVTDESC_bank_liability
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	trigger = {
+		dynasty = FROM
+	}
+	
+	option = {
+		name = EVTOPT_liability_full
+		trigger = {
+			OR = {
+				AND = { has_character_flag = loan_100 wealth = 100 }
+				AND = {	has_character_flag = loan_200 wealth = 200 }
+				AND = { has_character_flag = loan_400 wealth = 400 }
+				AND = { has_character_flag = loan_600 wealth = 600 }
+				AND = { has_character_flag = loan_800 wealth = 800 }
+				AND = { has_character_flag = loan_1000 wealth = 1000 }
+			}
+		}
+		if = { limit = { has_character_flag = loan_100 } wealth = -100 }
+		if = { limit = { has_character_flag = loan_200 } wealth = -200 }
+		if = { limit = { has_character_flag = loan_400 } wealth = -400 }
+		if = { limit = { has_character_flag = loan_600 } wealth = -600 }
+		if = { limit = { has_character_flag = loan_800 } wealth = -800 }
+		if = { limit = { has_character_flag = loan_1000 } wealth = -1000 }
+		prestige = 100
+		piety = 50
+		random_list = {
+			40 = { add_trait = just }
+			40 = { add_trait = honest }
+			20 = { }
+		}
+		clear_banking_flags_effect = yes
+		ai_chance = {
+			factor = 20
+			modifier = { factor = 3	trait = just }
+			modifier = { factor = 3	trait = honest }
+			modifier = { factor = 0	trait = greedy }
+			modifier = { factor = 0	trait = arbitrary }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_liability_delay
+		if = { limit = { has_character_flag = loan_100 } custom_tooltip = { text = TXT_assume_100 } }
+		if = { limit = { has_character_flag = loan_200 } custom_tooltip = { text = TXT_assume_200 } }
+		if = { limit = { has_character_flag = loan_400 } custom_tooltip = { text = TXT_assume_400 } }
+		if = { limit = { has_character_flag = loan_600 } custom_tooltip = { text = TXT_assume_600 } }
+		if = { limit = { has_character_flag = loan_800 } custom_tooltip = { text = TXT_assume_800 } }
+		if = { limit = { has_character_flag = loan_1000 } custom_tooltip = { text = TXT_assume_1000 } }
+		piety = 50
+		random_list = {
+			20 = { add_trait = just }
+			20 = { add_trait = honest }
+			60 = { }
+		}
+		add_character_modifier = { name = loan_timer days = 1825 }
+		set_character_flag = loan_taken
+		ai_chance = {
+			factor = 100
+			modifier = { factor = 3	trait = just }
+			modifier = { factor = 3	trait = honest }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_liability_part
+		trigger = {
+			diplomacy = 8
+			OR = {
+				AND = { has_character_flag = loan_100 wealth = 25 }
+				AND = {	has_character_flag = loan_200 wealth = 50 }
+				AND = { has_character_flag = loan_400 wealth = 100 }
+				AND = { has_character_flag = loan_600 wealth = 150 }
+				AND = { has_character_flag = loan_800 wealth = 200 }
+				AND = { has_character_flag = loan_1000 wealth = 250 }
+			}
+		}
+		tooltip_info = diplomacy
+		if = { limit = { has_character_flag = loan_100 } wealth = -25 }
+		if = { limit = { has_character_flag = loan_200 } wealth = -50 }
+		if = { limit = { has_character_flag = loan_400 } wealth = -100 }
+		if = { limit = { has_character_flag = loan_600 } wealth = -150 }
+		if = { limit = { has_character_flag = loan_800 } wealth = -200 }
+		if = { limit = { has_character_flag = loan_1000 } wealth = -250 }
+		prestige = 50
+		clear_banking_flags_effect = yes
+		ai_chance = {
+			factor = 500
+			modifier = { factor = 3	trait = just }
+			modifier = { factor = 3	trait = honest }
+		}
+	}
+	
+	option = {
+		name = EVTOPT_liability_refuse
+		add_character_modifier = { name = poor_credit years = 10 }
+		clear_banking_flags_effect = yes
+		ai_chance = {
+			factor = 30
+			modifier = { factor = 0.2 trait = just }
+			modifier = { factor = 0.2 trait = honest }
+			modifier = { factor = 2.0 trait = greedy }
+			modifier = { factor = 2.0 trait = arbitrary }
+			modifier = { factor = 2.0 trait = deceitful }
+			modifier = { factor = 2.0 trait = cynical }
+		}
+	}
+}
+
+character_event = {
+	id = bank.30
+	hide_window = yes
+	
+	only_rulers = yes
+	
+	trigger = {
+		trait = banker
+		month = 11
+		NOT = { has_character_modifier = banking_results }
+	}
+	
+	mean_time_to_happen = { days = 1 }
+	
+	immediate = {
+		add_character_modifier = { name = banking_results duration = 40 }
+		change_variable = { which = "years_banking" value = 1 }
+	}
+	
+	option = {
+		random_list = {
+			5 = {
+				modifier = { factor = 1.5 stewardship = 18 }
+				modifier = { factor = 0.2 NOT = { stewardship = 12 } }
+				modifier = { factor = 2.5 is_smart_trigger = yes }
+				modifier = { factor = 0 is_dumb_trigger = yes }
+				modifier = { factor = 1.2 trait = greedy }
+				modifier = { factor = 1.2 trait = diligent }
+				modifier = { factor = 1.2 trait = midas_touched }
+				modifier = { factor = 1.2 has_character_modifier = strong_banker }
+				custom_tooltip = { text = TXT_bank_windfall }
+				character_event = { id = bank.31 }
+			}
+			
+			10 = {
+				modifier = { factor = 1.5 stewardship = 15 }
+				modifier = { factor = 0.2 NOT = { stewardship = 8 } }
+				modifier = { factor = 1.5 is_smart_trigger = yes }
+				modifier = { factor = 0 is_dumb_trigger = yes }
+				modifier = { factor = 1.2 trait = patient }
+				modifier = { factor = 1.2 trait = diligent }
+				modifier = { factor = 0 NOT = { check_variable = { which = "years_banking" value = 5 } } }
+				modifier = { factor = 2.0 check_variable = { which = "years_banking" value = 10 } }
+				modifier = { factor = 1.5 check_variable = { which = "years_banking" value = 15 } }
+				modifier = { factor = 1.2 has_character_modifier = strong_banker }
+				custom_tooltip = { text = TXT_bank_payoff }
+				character_event = { id = bank.32 }
+			}
+			
+			15 = {
+				modifier = { factor = 1.5 stewardship = 12 }
+				modifier = { factor = 0.2 NOT = { stewardship = 6 } }
+				modifier = { factor = 1.5 diplomacy = 12 }
+				modifier = { factor = 0.2 NOT = { diplomacy = 6 } }
+				modifier = { factor = 1.5 is_smart_trigger = yes }
+				modifier = { factor = 1.2 trait = gregarious }
+				modifier = { factor = 1.2 trait = paranoid }
+				modifier = { factor = 1.2 trait = diligent }
+				modifier = { factor = 1.2 has_character_modifier = strong_banker }
+				custom_tooltip = { text = TXT_bank_wise }
+				character_event = { id = bank.33 }
+			}
+			
+			15 = {
+				modifier = { factor = 1.5 stewardship = 8 }
+				modifier = { factor = 2.0 intrigue = 12 }
+				modifier = { factor = 0.2 NOT = { intrigue = 6 } }
+				modifier = { factor = 2.0 trait = cruel }
+				modifier = { factor = 1.5 trait = cynical }
+				modifier = { factor = 1.2 trait = greedy }
+				modifier = { factor = 0.2 trait = kind }
+				modifier = { factor = 0.2 trait = honest }
+				modifier = { factor = 1.2 has_character_modifier = strong_banker }
+				custom_tooltip = { text = TXT_bank_profiteer }
+				character_event = { id = bank.34 }
+			}
+			
+			15 = {
+				modifier = { factor = 1.5 stewardship = 8 }
+				modifier = { factor = 1.5 is_smart_trigger = yes }
+				modifier = { factor = 1.5 trait = brave }
+				modifier = { factor = 1.5 trait = proud }
+				modifier = { factor = 1.2 trait = greedy }
+				custom_tooltip = { text = TXT_bank_risky }
+				character_event = { id = bank.35 }
+			}
+			
+			20 = {
+				modifier = { factor = 1.5 stewardship = 12 }
+				modifier = { factor = 2.0 intrigue = 18 }
+				modifier = { factor = 0.1 NOT = { intrigue = 8 } }
+				modifier = { factor = 1.5 trait = deceitful }
+				modifier = { factor = 1.2 trait = envious }
+				modifier = { factor = 1.2 trait = greedy }
+				modifier = { factor = 1.2 trait = cynical }
+				modifier = { factor = 0.1 trait = kind }
+				modifier = { factor = 0 trait = honest }
+				modifier = { factor = 1.2 has_character_modifier = strong_banker }
+				custom_tooltip = { text = TXT_bank_fraud }
+				character_event = { id = bank.36 }
+			}
+			
+			25 = {
+				modifier = { factor = 1.5 stewardship = 8 }
+				modifier = { factor = 2.0 trait = patient }
+				modifier = { factor = 1.5 trait = just }
+				modifier = { factor = 1.5 trait = honest }
+				modifier = { factor = 1.2 trait = paranoid }
+				modifier = { factor = 0.2 trait = arbitrary }
+				modifier = { factor = 0.2 trait = wroth }
+				custom_tooltip = { text = TXT_bank_consistent }
+				character_event = { id = bank.37 }
+			}
+			
+			15 = {
+				modifier = { factor = 1.5 NOT = { stewardship = 8 } }
+				modifier = { factor = 1.5 diplomacy = 15 }
+				modifier = { factor = 0 NOT = { diplomacy = 8 } }
+				modifier = { factor = 1.5 trait = gregarious }
+				modifier = { factor = 1.5 trait = stubborn }
+				modifier = { factor = 1.2 trait = patient }
+				custom_tooltip = { text = TXT_bank_averted }
+				character_event = { id = bank.38 }
+			}
+			
+			10 = {
+				modifier = { factor = 2.0 trait = kind }
+				modifier = { factor = 2.0 trait = charitable }
+				modifier = { factor = 1.5 trait = just }
+				modifier = { factor = 1.2 trait = trusting }
+				modifier = { factor = 1.2 trait = honest }
+				modifier = { factor = 0.2 trait = greedy }
+				modifier = { factor = 0.1 trait = cruel }
+				modifier = { factor = 1.2 has_character_modifier = weak_banker }
+				custom_tooltip = { text = TXT_bank_soft }
+				character_event = { id = bank.39 }
+			}
+			
+			15 = {
+				modifier = { factor = 1.5 trait = humble }
+				modifier = { factor = 1.5 trait = content }
+				modifier = { factor = 1.5 trait = shy }
+				modifier = { factor = 1.5 trait = craven }
+				modifier = { factor = 1.5 trait = depressed }
+				modifier = { factor = 1.2 trait = stressed }
+				modifier = { factor = 0.1 trait = ambitious }
+				modifier = { factor = 0.1 trait = greedy }
+				modifier = { factor = 1.2 has_character_modifier = weak_banker }
+				custom_tooltip = { text = TXT_bank_timid }
+				character_event = { id = bank.40 }
+			}
+			
+			15 = {
+				modifier = { factor = 2.5 trait = slothful }
+				modifier = { factor = 1.5 trait = content }
+				modifier = { factor = 1.2 has_character_modifier = weak_banker }
+				custom_tooltip = { text = TXT_bank_even }
+				character_event = { id = bank.41 }
+			}
+			
+			100 = {
+				modifier = { factor = 0 war = no }
+				modifier = { factor = 5 in_command = yes }
+				custom_tooltip = { text = TXT_bank_war }
+				character_event = { id = bank.42 }
+			}
+			
+			30 = {
+				modifier = { factor = 0 stewardship = 18 }
+				modifier = { factor = 0.3 stewardship = 12 }
+				modifier = { factor = 0.5 stewardship = 6 }
+				modifier = { factor = 1.5 trait = arbitrary }
+				modifier = { factor = 1.5 trait = greedy }
+				modifier = { factor = 1.5 trait = drunkard }
+				modifier = { factor = 1.5 trait = indulgent_wastrel }
+				modifier = { factor = 1.2 has_character_modifier = weak_banker }
+				custom_tooltip = { text = TXT_bank_reckless }
+				character_event = { id = bank.43 }
+			}
+			
+			40 = {
+				modifier = { factor = 0.5 stewardship = 12 }
+				modifier = { factor = 0.5 stewardship = 6 }
+				modifier = { factor = 0.5 intrigue = 8 }
+				modifier = { factor = 0.5 intrigue = 16 }
+				modifier = { factor = 4.0 is_dumb_trigger = yes }
+				modifier = { factor = 0.2 is_smart_trigger = yes }
+				modifier = { factor = 2.0 trait = trusting }
+				modifier = { factor = 1.5 trait = brave }
+				modifier = { factor = 1.2 trait = greedy }
+				modifier = { factor = 1.2 has_character_modifier = weak_banker }
+				custom_tooltip = { text = TXT_bank_foolish }
+				character_event = { id = bank.44 }
+			}
+			
+			25 = {
+				modifier = { factor = 0.7 stewardship = 15 }
+				modifier = { factor = 0.7 stewardship = 9 }
+				modifier = { factor = 0.7 intrigue = 12 }
+				modifier = { factor = 0.7 intrigue = 6 }
+				modifier = { factor = 2.0 is_dumb_trigger = yes }
+				modifier = { factor = 1.5 trait = greedy }
+				modifier = { factor = 1.5 trait = trusting }
+				modifier = { factor = 1.5 has_character_modifier = weak_banker }
+				modifier = { factor = 50 has_character_flag = forgave_debtor }
+				custom_tooltip = { text = TXT_bank_deadbeat }
+				character_event = { id = bank.45 }
+			}
+			
+			100 = {
+				modifier = {
+					factor = 0
+					NOR = {
+						trait = lunatic
+						trait = possessed
+						trait = inbred
+						trait = is_dumb_trigger = yes 
+					}
+				}
+				modifier = { factor = 0.5 stewardship = 12 }
+				modifier = { factor = 0.5 stewardship = 6 }
+				modifier = { factor = 2.5 trait = lunatic }
+				modifier = { factor = 2.0 trait = imbecile }
+				modifier = { factor = 1.5 trait = possessed }
+				modifier = { factor = 1.5 trait = inbred }
+				custom_tooltip = { text = TXT_bank_mad }
+				character_event = { id = bank.46 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = bank.31
+	desc = EVTDESC_bank_windfall
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_windfall
+		scaled_wealth = 0.5
+		wealth = 50
+		prestige = 10
+	}
+}
+
+character_event = {
+	id = bank.32
+	desc = EVTDESC_bank_payoff
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_payoff
+		wealth = 50
+		prestige = 5
+	}
+}
+
+character_event = {
+	id = bank.33
+	desc = EVTDESC_bank_wise
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		wealth = 40
+	}
+}
+
+character_event = {
+	id = bank.34
+	desc = EVTDESC_bank_profiteer
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		wealth = 40
+	}
+}
+
+character_event = {
+	id = bank.35
+	desc = EVTDESC_bank_riskyret
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_risky
+		wealth = 30
+		prestige = 5
+	}
+}
+
+character_event = {
+	id = bank.36
+	desc = EVTDESC_bank_fraud
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_fraud
+		wealth = 30
+		piety = -5
+	}
+}
+
+character_event = {
+	id = bank.37
+	desc = EVTDESC_bank_consistent
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_consistent
+		wealth = 20
+		piety = 5
+	}
+}
+
+character_event = {
+	id = bank.38
+	desc = EVTDESC_bank_averted
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		wealth = 20
+	}
+}
+
+character_event = {
+	id = bank.39
+	desc = EVTDESC_bank_soft
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_soft
+		wealth = 10
+		piety = 5
+	}
+}
+
+character_event = {
+	id = bank.40
+	desc = EVTDESC_bank_timid
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = OK
+		wealth = 10
+	}
+}
+
+character_event = {
+	id = bank.41
+	desc = EVTDESC_bank_breakeven
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_breakeven
+	}
+}
+
+character_event = {
+	id = bank.42
+	desc = EVTDESC_bank_war
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_war
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_war
+	}
+}
+
+character_event = {
+	id = bank.43
+	desc = EVTDESC_bank_reckless
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_loss
+		wealth = -10
+		prestige = -5
+	}
+}
+
+character_event = {
+	id = bank.44
+	desc = EVTDESC_bank_foolish
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPT_bank_loss
+		wealth = -10
+		prestige = -5
+	}
+}
+
+character_event = {
+	id = bank.45
+	desc = EVTDESC_bank_losses
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = forgave_debtor
+	}
+	
+	option = {
+		name = EVTOPT_bank_loss
+		scaled_wealth = -0.2
+		wealth = -10
+		prestige = -10
+	}
+}
+
+character_event = {
+	id = bank.46
+	desc = EVTDESC_bank_mad
+	picture = GFX_evt_council
+	border = GFX_event_normal_frame_economy
+	is_triggered_only = yes
+	
+	immediate = {
+		any_realm_character = {
+			limit = { trait = horse }
+			save_event_target_as = banker_blame_horse
+		}
+		random_vassal = {
+			save_event_target_as = banker_blame_vassal
+		}
+		random_dynasty_member = {
+			save_event_target_as = banker_blame_family
+		}
+		religion_head = {
+			save_event_target_as = banker_blame_pope
+		}
+	}
+	
+	option = {
+		name = EVTOPT_bank_mad_glitter
+		trigger = {
+			event_target:banker_blame_horse = {
+				always = yes
+			}
+		}
+		scaled_wealth = -0.5
+		wealth = -10
+		prestige = -40
+		event_target:banker_blame_horse = {
+			add_rival = ROOT
+		}
+	}
+	
+	option = {
+		name = EVTOPT_bank_mad_vassal
+		trigger = {
+			event_target:banker_blame_vassal = {
+				always = yes
+			}
+		}
+		scaled_wealth = -0.5
+		wealth = -10
+		prestige = -20
+		event_target:banker_blame_vassal = {
+			add_rival = ROOT
+		}
+	}
+	
+	option = {
+		name = EVTOPT_bank_mad_kin
+		trigger = {
+			event_target:banker_blame_family = {
+				always = yes
+			}
+		}
+		scaled_wealth = -0.5
+		wealth = -10
+		prestige = -20
+		event_target:banker_blame_family = {
+			add_rival = ROOT
+		}
+	}
+	
+	option = {
+		name = EVTOPT_bank_mad_devil
+		trigger = {
+			event_target:banker_blame_pope = {
+				always = yes
+			}
+		}
+		scaled_wealth = -0.5
+		wealth = -10
+		piety = -20
+		event_target:banker_blame_pope = {
+			add_rival = ROOT
+		}
+	}
+	
+	option = {
+		name = EVTOPT_bank_mad_all
+		trigger = {
+			NOT = { event_target:banker_blame_horse = { always = yes } }
+			NOT = { event_target:banker_blame_vassal = { always = yes } }
+			NOT = { event_target:banker_blame_family = { always = yes } }
+			NOT = { event_target:banker_blame_pope = { always = yes	} }
+		}
+		scaled_wealth = -0.5
+		wealth = -10
+		prestige = -50
+	}
+}
+

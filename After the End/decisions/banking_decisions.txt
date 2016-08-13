@@ -1,6 +1,9 @@
 decisions = {
 	become_banker = {
 		potential = {
+			age = 16
+			NOT = { trait = incapable }
+			prisoner = no
 			NOT = { trait = banker }
 			OR = {
 				controls_religion = no			# any secular ruler
@@ -15,39 +18,36 @@ decisions = {
 			}
 		}
 		allow = {
+			wealth = 500
 			OR = {
-				monthly_income = 10
-				wealth = 750
+				religion = consumerist
+				is_patrician = yes
+				stewardship = 12
+				trait = greedy
+				trait = cynical
 			}
+			is_tribal = no
+			is_nomadic = no
+			NOT = { has_character_flag = loan_taken }
 		}
 		effect = {
 			add_trait = banker
+			wealth = -500
+			hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
 		}
 		revoke_allowed = {
 			always = no
 		}
 		ai_will_do = {
 			factor = 1
-			modifier = {
-				factor = 2
-				trait = greedy
-			}
-			modifier = {
-				factor = 2
-				trait = ambitious
-			}
-			modifier = {
-				factor = 5
-				is_patrician = yes
-			}
-			modifier = {
-				factor = 2
-				wealth = 1000
-			}
-			modifier = {
-				factor = 5
-				religion_group = oldworld # Americanists and consumerists like money
-			}
+			modifier = { factor = 0.01 }
+			modifier = { factor = 2 stewardship = 10 }
+			modifier = { factor = 2 stewardship = 15 }
+			modifier = { factor = 5 trait = greedy }
+			modifier = { factor = 2 trait = cynical	}
+			modifier = { factor = 5	is_patrician = yes }
+			modifier = { factor = 2 wealth = 1000 }
+			modifier = { factor = 3 religion_group = oldworld }
 		}
 	}
 	
@@ -56,73 +56,24 @@ decisions = {
 			trait = banker
 		}
 		allow = {
-			NOT = {
-				debtor = {
-					has_opinion_modifier = { who = ROOT modifier = lent_me_money }
-				}
-			}
+			
 		}
 		effect = {
-			remove_trait = banker
-		}
-		revoke_allowed = { always = no }
-		ai_will_do = {
-			factor = 0.0001
-			modifier = {
-				factor = 0.5
-				wealth = 250
-			}
-			modifier = {
-				factor = 10
-				NOT = { wealth = -250 }
-			}
-			modifier = {
-				factor = 10
-				NOT = { monthly_income = 0 }
-			}
-			modifier = {
-				factor = 2
-				trait = zealous
-				NOT = { religion_group = oldworld }
-			}
-		}
-	}
-	
-	stop_loan_offers = {
-		potential = {
-			ai = no
-			trait = banker
-			NOT = { has_character_flag = no_loan_offers }
-		}
-		allow = {
-		}
-		effect = {
-			set_character_flag = no_loan_offers
-		}
-		revoke_allowed = { always = no }
-		ai_will_do = {
-			factor = 0
-		}
-	}
-	
-	allow_loan_offers = {
-		potential = {
-			trait = banker
-			has_character_flag = no_loan_offers
-		}
-		allow = {}
-		effect = {
-			clr_character_flag = no_loan_offers
+			character_event = { id = bank.10 }
 		}
 		revoke_allowed = { always = no }
 		ai_will_do = {
 			factor = 1
+			modifier = { factor = 0.001 }
+			modifier = { factor = 0.5 wealth = 250 }
+			modifier = { factor = 10 NOT = { wealth = -100 } }
+			modifier = { factor = 10 NOT = { monthly_income = 0 } }
+			modifier = { factor = 5 war = yes }
 		}
 	}
 	
 	borrow_money = {
 		potential = {
-			#ai = no
 			is_ruler = yes
 			demesne_size = 1
 			OR = {
@@ -131,26 +82,15 @@ decisions = {
 			}
 			NOT = { has_character_flag = offended_moneylenders }
 			NOT = { has_character_flag = loan_taken }
-			NOT = { has_character_modifier = loan_timer }
-			NOT = { has_character_modifier = defaulted_on_loan }
-			#NOT = { has_character_modifier = recent_loan_request }
+			NOT = { trait = banker }
 		}
 		allow = {
-			hidden_tooltip = {
-				OR = {
-					ai = no
-					NOT = { wealth = 50 }
-				}
-			}
-			# See if there's any available bankers
-			banker = {
-				NOT = { has_opinion_modifier = { who = ROOT modifier = refused_loan } }
-				NOT = { war_with = ROOT }
-				wealth = 0
-				NOT = { has_character_flag = no_loan_offers }
-			}
+			NOT = { has_character_modifier = poor_credit }
+			NOT = { has_character_modifier = defaulted_on_loan }
+			NOT = { has_character_modifier = loan_timer }
 		}
 		effect = {
+			set_character_flag = loan_taken
 			#100g loan
 			if = {
 				limit = {
@@ -203,26 +143,16 @@ decisions = {
 				custom_tooltip = { text = loan_1000 }
 				set_character_flag = loan_1000				
 			}
-			hidden_tooltip = { letter_event = { id = loan.2 } }
+			hidden_tooltip = { letter_event = { id = bank.1 } }
 		}
 		revoke_allowed = { always = no }
 		ai_will_do = {
 			factor = 1
-			modifier = {
-				factor = 0.1
-			}
-			modifier = {
-				factor = 2
-				war = yes
-			}
-			modifier = {
-				factor = 2
-				NOT = { wealth = 0 }
-			}
-			modifier = {
-				factor = 4
-				NOT = { wealth = -100 }
-			}
+			modifier = { factor = 0.1 }
+			modifier = { factor = 0 war = no }
+			modifier = { factor = 0 wealth = 100 }
+			modifier = { factor = 4 NOT = { wealth = 0 } }
+			modifier = { factor = 4 NOT = { wealth = -100 }	}
 		}
 	}
 	
@@ -279,43 +209,35 @@ decisions = {
 		effect = {
 			if = {
 				limit = { has_character_flag = loan_100 }
-				wealth = -100
+				wealth = -125
 			}
 			if = {
 				limit = { has_character_flag = loan_200 }
-				wealth = -200
+				wealth = -250
 			}
 			if = {
 				limit = { has_character_flag = loan_400 }
-				wealth = -400
+				wealth = -500
 			}
 			if = {
 				limit = { has_character_flag = loan_600 }
-				wealth = -600
+				wealth = -750
 			}
 			if = {
 				limit = { has_character_flag = loan_800 }
-				wealth = -800
+				wealth = -1000
 			}
 			if = {
 				limit = { has_character_flag = loan_1000 }
-				wealth = -1000
+				wealth = -1250
 			}
-			clr_character_flag = loan_taken
-			clr_character_flag = loan_in_progress
-			remove_character_modifier = loan_timer
-			remove_trait = debtor
-			banker = {
-				limit = { has_opinion_modifier = { who = ROOT modifier = owes_me_money } }
-				character_event = { id = loan.23 }
-			}
+			clear_banking_flags_effect = yes
 		}
 		revoke_allowed = { always = no }
 		ai_will_do = {
 			factor = 1
-			modifier = {
-				factor = 0.5
-			}
+			modifier = { factor = 0.5 }
+			modifier = { factor = 0 war = yes }
 		}
 	}
 }

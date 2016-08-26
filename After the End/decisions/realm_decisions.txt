@@ -1,8 +1,11 @@
 decisions = {
 
 	hold_a_epic_tournament  = {
+		only_independent = yes
 		is_high_prio = yes
+		
 		potential = {
+			is_playable = yes
 			NOT = {
 				has_character_flag = epic_tournament
 				has_character_flag = do_not_disturb
@@ -22,7 +25,7 @@ decisions = {
 			war = no
 			prisoner = no
 			in_command = no
-			NOT = { trait = in_hiding }
+			NOT = { is_inaccessible_trigger = yes }
 			age = 16
 			prestige = 500
 			wealth = 200
@@ -58,7 +61,9 @@ decisions = {
 	}
 	
 	buy_indulgence_for_sins = {
+		only_playable = yes
 		potential = {
+			is_playable = yes
 			religion = catholic
 			age = 16
 			demesne_size = 1
@@ -88,7 +93,9 @@ decisions = {
 	}
 
 	issue_declaration_of_repentance = {
+		only_playable = yes
 		potential = {
+			is_playable = yes
 			religion = catholic
 			age = 16
 			demesne_size = 1
@@ -121,9 +128,11 @@ decisions = {
 	}
 	
 	demand_liege_title = {
+		only_playable = yes
 		is_high_prio = yes
 		potential = {
 			ai = no
+			is_playable = yes
 			has_ambition = obj_gain_any_title
 			liege = {
 				NOT = { character = ROOT }
@@ -173,8 +182,10 @@ decisions = {
 	}
 
 	petition_doge_for_tp = {
+		only_playable = yes
 		is_high_prio = yes
 		potential = {
+			is_playable = yes
 			is_merchant_republic = no
 			is_patrician = yes
 			liege = { is_merchant_republic = yes }
@@ -220,8 +231,10 @@ decisions = {
 	}
 	
 	usurp_tp = {
+		only_playable = yes
 		is_high_prio = yes
 		potential = {
+			is_playable = yes
 			is_merchant_republic = yes
 			is_patrician = yes
 			NOT = { has_character_flag = usurp_tp_taken }
@@ -294,12 +307,25 @@ decisions = {
 	}
 
 	form_new_kingdom = {
+		only_independent = yes
 		is_high_prio = yes
+		
 		potential = {
-			has_dlc = "Charlemagne"
 			is_playable = yes
 			tier = DUKE
 			NOT = { tier = KING }
+			
+			has_dlc = "Charlemagne"
+			
+			holy_order = no
+			
+			NOT = {
+				has_game_rule = {
+					name = dynamic_realms
+					value = off
+				}
+			}
+			
 			OR = {
 				ai = no
 				AND = {
@@ -309,6 +335,13 @@ decisions = {
 				AND = {
 					trait = ambitious
 					prestige = 5000
+				}
+				AND = {
+					realm_size = 70
+					any_demesne_title = {
+						count = 4
+						tier = DUKE
+					}
 				}
 				prestige = 15000
 			}
@@ -411,12 +444,17 @@ decisions = {
 	}
 
 	form_new_empire = {
+		only_independent = yes
 		is_high_prio = yes
+		
 		potential = {
-			has_dlc = "Charlemagne"
 			is_playable = yes
 			tier = KING
 			is_nomadic = no
+			has_dlc = "Charlemagne"
+			
+			holy_order = no
+			
 			NOT = { tier = EMPEROR }
 			OR = {
 				ai = no
@@ -429,6 +467,13 @@ decisions = {
 					prestige = 40000
 				}
 				prestige = 120000
+			}
+			
+			NOT = {
+				has_game_rule = {
+					name = dynamic_realms
+					value = off
+				}
 			}
 		}
 		allow = {
@@ -521,7 +566,10 @@ decisions = {
 
 	# Hold Wargames - for nomads
 	hold_nomad_wargames = {
+		only_playable = yes
+		
 		potential = {
+			is_playable = yes
 			is_nomadic = yes
 			NOT = { has_character_modifier = holding_nomad_wargames }
 			NOT = { has_character_modifier = held_nomad_wargames }
@@ -530,9 +578,10 @@ decisions = {
 			is_adult = yes
 			prisoner = no
 			NOT = { trait = incapable }
-			NOT = { trait = in_hiding }
+			NOT = { is_inaccessible_trigger = yes }
 			war = no
 			any_demesne_title = {
+				NOT = { higher_tier_than = count }
 				is_occupied = no
 			}
 			wealth = 20
@@ -588,8 +637,11 @@ decisions = {
 	}
 	
 	convert_to_feudalism_indep  = {
+		only_independent = yes
 		is_high_prio = yes
+		
 		potential = {
+			is_playable = yes
 			is_tribal = yes
 			independent = yes
 		}
@@ -617,6 +669,54 @@ decisions = {
 		}
 		
 		effect = {
+			if = {
+				limit = { ai = no }
+				set_character_flag = achievement_not_a_tribe
+			}
+			
+			if = {
+				limit = {
+					NOT = { religion = cetic }
+				}
+				
+				if = {
+					limit = {
+						ai = no
+					}
+					chronicle = {
+						entry = CHRONICLE_ADOPTED_FEUDALISM
+						picture = GFX_evt_castle_construction
+					}
+				}
+				set_government_type = feudal_government
+			}
+			
+			if = {
+				limit = {
+					religion = cetic
+				}
+				
+				if = {
+					limit = {
+						ai = no
+					}
+					chronicle = {
+						entry = CHRONICLE_ADOPTED_BUREAUCRACY
+						picture = GFX_evt_castle_construction
+					}
+				}
+				set_government_type = bureaucratic_government
+			}
+			
+			if = {
+				limit = {
+					higher_tier_than = king
+				}
+				primary_title = {
+					add_law = feudal_administration
+				}
+			}
+			
 			hidden_tooltip = {
 				any_demesne_title = {
 					limit = {
@@ -668,7 +768,63 @@ decisions = {
 					}
 				}
 			}
-			
+		}
+		
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	convert_to_feudalism_vassal = {
+		only_rulers = yes
+		is_high_prio = yes
+		
+		potential = {
+			is_ruler = yes
+			is_tribal = yes
+			independent = no
+		}
+		allow = {
+			war = no
+			custom_tooltip = {
+				text = TT_NOT_UNREFORMED_PAGAN
+				hidden_tooltip = {
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+				}
+			}
+			liege = {
+				OR = {
+					is_feudal = yes
+					is_republic = yes
+					AND = {
+						is_theocracy = yes
+						custom_tooltip = {
+							text = TT_NOT_UNREFORMED_PAGAN
+							hidden_tooltip = {
+								OR = {
+									NOT = { religion_group = pagan_group }
+									is_reformed_religion = yes
+								}
+							}
+						}
+					}
+				}
+			}
+			capital_holding = {
+				OR = {
+					AND = {
+						holding_type = tribal
+						has_building = tb_hillfort_4
+					}
+					holding_type = castle
+				}
+			}
+		}
+		
+		effect = {
 			set_character_flag = achievement_not_a_tribe
 			
 			if = {
@@ -702,62 +858,9 @@ decisions = {
 						picture = GFX_evt_castle_construction
 					}
 				}
-				set_government_type = bureaucratic_government
+				set_government_type = muslim_government
 			}
 			
-			if = {
-				limit = {
-					higher_tier_than = king
-				}
-				primary_title = {
-					add_law = feudal_administration
-				}
-			}
-		}
-		
-		ai_will_do = {
-			factor = 1
-		}
-	}
-	
-	convert_to_feudalism_vassal = {
-		is_high_prio = yes
-		potential = {
-			is_tribal = yes
-			independent = no
-		}
-		allow = {
-			war = no
-			custom_tooltip = {
-				text = TT_NOT_UNREFORMED_PAGAN
-				hidden_tooltip = {
-					OR = {
-						NOT = { religion_group = pagan_group }
-						is_reformed_religion = yes
-					}
-				}
-			}
-			liege = {
-				OR = {
-					is_feudal = yes
-					is_republic = yes
-					AND = {
-						is_theocracy = yes
-						custom_tooltip = {
-							text = TT_NOT_UNREFORMED_PAGAN
-							hidden_tooltip = {
-								OR = {
-									NOT = { religion_group = pagan_group }
-									is_reformed_religion = yes
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		effect = {
 			hidden_tooltip = {
 				any_demesne_title = {
 					limit = {
@@ -813,42 +916,6 @@ decisions = {
 					character_event = { id = 55100 } # Notify Liege
 				}
 			}
-			
-			set_character_flag = achievement_not_a_tribe
-			
-			if = {
-				limit = {
-					NOT = { religion = cetic }
-				}
-				
-				if = {
-					limit = {
-						ai = no
-					}
-					chronicle = {
-						entry = CHRONICLE_ADOPTED_FEUDALISM
-						picture = GFX_evt_castle_construction
-					}
-				}
-				set_government_type = feudal_government
-			}
-			
-			if = {
-				limit = {
-					religion = cetic
-				}
-				
-				if = {
-					limit = {
-						ai = no
-					}
-					chronicle = {
-						entry = CHRONICLE_ADOPTED_BUREAUCRACY
-						picture = GFX_evt_castle_construction
-					}
-				}
-				set_government_type = bureaucratic_government
-			}
 		}
 		
 		ai_will_do = {
@@ -891,8 +958,11 @@ decisions = {
 	}
 	
 	convert_to_republic_indep  = {
+		only_independent = yes
 		is_high_prio = yes
+		
 		potential = {
+			is_playable = yes
 			is_tribal = yes
 			independent = yes
 			has_dlc = "The Republic"
@@ -928,6 +998,8 @@ decisions = {
 		effect = {
 			hidden_tooltip = {
 				create_family_palace = yes
+				
+				set_government_type = merchant_republic_government
 				
 				if = {
 					limit = {
@@ -1016,8 +1088,6 @@ decisions = {
 					}
 				}
 				
-				set_government_type = merchant_republic_government
-				
 				any_demesne_title = {
 					limit = {
 						tier = baron
@@ -1069,7 +1139,10 @@ decisions = {
 				}
 			}
 			
-			set_character_flag = achievement_res_publica
+			if = {
+				limit = { ai = no }
+				set_character_flag = achievement_res_publica
+			}
 			
 			if = {
 				limit = {

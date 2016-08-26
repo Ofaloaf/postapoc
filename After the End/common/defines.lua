@@ -10,10 +10,15 @@ NDiplomacy = {
 	ATTACKING_SOMEONE_DEFENDING_AGAINST_OTHER_RELIGIOUS_GROUP_PIETY_COST = 100,		-- Piety hit for attacking someone who is defending against other religious group
 	ATTACKER_CALL_DECLINE_COST = 25, 			-- Prestige cost for refusing to join an offensive war
 	DEFENDER_CALL_DECLINE_COST = 100, 			-- Prestige cost for refusing to join a defensive war
+	ALLIED_CALL_DECLINE_COST = 200,
+	
 	TRIBAL_VASSAL_CALL_DECLINE_COST_FACTOR = 3.0, -- Prestige cost multiplier for tribal vassals
 	PAPAL_INVEST_PIETY_COST_MULT = 0.5, 		-- The effect of Papal investiture on the piety cost of the special Papal actions
 	SHORT_REIGN_YEARS_END = 9,
 	LONG_REIGN_YEARS_START = 10,
+	MAX_LONG_REIGN_BONUS = 100,                 -- Max bonus in opinion you can get from long reign 
+	LONG_REIGN_PENALTY = -2,       				-- Penalty ticking down every year from long reign bonus
+	LONG_REIGN_PENALTY_START = 3, 				-- What year penalty tick should start
 	SHORT_REIGN_OPINION_MULT = 1.0,				-- Opinion penalty multiplier to short reign years
 	LONG_REIGN_OPINION_MULT = 0.5,				-- Opinion penalty boost to long reign years
 	DOW_ON_ALLY_PRESTIGE_COST = 50,
@@ -56,41 +61,43 @@ NDiplomacy = {
 	CONCLAVE_VASSAL_LIMIT_EMPEROR_MULT = 20.0, 			-- Extra Vassal Limit from the ruler's rank
 	CONCLAVE_VASSAL_LIMIT_GREAT_DUKE_BONUS = 3.0, 		-- Extra Vassal Limit for Dukes with more than one Duchy
 
-	DIPLO_FRIEND_OPINION_THRESHOLD = 40,		-- OBSOLETE
-	DIPLO_RIVAL_OPINION_THRESHOLD = -40,		-- OBSOLETE
-	OBJECTIVE_DISCARD_WEIGHT_THRESHOLD = 0.05,	-- AI will not pick ambitions or plots below this evaluated weight
-	CROWN_LAW_REVOLTRISK_INCREMENT = 10,		-- Revoltrisk reduction/decrease due to crown laws
-	MAX_DUCHIES_LEGALLY_HELD = 2,				-- Max duchies that a king or above can hold before vassals start getting angry
-	MAX_ELECTOR_TITLES_LEGALLY_HELD = 1,		-- Max elector titles that a king or above can hold before vassals start getting angry
-	TITULAR_TITLES_COUNT_TOWARDS_DUCHY_LIMIT = 1,	-- If set to 1 then titular duchy titles (duchy titles with no de-jure land) will count towards the maximum duchy titles held before vassals will get upset.
-	ASSASSINATION_COST_RANK_MULT = 100,			-- Additional cost for assassinations multiplied by rank (count = 1, emperor = 4). Also applies to children of rulers.
-	WOMEN_INHERIT_PRESSED_CLAIMS = 1,			-- If set to 1, they will get pressed claims on their parents' titles
-	BASTARDS_INHERIT_PRESSED_CLAIMS = 1,		-- If set to 1, they will get pressed claims on their parents' titles
-	LAW_CHANGE_PIETY_COST = 50,					-- Piety cost for Iqta government when changing normal demesne laws
-	CROWN_LAW_CHANGE_PIETY_COST = 100,			-- Piety cost for Iqta government when changing Crown laws
-	LAW_CHANGE_PRESTIGE_COST = 100,				-- Prestige cost for Nomadic government when changing normal demesne laws
-	CROWN_LAW_CHANGE_PRESTIGE_COST = 200,		-- Prestige cost for Nomadic government when changing Crown laws
-	INTER_MUSLIM_WAR_MONTHLY_PIETY_COST = 2,  	-- Monthly Piety cost for Muslims who are primary attackers against a ruler of the same religion (not civil wars)
-	MUSLIM_TEMPLE_HOLDING_MONTHLY_PIETY = 0.2, 	-- Monthly Piety for Muslims for each Temple holding in the demesne
-	DOWRY_MULTIPLIER = 1.0,						-- The Dowry cost for a Patrician is prestige gain from marriage * this
-	PAGAN_PEACE_MONTHS = 24,					-- Months before the Peace Prestige loss kicks in for certain Pagan religions
-	PAGAN_PEACE_MONTHLY_PRESTIGE_LOSS = 2.0,	-- Prestige loss for being at peace, for certain Pagan religions
-	PRESTIGE_OPINION_DIV = 200,					-- Divider for prestige to vassal opinion (5x higher effect for negative prestige)
-	PRESTIGE_OPINION_MAX = 10,					-- Max opinion impact of prestige (positive OR negative)
-	PIETY_OPINION_DIV = 50,						-- Divider for piety to church opinion
-	PIETY_OPINION_MAX = 10,						-- Max opinion impact of piety (positive OR negative)	
-	MIN_PREP_INV_TARGET_HOLDINGS = 9,			-- The target must control at least this many holdings within the target kingdom to be a valid prepared invasion target
-	MAX_PREP_INV_TARGET_HOLDINGS = 40,			-- The target must control at the most this many holdings within the target kingdom to be a valid prepared invasion target
-	MAX_PREP_INV_ATTACKER_HOLDINGS = 40,		-- The attacker must have fewer Holdings than this in the realm (disallow Prepared Invasions for rulers who are already very powerful)
-	PREP_INV_REQ_PRESTIGE = 1000,				-- Need to have this much Prestige to prepare an invasion
-	BASE_REVOLT_CHANCE_MOD = 250,				-- Pre Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO.
-	TOG_REVOLT_CHANCE_MOD = 100,				-- Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO. 
-	JAIN_LIEGE_OPINION_BONUS = 15,				-- Jain Lieges Get Vassal Opinion Bonus
-	MAX_DIPLO_DISTANCE = 700,					-- Most diplomacy is disallowed if two rulers are too distant
-	MAX_DIPLO_DISTANCE_SAME_RELIGION = 100,		-- Bonus to max diplo distance for being of the same religion
-	MAX_DIPLO_DISTANCE_SAME_RELIGION_GROUP = 0, -- Bonus to max diplo distance for being of the same religion group
-	MAX_DIPLO_DISTANCE_SAME_CULTURE = 100, 		-- Bonus to max diplo distance for being of the same culture
-	MAX_DIPLO_DISTANCE_SAME_CULTURE_GROUP = 100, -- Bonus to max diplo distance for being of the same culture group
+	DIPLO_FRIEND_OPINION_THRESHOLD = 40,						-- OBSOLETE
+	DIPLO_RIVAL_OPINION_THRESHOLD = -40,						-- OBSOLETE
+	OBJECTIVE_DISCARD_WEIGHT_THRESHOLD = 0.05,					-- AI will not pick ambitions or plots below this evaluated weight
+	CROWN_LAW_REVOLTRISK_INCREMENT = 10,						-- Revoltrisk reduction/decrease due to crown laws
+	MAX_DUCHIES_LEGALLY_HELD = 2,								-- Max duchies that a king or above can hold before vassals start getting angry
+	MAX_ELECTOR_TITLES_LEGALLY_HELD = 1,						-- Max elector titles that a king or above can hold before vassals start getting angry
+	TITULAR_TITLES_COUNT_TOWARDS_DUCHY_LIMIT = 1,				-- If set to 1 then titular duchy titles (duchy titles with no de-jure land) will count towards the maximum duchy titles held before vassals will get upset.
+	ASSASSINATION_COST_RANK_MULT = 100,							-- Additional cost for assassinations multiplied by rank (count = 1, emperor = 4). Also applies to children of rulers.
+	WOMEN_INHERIT_PRESSED_CLAIMS = 1,							-- If set to 1, they will get pressed claims on their parents' titles
+	BASTARDS_INHERIT_PRESSED_CLAIMS = 1,						-- If set to 1, they will get pressed claims on their parents' titles
+	LAW_CHANGE_PIETY_COST = 50,									-- Piety cost for Iqta government when changing normal demesne laws
+	CROWN_LAW_CHANGE_PIETY_COST = 100,							-- Piety cost for Iqta government when changing Crown laws
+	LAW_CHANGE_PRESTIGE_COST = 100,								-- Prestige cost for Nomadic government when changing normal demesne laws
+	CROWN_LAW_CHANGE_PRESTIGE_COST = 200,						-- Prestige cost for Nomadic government when changing Crown laws
+	INTER_MUSLIM_WAR_MONTHLY_PIETY_COST = 2,  					-- Monthly Piety cost for Muslims who are primary attackers against a ruler of the same religion (not civil wars)
+	MUSLIM_TEMPLE_HOLDING_MONTHLY_PIETY = 0.2, 					-- Monthly Piety for Muslims for each Temple holding in the demesne
+	DOWRY_MULTIPLIER = 1.0,										-- The Dowry cost for a Patrician is prestige gain from marriage * this
+	PAGAN_PEACE_MONTHS = 24,									-- Months before the Peace Prestige loss kicks in for certain Pagan religions
+	PAGAN_PEACE_MONTHLY_PRESTIGE_LOSS = 2.0,					-- Prestige loss for being at peace, for certain Pagan religions
+	PRESTIGE_OPINION_DIV = 200,									-- Divider for prestige to vassal opinion (5x higher effect for negative prestige)
+	PRESTIGE_OPINION_MAX = 10,									-- Max opinion impact of prestige (positive OR negative)
+	PIETY_OPINION_DIV = 50,										-- Divider for piety to church opinion
+	PIETY_OPINION_MAX = 10,										-- Max opinion impact of piety (positive OR negative)	
+	MIN_PREP_INV_TARGET_HOLDINGS = 9,							-- The target must control at least this many holdings within the target kingdom to be a valid prepared invasion target
+	MAX_PREP_INV_TARGET_HOLDINGS = 40,							-- The target must control at the most this many holdings within the target kingdom to be a valid prepared invasion target
+	MAX_PREP_INV_ATTACKER_HOLDINGS = 40,						-- The attacker must have fewer Holdings than this in the realm (disallow Prepared Invasions for rulers who are already very powerful)
+	PREP_INV_REQ_PRESTIGE = 1000,								-- Need to have this much Prestige to prepare an invasion
+	BASE_REVOLT_CHANCE_MOD = 250,								-- Pre Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO.
+	TOG_REVOLT_CHANCE_MOD = 100,								-- Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO. 
+	JAIN_LIEGE_OPINION_BONUS = 15,								-- Jain Lieges Get Vassal Opinion Bonus
+	MAX_DIPLO_DISTANCE = 700,									-- Most diplomacy is disallowed if two rulers are too distant
+	MAX_DIPLO_DISTANCE_SAME_RELIGION = 100,						-- Bonus to max diplo distance for being of the same religion
+	MAX_DIPLO_DISTANCE_SAME_RELIGION_GROUP = 0, 				-- Bonus to max diplo distance for being of the same religion group
+	MAX_DIPLO_DISTANCE_SAME_CULTURE = 100, 						-- Bonus to max diplo distance for being of the same culture
+	MAX_DIPLO_DISTANCE_SAME_CULTURE_GROUP = 100,				-- Bonus to max diplo distance for being of the same culture group
+	GAME_RULE_RESTRICTED_DIPLO_DISTANCE_MULTIPLIER = 0.5,		-- Multiplier to max diplo distance when using the "diplomatic range: restricted" game rule
+	GAME_RULE_PROVINCIAL_REVOLT_RARE_DIVIDER = 2.0,				-- Divider to decrease risk of revolt when using the "provincial revolt: rare" game rule
 	
 	DUKE_POWERFUL_VASSAL_COUNT = 4,				-- The x most powerful vassal will expect a seat in the council
 	KING_POWERFUL_VASSAL_COUNT = 5,				-- The x most powerful vassal will expect a seat in the council
@@ -724,6 +731,9 @@ NDiplomacy = {
 	CHANCES_TO_USE_FAVOR = 75,								-- Chance to use favor to change the outcome of a diplomatic request (as a percentage)
 	
 	NON_AGGRESSION_PACT_REJECTED_COOLDOWN = 1,				-- Number of years before a character can ask to form a non-aggression pact again
+
+	ALLIANCE_BREAKER_MODIFIER_MONTHS = 3650,				-- How long the alliance breaker temporary modifier lasts
+	TRUCE_BREAKER_MODIFIER_MONTHS = 3650,					-- How long the truce breaker temporary modifier lasts
 },
 
 NCouncil = {
@@ -833,7 +843,7 @@ NCharacter = {
 	MARRIED_LOVERS_FERTILITY_MULT = 1.5,			-- Applied to fertility when lovers are married
 	INFANT_DEATH_CHANCE = 0.0,						-- Chance of stillbirth / death at birth
 	EARLY_PORTRAIT_AND_UNIT_BEFORE_YEAR = 950,		-- Before this date, early versions of Units and Portraits will be used if available
-	LATE_PORTRAIT_AND_UNIT_AFTER_YEAR = 1250,		-- After this date, late versions of Units and Portraits will be used if available
+	LATE_PORTRAIT_AND_UNIT_AFTER_YEAR = 1200,		-- After this date, late versions of Units and Portraits will be used if available
 	TRIBAL_EMPTY_HOLDING_LEVY_MULTIPLIER = 0.5,
 	TRIBAL_EMPTY_HOLDING_GARRISON_MULTIPLIER = 0.5,
 	TRIBAL_EMPTY_HOLDING_TAX_MULTIPLIER = 0.5,
@@ -854,9 +864,10 @@ NCharacter = {
 	INHERITED_OPINION_END_AGE = 30,					-- Inherited opinions end when the inheritor hits this age
 	INHERITED_OPINION_MIN_MONTHS = 12,				-- This is the minimum number of months for inherited opinions
 	INHERITED_OPINION_FACTOR = 0.5,					-- This is the factor of the opinion of the previous holder that gets inherited
-	CHILDHOOD_FOCUS_ALERT_AGE = 5,					-- The childhood focus alert is shown for children this old
+	CHILDHOOD_FOCUS_ALERT_AGE = 6,					-- The childhood focus alert is shown for children this old
 	AGE_CHILDHOOD_PULSE = 6,						-- The childhood pulse events start from this age
 	CHILDHOOD_AUTO_EDUCATION_FOCUS_AGE = 15,		-- Children automatically get education focus at this age.
+	MERCHANT_REPUBLIC_MAX_PATRICIANS = 5,			-- The amount of merchant republic patrician families that the game will keep active.
 },
 
 NTitle = {
@@ -949,10 +960,24 @@ NTitle = {
 	NORMAL_LAW_CHANGE_COUNCIL_MONTHS = 60,
 	NORMAL_LAW_CHANGE_ABSOLUTISM_MONTHS = 120,
 	MAX_CROWN_LAW_CHANGES = 1,
+	CROWN_LAW_CHANGE_MONTHS = 600,
+	CROWN_LAW_CHANGE_TIMER = 1, 				-- If set to 0, rulers will be restricted to MAX_CROWN_LAW_CHANGES. If set to 1, they'll have a CROWN_LAW_CHANGE_MONTHS cooldown
 	TITLE_USURP_COOLDOWN_MONTHS = 60,
+	
 	DE_JURE_ASSIMILATION_YEARS = 100,			-- Duchies a under the de facto control of another kingdom will change de jure liege after this many years
 	EMPIRE_DE_JURE_ASSIMILATION_YEARS = 100,	-- Kingdoms under the de facto control of another empire will change de jure liege after this many years
+	
+	GAME_RULES_DEJURE_LONG = 300,
+	GAME_RULES_DEJURE_LONG_EMPIRE = 300,
+
+	GAME_RULES_DEJURE_SHORT = 50,
+	GAME_RULES_DEJURE_SHORT_EMPIRE = 50,
+	
+	GAME_RULES_DEJURE_SHORTEST = 10,
+	GAME_RULES_DEJURE_SHORTEST_EMPIRE = 10,
+	
 	ALLOW_DE_JURE_ASSIMILATION_ANYWHERE = 1,	-- If set to 0, will only assimilate duchy titles which contain the assimilating Kingdom's capital or border existing de jure land of that title
+
 	REQ_DUCHIES_FOR_KINGDOM_CREATION = 2, 		-- Number of held duchies required to create a kingdom (for rulers who are not already kings or emperors)
 	REQ_KINGDOMS_FOR_EMPIRE_CREATION = 2, 		-- Number of held kingdoms required to create an Empire (for rulers who are not already emperors)
 	TITULAR_TITLE_CREATION_COST_MULT = 2,		-- Titular titles are more expensive to create
@@ -1076,11 +1101,11 @@ NDecadence = {
 }, 
 
 NNomad = {
-	POPULATION_INCREASE_MULTIPLIER = 0.005,			-- The rate current population grows or declines to max population
-	MANPOWER_INCREASE_MULTIPLIER = 0.075,			-- The rate current manpower grows or declines to max manpower
+	POPULATION_INCREASE_MULTIPLIER = 0.01,			-- The rate current population grows or declines to max population
+	MANPOWER_INCREASE_MULTIPLIER = 0.1,				-- The rate current manpower grows or declines to max manpower
 	MANPOWER_LOW_SENTIMENT_INCREASE_MULTIPLIER = 2.0, -- The manpower effect of a negative Clan Sentiment vs the ruling Clan. At a value of 2, -100 Sentiment is 200% faster manpower regrowth.
-	POPULATION_TAX_MULTIPLIER = 0.0005,			-- Montly tax income determined by the current population
-	MAX_POPULATION_EMPTY_HOLDING_MULTIPLIER = 1250,  -- Max population increase for each empty holding in provinces where the capital is also an empty holding
+	POPULATION_TAX_MULTIPLIER = 0.0005,				-- Monthly tax income determined by the current population
+	MAX_POPULATION_EMPTY_HOLDING_MULTIPLIER = 1000,  -- Max population increase for each empty holding in provinces where the capital is also an empty holding
 	MAX_MANPOWER_POPULATION_MULTIPLIER = 0.20,		-- How big max manpower will be, determined by the current population value
 	UNITS_FOR_OCCUPATION = 100,						-- Number of hostile units needing to stand on settlement-less nomad provinces to be considered occupied
 	START_POPULATION = 0.40,						-- Starting population, multiplied with max population
@@ -1116,6 +1141,8 @@ NNomad = {
 	MAX_HOLDINGS_IN_NOMADIC_PROVINCE = 1,			-- Counties with this number of holdings or less are counted as a nomadic province that clans can demand
 
 	ALWAYS_GENERATE_NOMADS = 0,						-- If turned on will generate nomads even if they are not playable
+	
+	MIN_TRIBAL_BUILDINGS_VS_AGITATION = 2			-- Tribal Holdings with at least this many buildings is enough to stop subjugated Nomad provinces from regaining independence (for Tribal overlords).
 }, 
 
 NMilitary = {
@@ -1212,6 +1239,7 @@ NMilitary = {
 	WAR_CONTRIBUTION_PROVINCE_WITHOUT_SETTLEMENT_OCCUPATION_PER_DAY = 3, -- Occupying a province without settlements gives this score per day, multiplied with the number of empty holdings
 	NOMAD_PROVINCE_WAR_CONTRIBUTION_MULTIPLIER = 3,	-- War Contribution multiplier for occupied provinces without holdings from nomad holders
 	WAR_CONTRIBUTION_BATTLE_PER_DAY = 0.20,			-- Every day in battle, a participant gets this. (My Troops / Total Friendly Troops) * Total Enemy Troops * WAR_CONTRIBUTION_BATTLE_PER_DAY. Max is [My Troops].
+	WAR_CONTRIBUTION_THEOCRACY_GHW_MULT = 0.25,	-- Holy Orders and other theocracies (notably the Pope) get less war contribution score during Great Holy Wars
 	LOW_DECADENCE_MORALE_MOD = 0.5,					-- Morale Defence Mod when at 0% decadence
 	HIGH_DECADENCE_MORALE_MOD = -0.5,				-- Morale Defence Mod when at 100% decadence
 	CAPTURED_CLOSE_MALE_RELATIVE_WAR_SCORE = 5.0,	-- War score for holding a close male relative prisoner
@@ -1442,7 +1470,27 @@ NDisease = {
 	SMALL_TOWN_INCOME = 11.0, -- A coastal town with this income has no chance of starting an outbreak
 	BIG_TOWN_INCOME = 30.0, -- A coastal town with this income is always a candidate for starting an outbreak
 	MIN_OUTBREAK_CHANCE = 0.1, -- Min chance that an outbreak will happen in a particular town
-	CROWDED_THRESHOLD_MODIFIER = 75, -- How many courtiers in a court to make it crowded and increase chance for disease.
+	CROWDED_THRESHOLD_MODIFIER = 25, -- How many courtiers in a court to make it crowded and increase chance for disease.
+	
+	INFECTION_CHANCE_MODIFIER_PER_SETTLEMENT = 0.05,	-- Used when determined spreading of disease.
+	INFECTION_CHANCE_MODIFIER_TRADEPOST = 0.05,
+	INFECTION_CHANCE_MODIFIER_FORT = 0.05,
+	INFECTION_CHANCE_MODIFIER_UNITS = 0.05,
+	INFECTION_CHANCE_MODIFIER_TRADEROUTE = 0.5,
+	INFECTION_CHANCE_MODIFIER_TAXES = 0.01,				-- Multiplied by the province total taxes and added to contagiousness to dermine where to spread
+	INFECTION_CHANCE_ORIGINAL_PROVINCE_MODIFIER = 0.5,	-- How much the original province of infection impacts the chances of a new province being infected
+	INFECTION_CHANCE_NEIGHBOURS_MODIFIER = 0.2,		-- How much the number of already infected neighbours affects the chances of infection
+	
+	INFECTION_CHANCE_BASE_PROVINCES_NUMBER = 1,			-- How many provinces get infected, as a percentage of the outbreak size, multiplied by contagiousness (ie total = current_size * contagiousness * INFECTION_CHANCE_BASE_PROVINCES_NUMBER)
+	
+	INFECTION_CHANCE_MOST_LIKELY_PERCENTAGE = 0.1,		-- How many provinces are considered when picking which ones get infected, as a percentage of how many provinces are infectable
+														-- For example, if you have an outbreak province that is 45 provinces big, and has 30 provinces adjacent to those, only the 7 (30 * 0.25, rounded down) most likely provinces  would be considered
+														
+	INFECTION_CHANCE_COASTAL_SEAS_ARE_COUNTED = 0,		-- Exclude coastal seas from the number of infected provinces (they still get infected but don't change the number of "real" provinces that get infected each tick)
+	
+	INFECTION_ONLY_AFFECTS_ADJACENT_PROVINCES = 0,		-- if true, will make provinces adjacent to a province that just got infected target for the infection in the same tick
+	
+	INFECTION_DURATION_VARIATION = 0.25,				-- Part of the duration that can vary
 },
 
 NGraphics = {
@@ -1454,7 +1502,8 @@ NGraphics = {
 	PROVINCE_NAME_DRAW_DISTANCE = 500.0, -- Remove province names beyond this distance
 	MILD_WINTER_VALUE = 90,
 	NORMAL_WINTER_VALUE = 145,
-	SEVERE_WINTER_VALUE = 255
+	SEVERE_WINTER_VALUE = 255,
+	NUMBER_OF_PROPERTIES = 14,
 },
 
 NEngine = {
@@ -1464,6 +1513,9 @@ NEngine = {
 	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_YEAR = 2670, -- The missing scripted successor error will not be shown before this date
 	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_MONTH = 8,
 	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_DAY = 16,
+	COURT_PRUNE_SIZE = 10, 				-- Courts larger than this will be checked for pruning each month
+	PRUNE_MINIMAL_AGE = 40,				-- Minimum age for a courtier to be prunable if considered irrelevant
+	HEALTH_IMMUNITY_TO_PRUNING = 7,		-- If a character has that much health, they won't be pruned
 },
 
 NAI =
@@ -1538,17 +1590,24 @@ NAI =
 	COALITION_JOIN_THRESHOLD = 110,							-- AI will join a defensive pact if the defensive pact score is above this value
 	COALITION_LEAVE_THRESHOLD = 70,							-- AI will leave a defensive pact if the defensive pact score is below this value
 	COALITION_TROOP_STRENGTH_THREAT_RATIO = 0.8,			-- AI will consider a realm to be a threat if it has a valid CB against you and the AI is this much smaller in army strength
-	COALITION_PROVINCE_THREAT_RATIO = 0.2,					-- AI will consider a realm to be a threat if the AI is this much smaller in number of provinces, regardless of CB's
+	COALITION_SCARY_TROOP_STRENGTH_THREAT_RATIO = 0.2,		-- AI will consider a realm to be a threat if the AI is this much smaller in army strength, regardless of CB's
 	COALITION_TROOP_STRENGTH_PROTECTION_RATIO = 0.7,		-- AI will consider a defensive pact to need assistance if a member is of your religion/culture/dynasty and the target is not, and the defensive pact is this much smaller in army strength
 	COALITION_PROVINCE_MULTIPLIER = 1.0,					-- Multiplier of realm provinces, added to defensive pact score
 	COALITION_INFAMY_MULTIPLIER = 150,						-- Multiplier of realm threat, added to defensive pact score
 	COALITION_DISTANCE_MULTIPLIER = -1.1,					-- Multiplier of distance between two rulers, added to defensive pact score
 	COALITION_SMALL_THREAT_MULTIPLIER = 0.6,				-- Multiplier to the entire defensive pact score for small nations target has no CB on
 	
-	MARRIAGE_THREATENING_FOR_THEM_MODIFIER = -5,			-- How much AI will pay attention to marriages with realms they have a CB on and are considerably stronger than
-	MARRIAGE_NEW_NON_AGG_PACT_TIER_MULTIPLIER = 3,			-- How much AI will pay attention to new non-aggression pacts for OTHER realms, multiplied by the tier of that realm
-	MARRIAGE_OLD_NON_AGG_PACT_TIER_MULTIPLIER = 2,			-- How much AI will pay attention to old non-aggression pacts for OTHER realms, multiplied by the tier of that realm
+	MARRIAGE_THREATENING_FOR_THEM_MODIFIER = 5,				-- How much AI will pay attention to marriages with realms they have a CB on and are considerably stronger than
 	BETROTHAL_MIN_AGE = 12,									-- AI will not arrange betrothals for children below this age
+	
+	MARRIAGE_THREATENING_FOR_US = 14,						-- How much AI will prefer marriages towards threatening realms
+	MARRIAGE_LANDED_AND_NO_NAP = 8,							-- How much AI will prefer marriages with landed characters AI do not have non-aggression pacts with 
+	MARRIAGE_LANDED = 4,									-- How much AI will prefer marriages with landed characters 
+	MARRIAGE_PRIMARY_HEIR = 6,								-- How much AI will prefer marriages with primary heirs of landed characters
+	MARRIAGE_SECONDARY_HEIR = 4,							-- How much AI will prefer marriages with secondary heirs of landed characters
+	MARRIAGE_CHILD_OF_RULER = 2,							-- How much AI will prefer marriages with children of landed characters
+	MARRIAGE_ALLIED_AND_NO_NAP = 10,						-- How much AI will prefer marriages with allies they don't have non-aggression pacts with
+	MARRIAGE_EXISTING_NAP = 4,								-- How much AI prefers not to marry characters they have NAP with already 
 	
 	FACTION_EXPIRATION_MONTHS = 12,							-- How long AI will cling onto weak factions
 	FACTION_EXPIRATION_MONTHS_RANDOMNESS = 5,				-- Randomness to how long AI will cling onto weak factions
@@ -1586,6 +1645,7 @@ NAI =
 	ASK_FOR_COUNCIL_POSITION_DESIRE_MULTIPLIER = 2,			-- Multiplier to the "goodness" value of the AI for the position, added as extra incentive to the AskForCouncilPosition desire
 	
 	AI_SUPPORT_PARDON_BONUS = 60,							-- bonus to ai request support chance if seeking to get pardoned
+	DIVINE_BLOOD_INCEST_FACTOR = 1,							-- Multiplier factor used for close relatives when finding best spouse in religion with divine blood enabled. Smaller factor leads to close relatives less likely to be a choice.
 },
 
 NFrontend = 
@@ -1608,6 +1668,7 @@ NFrontend =
 	CAMERA_SPEED_START = 0.04,  			-- Initial animation speed
 	CAMERA_SPEED_ROTATE = 0.04,			-- Rotation speed
 	GUI_MOVE_SPEED = 800,				-- How fast sliding gui objects move ( pixels/s )
+	MAX_ZOOM_LEVEL = 2500,				-- How far out the player can zoom. Warning: At very high zoom levels, the ground will no longer render
 	
 	FADE_IN_DONE_TIME = 2.2,
 	GUI_START_MOVE_TIME = 1.4,

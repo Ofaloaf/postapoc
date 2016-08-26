@@ -1272,6 +1272,11 @@ obj_become_heir = {
 	
 	potential = {
 		liege = { any_child = { character = ROOT } }
+		NOT = { 
+			liege = { primary_title = { has_law = agnatic_succession } }
+			is_female = yes
+		}
+		NOT = { trait = bastard }
 		liege = {
 			any_child = {
 				is_primary_heir = yes
@@ -1282,10 +1287,6 @@ obj_become_heir = {
 					trait = possessed
 					trait = incapable
 					trait = infirm
-					AND = {
-						is_female = yes
-						ROOT = { is_female = no }
-					}
 				}
 			}
 		}
@@ -1848,6 +1849,9 @@ obj_become_king = {
 	
 	effect = {
 		prestige = 500
+		hidden_tooltip = {
+			clr_character_flag = kingdom_claimed_with_ambition
+		}
 	}
 	
 }
@@ -2398,6 +2402,7 @@ obj_become_paragon_of_enlightenment = {
 			religion = neognostic
 		}
 		NOT = { trait = slow }
+		NOT = { trait = dull }
 		NOT = { trait = imbecile }
 		NOT = { trait = inbred }
 		NOT = { trait = lunatic }
@@ -2539,5 +2544,190 @@ obj_gain_any_title = {
 	
 	effect = {
 		prestige = 200
+	}
+}
+
+# See the realm prosper
+obj_see_the_realm_prosper = {
+	type = character
+	
+	creation_effect = {
+		add_character_modifier = {
+			name = prosperity_5_year
+			years = 5
+		}
+	}
+	
+	aggression = -4.0
+	
+	global_revolt_risk = -0.01
+	
+	potential = {
+		has_dlc = "Reapers"
+		is_playable = yes
+		is_landed = yes
+		higher_tier_than = BARON
+		is_nomadic = no
+		liege = { is_nomadic = no }
+		NOT = { has_character_modifier = prosper_ambition_timer }
+	}
+	
+	allow = {
+		any_realm_province = {
+			any_province_holding = {
+				OR = {
+					holding_type = city
+					holding_type = castle
+					holding_type = tribal
+				}
+			}
+			NOR = {
+				has_province_modifier = depopulated_1
+				has_province_modifier = depopulated_2
+				has_province_modifier = depopulated_3
+			}
+		}
+		war = no
+		independent = yes
+		is_adult = yes
+		NOR = { 
+			trait = incapable
+			is_inaccessible_trigger = yes
+		}
+	}
+	
+	chance = {
+		factor = 100
+		
+		modifier = {
+			factor = 0.1
+			OR = {
+				trait = wroth
+				trait = cruel
+				trait = impaler
+				trait = arbitrary
+				trait = slothful
+			}
+		}
+		modifier = {
+			factor = 0.2
+			NOR = {
+				trait = architect
+				trait = administrator
+				trait = gardener
+				trait = charitable
+				trait = diligent
+				trait = patient
+				trait = content
+				trait = just
+				has_focus = focus_rulership
+			}
+		}
+		modifier = {
+			factor = 1.5
+			trait = charitable
+		}
+		modifier = {
+			factor = 1.5
+			has_focus = focus_rulership
+		}
+		modifier = {
+			factor = 3.0
+			OR = {
+				trait = indulgent_wastrel
+				trait = thrifty_clerk
+				trait = fortune_builder
+				trait = midas_touched
+			}
+		}
+	}
+	
+	success = {
+		custom_tooltip = {
+			text = tooltip_obj_see_the_realm_prosper
+			hidden_tooltip = {
+				NOT = {
+					has_character_modifier = prosperity_5_year
+				}
+			}
+		}
+	}
+	
+	abort = {
+		OR = {
+			trait = incapable
+			is_playable = no
+			is_landed = no
+			any_war = {
+				NOR = {
+					using_cb = peasant_revolt
+					using_cb = heretic_revolt
+					using_cb = religious_revolt
+					using_cb = liberation_revolt
+				}
+			}
+		}
+	}
+	
+	abort_effect = {
+		remove_character_modifier = prosperity_5_year
+		add_character_modifier = {
+		   modifier = prosper_ambition_timer
+		   years = 5
+		   hidden = yes
+		}
+	}
+	
+	effect = {
+		change_stewardship = 1
+		custom_tooltip = {
+			text = realm_prospers_custom_tooltip
+			hidden_tooltip = {
+				any_realm_province = {
+					limit = {
+						any_province_holding = {
+							OR = {
+								holding_type = city
+								holding_type = castle
+								holding_type = tribal
+							}
+						}
+						NOR = {
+							has_province_modifier = depopulated_1
+							has_province_modifier = depopulated_2
+							has_province_modifier = depopulated_3
+						}
+					}
+					change_variable = { which = prosperity_value value = 35 }
+				}
+				if = {
+					limit = {
+						has_nickname = no
+						is_adult = yes
+						NOT = { trait = incapable }
+					}
+					random_list = {
+						5 = {
+							give_nickname = nick_the_gentle
+						}
+						5 = {
+							give_nickname = nick_the_affable
+						}
+						5 = {
+							give_nickname = nick_the_shrewd
+						}
+						5 = {
+							give_nickname = nick_the_gracious
+						}
+						100 = {}
+					}
+				}
+			}
+		}
+		add_character_modifier = {
+		   modifier = prosper_ambition_timer
+		   years = 25
+		   hidden = yes
+		}
 	}
 }

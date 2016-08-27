@@ -13,24 +13,35 @@ namespace = TOG
 # An ambitious landless claimant begins to plan an adventure for the title
 character_event = {
 	id = TOG.1200
-	desc = OK
-	picture = GFX_evt_crusaders
-	border = GFX_event_normal_frame_war
 	
 	hide_window = yes # Only fires for unplayable landless characters
 	
 	min_age = 16
 	max_age = 50
-	#only_men = yes
 	capable_only = yes
 	prisoner = no
 	
 	trigger = {
 		has_dlc = "The Old Gods"
 		
-		is_ruler = no
+		NOT = {
+			has_game_rule = {
+				name = adventurers
+				value = none
+			}
+		}
+
+		OR = {
+			warrior_trigger = yes
+			has_game_rule = {
+				name = gender
+				value = all
+			}
+		}
 		
-		warrior_trigger = yes
+		is_ruler = no
+
+		NOT = { any_spouse = { is_ruler = yes } }
 		
 #		year = 867
 		
@@ -38,6 +49,17 @@ character_event = {
 			has_holder = yes
 			holder_scope = {
 				independent = yes # Only do this vs independent rulers
+				NAND = {
+					government = nomadic_government
+					OR = {
+						clan_title = {
+							title = PREVPREV
+						}
+						primary_title = {
+							title = PREVPREV
+						}
+					}
+				}
 				OR = {
 					# Don't target my liege unless I am ambitious
 					NOT = { is_vassal_or_below = ROOT }
@@ -123,6 +145,13 @@ character_event = {
 			factor = 2.0
 			trait = kind
 		}
+		modifier = {
+			factor = 50
+			has_game_rule = {
+				name = adventurers
+				value = rare
+			}
+		}
 	}
 	
 	immediate = {
@@ -131,6 +160,17 @@ character_event = {
 				has_holder = yes
 				holder_scope = {
 					independent = yes # Only do this vs independent rulers
+					NAND = {
+						government = nomadic_government
+						OR = {
+							clan_title = {
+								title = PREVPREV
+							}
+							primary_title = {
+								title = PREVPREV
+							}
+						}
+					}
 					OR = {
 						# Don't target my liege unless I am ambitious
 						NOT = { is_vassal_or_below = ROOT }
@@ -182,17 +222,8 @@ character_event = {
 				ROOT = { banish = yes } # Can't prepare for the attack from within the realm
 			}
 		}
-		
-		if = {
-			limit = { trait = in_hiding	}
-			remove_trait = in_hiding
-			add_character_modifier = {
-				name = went_out_of_hiding_timer
-				duration = 180
-				hidden = yes
-			}
-			hidden_tooltip = { character_event = { id = CM.6400 } } # Notify plotters and family
-		}
+
+		end_inaccessibility_effect = yes #removes in hiding or in_seclusion
 		
 		set_character_flag = do_not_disturb
 		
@@ -228,17 +259,17 @@ character_event = {
 # An ambitious landless claimant starts an adventure for the title
 character_event = {
 	id = TOG.1202
-	desc = OK
-	picture = GFX_evt_crusaders
-	border = GFX_event_normal_frame_war
+	
 	hide_window = yes # Only fires for unplayable landless characters
 	
 	is_triggered_only = yes
+
+	capable_only = yes
+	prisoner = no
 	
 	trigger = {
 		is_ruler = no
-		prisoner = no
-		NOT = { trait = incapable }
+		NOT = { any_spouse = { is_ruler = yes } }
 		
 		any_claim = {
 			has_holder = yes
@@ -658,8 +689,6 @@ character_event = {
 			
 #			log = "TOG.1202: [Root.GetBestName] starts claim adventure for [This.GetName]"
 			
-#			log = "TOG.1202: [Root.GetBestName] starts claim adventure for [This.GetName]"
-			
 			holder_scope = {
 				reverse_war = {
 					target = ROOT
@@ -725,22 +754,34 @@ character_event = {
 # An ambitious character with no inheritance begins to plan an adventure for a foreign title
 character_event = {
 	id = TOG.1210
-	desc = OK
-	picture = GFX_evt_crusaders
-	border = GFX_event_normal_frame_war
 	
 	hide_window = yes # Only fires for unplayable landless characters
 	
 	min_age = 16
 	max_age = 50
-	only_men = yes
 	capable_only = yes
 	prisoner = no
 	
 	trigger = {
 		has_dlc = "The Old Gods"
 		
+		NOT = {
+			has_game_rule = {
+				name = adventurers
+				value = none
+			}
+		}
+		
 		is_ruler = no
+		NOT = { any_spouse = { is_ruler = yes } }
+
+		OR = {
+			warrior_trigger = yes
+			has_game_rule = {
+				name = gender
+				value = all
+			}
+		}
 		
 #		year = 867
 		
@@ -893,6 +934,13 @@ character_event = {
 				tier = emperor
 			}
 		}
+		modifier = {
+			factor = 50
+			has_game_rule = {
+				name = adventurers
+				value = rare
+			}
+		}
 	}
 	
 	immediate = {
@@ -993,16 +1041,8 @@ character_event = {
 				}
 			}
 		}
-		if = {
-			limit = { trait = in_hiding	}
-			remove_trait = in_hiding
-			add_character_modifier = {
-				name = went_out_of_hiding_timer
-				duration = 180
-				hidden = yes
-			}
-			hidden_tooltip = { character_event = { id = CM.6400 } } # Notify plotters and family
-		}
+		end_inaccessibility_effect = yes #removes in hiding or in_seclusion
+		
 		set_character_flag = do_not_disturb
 		character_event = { id = TOG.1215 days = 730 }
 	}
@@ -1037,20 +1077,19 @@ character_event = {
 # (Temporary title created and a war declared)
 character_event = {
 	id = TOG.1212
-	desc = OK
-	picture = GFX_evt_crusaders
-	border = GFX_event_normal_frame_war
 	
 	hide_window = yes # Only fires for unplayable landless characters
 	
 	is_triggered_only = yes
+
+	prisoner = no
+	only_capable = yes
 	
 	trigger = {
 		has_dlc = "The Old Gods"
 		
 		is_ruler = no
-		prisoner = no
-		NOT = { trait = incapable }
+		NOT = { any_spouse = { is_ruler = yes } }
 		
 		NOT = {
 			any_heir_title = {
@@ -1173,7 +1212,7 @@ character_event = {
 								province = PREVPREVPREV
 								home = PREVPREVPREV
 								owner = THIS
-								leader = THIS
+								#leader = THIS
 								match_character = PREVPREV
 								match_mult = 0.125
 								match_min = 500

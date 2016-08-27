@@ -1,6 +1,7 @@
-After the End - Extra Empires Submod
+# After the End - Extra Empires Submod
 
 Adds a decision to form the Empire of America, similar to the vanilla "Form HRE" decision.
+
 * Must be in the Afro-Anglo, North Atlantic, South Anglo, or Amerodeutsch culture group.
 * Must be Christian, Old World Cultist, or Reformed Pagan.
 

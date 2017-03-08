@@ -1,11 +1,8 @@
 NDefines = {
 
 NDiplomacy = {
-	PRESTIGE_LOSS_ON_SEND_GIFT_DECLINE = 10,	-- OBSOLETE
-	PIETY_FROM_CHURCH_GIFTS = 3,				-- OBSOLETE
 	BREAK_TRUCE_PRESTIGE_PERC_COST = 0.5,		-- Percent of current prestige lost before the base prestige cost (below)
 	BREAK_TRUCE_PRESTIGE_COST = 200,			-- Base Prestige cost for breaking a truce
-	MONTHS_PER_SUCCESSION_CB = 60,				-- Number of months a succession CB lasts
 	ATTACKING_SOMEONE_CRUSADING_PIETY_COST = 40, -- Piety hit for attacking someone crusading
 	ATTACKING_SOMEONE_DEFENDING_AGAINST_OTHER_RELIGIOUS_GROUP_PIETY_COST = 100,		-- Piety hit for attacking someone who is defending against other religious group
 	ATTACKER_CALL_DECLINE_COST = 25, 			-- Prestige cost for refusing to join an offensive war
@@ -43,6 +40,10 @@ NDiplomacy = {
 	GAVELKIND_MAX_SIZE_BONUS = 0.30,			-- Max demesne size bonus from Gavelkind
 	DEMESNE_MAX_SIZE_JAIN_BONUS = 3,			-- Followers of the Jain religion have extra demesne
 	
+	GAME_RULE_DEMESNE_SIZE_HALF = 0.5,			-- Divider to decrease max demesne size when using "demesne size: half" game rule
+	GAME_RULE_DEMESNE_SIZE_QUARTERED = 0.25,	-- Divider to decrease max demesne size when using "demesne size: quartered" game rule
+	GAME_RULE_DEMESNE_SIZE_UNLIMITED = 10500,	-- Demesne size when using "demesne size: unlimited" game rule
+	
 	VASSAL_BASE_LIMIT = 1.0,					-- Base Vassal Limit
 	VASSAL_LIMIT_DUKE_MULT = 10.0, 				-- Extra Vassal Limit from the ruler's rank
 	VASSAL_LIMIT_KING_MULT = 20.0, 				-- Extra Vassal Limit from the ruler's rank
@@ -56,15 +57,16 @@ NDiplomacy = {
 	VASSAL_LIMIT_TAX_BASE = 4,					-- Used for tax penalty calculation for being over vassal limit.
 	VASSAL_LIMIT_COUNT_BARONS = 0,				-- If set to 1, baron-tier vassals will also count towards vassal limit.
 	
+	GAME_RULE_VASSAL_LIMIT_HALF = 0.5,			-- Divider to decrease vassal limit when using "vassal limit: half" game rule
+	GAME_RULE_VASSAL_LIMIT_QUARTERED = 0.25,	-- Divider to decrease max vassal limit when using "vassal limit: quartered" game rule
+	GAME_RULE_VASSAL_LIMIT_UNLIMITED = 5000,	-- Vassal limit when using "vassal limit: unlimited" game rule
+	
 	CONCLAVE_VASSAL_LIMIT_DUKE_MULT = 8.0, 				-- Extra Vassal Limit from the ruler's rank
 	CONCLAVE_VASSAL_LIMIT_KING_MULT = 15.0, 				-- Extra Vassal Limit from the ruler's rank
 	CONCLAVE_VASSAL_LIMIT_EMPEROR_MULT = 20.0, 			-- Extra Vassal Limit from the ruler's rank
 	CONCLAVE_VASSAL_LIMIT_GREAT_DUKE_BONUS = 3.0, 		-- Extra Vassal Limit for Dukes with more than one Duchy
 
-	DIPLO_FRIEND_OPINION_THRESHOLD = 40,						-- OBSOLETE
-	DIPLO_RIVAL_OPINION_THRESHOLD = -40,						-- OBSOLETE
 	OBJECTIVE_DISCARD_WEIGHT_THRESHOLD = 0.05,					-- AI will not pick ambitions or plots below this evaluated weight
-	CROWN_LAW_REVOLTRISK_INCREMENT = 10,						-- Revoltrisk reduction/decrease due to crown laws
 	MAX_DUCHIES_LEGALLY_HELD = 2,								-- Max duchies that a king or above can hold before vassals start getting angry
 	MAX_ELECTOR_TITLES_LEGALLY_HELD = 1,						-- Max elector titles that a king or above can hold before vassals start getting angry
 	TITULAR_TITLES_COUNT_TOWARDS_DUCHY_LIMIT = 1,				-- If set to 1 then titular duchy titles (duchy titles with no de-jure land) will count towards the maximum duchy titles held before vassals will get upset.
@@ -338,6 +340,14 @@ NDiplomacy = {
 	JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_YES = 25,
 	JOIN_AMBITION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	JOIN_AMBITION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
+
+	ASK_TO_JOIN_AMBITION_INTERACTION_MONEY = 0,
+	ASK_TO_JOIN_AMBITION_INTERACTION_PIETY = 0,
+	ASK_TO_JOIN_AMBITION_INTERACTION_PRESTIGE = 0,
+	ASK_TO_JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_NO = 25,
+	ASK_TO_JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_YES = 25,
+	ASK_TO_JOIN_AMBITION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
+	ASK_TO_JOIN_AMBITION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
 
 	GRANT_LANDED_TITLE_INTERACTION_MONEY = 0,
 	GRANT_LANDED_TITLE_INTERACTION_PIETY = 0,
@@ -691,6 +701,14 @@ NDiplomacy = {
 	ASK_COUNCIL_POSITION_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
 	ASK_COUNCIL_POSITION_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
 		
+	OFFER_CONSORT_INTERACTION_MONEY = 0,
+	OFFER_CONSORT_INTERACTION_PIETY = 0,
+	OFFER_CONSORT_INTERACTION_PRESTIGE = 0,
+	OFFER_CONSORT_INTERACTION_THRESHOLD_FOR_NO = 0,				-- useless since this is an auto accepted interaction.
+	OFFER_CONSORT_INTERACTION_THRESHOLD_FOR_YES = 0,   	 		-- useless since this is an auto accepted interaction.
+	OFFER_CONSORT_INTERACTION_MUST_HAVE_COST = 0,				-- Is having prestige/piety >= cost required for this action?
+	OFFER_CONSORT_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+		
 	LANDED_SIBLING_PRESTIGE_BONUS = 5,							-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
 	LANDED_HALF_SIBLING_PRESTIGE_BONUS = 5,						-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
 	LANDED_NIECE_PRESTIGE_BONUS = 2,							-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
@@ -738,7 +756,7 @@ NDiplomacy = {
 
 NCouncil = {
 	MONTHS_OF_DISCONTENT_COUNCIL = 24,
-	CHANGE_POSITION_COOLDOWN = 12,
+	CHANGE_POSITION_COOLDOWN = 1,								-- How often councilors can change their attitude (ie discontent/loyalist/etc in months)
 	FAVOR_USE_DURATION = 36,									-- How long a favor last when used in council in amount of months
 	COUNCIL_REJECTED_LAW_TIMEOUT = 10,							-- How many years the timeout for a law is when council reject the law change
 	COUNCIL_REJECTED_CROWN_LAW_TIMEOUT = 5,						-- How many years the timeout for a crown law is when council reject the law change
@@ -747,12 +765,17 @@ NCouncil = {
 	ENFORCE_PEACE_START_DELAY = 3,								-- How many months it takes before the enforce peace becomes active
 	ENFORCE_PEACE_BLOCK_LENGTH = 24,							-- How many months Enforce peace is blocked when vassal uses the interaction.
 	ENFORCE_PEACE_COOLDOWN = 60,								-- How many months liege has to wait before he can use enforce peace again.
-	LAW_VOTE_CHANGE_TIME_LIMIT = 1,								-- The time limit abstained council members have to vote before their vote becomes automatically an against vote
 	NO_VOTING_PIETY_OVERRIDE = 1,								-- Flag that disables law voting when Conclave is enabled for groups that otherwise change laws based on piety without Conclave
 	NO_VOTING_PRESTIGE_OVERRIDE = 1,							-- Flag that disables law voting when Conclave is enabled for groups that otherwise change laws based on prestige without Conclave 	
 	REGENCY_VOTING = "laws declare_war_interaction revoke_title_interaction imprison_character_interaction grant_landed_title_interaction exile_imprisoned_interaction execute_imprisoned_interaction",					-- In regencies the council votes on these issues
 	COUNCIL_REJECTION_ALL_LAWS_TIMEOUT = 1,						-- How many years the timeout for doing a law change (for any law) is when the council has rejected a law change.
 	COUNCIL_REJECTION_ALL_CROWN_LAWS_TIMEOUT = 1,				-- How many years the timeout for doing a crown law change (for any crown law) is when the council has rejected a crown law change.
+},
+
+NSociety = {
+	SOCIETY_INFLUENCE_MEMBER_LIMIT_FACTOR = 100,				-- If less than 100 then society influence percentage is TotalSumOfStat/50, if greater or equal to 100 then TotalSumOfStat/(TotalMembers/2)
+	SOCIETY_SHOW_INTEREST_COOLDOWN = 90,						-- Cooldown for showing interest in a society again in days
+	JOIN_SOCIETY_COOLDOWN = 90,									-- Cooldown for joining a society again in days
 },
 
 NInfamy = {
@@ -772,16 +795,8 @@ NInfamy = {
 },
 
 NCharacter = {
-	MAX_AGE_BEFORE_BETROTHAL_BREAKS = 20,
-	NOMINATE_CROWN_BISHOP_PIETY_COST = 15, 				-- OBSOLETE
-	NOMINATE_CROWN_BISHOP_REL_AUTHORITY_CHANGE = -0.01, -- OBSOLETE
 	WRONG_GOV_FORM_TAX_MOD = -0.75,
 	WRONG_GOV_FORM_LEVY_MOD = -0.75,
-	TRIBAL_WRONG_RELIGION_REFORM_MOD = -0.10,
-	TRIBAL_WRONG_RELIGION_MOD = -0.15,
-	TRIBAL_WRONG_RELIGION_GROUP_MOD = -0.25,
-	TRIBAL_WRONG_CULTURE_MOD = -0.15,
-	TRIBAL_WRONG_CULTURE_GROUP_MOD = -0.25,
 	CHANGE_SUCC_LAW_YEARS = 10,						-- Rulers must have reigned this long before they can change succession laws
 	CHANGE_AMBITION_YEARS = 3,						-- Delay between being able to pick a new ambition
 	CHANGE_FOCUS_YEARS = 5,							-- Delay between being able to change focus
@@ -868,6 +883,9 @@ NCharacter = {
 	AGE_CHILDHOOD_PULSE = 6,						-- The childhood pulse events start from this age
 	CHILDHOOD_AUTO_EDUCATION_FOCUS_AGE = 15,		-- Children automatically get education focus at this age.
 	MERCHANT_REPUBLIC_MAX_PATRICIANS = 5,			-- The amount of merchant republic patrician families that the game will keep active.
+	
+	TREASURY_CHANCE_TO_DISAPPEAR_STANDARD = 0.05,	-- Chances that artifacts disappear on inheritance
+	TREASURY_CHANCE_TO_DISAPPEAR_NO_HEIR = 0.5,		-- Chances that artifacts disappear on inheritance when the dying character doesn't have an heir
 },
 
 NTitle = {
@@ -981,7 +999,6 @@ NTitle = {
 	REQ_DUCHIES_FOR_KINGDOM_CREATION = 2, 		-- Number of held duchies required to create a kingdom (for rulers who are not already kings or emperors)
 	REQ_KINGDOMS_FOR_EMPIRE_CREATION = 2, 		-- Number of held kingdoms required to create an Empire (for rulers who are not already emperors)
 	TITULAR_TITLE_CREATION_COST_MULT = 2,		-- Titular titles are more expensive to create
-	TITULAR_TITLE_CREATION_COST_MULT = 2,		-- Titular titles are more expensive to create
 	BECOME_KING_TITLE_GOLD_CREATION_COST_MULT = 0.5,	-- The de-jure kingdom of your capital is cheaper to create with the become king ambition
 	BECOME_KING_TITLE_PIETY_CREATION_COST_MULT = 0.5,	-- The de-jure kingdom of your capital is cheaper to create with the become king ambition
 	ENFORCE_ONE_OF_EACH_HOLDING = 1,			-- Require players to build at least one City, Temple and Castle in each province
@@ -1002,10 +1019,7 @@ NTitle = {
 },
 
 NReligion = {
-	AUTHORITY_FROM_CROWN_LOYALIST = -0.01,
-	AUTHORITY_FROM_CHURCH_LOYALIST = 0.005,
 	CREATE_ANTIPOPE_PRESTIGE_COST = 500,
-	POPE_DIPLO_TO_AUTHORITY_DIV = 10000,
 	EXCOM_MIN_AUTHORITY = 0.4,
 	INVASION_MIN_AUTHORITY = 0.5,
 	CRUSADE_AUTHORITY_COST = 0.05,
@@ -1018,7 +1032,7 @@ NReligion = {
 	AUTHORITY_FROM_IMMORAL_HEAD = -0.1,				-- Authority from having an immoral religious head
 	AUTHORITY_FROM_RELHEAD_DIPLOMACY = 0.05,		-- Authority from each 10 diplomacy of religious head
 	AUTHORITY_FROM_RELHEAD_HOLY_SITE = 0.05,		-- Authority from religious head controlling a holy site (does not stack)
-	AUTHORITY_FROM_ORG_RELIGION = 0.2,				-- Authority from being an organized religion�ki�
+	AUTHORITY_FROM_ORG_RELIGION = 0.2,				-- Authority from being an organized religionï¿½kiï¿½
 	DIVINE_BLOOD_FERTILITY_MULT = 0.25,				-- Fertility multiplier in a religious close kin marriage
 	ELECTOR_TITLE_CAMPAIGN_FUND_FACTOR = 1,			-- The effect of money in the Campaign Fund when the Pope is choosing a new Cardinal (money * factor)
 	ELECTOR_TITLE_OPINION_FACTOR = 3.5,
@@ -1033,21 +1047,17 @@ NReligion = {
 	ELECTOR_TRAITS_FACTOR = 1.0,					-- Effect of personality traits that the church likes
 	HERESY_TAKEOVER_PROVINCES = 5,					-- The number of provinces a heresy needs MORE than the current norm for it to become the new Orthodoxy
 	PAPAL_SUCCESSION_PASS_ON_HOLDINGS = 1,			-- Set to zero if holdings shouldn't be passed on
-	PAPAL_SUCCESSION_LOSE_MINOR_TITLES = 1			-- Set to zero if minor religious titles should be lost
+	PAPAL_SUCCESSION_LOSE_MINOR_TITLES = 1,			-- Set to zero if minor religious titles should be lost
+	AUTHORITY_FROM_PIETY_CAP = 0.25,				-- Maxmimum boost to religious authority due to head's piety
 },
 
 NEconomy = {
 	HOLDING_SLOT_BUILD_COST_MOD = 0.2,
-	REPUBLIC_CITY_TAX_BONUS = 0.15,					-- Republics (at least Count tier) receive a tax bonus for all cities in their realm
-	REPUBLIC_COASTAL_CITY_TAX_BONUS = 0.25,			-- Republics (at least Count tier) receive a tax bonus for all coastal cities in their realm
-	REPUBLIC_CAPITAL_CITY_TAX_BONUS = 1.0,			-- Duke or above tier Republics receive a tax bonus for their capital city
 	BISHOP_TAX_TO_POPE_FACTOR = 0.1,				-- Bishops only pay half the tax to the Pope if they are loyal to him
 	BISHOP_TAX_TO_ANTI_POPE_FACTOR = 0.05,			-- Bishops only pay a quarter taxes to an Anti-Pope if they are loyal to him	
 	DECADENCE_MODIFIER = 0.2,						-- Maximum effect of decadence, positive for low dec, negative for high
 	DECADENCE_PER_WEEK_OF_COMBAT = -0.04,			-- Decadence lost per 7 days of combat, for each participant in the combat
 	DECADENCE_PER_WEEK_OF_SIEGE = -0.008,			-- Decadence lost per 7 days of siege, for each participant in the siege
-	MUSLIM_MUSLIM_PROVINCE_TAX_MOD = -0.1,			-- Muslims get less tax from muslim provinces
-	MUSLIM_NONMUSLIM_PROVINCE_TAX_MOD = 0.25,		-- Muslims get more tax from non-muslim provinces
 	TRADEZONE_VALUE_MULT = 0.5,						-- Multiple on trade zone value in tradezone bonus to trade posts and cities
 	TRADE_ZONE_BONUS_MULTIPLIER = 0.01,				-- Trade posts get the trade zone value * 0.1 * this as a bonus
 	TRADE_ZONE_BONUS_MULT_CITY = 0.005,				-- Cities gain similar bonus for a tradepost being in the province
@@ -1130,8 +1140,6 @@ NNomad = {
 	
 	CAPITAL_AT_TRADE_POST_MODIFIER = 0.1,			-- Trade post income modifier with the presence of a nomad capital
 	CAPITAL_ADJACADENT_TO_TRADE_POST_MODIFIER = 0.05, -- Trade post income modifier with a adjacadent nomad capital
-	STEPPE_DESERT_PLAINS_HORSE_OFFENSIVE_MOD = 0.05, -- Light cavalry, heavy cavalry and special units offensive modifier for having a nomad capital in steppe, desert or plains provinces
-	STEPPE_DESERT_PLAINS_HORSE_DEFENSIVE_MOD = 0.05, -- Light cavalry, heavy cavalry and special units defensive modifier for having a nomad capital in mountains, hills or arctic provinces
 	CAPITAL_AT_OWN_HOLY_SITE_PIETY = 1,				-- Monthly Piety for having the capital in the holy site of your own religion
 	CAPITAL_AT_OTHER_HOLY_SITE_PRESTIGE = 1,		-- Monthly Prestige for having the capital in the holy site of other religions
 	
@@ -1146,7 +1154,6 @@ NNomad = {
 }, 
 
 NMilitary = {
-	CONTROLLER_MONTHS_BEFORE_OWNER_CHANGE = 120,	-- Number of months before ownership change of province, for certain cb:s that have contested titles
 	MORALE_COLLAPSE_THRESHOLD = 0.20,				-- Threshold before unit runs away
 	MORALELOSS_FACTOR = 3.0,						-- Affects the morale loss rate in combats (higher gives bigger losses)
 	ATTACK_TO_DAMAGE_MULT = 0.01,					-- Attack value of troops is multiplied by this when doing damage
@@ -1207,14 +1214,11 @@ NMilitary = {
 	DAYS_UNTIL_HOLDER_GETS_WARSCORE_INDEP = 0,		-- Days until the war score of the title owner starts increasing in Independence Wars, if he controls the Holdings
 	CONTESTED_TITLE_OCCUPIED_WARSCORE_BONUS = 15,	-- Amount of warscore per year since attacker/defender started getting the bonus
 	CONTESTED_TITLE_OCCUPIED_WARSCORE_BONUS_INDEP = 20,	-- Amount of warscore per year since attacker/defender started getting the bonus, for independence and tyranny wars (can be overridden separately in religion scripts)
-	REVOLTRISK_REDUCTION_PER_YEAR = 1,
-	DIFFERENT_RELIGIONGROUP_SUPPLY_PENALTY = -0.5,	-- Only 50% supply in provinces with different religions group
 	MONTHS_UNTIL_REBEL_WIN = 12,					-- Number of days until province is totally conquered by rebels
 	OWN_SETTLEMENT_SUPPLY_BONUS = 0.5,				-- Extra supply from being in home realm
 	NEUTRAL_SETTLEMENT_SUPPLY_BONUS = 0.25,			-- Neutral supply bonus
 	CONTROL_SETTLEMENT_SUPPLY_BONUS = 0.25,			-- Supply bonus from occupied settlements
 	ENEMY_SETTLEMENT_SUPPLY_BONUS = -0.1,			-- Supply bonus from enemy settlements(woot!)
-	HOSTILE_RELIGION_SUPPLY_MOD = -0.25,			-- Supply modifier from a hostile religion
 	NEARBY_SETTLEMENT_SINGLE_SUPPLY_BONUS = 0.75,	-- Bonus for nearby settlement, if not controlling one yourself
 	MAX_ATTRITION_LEADER_REDUCTION = -0.1,			-- Center leader reduces max attrition(reduction in actual percent)
 	ATTRITION_LEVEL_FACTOR = 0.5,					-- A general "attrition per month" multiplier
@@ -1234,7 +1238,6 @@ NMilitary = {
 	DEFENDER_ASSULT_DAMAGE_FACTOR = 0.6,			-- Defender damage scale factor when assaulting
 	DAYS_PER_FORTLEVEL_BEFORE_ASSAULT = 30,			-- Number of days until attacker can assault
 	FLANKING_DAMAGE_BONUS = 0.3,					-- Percentage bonus when flanking in combat
-	LEADER_MARTIAL_DAMAGE_BONUS = 0.05,				-- Percentage bonus to damage for each point of martial the flank leader has
 	WAR_CONTRIBUTION_OCCUPATION_PER_DAY = 10,		-- Occupying a Holding gives this Contribution score per day
 	WAR_CONTRIBUTION_PROVINCE_WITHOUT_SETTLEMENT_OCCUPATION_PER_DAY = 3, -- Occupying a province without settlements gives this score per day, multiplied with the number of empty holdings
 	NOMAD_PROVINCE_WAR_CONTRIBUTION_MULTIPLIER = 3,	-- War Contribution multiplier for occupied provinces without holdings from nomad holders
@@ -1346,7 +1349,7 @@ NMilitary = {
 	ARCHERS_PHASE_SKIRMISH_DEFENSE = 1.5,
 	ARCHERS_PHASE_MELEE_DEFENSE = 1.5,
 	ARCHERS_PHASE_PURSUE_DEFENSE = 2.25,
-	ARCHERS_GRAPHICAL_FACTOR = 1,
+	ARCHERS_GRAPHICAL_FACTOR = 0.1,
 	
 	SPECIAL_TROOPS_MORALE = 5,
 	SPECIAL_TROOPS_MAINTENANCE = 2,
@@ -1356,7 +1359,7 @@ NMilitary = {
 	SPECIAL_TROOPS_PHASE_SKIRMISH_DEFENSE = 1,
 	SPECIAL_TROOPS_PHASE_MELEE_DEFENSE = 1,
 	SPECIAL_TROOPS_PHASE_PURSUE_DEFENSE = 1,
-	SPECIAL_TROOPS_GRAPHICAL_FACTOR = 15.0,
+	SPECIAL_TROOPS_GRAPHICAL_FACTOR = 2,
 
 	GALLEYS_MORALE = 1,
 	GALLEYS_MAINTENANCE = 300,
@@ -1368,7 +1371,7 @@ NMilitary = {
 	GALLEYS_PHASE_PURSUE_DEFENSE = 1,
 	GALLEYS_GRAPHICAL_FACTOR = 1,
 	
-	COMMAND_MODIFIER_MARTIAL_MULTIPLIER = 0.05,
+	COMMAND_MODIFIER_MARTIAL_MULTIPLIER = 0.05,	  -- How much positive command modifiers are increased, and negative modifiers decreased (capped to 100% for negative), per point of martial
 	
 	MAX_RIVER_MOVEMENT_FORT_LEVEL = 10.0,
 	BOTTLENECK_SIZE_MODIFIER = 1.0,
@@ -1379,18 +1382,10 @@ NMilitary = {
 	BOTTLENECK_CHOKE_TROOP_CAP = 300,		-- THIS IS SPARTAAAAAAAAA!!!!
 	
 	REBEL_LEADER_MINIMUM_LIEGE_LEVY_MULT = 1, 	-- Leader of a civil war will always get at least this multiplier of levies from fellow rebels
-	CAPITAL_COUNTY_VASSAL_COUNT_LEVY_MULT = 1,	-- Used instead of CAPITAL_COUNTY_LEVY_MULT for vassal counts
-	CAPITAL_COUNTY_VASSAL_LEVY_MULT = 1.25,		-- Used instead of CAPITAL_COUNTY_LEVY_MULT for non-count vassals
-	CAPITAL_COUNTY_LEVY_MULT = 1.5,				-- Multiplier to direct levies in the capital county
 	CAPITAL_COUNTY_LIEGE_LEVY_MULT = 1,			-- Multiplier to liege levies in the capital county
-	CAPITAL_DUCHY_VASSAL_LEVY_MULT = 1.15,		-- Used instead of CAPITAL_DUCHY_LEVY_MULT for non-count vassals
-	CAPITAL_DUCHY_LEVY_MULT = 1.25,
 	CAPITAL_DUCHY_LIEGE_LEVY_MULT = 0.75,
-	CAPITAL_KINGDOM_LEVY_MULT = 1,
 	CAPITAL_KINGDOM_LIEGE_LEVY_MULT = 0.5,
-	CAPITAL_EMPIRE_LEVY_MULT = 1,
 	CAPITAL_EMPIRE_LIEGE_LEVY_MULT = 0.35,
-	OUTSIDE_LEVY_MULT = 1,						-- Multiplier to direct levies outside all capital regions
 	OUTSIDE_LIEGE_LEVY_MULT = 0.25,				-- Multiplier to liege levies outside all capital regions
 	
 	SUPPLY_CAPACITY = 31,						-- Amount of days of worth supply that a unit can hold.
@@ -1439,6 +1434,17 @@ NMilitary = {
 	
 	MAX_WARSCORE_FROM_BATTLE_ATTACKERS = 75,				-- Max total warscore attackers can get from battles 
 	MAX_WARSCORE_FROM_BATTLE_DEFENDERS = 100,				-- Max total warscore defenders can get from battles
+	
+	USE_AUTOMATIC_CALL_TO_ARMS = 0,							-- Whether to automatically call all your allies at the beginning of a war or not
+	AUTOMATICALLY_ACCEPTS_CALL_TO_ARMS = 0,					-- Whether allies (including players) automatically and instantly accept calls to arms or if they can refuse
+	AUTOMATICALLY_ACCEPTS_COALITION_CALLS = 1,				-- Whether coalition members are automatically added at the start of wars or if a normal call to arm invitation is sent
+	
+	DESIRED_ALLIANCE_MULTIPLIER_STRENGTH_IN_WARS = 1.5,		-- As long as the AI is not that much stronger than the enemy, they keep calling allies into wars. Set to 0 to always call all allies into war
+	
+	NOMAD_SUFFER_PAGAN_ATTRITION = 0,						-- Whether pagan nomads suffer attrition in pagan homelands
+	VASSALS_UNITE_AGAINST_TYRANNY = 1,						-- Will vassal automatically join wars against tyrants (revocation revolts, for example)
+	
+	FAR_CRUSADES_WITHOUT_WEIGHT_MODIFIER = 0.75,			-- War choice modifier for crusade on titles that don't contain a crusade modifier and are not adjacent to territory of our religion
 },
 
 NTechnology = {
@@ -1449,7 +1455,6 @@ NTechnology = {
 	NEIGHBOUR_SAME_RELIGON_GROUP_MULT = 2.0, 	-- multiplier to the above bonus if neighbour is of your religious group
 	BASE_DEMESNE_SPREAD_BONUS = 0.06, 			-- bonus for each other province in demesne with the tech
 	MAX_DEMESNE_BONUS = 0.3, 					-- maximum bonus from demesne
-	FOCUS_BONUS = 2.0, 							-- bonus for the tech in each group set as the focus
 	TRADEPOST_SPREAD_BONUS = 0.002, 			-- Spread from trade posts
 	SPYACTION_SPREAD_BONUS = 0.006,				-- Spread from the target of the study technology spymaster action
 	
@@ -1503,12 +1508,13 @@ NGraphics = {
 	MILD_WINTER_VALUE = 90,
 	NORMAL_WINTER_VALUE = 145,
 	SEVERE_WINTER_VALUE = 255,
-	NUMBER_OF_PROPERTIES = 14,
+	TREASURY_MODIFIER_ICON_FRAME = 13,
+	NUMBER_OF_DNA_PROPERTIES = 11,
 },
 
 NEngine = {
-	EVENT_PROCESS_OFFSET = 20, 	 -- Events are checked every X day per character or province (1 is ideal, but CPU heavy)
-	POPULATION_BASELINE = 20000, -- The baseline of what would be considered normal amount of population
+	EVENT_PROCESS_OFFSET = 20, 	 -- Events are checked every X day per character or province (1 is ideal, but CPU heavy). Max value of 255
+	COURTIER_EVENT_PROCESS_OFFSET = 50, 	 -- Events are checked every X day for courtiers. Max value of 255
 	COURTIERS_MTTTH_EVENTS = 1,  -- Toggles if courtiers are allowed to run MTTH events or not
 	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_YEAR = 2670, -- The missing scripted successor error will not be shown before this date
 	MISSING_SCRIPTED_SUCCESSOR_ERROR_CUTOFF_MONTH = 8,
@@ -1533,10 +1539,6 @@ NAI =
 	CRUSADE_CREATION_MONTH_DELAY = 360,						-- Months from the end of one Crusade before the AI will call a new one
 	NAVAL_INVASION_RANGE = 100,								-- Factor which increase AI invasion range if set higher
 	DOW_AGGRESSION_FACTOR = 0.75,							-- General aggressiveness declarations of war
-	REVOLT_AGGRESSION_FACTOR = 0.75,						-- General aggressiveness for revolts against the liege
-	REVOLT_DISTANCE_FACTOR = 1.0,							-- Multiplier for how much distance from capital affects independence minded revolters
-	REVOLT_OTHER_INDEP_RISK = 10,							-- Each ongoing other independence revolt increases revolt risk by this amount for all independence-minded revolters
-	REVOLT_OTHER_INDEP_RISK_CAP = 50,						-- Cap to the total risk from the above
 	MARRIAGE_AI_PRESTIGE_VALUE = 0.33,						-- Multiplier for how highly AI values prestige when arranging marriages and evaluating marriage offers
 	MAX_KING_TITLES_TO_CREATE = 0,							-- AI will not seek to create/usurp more King-level titles than this (0 for unlimited)
 	MAX_EMPIRE_TITLES_TO_CREATE = 0,						-- AI will not seek to create/usurp more Empire-level titles than this (0 for unlimited)
@@ -1591,11 +1593,6 @@ NAI =
 	COALITION_LEAVE_THRESHOLD = 70,							-- AI will leave a defensive pact if the defensive pact score is below this value
 	COALITION_TROOP_STRENGTH_THREAT_RATIO = 0.8,			-- AI will consider a realm to be a threat if it has a valid CB against you and the AI is this much smaller in army strength
 	COALITION_SCARY_TROOP_STRENGTH_THREAT_RATIO = 0.2,		-- AI will consider a realm to be a threat if the AI is this much smaller in army strength, regardless of CB's
-	COALITION_TROOP_STRENGTH_PROTECTION_RATIO = 0.7,		-- AI will consider a defensive pact to need assistance if a member is of your religion/culture/dynasty and the target is not, and the defensive pact is this much smaller in army strength
-	COALITION_PROVINCE_MULTIPLIER = 1.0,					-- Multiplier of realm provinces, added to defensive pact score
-	COALITION_INFAMY_MULTIPLIER = 150,						-- Multiplier of realm threat, added to defensive pact score
-	COALITION_DISTANCE_MULTIPLIER = -1.1,					-- Multiplier of distance between two rulers, added to defensive pact score
-	COALITION_SMALL_THREAT_MULTIPLIER = 0.6,				-- Multiplier to the entire defensive pact score for small nations target has no CB on
 	
 	MARRIAGE_THREATENING_FOR_THEM_MODIFIER = 5,				-- How much AI will pay attention to marriages with realms they have a CB on and are considerably stronger than
 	BETROTHAL_MIN_AGE = 12,									-- AI will not arrange betrothals for children below this age
@@ -1646,6 +1643,10 @@ NAI =
 	
 	AI_SUPPORT_PARDON_BONUS = 60,							-- bonus to ai request support chance if seeking to get pardoned
 	DIVINE_BLOOD_INCEST_FACTOR = 1,							-- Multiplier factor used for close relatives when finding best spouse in religion with divine blood enabled. Smaller factor leads to close relatives less likely to be a choice.
+	
+	STATECRAFT_THREAT_THRESHOLD = 50.0,						-- If threat from realm is greater or equal to threshold then Chancellor will be assigned to Statecraft job
+	ADMINISTER_REALM_REALM_SIZE_THRESHOLD = 200,			-- If Empire and realm size is greater or equal to threshold then Steward will be assigned to Administer Realm job
+	NOMAD_ORGANIZE_ARMY_THRESHOLD = 0.75,					-- If Nomad manpower growth from Train Warriors job is greater or equal to threshold then Marshal will be assigned to Organize Army job
 },
 
 NFrontend = 
@@ -1662,11 +1663,7 @@ NFrontend =
 	CAMERA_END_X = 790.0,				-- Move to position in main menu
 	CAMERA_END_Y = 500.0,
 	CAMERA_END_Z = 600.0,
-	CAMERA_MIN_DIST_FOR_ROTATE = 800.0, -- Controls when rotation starts. When camera is close enough it starts
 	TIME_FROZEN = 1.0,  				-- Time before initial animation starts (some delay here so it should NOT be 0, then the animation starts before you can see it)
-	TIME_UNTIL_ROTATE = 1.5, 			-- Time when rotation start (from beginning of time)
-	CAMERA_SPEED_START = 0.04,  			-- Initial animation speed
-	CAMERA_SPEED_ROTATE = 0.04,			-- Rotation speed
 	GUI_MOVE_SPEED = 800,				-- How fast sliding gui objects move ( pixels/s )
 	MAX_ZOOM_LEVEL = 2500,				-- How far out the player can zoom. Warning: At very high zoom levels, the ground will no longer render
 	

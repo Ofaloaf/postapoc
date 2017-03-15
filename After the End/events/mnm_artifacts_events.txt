@@ -1,0 +1,1148 @@
+#9899-9999: artifact looting
+
+character_event = {
+	id = MNM.9899
+	hide_window = yes
+	
+	is_triggered_only = yes
+	has_dlc = "Mystics"
+	
+	immediate = {
+		set_character_flag = looted_by_raiding_holding
+		repeat_event = { id = MNM.9900 }
+	}
+}
+
+character_event = {
+	id = MNM.9900
+    hide_window = yes
+	
+	is_triggered_only = yes
+	has_dlc = "Mystics"
+	
+	immediate = {
+		save_event_target_as = looter
+		FROM = {
+			location = {
+				save_event_target_as = target_location
+			}
+		}
+		log = "Chance to lose an artifact on_action fired for the leader: [This.GetBestName] on the holding: [From.GetName]"
+		FROM = {
+			save_event_target_as = target_title
+			holder_scope = {
+				if = {
+					limit = {
+						is_liege_or_above = ROOT
+					}
+					break = yes
+				}
+				if = {
+					limit = {
+						capital_holding = {
+							title = PREVPREV # Sieged province is the capital of the owner.
+						}
+					}
+					#log = "Chance to lose an artifact on_action fired for the capital of [This.GetBestName]"
+					if = {
+						limit = {
+							num_of_artifacts = 1
+						}
+						character_event = { id = MNM.9901 } # Chance to lose an artifact.
+					}
+					any_courtier = {
+						limit = {
+							num_of_artifacts = 1
+							at_location = event_target:target_location
+							prisoner = no
+						}
+						character_event = { id = MNM.9901 } # Chance to lose an artifact.
+					}
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9901
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		save_event_target_as = original_item_owner
+		random_list = {
+			100 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						any_artifact = {
+							quality == 1
+							NOT = {
+								artifact_type_owned_by = FROM
+							}
+						}
+					}
+				}
+				FROM = {
+					character_event = { id = MNM.9902 }
+				}
+			}
+			70 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						any_artifact = {
+							quality == 2
+							NOT = {
+								artifact_type_owned_by = FROM
+							}
+						}
+					}
+				}
+				FROM = {
+					character_event = { id = MNM.9904 }
+				}
+			}
+			45 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						any_artifact = {
+							quality == 3
+						}
+					}
+				}
+				FROM = {
+					character_event = { id = MNM.9906 }
+				}
+			}
+			25 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						any_artifact = {
+							quality == 4
+						}
+					}
+				}
+				FROM = {
+					character_event = { id = MNM.9908 }
+				}
+			}
+			10 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						any_artifact = {
+							quality == 5
+						}
+					}
+				}
+				FROM = {
+					character_event = { id = MNM.9910 }
+				}
+			}
+			
+			6000 = { #chance of no artifact stealing
+				modifier = {
+					factor = 0.2
+					FROM = { has_character_flag = looted_by_raiding_holding }
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 3
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 4
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 5
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 6
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 7
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 8
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 9
+				}
+				modifier = {
+					factor = 0.8
+					num_of_artifacts = 10
+				}
+				modifier = {
+					factor = 0.5
+					NOT = {
+						any_artifact = {
+							quality == 1
+						}
+					}
+				}
+				modifier = {
+					factor = 0.65
+					NOT = {
+						any_artifact = {
+							quality == 2
+						}
+					}
+				}
+				modifier = {
+					factor = 0.775
+					NOT = {
+						any_artifact = {
+							quality == 3
+						}
+					}
+				}
+				modifier = {
+					factor = 0.875
+					NOT = {
+						any_artifact = {
+							quality == 4
+						}
+					}
+				}
+				modifier = {
+					factor = 0.95
+					NOT = {
+						any_artifact = {
+							quality == 5
+						}
+					}
+				}
+			}
+		}
+		FROM = {
+			clr_character_flag = looted_by_raiding_holding
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9902
+    desc = {
+		text = EVTDESC_MNM_9902_A
+		trigger = {
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9902_B
+		trigger = {
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		FROM = {
+			random_artifact = {
+				limit = {
+					quality == 1
+					NOT = {
+						artifact_type_owned_by = ROOT
+					}
+				}
+				set_artifact_flag = looted_artifact_tooltip_1
+				set_artifact_flag = looted_artifact_tooltip_2
+				transfer_artifact = {
+					from = PREV
+					to = ROOT
+				}
+			}
+			character_event = { id = MNM.9903 }
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTA_MNM_9902
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTB_MNM_9902
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		tooltip = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				transfer_artifact = {
+					from = FROM
+					to = ROOT
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9903
+    desc = EVTDESC_MNM_9903
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_9903
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					transfer_artifact = {
+						from = ROOT
+						to = THIS
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					clr_artifact_flag = looted_artifact_tooltip_2
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9904
+    desc = {
+		text = EVTDESC_MNM_9902_A
+		trigger = {
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9902_B
+		trigger = {
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		FROM = {
+			random_artifact = {
+				limit = {
+					quality == 2
+					NOT = {
+						artifact_type_owned_by = ROOT
+					}
+				}
+				set_artifact_flag = looted_artifact_tooltip_1
+				set_artifact_flag = looted_artifact_tooltip_2
+				transfer_artifact = {
+					from = PREV
+					to = ROOT
+				}
+			}
+			character_event = { id = MNM.9903 }
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTA_MNM_9902
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTB_MNM_9902
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		tooltip = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				transfer_artifact = {
+					from = FROM
+					to = ROOT
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9905
+    desc = EVTDESC_MNM_9903
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_9903
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					transfer_artifact = {
+						from = ROOT
+						to = THIS
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					clr_artifact_flag = looted_artifact_tooltip_2
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9906
+    desc = {
+		text = EVTDESC_MNM_9906_A
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9906_B
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9906_C
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9906_D
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		FROM = {
+			random_artifact = {
+				limit = {
+					quality == 3
+					NOT = {
+						artifact_type_owned_by = ROOT
+					}
+				}
+				set_artifact_flag = looted_artifact_tooltip_1
+				set_artifact_flag = looted_artifact_tooltip_2
+				transfer_artifact = {
+					from = PREV
+					to = ROOT
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						any_artifact = {
+							has_artifact_flag = looted_artifact_tooltip_1
+						}
+					}
+				}
+				character_event = { id = MNM.9907 }
+			}
+			if = {
+				limit = {
+					NOT = {
+						ROOT = {
+							any_artifact = {
+								has_artifact_flag = looted_artifact_tooltip_1
+							}
+						}
+					}
+				}
+				random_artifact = {
+					limit = {
+						quality == 3
+					}
+					set_artifact_flag = looted_artifact_tooltip_1
+					set_artifact_flag = looted_artifact_tooltip_2
+				}
+				ROOT = {
+					set_character_flag = looted_artifact_destroy_duplicate
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTA_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTC_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+		
+		tooltip = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				transfer_artifact = {
+					from = FROM
+					to = ROOT
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTB_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTD_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+		}
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_1
+					}
+					destroy_artifact = yes
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+			FROM = {
+				character_event = { id = MNM.9907 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9907
+    desc = {
+		text = EVTDESC_MNM_9907_A
+		trigger = {
+			FROM = { NOT = { has_character_flag = looted_artifact_destroy_duplicate } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9907_B
+		trigger = {
+			FROM = { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_9907
+		trigger = {
+			FROM  = { NOT = { has_character_flag = looted_artifact_destroy_duplicate } }
+		}
+		
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					transfer_artifact = {
+						from = ROOT
+						to = THIS
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					clr_artifact_flag = looted_artifact_tooltip_2
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_MNM_9907
+		trigger = {
+			FROM =  { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+		
+		random_artifact = {
+			limit = {
+				has_artifact_flag = looted_artifact_tooltip_2
+			}
+			clr_artifact_flag = looted_artifact_tooltip_2
+			destroy_artifact = yes
+		}
+		FROM = {
+			clr_character_flag = looted_artifact_destroy_duplicate
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9908
+    desc = {
+		text = EVTDESC_MNM_9906_A
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9906_B
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9906_C
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9906_D
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		FROM = {
+			random_artifact = {
+				limit = {
+					quality == 4
+					NOT = {
+						artifact_type_owned_by = ROOT
+					}
+				}
+				set_artifact_flag = looted_artifact_tooltip_1
+				set_artifact_flag = looted_artifact_tooltip_2
+				transfer_artifact = {
+					from = PREV
+					to = ROOT
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						any_artifact = {
+							has_artifact_flag = looted_artifact_tooltip_1
+						}
+					}
+				}
+				character_event = { id = MNM.9909 }
+			}
+			if = {
+				limit = {
+					NOT = {
+						ROOT = {
+							any_artifact = {
+								has_artifact_flag = looted_artifact_tooltip_1
+							}
+						}
+					}
+				}
+				random_artifact = {
+					limit = {
+						quality == 4
+					}
+					set_artifact_flag = looted_artifact_tooltip_1
+					set_artifact_flag = looted_artifact_tooltip_2
+				}
+				ROOT = {
+					set_character_flag = looted_artifact_destroy_duplicate
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTA_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTC_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+		
+		tooltip = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				transfer_artifact = {
+					from = FROM
+					to = ROOT
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTB_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTD_MNM_9906
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+		}
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_1
+					}
+					destroy_artifact = yes
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+			FROM = {
+				character_event = { id = MNM.9909 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9909
+    desc = {
+		text = EVTDESC_MNM_9907_A
+		trigger = {
+			FROM = { NOT = { has_character_flag = looted_artifact_destroy_duplicate } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9907_B
+		trigger = {
+			FROM = { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_9907
+		trigger = {
+			FROM  = { NOT = { has_character_flag = looted_artifact_destroy_duplicate } }
+		}
+		
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					transfer_artifact = {
+						from = ROOT
+						to = THIS
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					clr_artifact_flag = looted_artifact_tooltip_2
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_MNM_9907
+		trigger = {
+			FROM =  { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+		
+		random_artifact = {
+			limit = {
+				has_artifact_flag = looted_artifact_tooltip_2
+			}
+			clr_artifact_flag = looted_artifact_tooltip_2
+			destroy_artifact = yes
+		}
+		FROM = {
+			clr_character_flag = looted_artifact_destroy_duplicate
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9910
+    desc = {
+		text = EVTDESC_MNM_9910_A
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9910_B
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+			looting_artifact_event_religious_artifacts_trigger = no
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9910_C
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9910_D
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+			looting_artifact_event_religious_artifacts_trigger = yes
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		FROM = {
+			random_artifact = {
+				limit = {
+					quality == 5
+					NOT = {
+						artifact_type_owned_by = ROOT
+					}
+				}
+				set_artifact_flag = looted_artifact_tooltip_1
+				set_artifact_flag = looted_artifact_tooltip_2
+				transfer_artifact = {
+					from = PREV
+					to = ROOT
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						any_artifact = {
+							has_artifact_flag = looted_artifact_tooltip_1
+						}
+					}
+				}
+				character_event = { id = MNM.9911 }
+			}
+			if = {
+				limit = {
+					NOT = {
+						ROOT = {
+							any_artifact = {
+								has_artifact_flag = looted_artifact_tooltip_1
+							}
+						}
+					}
+				}
+				random_artifact = {
+					limit = {
+						quality == 5
+					}
+					set_artifact_flag = looted_artifact_tooltip_1
+					set_artifact_flag = looted_artifact_tooltip_2
+				}
+				ROOT = {
+					set_character_flag = looted_artifact_destroy_duplicate
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTA_MNM_9910
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTC_MNM_9910
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		trigger = {
+			NOT = { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+		
+		tooltip = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				transfer_artifact = {
+					from = FROM
+					to = ROOT
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+		}
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTB_MNM_9910
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = no
+			}
+		}
+		name = {
+			text = EVTOPTD_MNM_9910
+			trigger = {
+				looting_artifact_event_religious_artifacts_trigger = yes
+			}
+		}
+		trigger = {
+			has_character_flag = looted_artifact_destroy_duplicate
+		}
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_1
+					}
+					destroy_artifact = yes
+				}
+			}
+		}
+		hidden_effect = {
+			random_artifact = {
+				limit = {
+					has_artifact_flag = looted_artifact_tooltip_1
+				}
+				clr_artifact_flag = looted_artifact_tooltip_1
+			}
+			FROM = {
+				character_event = { id = MNM.9911 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = MNM.9911
+    desc = {
+		text = EVTDESC_MNM_9911_A
+		trigger = {
+			FROM = { NOT = { has_character_flag = looted_artifact_destroy_duplicate } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_9911_B
+		trigger = {
+			FROM = { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+	}
+    picture = GFX_evt_relic_box
+    border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_9911
+		trigger = {
+			FROM  = { NOT = { has_character_flag = looted_artifact_destroy_duplicate } }
+		}
+		
+		tooltip = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					transfer_artifact = {
+						from = ROOT
+						to = THIS
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = {
+				random_artifact = {
+					limit = {
+						has_artifact_flag = looted_artifact_tooltip_2
+					}
+					clr_artifact_flag = looted_artifact_tooltip_2
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_MNM_9911
+		trigger = {
+			FROM =  { has_character_flag = looted_artifact_destroy_duplicate }
+		}
+		
+		random_artifact = {
+			limit = {
+				has_artifact_flag = looted_artifact_tooltip_2
+			}
+			clr_artifact_flag = looted_artifact_tooltip_2
+			destroy_artifact = yes
+		}
+		FROM = {
+			clr_character_flag = looted_artifact_destroy_duplicate
+		}
+	}
+}

@@ -46,13 +46,7 @@
 # 92	expedition is a wash: medium reward
 # 94	expedition is a success
 # 95	clean up flags
-# 100	on_death, pass on salvaged tech to heir
-# 110	notify heir that the deceased has bequeathed a firearm to them
-# 111	notify heir that the deceased has bequeathed a typewriter to them
-# 112	notify heir that the deceased has bequeathed a calculator to them
-# 113	notify heir that the deceased has bequeathed a watch to them
-# 114	notify heir that the deceased has bequeathed a telescope to them
-# 115	notify heir that the deceased has bequeathed textbooks to them
+# 100	--events 100 to 115 removed, previously salvage bequeath events--
 # 120	[hidden] helper event for randomly finding salvage
 # 121	[hidden] helper prov event for randomly finding salvage
 # 130	firearm combat event
@@ -742,7 +736,6 @@ narrative_event = {
 			}
 		}
 		prestige = 5
-		random = { chance = 25 add_trait = diligent }
 	}
 }
 
@@ -773,7 +766,12 @@ narrative_event = {
 	title = EVTNAME_salvage_item
 	desc = EVTDESC_salvage_glassware
 	picture = GFX_evt_pilgrims_epic_journey
-	option = { name = OK }
+	option = {
+		name = OK
+		add_artifact = old_world_glass
+		new_artifact = { set_creation_date = 1.1.1 }
+		set_character_flag = found_glass
+	}
 }
 
 narrative_event = {
@@ -782,7 +780,12 @@ narrative_event = {
 	title = EVTNAME_salvage_item
 	desc = EVTDESC_salvage_machinery
 	picture = GFX_evt_pilgrims_epic_journey
-	option = { name = OK }
+	option = {
+		name = OK
+		add_artifact = old_world_engine
+		new_artifact = { set_creation_date = 1.1.1 }
+		set_character_flag = found_engine
+	}
 }
 
 narrative_event = {
@@ -802,7 +805,10 @@ narrative_event = {
 	picture = GFX_evt_carriage
 	option = { 
 		name = OK
-		wealth = 25
+		#wealth = 25
+		add_artifact = old_world_jewelry
+		new_artifact = { set_creation_date = 1.1.1 }
+		set_character_flag = found_jewelry
 	}
 }
 
@@ -812,17 +818,28 @@ narrative_event = {
 	title = EVTNAME_salvage_safe_ledger
 	desc = EVTDESC_salvage_safe_ledger
 	picture = GFX_evt_carriage
-	option = { name = OK }
+	option = {
+		name = OK
+		add_artifact = old_world_money
+		new_artifact = { set_creation_date = 1.1.1 }
+		set_character_flag = found_money
+	}
 	option = {
 		name = EVTOPT_salvage_safe_ledger_amer
 		trigger = { religion = americanist }
 		prestige = 20
+		add_artifact = old_world_money
+		new_artifact = { set_creation_date = 1.1.1 }
+		set_character_flag = found_money
 	}
 	option = {
 		name = EVTOPT_salvage_safe_ledger_consumerist
 		trigger = { religion = consumerist }
 		prestige = 20
 		piety = 20
+		add_artifact = old_world_money
+		new_artifact = { set_creation_date = 1.1.1 }
+		set_character_flag = found_money
 	}
 }
 
@@ -844,6 +861,9 @@ narrative_event = {
 	option = {
 		name = OK
 		prestige = 10
+		add_artifact = old_world_musicbox
+		new_artifact = { set_creation_date = 1.1.1 }
+		set_character_flag = found_musicbox
 	}
 }
 
@@ -960,7 +980,7 @@ narrative_event = {
 	option = {
 		name = EVTOPT_salvage_study_firearm
 		prestige = 50
-		add_trait = salvage_firearm
+		add_artifact = ate_firearm
 	}
 }
 
@@ -973,7 +993,7 @@ narrative_event = {
 	option = {
 		name = OK
 		prestige = 50
-		add_trait = salvage_typewriter
+		add_artifact = ate_typewriter
 	}
 }
 
@@ -986,7 +1006,7 @@ narrative_event = {
 	option = {
 		name = OK
 		prestige = 50
-		add_trait = salvage_calculator
+		add_artifact = ate_calculator
 	}
 }
 
@@ -999,7 +1019,7 @@ narrative_event = {
 	option = {
 		name = OK
 		prestige = 50
-		add_trait = salvage_watch
+		add_artifact = ate_watch
 	}
 }
 
@@ -1012,7 +1032,7 @@ narrative_event = {
 	option = {
 		name = OK
 		prestige = 50
-		add_trait = salvage_telescope
+		add_artifact = ate_telescope
 	}
 }
 
@@ -1025,7 +1045,7 @@ narrative_event = {
 	option = {
 		name = OK
 		prestige = 50
-		add_trait = salvage_textbooks
+		add_artifact = ate_textbooks
 	}
 }
 
@@ -1119,12 +1139,20 @@ narrative_event = {
 	option = {
 		name = EVTOPT_salvage_result_medium_sell
 		wealth = 20
+		if = {
+			limit = { has_character_flag = found_money }
+			destroy_artifact = old_world_money
+		}
 		hidden_tooltip = { narrative_event = { id = salvage.95 } }
 	}
 	
 	option = {
 		name = EVTOPT_salvage_result_medium_donate
 		piety = 10
+		if = {
+			limit = { has_character_flag = found_money }
+			destroy_artifact = old_world_money
+		}
 		hidden_tooltip = { narrative_event = { id = salvage.95 } }
 	}
 }
@@ -1143,19 +1171,51 @@ narrative_event = {
 	
 	option = {
 		name = EVTOPT_salvage_result_medium_keep
-		prestige = 50
+		prestige = 40
 		hidden_tooltip = { narrative_event = { id = salvage.95 } }
 	}
 	
 	option = {
 		name = EVTOPT_salvage_result_medium_sell
 		wealth = 40
+		if = {
+			limit = { has_character_flag = found_glass }
+			destroy_artifact = old_world_glass
+		}
+		if = {
+			limit = { has_character_flag = found_engine }
+			destroy_artifact = old_world_engine
+		}
+		if = {
+			limit = { has_character_flag = found_jewelry }
+			destroy_artifact = old_world_jewelry
+		}
+		if = {
+			limit = { has_character_flag = found_musicbox }
+			destroy_artifact = old_world_musicbox
+		}
 		hidden_tooltip = { narrative_event = { id = salvage.95 } }
 	}
 	
 	option = {
 		name = EVTOPT_salvage_result_medium_donate
 		piety = 20
+		if = {
+			limit = { has_character_flag = found_glass }
+			destroy_artifact = old_world_glass
+		}
+		if = {
+			limit = { has_character_flag = found_engine }
+			destroy_artifact = old_world_engine
+		}
+		if = {
+			limit = { has_character_flag = found_jewelry }
+			destroy_artifact = old_world_jewelry
+		}
+		if = {
+			limit = { has_character_flag = found_musicbox }
+			destroy_artifact = old_world_musicbox
+		}
 		religion_authority = { modifier = donated_tech_prize }
 		hidden_tooltip = { narrative_event = { id = salvage.95 } }
 	}
@@ -1192,6 +1252,11 @@ narrative_event = {
 		clr_character_flag = salvage_research
 		clr_character_flag = salvage_envoys
 		clr_character_flag = salvage_compete
+		clr_character_flag = found_glass
+		clr_character_flag = found_engine
+		clr_character_flag = found_jewelry
+		clr_character_flag = found_money
+		clr_character_flag = found_musicbox
 		remove_trait = on_pilgrimage
 		add_character_modifier = { name = recent_salvage duration = 720 }
 	}
@@ -1199,403 +1264,7 @@ narrative_event = {
 }
 
 # ************************* Pass Salvage to Heir ************************
-
-character_event = {
-	id = salvage.100
-	desc = EVTDESC_bounce
-	hide_window = yes
-	picture = GFX_evt_death
-
-	is_triggered_only = yes
-	
-	immediate = {
-		if = {
-			limit = { trait = salvage_firearm }
-			remove_trait = salvage_firearm
-			current_heir = { narrative_event = { id = salvage.110 days = 5 random = 20 } }
-		}
-		if = {
-			limit = { trait = salvage_typewriter }
-			remove_trait = salvage_typewriter
-			current_heir = { narrative_event = { id = salvage.111 days = 5 random = 20 } }
-		}
-		if = {
-			limit = { trait = salvage_calculator }
-			remove_trait = salvage_calculator
-			current_heir = { narrative_event = { id = salvage.112 days = 5 random = 20 } }
-		}
-		if = {
-			limit = { trait = salvage_watch }
-			remove_trait = salvage_watch
-			current_heir = { narrative_event = { id = salvage.113 days = 5 random = 20 } }
-		}
-		if = {
-			limit = { trait = salvage_telescope }
-			remove_trait = salvage_telescope
-			current_heir = { narrative_event = { id = salvage.114 days = 5 random = 20 } }
-		}
-		if = {
-			limit = { trait = salvage_textbooks }
-			remove_trait = salvage_textbooks
-			current_heir = { narrative_event = { id = salvage.115 days = 5 random = 20 } }
-		}
-	}
-	option = { }
-}
-
-narrative_event = {
-	id = salvage.110
-	title = EVTNAME_bequeathed
-	desc = EVTDESC_bequeathed_firearm
-	picture = GFX_evt_death
-	
-	is_triggered_only = yes
-
-	option = {
-		name = EVTOPT_bequeath_child
-		trigger = { NOT = { age = 10 } }
-		random_list = {
-			20 = { add_trait = salvage_firearm }
-			20 = { regent = { add_trait = salvage_firearm } }
-			10 = { random_dynasty_member = { add_trait = salvage_firearm } }
-			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_teen
-		trigger = {
-			age = 10
-			NOT = { age = 16 }
-		}
-		random_list = {
-			40 = { add_trait = salvage_firearm }
-			20 = { regent = { add_trait = salvage_firearm } }
-			10 = { random_dynasty_member = { add_trait = salvage_firearm } }
-			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_adult
-		trigger = { age = 16 }
-		random = { chance = 70 add_trait = salvage_firearm }
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_skilled
-		trigger = { martial = 10 }
-		tooltip_info = martial
-		random = { chance = 85 add_trait = salvage_firearm }
-		ai_chance = { factor = 50 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_intrigue
-		trigger = { intrigue = 12 }
-		tooltip_info = intrigue
-		random = { chance = 95 add_trait = salvage_firearm }
-		ai_chance = { factor = 500 }
-	}
-}
-
-narrative_event = {
-	id = salvage.111
-	title = EVTNAME_bequeathed
-	desc = EVTDESC_bequeathed_typewriter
-	picture = GFX_evt_death
-	
-	is_triggered_only = yes
-
-	option = {
-		name = EVTOPT_bequeath_child
-		trigger = { NOT = { age = 10 } }
-		random_list = {
-			20 = { add_trait = salvage_typewriter }
-			20 = { regent = { add_trait = salvage_typewriter } }
-			10 = { random_dynasty_member = { add_trait = salvage_typewriter } }
-			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_teen
-		trigger = {
-			age = 10
-			NOT = { age = 16 }
-		}
-		random_list = {
-			40 = { add_trait = salvage_typewriter }
-			20 = { regent = { add_trait = salvage_typewriter } }
-			10 = { random_dynasty_member = { add_trait = salvage_typewriter } }
-			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_adult
-		trigger = { age = 16 }
-		random = { chance = 70 add_trait = salvage_typewriter }
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_skilled
-		trigger = { diplomacy = 10 }
-		tooltip_info = diplomacy
-		random = { chance = 85 add_trait = salvage_typewriter }
-		ai_chance = { factor = 50 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_intrigue
-		trigger = { intrigue = 12 }
-		tooltip_info = intrigue
-		random = { chance = 95 add_trait = salvage_typewriter }
-		ai_chance = { factor = 500 }
-	}
-}
-
-narrative_event = {
-	id = salvage.112
-	title = EVTNAME_bequeathed
-	desc = EVTDESC_bequeathed_calculator
-	picture = GFX_evt_death
-	
-	is_triggered_only = yes
-
-	option = {
-		name = EVTOPT_bequeath_child
-		trigger = { NOT = { age = 10 } }
-		random_list = {
-			20 = { add_trait = salvage_calculator }
-			20 = { regent = { add_trait = salvage_calculator } }
-			10 = { random_dynasty_member = { add_trait = salvage_calculator } }
-			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_teen
-		trigger = {
-			age = 10
-			NOT = { age = 16 }
-		}
-		random_list = {
-			40 = { add_trait = salvage_calculator }
-			20 = { regent = { add_trait = salvage_calculator } }
-			10 = { random_dynasty_member = { add_trait = salvage_calculator } }
-			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_adult
-		trigger = { age = 16 }
-		random = { chance = 70 add_trait = salvage_calculator }
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_skilled
-		trigger = { stewardship = 10 }
-		tooltip_info = stewardship
-		random = { chance = 85 add_trait = salvage_calculator }
-		ai_chance = { factor = 50 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_intrigue
-		trigger = { intrigue = 12 }
-		tooltip_info = intrigue
-		random = { chance = 95 add_trait = salvage_calculator }
-		ai_chance = { factor = 500 }
-	}
-}
-
-narrative_event = {
-	id = salvage.113
-	title = EVTNAME_bequeathed
-	desc = EVTDESC_bequeathed_watch
-	picture = GFX_evt_death
-	
-	is_triggered_only = yes
-
-	option = {
-		name = EVTOPT_bequeath_child
-		trigger = { NOT = { age = 10 } }
-		random_list = {
-			20 = { add_trait = salvage_watch }
-			20 = { regent = { add_trait = salvage_watch } }
-			10 = { random_dynasty_member = { add_trait = salvage_watch } }
-			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_teen
-		trigger = {
-			age = 10
-			NOT = { age = 16 }
-		}
-		random_list = {
-			40 = { add_trait = salvage_watch }
-			20 = { regent = { add_trait = salvage_watch } }
-			10 = { random_dynasty_member = { add_trait = salvage_watch } }
-			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_adult
-		trigger = { age = 16 }
-		random = { chance = 70 add_trait = salvage_watch }
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_skilled
-		trigger = { intrigue = 10 }
-		tooltip_info = intrigue
-		random = { chance = 85 add_trait = salvage_watch }
-		ai_chance = { factor = 50 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_intrigue
-		trigger = { intrigue = 12 }
-		tooltip_info = intrigue
-		random = { chance = 95 add_trait = salvage_watch }
-		ai_chance = { factor = 500 }
-	}
-}
-
-narrative_event = {
-	id = salvage.114
-	title = EVTNAME_bequeathed
-	desc = EVTDESC_bequeathed_telescope
-	picture = GFX_evt_death
-	
-	is_triggered_only = yes
-
-	option = {
-		name = EVTOPT_bequeath_child
-		trigger = { NOT = { age = 10 } }
-		random_list = {
-			20 = { add_trait = salvage_telescope }
-			20 = { regent = { add_trait = salvage_telescope } }
-			10 = { random_dynasty_member = { add_trait = salvage_telescope } }
-			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_teen
-		trigger = {
-			age = 10
-			NOT = { age = 16 }
-		}
-		random_list = {
-			40 = { add_trait = salvage_telescope }
-			20 = { regent = { add_trait = salvage_telescope } }
-			10 = { random_dynasty_member = { add_trait = salvage_telescope } }
-			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_adult
-		trigger = { age = 16 }
-		random = { chance = 70 add_trait = salvage_telescope }
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_skilled
-		trigger = { learning = 10 }
-		tooltip_info = learning
-		random = { chance = 85 add_trait = salvage_telescope }
-		ai_chance = { factor = 50 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_intrigue
-		trigger = { intrigue = 12 }
-		tooltip_info = intrigue
-		random = { chance = 95 add_trait = salvage_telescope }
-		ai_chance = { factor = 500 }
-	}
-}
-
-narrative_event = {
-	id = salvage.115
-	title = EVTNAME_bequeathed
-	desc = EVTDESC_bequeathed_textbooks
-	picture = GFX_evt_death
-	
-	is_triggered_only = yes
-
-	option = {
-		name = EVTOPT_bequeath_child
-		trigger = { NOT = { age = 10 } }
-		random_list = {
-			20 = { add_trait = salvage_textbooks }
-			20 = { regent = { add_trait = salvage_textbooks } }
-			10 = { random_dynasty_member = { add_trait = salvage_textbooks } }
-			50 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_teen
-		trigger = {
-			age = 10
-			NOT = { age = 16 }
-		}
-		random_list = {
-			40 = { add_trait = salvage_textbooks }
-			20 = { regent = { add_trait = salvage_textbooks } }
-			10 = { random_dynasty_member = { add_trait = salvage_textbooks } }
-			30 = { custom_tooltip = { text = TXT_bequeth_lost } }
-		}
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_adult
-		trigger = { age = 16 }
-		random = { chance = 70 add_trait = salvage_textbooks }
-		ai_chance = { factor = 10 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_skilled
-		trigger = { learning = 10 }
-		tooltip_info = learning
-		random = { chance = 85 add_trait = salvage_textbooks }
-		ai_chance = { factor = 50 }
-	}
-	
-	option = {
-		name = EVTOPT_bequeath_intrigue
-		trigger = { intrigue = 12 }
-		tooltip_info = intrigue
-		random = { chance = 95 add_trait = salvage_textbooks }
-		ai_chance = { factor = 500 }
-	}
-}
+# removed for now, since artifacts are always passed on
 
 # ************************* Events for Anyone ************************
 
@@ -1612,39 +1281,45 @@ character_event = {
 	}
 	
 	immediate = {
-		if = {
-			limit = {
-				OR = {
-					trait = salvage_firearm
-					trait = salvage_typewriter
-					trait = salvage_calculator
-					trait = salvage_watch
-					trait = salvage_telescope
-					trait = salvage_textbooks
-				}
+		random_list = {
+			50 = {
+				modifier = { factor = 0 NOT = { has_artifact = ate_typewriter } }
+				character_event = { id = salvage.131 }
 			}
-			random_list = {
-				10 = { character_event = { id = salvage.131 } }
-				10 = { character_event = { id = salvage.132 } }
-				10 = { character_event = { id = salvage.133 } }
-				10 = { character_event = { id = salvage.134 } }
-				10 = { character_event = { id = salvage.135 } }
+			50 = {
+				modifier = { factor = 0 NOT = { has_artifact = ate_calculator } }
+				character_event = { id = salvage.132 }
 			}
-		}
-	
-		if = {
-			limit = {
-				NOT = { trait = salvage_firearm }
-				NOT = { trait = salvage_typewriter }
-				NOT = { trait = salvage_calculator }
-				NOT = { trait = salvage_watch }
-				NOT = { trait = salvage_telescope }
-				NOT = { trait = salvage_textbooks }
+			50 = {
+				modifier = { factor = 0 NOT = { has_artifact = ate_watch } }
+				character_event = { id = salvage.133 }
 			}
-			random = {
-				chance = 25
+			50 = {
+				modifier = { factor = 0 NOT = { has_artifact = ate_telescope } }
+				character_event = { id = salvage.134 }
+			}
+			50 = {
+				modifier = { factor = 0 NOT = { has_artifact = ate_textbooks } }
+				character_event = { id = salvage.135 }
+			}
+			5 = {
+				# find new strongbox
+				modifier = { factor = 10 ai = no }
+				modifier = { factor = 0.6 has_artifact = ate_firearm }
+				modifier = { factor = 0.6 has_artifact = ate_typewriter }
+				modifier = { factor = 0.6 has_artifact = ate_calculator }
+				modifier = { factor = 0.6 has_artifact = ate_watch }
+				modifier = { factor = 0.6 has_artifact = ate_telescope }
+				modifier = { factor = 0.6 has_artifact = ate_textbooks }
+				modifier = { factor = 0.8 num_of_artifacts = 4 }
+				modifier = { factor = 0.8 num_of_artifacts = 8 }
+				modifier = { factor = 0.8 num_of_artifacts = 12 }
+				modifier = { factor = 0.8 num_of_artifacts = 16 }
 				set_character_flag = discover_salvage
 				random_demesne_province  = { province_event = { id = salvage.121 } }
+			}
+			100 = {
+				# nothing happens
 			}
 		}
 	}
@@ -1669,7 +1344,7 @@ narrative_event = {
 	desc = EVTDESC_firearm_battle
 	picture = GFX_evt_viking_battle_oldgods
 	
-	trigger = { trait = salvage_firearm }
+	trigger = { has_artifact = ate_firearm }
 	
 	option = {
 		name = EVTOPT_firearm_battle_fire
@@ -1763,7 +1438,7 @@ narrative_event = {
 	desc = EVTDESC_typewriter_history
 	picture = GFX_evt_library
 	
-	trigger = { trait = salvage_typewriter }
+	trigger = { has_artifact = ate_typewriter }
 	
 	option = {
 		name = EVTOPT_typewriter_history_record
@@ -1829,7 +1504,7 @@ narrative_event = {
 	desc = EVTDESC_calculator_taxes
 	picture = GFX_evt_library
 	
-	trigger = { trait = salvage_calculator }
+	trigger = { has_artifact = ate_calculator }
 	
 	option = {
 		name = EVTOPT_calculator_taxes_shrewd
@@ -1881,7 +1556,7 @@ narrative_event = {
 	desc = EVTDESC_watch_smooth
 	picture = GFX_evt_carriage
 	
-	trigger = { trait = salvage_watch }
+	trigger = { has_artifact = ate_watch }
 	
 	option = {
 		name = EVTOPT_watch_smooth_style
@@ -1933,7 +1608,7 @@ narrative_event = {
 	desc = EVTDESC_telescope_stargaze
 	picture = GFX_evt_comet
 	
-	trigger = { trait = salvage_telescope }
+	trigger = { has_artifact = ate_telescope }
 	
 	option = {
 		name = EVTOPT_telescope_stargaze_astro
@@ -1983,7 +1658,7 @@ narrative_event = {
 	desc = EVTDESC_textbooks_medical
 	picture = GFX_evt_library
 	
-	trigger = { trait = salvage_textbooks }
+	trigger = { has_artifact = ate_textbooks }
 	
 	option = {
 		name = EVTOPT_textbooks_medical_wound
@@ -2088,37 +1763,37 @@ character_event = {
 	
 	option = {
 		name = OK
-		add_trait = salvage_firearm
+		add_artifact = ate_firearm
 		ai_chance = { factor = 1 }
 	}
 	
 	option = {
 		name = OK
-		add_trait = salvage_calculator
+		add_artifact = ate_calculator
 		ai_chance = { factor = 1 }
 	}
 	
 	option = {
 		name = OK
-		add_trait = salvage_watch
+		add_artifact = ate_watch
 		ai_chance = { factor = 1 }
 	}
 	
 	option = {
 		name = OK
-		add_trait = salvage_typewriter
+		add_artifact = ate_typewriter
 		ai_chance = { factor = 1 }
 	}
 	
 	option = {
 		name = OK
-		add_trait = salvage_telescope
+		add_artifact = ate_telescope
 		ai_chance = { factor = 1 }
 	}
 	
 	option = {
 		name = OK
-		add_trait = salvage_textbooks
+		add_artifact = ate_textbooks
 		ai_chance = { factor = 1 }
 	}
 }

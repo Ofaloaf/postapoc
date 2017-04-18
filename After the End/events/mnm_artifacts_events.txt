@@ -1,4 +1,1662 @@
+#9100-9112: crown jewel events
+#9115-9127: weapon events
 #9899-9999: artifact looting
+
+###Crown jewels events###
+character_event = {
+    id = MNM.9100
+    desc = EVTDESC_MNM_9100
+    picture = GFX_evt_treasure_chamber
+    border = GFX_event_normal_frame_economy
+
+    hide_from = yes
+    is_triggered_only = yes
+    
+    has_dlc = "Mystics"
+
+    min_age = 16
+    only_playable = yes
+    only_capable = yes
+    
+    trigger = {
+    	NOT = { any_artifact = { has_artifact_flag = crown_jewel } }
+    	OR = {
+    		religion_group = christian 
+			religion_group = cult_of_saints
+			religion_group = latter_day_saints
+			religion_group = afro_syncretic
+			religion_group = oldworld
+			religion_group = pacific
+			religion_group = pagan_group
+			religion_group = american_native
+			religion_group = mesoamerican_gods
+		}
+    }
+
+    immediate = { #Selecting gender of the goldsmith
+    	hidden_effect = {
+			random_list = {
+				15 = { #Woman
+					modifier = { factor = 0 NOT = { any_realm_character = { is_female = yes } } }
+					modifier = { factor = 2 primary_title = { has_law = status_of_women_2 } }
+					modifier = { factor = 2 primary_title = { has_law = status_of_women_3 } }
+					modifier = { factor = 2 primary_title = { has_law = status_of_women_3 } }
+					modifier = { factor = 6 has_game_rule = { name = gender value = all } } 
+
+					random_realm_character = { limit = { is_female = yes } save_event_target_as = goldsmith_gender }
+				} 
+				85 = { #Man
+					modifier = { factor = 0 NOT = { any_realm_character = { is_female = no } } }
+					random_realm_character = { limit = { is_female = no } save_event_target_as = goldsmith_gender }
+				}
+			}
+		}
+    }
+
+    #Yes, invite them!
+    option = { 
+        name = EVTOPTA_MNM_9100
+        custom_tooltip = { text = EVTOPTA_MNM_9100_TT }
+
+        hidden_effect = {
+        	save_event_target_as = goldsmith_employer
+        	if = {
+        		limit = { event_target:goldsmith_gender = { is_female = yes } }
+
+	        	create_character = {
+	        		age = 45
+	        		random_traits = no
+	        		female = yes
+	        		dynasty = none
+	        		trait = fortune_builder
+	        		trait = diligent
+	        		trait = honest
+	        		trait = quick
+	        		trait = greedy
+	        	}
+	        	new_character = { 
+	        		save_event_target_as = goldsmith 
+	        	}
+	        	
+			}
+			if = {
+        		limit = { event_target:goldsmith_gender = { is_female = no } }
+
+	        	create_character = {
+	        		age = 45
+	        		random_traits = no
+	        		female = no
+	        		dynasty = none
+	        		trait = fortune_builder
+	        		trait = diligent
+	        		trait = honest
+	        		trait = quick
+	        		trait = greedy
+				}
+	        	new_character = {
+	        		save_event_target_as = goldsmith 
+				}
+			}
+        	event_target:goldsmith = {
+        		give_nickname = nick_the_goldsmith 
+        		character_event = { id = MNM.9101 days = 7 } 
+        		character_event = { id = MNM.9102 } #gives spouse 
+        	}
+        }
+    }
+
+    #Don't invite them
+    option = {
+        name = EVTOPTB_MNM_9100
+        custom_tooltip = { text = EVTOPTB_MNM_9100_TT }
+    }
+}
+
+#Ping event for goldsmith
+character_event = {
+    id = MNM.9101
+    hide_window = yes
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    immediate = { event_target:goldsmith_employer = { character_event = { id = MNM.9103 } } }
+}
+
+character_event = {
+    id = MNM.9102
+    hide_window = yes
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    immediate = { 
+    	if = {
+    		limit = { is_female = yes }
+    		create_random_steward = { 
+        		age = 47
+        		dynasty = none
+        		female = no
+        		random_traits = yes
+        	}
+	        new_character = { 
+	        	fertility = -10000
+	        	add_spouse = event_target:goldsmith 
+	        }
+    	}
+    	if = {
+    		limit = { is_female = no }
+    		create_random_steward = { 
+        		age = 43
+        		dynasty = none
+        		female = yes
+        		random_traits = yes
+        	}
+	        new_character = { 
+	        	fertility = -10000
+	        	add_spouse = event_target:goldsmith 
+	        }
+    	}
+    }
+}
+
+character_event = {
+    id = MNM.9103
+    desc = EVTDESC_MNM_9103
+    picture = GFX_evt_emissary
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+    
+    has_dlc = "Mystics"
+    
+    immediate = {
+    
+    }
+
+    #The best money can buy
+    option = {
+        name = EVTOPTA_MNM_9103
+        custom_tooltip = { text = EVTOPTA_MNM_9103_TT }
+
+        scaled_wealth = { value = -5 min = -300 }
+
+        hidden_effect = {
+        	event_target:goldsmith = { set_character_flag = expensive_jewels }
+        	set_character_flag = expensive_jewels
+        	character_event = { id = MNM.9111 days = 1 }
+        	
+			random_list = {
+				40 = { #Success
+					modifier = { factor = 1.1 capital_scope = { any_province_holding = { has_building = ct_marketplace_1 } } }
+					modifier = { factor = 1.2 capital_scope = { any_province_holding = { has_building = ct_marketplace_2 } } }
+					modifier = { factor = 1.5 capital_scope = { any_province_holding = { has_building = ct_marketplace_3 } } }
+					modifier = { factor = 2 capital_scope = { any_province_holding = { has_building = ct_marketplace_4 } } }
+					modifier = { factor = 3 capital_scope = { any_province_holding = { has_building = ct_marketplace_5 } } }
+					modifier = { factor = 4 capital_scope = { any_province_holding = { has_building = ct_marketplace_6 } } }
+					modifier = { factor = 1.3 any_demesne_province = { has_trade_post = yes } }
+					modifier = { factor = 1.1 realm_size = 25 }
+					modifier = { factor = 1.2 realm_size = 50 }
+					modifier = { factor = 1.3 realm_size = 100 }
+					modifier = { factor = 1.5 realm_size = 150 }
+					modifier = { factor = 2 realm_size = 200 }
+					modifier = { factor = 3 realm_size = 300 }
+
+					FROM = { character_event = { id = MNM.9104 days = 600 random = 300 } }
+				}
+				60 = { #Fail
+					FROM = { character_event = { id = MNM.9108 days = 200 random = 100 } } 
+				}
+	    	}
+
+        }
+    	ai_chance = {
+    		factor = 33
+    		modifier = {
+    			tier = EMPEROR
+    			factor = 10
+			}
+    		modifier = {
+    			OR = {
+    				tier = KING	
+    				tier = DUKE
+    			}
+    			factor = 3
+    		}
+    		modifier = {
+    			NOR = {
+    				wealth = 200
+    				yearly_income = 50
+    			}
+    			factor = 0
+    		}
+    	}
+    }
+
+    #Something nice
+    option = {
+        name = EVTOPTB_MNM_9103
+        custom_tooltip = { text = EVTOPTB_MNM_9103_TT }
+
+        scaled_wealth = { value = -2.5 min = -150 }
+
+        hidden_effect = {
+        	event_target:goldsmith = { set_character_flag = good_jewels }
+        	set_character_flag = good_jewels
+        	character_event = { id = MNM.9111 days = 1 }
+
+        	random_list = {
+				60 = { #Success
+					modifier = { factor = 1.2 capital_scope = { any_province_holding = { has_building = ct_marketplace_1 } } }
+					modifier = { factor = 1.5 capital_scope = { any_province_holding = { has_building = ct_marketplace_2 } } }
+					modifier = { factor = 2 capital_scope = { any_province_holding = { has_building = ct_marketplace_3 } } }
+					modifier = { factor = 3 capital_scope = { any_province_holding = { has_building = ct_marketplace_4 } } }
+					modifier = { factor = 5 capital_scope = { any_province_holding = { has_building = ct_marketplace_5 } } }
+					modifier = { factor = 6 capital_scope = { any_province_holding = { has_building = ct_marketplace_6 } } }
+					modifier = { factor = 1.4 any_demesne_province = { has_trade_post = yes } }
+					modifier = { factor = 1.1 realm_size = 10 }
+					modifier = { factor = 1.2 realm_size = 25 }
+					modifier = { factor = 1.3 realm_size = 50 }
+					modifier = { factor = 1.5 realm_size = 100 }
+					modifier = { factor = 2 realm_size = 150 }
+					modifier = { factor = 5 realm_size = 200 }
+					modifier = { factor = 10 realm_size = 300 }
+
+					FROM = { character_event = { id = MNM.9104 days = 600 random = 300 } } 
+				}
+				40 = { #Fail
+					FROM = { character_event = { id = MNM.9108 days = 200 random = 100 } } 
+				}
+			}
+
+        }
+		ai_chance = {
+    		factor = 33
+    		modifier = {
+    			OR = {
+    				tier = KING	
+    				tier = DUKE
+				}
+    			factor = 10
+    		}
+    		modifier = {
+    			lower_tier_than = DUKE
+    			factor = 3
+    		}
+    		modifier = {
+    			tier = EMPEROR
+    			factor = 3
+    		}
+    		modifier = {
+    			NOR = {
+    				wealth = 150
+    				yearly_income = 25
+    			}
+    			factor = 0
+    		}
+    	}
+    }
+   
+   	#I can't afford that much 
+    option = {
+        name = EVTOPTC_MNM_9103
+        custom_tooltip = { text = EVTOPTC_MNM_9103_TT }
+
+        scaled_wealth = { value = -1 min = -50 }
+
+        hidden_effect = {
+        	event_target:goldsmith = { set_character_flag = cheap_jewels }
+        	set_character_flag = cheap_jewels
+        	character_event = { id = MNM.9111 days = 1 }
+
+        	FROM = { character_event = { id = MNM.9104 days = 600 random = 300 } }  
+        }
+
+        ai_chance = {
+    		factor = 33
+    		modifier = {
+    			tier = COUNT
+    			factor = 10
+				}
+    		modifier = {
+    			OR = {
+    				tier = KING	
+    				tier = DUKE
+				}
+    			factor = 3
+			}
+    		modifier = {
+    			NOR = {
+    				wealth = 25
+    				yearly_income = 5
+    				religion_group = pagan_group
+				}
+    			factor = 0
+			}
+    	}
+    }
+
+    #Actually, no
+    option = {
+        name = EVTOPTD_MNM_9103
+        custom_tooltip = { text = EVTOPTD_MNM_9103_TT }
+
+        hidden_effect = { FROM = { character_event = { id = MNM.9110 days = 30 } } }
+
+       	ai_chance = { factor = 15 }
+    }
+}	
+
+#Ping event for success 
+character_event = {
+	id = MNM.9104
+    hide_window = yes
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    immediate = {
+    	if = {
+    		limit = { NOT = { event_target:goldsmith_employer = { is_alive = yes } } }
+    		liege = { save_event_target_as = goldsmith_employer }
+    	}
+    
+    	trigger_switch = {
+    		on_trigger = has_character_flag
+    		expensive_jewels	= { event_target:goldsmith_employer = { character_event = { id = MNM.9105 } } }
+    		good_jewels			= { event_target:goldsmith_employer = { character_event = { id = MNM.9106 } } }
+    		cheap_jewels		= { event_target:goldsmith_employer = { character_event = { id = MNM.9107 } } }
+		}
+    }
+}
+
+#Amazing crown jewels
+character_event = {
+    id = MNM.9105
+    picture = GFX_evt_treasure_chamber
+    border = GFX_event_normal_frame_economy
+
+     desc = {
+    	trigger = { religion_group = christian }
+    	text = EVTDESC_MNM_9105
+    	picture = GFX_evt_holy_emperor
+    }
+    desc = {
+    	trigger = { NOT = { religion_group = christian } }
+    	text = EVTDESC_MNM_9105
+    	picture = GFX_evt_treasure_chamber
+    }
+
+    is_triggered_only = yes
+    
+    has_dlc = "Mystics"
+
+    option = { 
+        name = EVTOPTA_MNM_9105
+
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = christian 
+					religion_group = cult_of_saints
+					religion_group = latter_day_saints
+				}
+        	}
+        	add_artifact = crown_of_majesty
+        	add_artifact = emerald_scepter
+        	add_artifact = sword_of_heroes
+        }
+
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = afro_syncretic
+        		}
+        	}
+        	add_artifact = dagger_of_glory
+        	add_artifact = ruby_bracelets
+        }
+
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = pacific
+					religion_group = oldworld
+				}
+			}
+        	add_artifact = circlet_of_the_heavens
+        	add_artifact = staff_of_majesty
+        }
+
+        if = {
+        	limit = {
+        		OR = {
+        			religion_group = pagan_group
+        		}
+        	}
+        	add_artifact = crown_of_crows
+        	add_artifact = sword_of_heroes
+        }
+
+        if = {
+        	limit = {
+        		OR = {
+        			religion_group = american_native
+					religion_group = mesoamerican_gods
+        		}
+        	}
+        	add_artifact = heros_crown
+        	add_artifact = axe_of_the_ancestors
+        }
+
+        hidden_effect = { 
+        	event_target:goldsmith = { character_event = { id = MNM.9110 days = 30 } } 
+        	clear_delayed_event = { id = MNM.9111 }
+        	clr_character_flag = expensive_jewels
+			clr_character_flag = good_jewels
+			clr_character_flag = cheap_jewels
+        }
+    }
+}
+
+
+#Good crown jewels
+character_event = {
+    id = MNM.9106
+    picture = GFX_evt_treasure_chamber
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+
+    desc = {
+    	trigger = { religion_group = christian }
+    	text = EVTDESC_MNM_9106
+    	picture = GFX_evt_holy_emperor
+    }
+    desc = {
+    	trigger = { NOT = { religion_group = christian } }
+    	text = EVTDESC_MNM_9106
+    	picture = GFX_evt_treasure_chamber
+    }
+    
+    has_dlc = "Mystics"
+
+    option = {
+        name = EVTOPTA_MNM_9106
+
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = christian 
+					religion_group = cult_of_saints
+					religion_group = latter_day_saints
+				}
+        	}
+        	add_artifact = crown_of_pearls
+        	add_artifact = ruby_scepter
+        	add_artifact = golden_sword
+        }
+    
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = afro_syncretic
+        		}
+        	}
+        	add_artifact = bejeweled_dagger
+        	add_artifact = golden_bracelets
+        }
+
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = pacific
+					religion_group = oldworld
+				}
+			}
+        	add_artifact = circlet_of_the_heavens
+        	add_artifact = golden_staff
+        }
+
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = pagan_group
+        		}
+        	}
+        	add_artifact = crown_of_the_sea
+        	add_artifact = golden_sword
+        }
+
+        if = {
+        	limit = {
+        		OR = {
+        			religion_group = american_native
+					religion_group = mesoamerican_gods
+        		}
+        	}
+        	add_artifact = amber_crown
+        	add_artifact = obsidian_axe
+        }
+
+        hidden_effect = { 
+        	event_target:goldsmith = { character_event = { id = MNM.9110 days = 30 } } 
+        	clear_delayed_event = { id = MNM.9111 }
+        	clr_character_flag = expensive_jewels
+			clr_character_flag = good_jewels
+			clr_character_flag = cheap_jewels
+        }
+    }
+}
+
+#Okay crown jewels
+character_event = {
+    id = MNM.9107
+    desc = EVTDESC_MNM_9107
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+
+    is_triggered_only = yes
+    
+    has_dlc = "Mystics"
+
+    option = {
+        name = EVTOPTA_MNM_9107
+
+        if = {
+        	limit = {
+        		OR = {
+        			religion_group = christian 
+					religion_group = cult_of_saints
+					religion_group = latter_day_saints
+				}
+        	}
+        	add_artifact = the_lily_crown
+        	add_artifact = noble_scepter
+        	add_artifact = engraved_sword
+        }
+    
+        if = {
+        	limit = {
+        		OR = {
+        			religion_group = afro_syncretic
+        		}
+        	}
+        	add_artifact = engraved_dagger
+        	add_artifact = silver_bracelets
+        }
+
+        if = {
+        	limit = { 
+        		OR = {
+        			religion_group = pacific
+					religion_group = oldworld
+				}
+			}
+        	add_artifact = circlet_of_twilight
+        	add_artifact = silver_staff
+        }
+
+        if = {
+        	limit = {
+        		OR = {
+        			religion_group = pagan_group
+        		}
+        	}
+        	add_artifact = iron_crown
+        	add_artifact = engraved_sword
+        }
+
+        if = {
+        	limit = {
+        		OR = {
+        			religion_group = american_native
+					religion_group = mesoamerican_gods
+        		}
+        	}
+        	add_artifact = engraved_crown
+        	add_artifact = ceremonial_axe
+        }
+
+        hidden_effect = { 
+        	event_target:goldsmith = { character_event = { id = MNM.9110 days = 30 } } 
+        	clear_delayed_event = { id = MNM.9111 }
+        	clr_character_flag = expensive_jewels
+			clr_character_flag = good_jewels
+			clr_character_flag = cheap_jewels
+        }
+    }
+}
+
+#Ping event for problems 
+character_event = {
+	id = MNM.9108
+    hide_window = yes
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    immediate = {
+    	if = {
+    		limit = { NOT = { event_target:goldsmith_employer = { is_alive = yes } } }
+    		liege = { save_event_target_as = goldsmith_employer }
+    	}
+
+    	event_target:goldsmith_employer = { character_event = { id = MNM.9109 } }
+    }
+}
+
+#Problems
+character_event = {
+    id = MNM.9109
+    desc = EVTDESC_MNM_9109
+    picture = GFX_evt_merchant_caravan
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    
+    #I want my expensive stuff
+    option = {
+    	trigger = { FROM  = { has_character_flag = expensive_jewels } }
+        name = EVTOPTA_MNM_9109
+        custom_tooltip = { text = EVTOPTA_MNM_9109_TT }
+
+        scaled_wealth = { value = -3 min = -150 }
+    }
+
+    #Settle for less expensive stuff
+    option = {
+    	trigger = { FROM  = { has_character_flag = expensive_jewels } }
+        name = EVTOPTB_MNM_9109
+        custom_tooltip = { text = EVTOPTB_MNM_9109_TT }
+
+        hidden_effect = {
+        	FROM = {
+	        	clr_character_flag = expensive_jewels
+	        	set_character_flag = good_jewels
+        	}
+    	}
+    }
+
+    #I want my good stuff
+    option = {
+    	trigger = { FROM  = { has_character_flag = good_jewels } }
+        name = EVTOPTC_MNM_9109
+        custom_tooltip = { text = EVTOPTC_MNM_9109_TT }
+
+        scaled_wealth = { value = -1.5 min = -100 }
+    }
+
+    #Settle for less good stuff
+    option = {
+    	trigger = { FROM  = { has_character_flag = good_jewels } }
+        name = EVTOPTD_MNM_9109
+        custom_tooltip = { text = EVTOPTD_MNM_9109_TT }
+
+        hidden_effect = {
+        	FROM = {
+	        	clr_character_flag = good_jewels
+	        	set_character_flag = cheap_jewels
+			}
+        }
+    }
+
+    after = { hidden_effect = { FROM = { character_event = { id = MNM.9104 days = 600 random = 300 } } } }
+}
+
+character_event = {
+	id = MNM.9110
+	hide_window = yes
+
+	is_triggered_only = yes
+    has_dlc = "Mystics"
+	
+	trigger = {
+		is_landed = no
+	}
+	
+	immediate = {
+		any_spouse = {
+			limit = {
+				dynasty = none
+			}
+			leave_court_and_die_effect = yes
+		}
+		leave_court_and_die_effect = yes
+	}
+}
+
+#Ping event for checking if Goldsmith died
+character_event = {
+	id = MNM.9111
+    hide_window = yes
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    immediate = {
+    	if = {
+    		limit = { 
+    			event_target:goldsmith = { is_alive = yes } 
+    			OR = {
+					has_character_flag = expensive_jewels
+					has_character_flag = good_jewels
+					has_character_flag = cheap_jewels
+    			}
+    		}
+    		character_event = { id = MNM.9111 days = 1 }
+    	}
+    	if = {
+    		limit = { 
+    			event_target:goldsmith = { is_alive = no } 
+    			OR = {
+					has_character_flag = expensive_jewels
+					has_character_flag = good_jewels
+					has_character_flag = cheap_jewels
+    			}
+    		}
+    		character_event = { id = MNM.9112 }
+    	}
+    }
+}
+
+#Goldsmith died
+character_event = {
+    id = MNM.9112
+    desc = EVTDESC_MNM_9112
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    hide_from = yes
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    
+    #Returned leftover money
+    option = {
+    	trigger = { has_character_flag = expensive_jewels }
+        name = EVTOPTA_MNM_9112
+
+        scaled_wealth = { value = 3 min = 180 }
+    }
+
+    #Returned leftover money
+    option = {
+    	trigger = { has_character_flag = good_jewels }
+        name = EVTOPTB_MNM_9112
+
+        scaled_wealth = { value = 1.5 min = 90 }
+    }
+
+    #Returned leftover money
+    option = {
+    	trigger = { has_character_flag = cheap_jewels }
+        name = EVTOPTC_MNM_9112
+
+        scaled_wealth = { value = 0.5 min = 25 }
+    }
+    after = {
+    	clr_character_flag = expensive_jewels
+		clr_character_flag = good_jewels
+		clr_character_flag = cheap_jewels
+    }
+}
+
+###WEAPON EVENTS###
+character_event = {
+    id = MNM.9115
+    desc = EVTDESC_MNM_9115
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    hide_from = yes
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    min_age = 16
+    only_rulers = yes
+    only_capable = yes
+    
+    trigger = {
+    	NOT = { any_artifact = { has_artifact_flag = combat_weapon } }
+    	job_marshal = { always = yes }
+    }
+
+    immediate = { #Selecting gender of the weapon smith
+    	hidden_effect = {
+	    	random_list = {
+	    		15 = { #Woman
+	    			modifier = { factor = 0 NOT = { any_realm_character = { is_female = yes } } }
+	    			modifier = { factor = 2 primary_title = { has_law = status_of_women_2 } }
+	    			modifier = { factor = 2 primary_title = { has_law = status_of_women_3 } }
+	    			modifier = { factor = 2 primary_title = { has_law = status_of_women_3 } }
+	    			modifier = { factor = 6 has_game_rule = { name = gender value = all } } 
+
+	    			random_realm_character = { limit = { is_female = yes } save_event_target_as = weaponsmith_gender }
+	    		} 
+	    		85 = { #Man
+	    			modifier = { factor = 0 NOT = { any_realm_character = { is_female = no } } }
+	    			random_realm_character = { limit = { is_female = no } save_event_target_as = weaponsmith_gender }
+	    		}
+	    	}
+    	}
+
+    	#Province for loc
+    	random_province = { 
+    		limit = { owner = { is_within_diplo_range = ROOT } }
+    		save_event_target_as = neighbor_province
+    	}
+    	random_demesne_province = {
+    		limit = { any_neighbor_province = { NOT = { owner = { character = ROOT } } } }
+    		random_neighbor_province = {
+    			limit = { NOT = { owner = { character = ROOT } } }
+    			save_event_target_as = neighbor_province
+    		}
+    	}
+    }
+
+    #Yes, invite them!
+    option = { 
+        name = EVTOPTA_MNM_9115
+        custom_tooltip = { text = EVTOPTA_MNM_9115_TT }
+
+        hidden_effect = {
+        	save_event_target_as = weaponsmith_employer
+        	if = {
+        		limit = { event_target:weaponsmith_gender = { is_female = yes } }
+
+	        	create_character = {
+	        		age = 45
+	        		random_traits = no
+	        		female = yes
+	        		dynasty = none
+	        		trait = fortune_builder
+	        		trait = diligent
+                    trait = strong
+	        		trait = honest
+	        		trait = brave
+	        	}
+	        	new_character = { 
+	        		save_event_target_as = weaponsmith 
+	        	}
+	        	
+        	}
+        	if = {
+        		limit = { event_target:weaponsmith_gender = { is_female = no } }
+
+	        	create_character = {
+	        		age = 45
+	        		random_traits = no
+	        		female = no
+	        		dynasty = none
+	        		trait = fortune_builder
+                    trait = diligent
+                    trait = strong
+                    trait = honest
+                    trait = brave
+	        	}
+	        	new_character = { 
+	        		save_event_target_as = weaponsmith 
+	        	}
+        	}
+        	event_target:weaponsmith = { 
+        		give_nickname = nick_the_weaponsmith 
+        		character_event = { id = MNM.9116 days = 7 } 
+        		character_event = { id = MNM.9117 } #gives spouse 
+        	}
+        }
+    }
+
+    #Don't invite them
+    option = {
+        name = EVTOPTB_MNM_9115
+        custom_tooltip = { text = EVTOPTB_MNM_9115_TT }
+    }
+}
+
+#Ping event for weaponsmith
+character_event = {
+    id = MNM.9116
+    hide_window = yes
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    immediate = { event_target:weaponsmith_employer = { character_event = { id = MNM.9118 } } }
+}
+
+#Spouse for weaponsmith
+character_event = {
+    id = MNM.9117
+    hide_window = yes
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    immediate = { 
+    	if = {
+    		limit = { is_female = yes }
+    		create_random_steward = { 
+        		age = 47
+        		dynasty = none
+        		female = no
+        		random_traits = yes
+        	}
+	        new_character = { 
+	        	fertility = -10000
+	        	add_spouse = event_target:weaponsmith 
+	        }
+    	}
+    	if = {
+    		limit = { is_female = no }
+    		create_random_steward = { 
+        		age = 43
+        		dynasty = none
+        		female = yes
+        		random_traits = yes
+        	}
+	        new_character = { 
+	        	fertility = -10000
+	        	add_spouse = event_target:weaponsmith 
+	        }
+    	}
+    }
+}
+
+#What kind of weapon would you like?
+character_event = {
+    id = MNM.9118
+    desc = EVTDESC_MNM_9118
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    #Sword
+    option = { 
+        trigger = { NOT = { religion_group = muslim } }
+        name = EVTOPTA_MNM_9118
+        custom_tooltip = { text = EVTOPTA_MNM_9118_TT }
+        hidden_tooltip = { FROM = { set_character_flag = weapon_sword } }
+        ai_chance = { factor = 2 }
+    }
+
+    #Scimitar
+    option = {
+        trigger = { religion_group = muslim }
+        name = EVTOPTB_MNM_9118
+        custom_tooltip = { text = EVTOPTB_MNM_9118_TT }
+        hidden_tooltip = { FROM = { set_character_flag = weapon_scimitar } }
+        ai_chance = { factor = 2 }
+    }
+    
+    #Lance
+    option = {
+        name = EVTOPTC_MNM_9118
+        custom_tooltip = { text = EVTOPTC_MNM_9118_TT }
+        hidden_tooltip = { FROM = { set_character_flag = weapon_lance } }
+        ai_chance = { 
+        	factor = 1 
+        	modifier = { is_nomadic = yes factor = 2 }
+        }
+    }
+    
+    #Axe
+    option = {
+        name = EVTOPTD_MNM_9118
+        custom_tooltip = { text = EVTOPTD_MNM_9118_TT }
+        hidden_tooltip = { FROM = { set_character_flag = weapon_axe } }
+        ai_chance = { 
+        	factor = 1
+        	modifier = { is_tribal = yes factor = 3 }
+        }
+    }
+
+    #Mace
+    option = {
+        trigger = { is_nomadic = no }
+        name = EVTOPTE_MNM_9118
+        custom_tooltip = { text = EVTOPTE_MNM_9118_TT }
+        hidden_tooltip = { FROM = { set_character_flag = weapon_mace } }
+        ai_chance = { 
+        	factor = 1
+        	modifier = { religion = norse_pagan factor = 5 }
+        	modifier = { religion = norse_pagan_reformed factor = 5 }
+        }
+    }
+
+    #Bow
+    option = {
+        trigger = { is_nomadic = yes }
+        name = EVTOPTF_MNM_9118
+        custom_tooltip = { text = EVTOPTF_MNM_9118_TT }
+        hidden_tooltip = { FROM = { set_character_flag = weapon_bow } }
+        ai_chance = { factor = 5 }
+    }
+
+    after = {
+        hidden_effect = { FROM = { character_event = { id = MNM.9119 days = 7 } } }
+    }
+}
+
+
+#Ping event for weaponsmith
+character_event = {
+    id = MNM.9119
+    hide_window = yes
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    immediate = { event_target:weaponsmith_employer = { character_event = { id = MNM.9120 } } }
+}
+
+
+#And how much are you willing to pay?
+character_event = {
+    id = MNM.9120
+    desc = EVTDESC_MNM_9120
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    #THe best money can buy
+    option = { 
+        name = EVTOPTA_MNM_9120
+
+       	if = {
+            limit = { FROM = { has_character_flag = weapon_sword } }
+            custom_tooltip = { text = EVTOPTA_MNM_9120_TT_SWORDSCIMITAR }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_scimitar } }
+            custom_tooltip = { text = EVTOPTA_MNM_9120_TT_SWORDSCIMITAR }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_lance } }
+           	custom_tooltip = { text = EVTOPTA_MNM_9120_TT_LANCE }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_axe } }
+            custom_tooltip = { text = EVTOPTA_MNM_9120_TT_AXE }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_mace } }
+            custom_tooltip = { text = EVTOPTA_MNM_9120_TT_MACE }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            custom_tooltip = { text = EVTOPTA_MNM_9120_TT_BOW }
+        }
+
+        scaled_wealth = { value = -6 min = -400 }
+
+        hidden_effect = {
+        	event_target:weaponsmith = { set_character_flag = expensive_weapons }
+        	set_character_flag = expensive_weapons
+        	character_event = { id = MNM.9125 days = 1 }
+        	
+			FROM = { character_event = { id = MNM.9121 days = 400 random = 200 } } 
+        }
+    	ai_chance = {
+    		factor = 33
+    		modifier = {
+    			tier = EMPEROR
+    			factor = 10
+    		}
+    		modifier = {
+    			OR = {
+    				tier = KING	
+    				tier = DUKE
+    			}
+    			factor = 3
+    		}
+    		modifier = {
+    			NOR = {
+    				wealth = 400
+    				yearly_income = 40
+    			}
+    			factor = 0
+    		}
+    	}
+    }
+
+    #Something nice
+    option = {
+        name = EVTOPTB_MNM_9120
+        if = {
+            limit = { FROM = { has_character_flag = weapon_sword } }
+            custom_tooltip = { text = EVTOPTB_MNM_9120_TT_SWORDSCIMITAR }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_scimitar } }
+            custom_tooltip = { text = EVTOPTB_MNM_9120_TT_SWORDSCIMITAR }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_lance } }
+           	custom_tooltip = { text = EVTOPTB_MNM_9120_TT_LANCE }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_axe } }
+            custom_tooltip = { text = EVTOPTB_MNM_9120_TT_AXE }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_mace } }
+            custom_tooltip = { text = EVTOPTB_MNM_9120_TT_MACE }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            custom_tooltip = { text = EVTOPTB_MNM_9120_TT_BOW }
+        }
+
+        scaled_wealth = { value = -3 min = -180 }
+
+        hidden_effect = {
+        	event_target:weaponsmith = { set_character_flag = good_weapons }
+        	set_character_flag = good_weapons
+        	character_event = { id = MNM.9125 days = 1 }
+
+			FROM = { character_event = { id = MNM.9121 days = 400 random = 200 } }
+        }
+		ai_chance = {
+    		factor = 33
+    		modifier = {
+    			OR = {
+    				tier = KING	
+    				tier = DUKE
+    			}
+    			factor = 10
+    		}
+    		modifier = {
+    			lower_tier_than = DUKE
+    			factor = 3
+    		}
+    		modifier = {
+    			tier = EMPEROR
+    			factor = 3
+    		}
+    		modifier = {
+    			NOR = {
+    				wealth = 180
+    				yearly_income = 18
+    			}
+    			factor = 0
+    		}
+    	}
+    }
+   
+   	#I can't afford that much 
+    option = {
+        name = EVTOPTC_MNM_9120
+        if = {
+            limit = { FROM = { NOT = { has_character_flag = weapon_bow } } }
+            custom_tooltip = { text = EVTOPTC_MNM_9120_TT_SWORDSCIMITAR }
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            custom_tooltip = { text = EVTOPTC_MNM_9120_TT_BOW }
+        }
+
+        scaled_wealth = { value = -1.5 min = -75 }
+
+        hidden_effect = {
+        	event_target:weaponsmith = { set_character_flag = cheap_weapons }
+        	set_character_flag = cheap_weapons
+        	character_event = { id = MNM.9125 days = 1 }
+
+        	FROM = { character_event = { id = MNM.9121 days = 400 random = 200 } } 
+        }
+
+        ai_chance = {
+    		factor = 33
+    		modifier = {
+    			tier = COUNT
+    			factor = 10
+    		}
+    		modifier = {
+    			OR = {
+    				tier = KING	
+    				tier = DUKE
+    			}
+    			factor = 3
+    		}
+    		modifier = {
+    			NOR = {
+    				wealth = 75
+    				yearly_income = 7.5
+    				religion_group = pagan_group
+    			}
+    			factor = 0
+    		}
+    	}
+    }
+
+    #Actually, no
+    option = {
+        name = EVTOPTD_MNM_9120
+        custom_tooltip = { text = EVTOPTD_MNM_9120_TT }
+
+       	ai_chance = { 
+            factor = 15 
+            modifier = {
+                NOR = {
+                    has_education_martial_trigger = yes
+                    has_lifestyle_martial_trigger = yes
+                }
+                factor = 20
+            }
+        }
+
+        hidden_effect = { FROM = { character_event = { id = MNM.9110 days = 30 } } }
+    }
+}	
+
+#Ping event for success 
+character_event = {
+	id = MNM.9121
+    hide_window = yes
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    immediate = {
+    	if = {
+    		limit = { NOT = { event_target:weaponsmith_employer = { is_alive = yes } } }
+    		liege = { save_event_target_as = weaponsmith_employer }
+    	}
+
+    	trigger_switch = {
+    		on_trigger = has_character_flag
+    		expensive_weapons		= { event_target:weaponsmith_employer = { character_event = { id = MNM.9122 } } }
+    		good_weapons			= { event_target:weaponsmith_employer = { character_event = { id = MNM.9123 } } }
+    		cheap_weapons			= { event_target:weaponsmith_employer = { character_event = { id = MNM.9124 } } }
+    	}
+
+        character_event = { id = MNM.9110 days = 30 }
+    }
+}
+
+#Expensive weapon done
+character_event = {
+    id = MNM.9122
+    desc = EVTDESC_MNM_9122
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    option = { 
+        name = {
+            text = EVTOPTA_MNM_9122_SWORD
+            trigger = { FROM = { has_character_flag = weapon_sword } }
+        } 
+        name = {
+            text = EVTOPTA_MNM_9122_SCIMITAR
+            trigger = { FROM = { has_character_flag = weapon_scimitar } }
+        } 
+        name = {
+            text = EVTOPTA_MNM_9122_LANCE
+            trigger = { FROM = { has_character_flag = weapon_lance } }
+        } 
+        name = {
+            text = EVTOPTA_MNM_9122_AXE
+            trigger = { FROM = { has_character_flag = weapon_axe } }
+        } 
+        name = {
+            text = EVTOPTA_MNM_9122_MACE
+            trigger = { FROM = { has_character_flag = weapon_mace } }
+        } 
+        name = {
+            text = EVTOPTA_MNM_9122_BOW
+            trigger = { FROM = { has_character_flag = weapon_bow } }
+        } 
+
+        if = {
+            limit = { FROM = { has_character_flag = weapon_sword } }
+            add_artifact = sword_tier_3_heartseeker
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_scimitar } }
+            add_artifact = scimitar_tier_3_golden
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_lance } }
+            add_artifact = lance_tier_3_impaler
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_axe } }
+            add_artifact = axe_tier_3_cleaver
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_mace } }
+            add_artifact = mace_tier_3_foe_hammer
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            add_artifact = bow_tier_3_silent_wind
+        }
+    }
+
+    option = {
+        name = {
+            text = EVTOPTB_MNM_9122_SWORD
+            trigger = { FROM = { has_character_flag = weapon_sword } }
+        } 
+        name = {
+            text = EVTOPTB_MNM_9122_SCIMITAR
+            trigger = { FROM = { has_character_flag = weapon_scimitar } }
+        } 
+        name = {
+            text = EVTOPTB_MNM_9122_LANCE
+            trigger = { FROM = { has_character_flag = weapon_lance } }
+        } 
+        name = {
+            text = EVTOPTB_MNM_9122_AXE
+            trigger = { FROM = { has_character_flag = weapon_axe } }
+        } 
+        name = {
+            text = EVTOPTB_MNM_9122_MACE
+            trigger = { FROM = { has_character_flag = weapon_mace } }
+        } 
+        name = {
+            text = EVTOPTB_MNM_9122_BOW
+            trigger = { FROM = { has_character_flag = weapon_bow } }
+        }
+
+        if = {
+            limit = { FROM = { has_character_flag = weapon_sword } }
+            add_artifact = sword_tier_3_vengeance
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_scimitar } }
+            add_artifact = scimitar_tier_3_fortune
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_lance } }
+            add_artifact = lance_tier_3_trident
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_axe } }
+            add_artifact = axe_tier_3_ravager
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_mace } }
+            add_artifact = mace_tier_3_bone_breaker
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            add_artifact = bow_tier_3_lightning
+        }
+    }
+    
+    option = {
+        name = {
+            text = EVTOPTC_MNM_9122_SWORD
+            trigger = { FROM = { has_character_flag = weapon_sword } }
+        } 
+        name = {
+            text = EVTOPTC_MNM_9122_SCIMITAR
+            trigger = { FROM = { has_character_flag = weapon_scimitar } }
+        } 
+        name = {
+            text = EVTOPTC_MNM_9122_LANCE
+            trigger = { FROM = { has_character_flag = weapon_lance } }
+        } 
+        name = {
+            text = EVTOPTC_MNM_9122_AXE
+            trigger = { FROM = { has_character_flag = weapon_axe } }
+        } 
+        name = {
+            text = EVTOPTC_MNM_9122_MACE
+            trigger = { FROM = { has_character_flag = weapon_mace } }
+        } 
+        name = {
+            text = EVTOPTC_MNM_9122_BOW
+            trigger = { FROM = { has_character_flag = weapon_bow } }
+        }
+
+        if = {
+            limit = { FROM = { has_character_flag = weapon_sword } }
+            add_artifact = sword_tier_3_fury
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_scimitar } }
+            add_artifact = scimitar_tier_3_conquest
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_lance } }
+            add_artifact = lance_tier_3_piercer
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_axe } }
+            add_artifact = axe_tier_3_marauder
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_mace } }
+            add_artifact = mace_tier_3_shatterer
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            add_artifact = bow_tier_3_eagle
+        }
+    }
+    after = {
+    	hidden_effect = { FROM = { character_event = { id = MNM.9127 days = 30 } } }
+    	clear_delayed_event = { id = MNM.9125 }
+    	clr_character_flag = expensive_weapons
+		clr_character_flag = good_weapons
+		clr_character_flag = cheap_weapons
+    }
+}
+
+#Good weapon done
+character_event = {
+    id = MNM.9123
+    desc = EVTDESC_MNM_9123
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    option = { 
+        name = EVTOPTA_MNM_9123
+
+        if = {
+            limit = { FROM = { has_character_flag = weapon_sword } }
+            add_artifact = sword_tier_2
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_scimitar } }
+            add_artifact = scimitar_tier_2
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_lance } }
+            add_artifact = lance_tier_2
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_axe } }
+            add_artifact = axe_tier_2
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_mace } }
+            add_artifact = mace_tier_2
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            add_artifact = bow_tier_2
+        }
+    }
+    after = {
+    	hidden_effect = { FROM = { character_event = { id = MNM.9127 days = 30 } } }
+    	clear_delayed_event = { id = MNM.9125 }
+    	clr_character_flag = expensive_weapons
+		clr_character_flag = good_weapons
+		clr_character_flag = cheap_weapons
+    }
+}
+
+
+#Cheap weapon done
+character_event = {
+    id = MNM.9124
+    desc = EVTDESC_MNM_9124
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    option = { 
+        name = EVTOPTA_MNM_9124
+
+        if = {
+            limit = { FROM = { has_character_flag = weapon_sword } }
+            add_artifact = sword_tier_1
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_scimitar } }
+            add_artifact = scimitar_tier_1
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_lance } }
+            add_artifact = lance_tier_1
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_axe } }
+            add_artifact = axe_tier_1
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_mace } }
+            add_artifact = mace_tier_1
+        }
+        if = {
+            limit = { FROM = { has_character_flag = weapon_bow } }
+            add_artifact = bow_tier_1
+        }
+    }
+    after = {
+    	hidden_effect = { FROM = { character_event = { id = MNM.9127 days = 30 } } }
+    	clear_delayed_event = { id = MNM.9125 }
+    	clr_character_flag = expensive_weapons
+		clr_character_flag = good_weapons
+		clr_character_flag = cheap_weapons
+    }
+}
+
+#Ping event for checking if Weaponsmith died
+character_event = {
+	id = MNM.9125
+    hide_window = yes
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+
+    immediate = {
+    	if = {
+    		limit = { 
+    			event_target:weaponsmith  = { is_alive = yes } 
+    			OR = {
+					has_character_flag = expensive_weapons
+					has_character_flag = good_weapons
+					has_character_flag = cheap_weapons
+    			}
+    		}
+    		character_event = { id = MNM.9125 days = 1 }
+    	}
+    	if = {
+    		limit = { 
+    			event_target:weaponsmith = { is_alive = no } 
+    			OR = {
+					has_character_flag = expensive_weapons
+					has_character_flag = good_weapons
+					has_character_flag = cheap_weapons
+    			}
+    		}
+    		character_event = { id = MNM.9126 }
+    	}
+    }
+}
+
+#Weaponsmith died
+character_event = {
+    id = MNM.9126
+    desc = EVTDESC_MNM_9112
+    picture = GFX_evt_weaponsmith
+    border = GFX_event_normal_frame_economy
+
+    hide_from = yes
+
+    is_triggered_only = yes
+
+    has_dlc = "Mystics"
+    
+    #Returned leftover money
+    option = {
+    	trigger = { has_character_flag = expensive_weapons }
+        name = EVTOPTA_MNM_9112
+
+        scaled_wealth = { value = 3.5 min = 230 }
+    }
+
+    #Returned leftover money
+    option = {
+    	trigger = { has_character_flag = good_weapons }
+        name = EVTOPTB_MNM_9112
+
+        scaled_wealth = { value = 1.8 min = 100 }
+    }
+
+    #Returned leftover money
+    option = {
+    	trigger = { has_character_flag = cheap_weapons }
+        name = EVTOPTC_MNM_9112
+
+        scaled_wealth = { value = 0.8 min = 40 }
+    }
+    after = {
+    	clr_character_flag = expensive_weapons
+		clr_character_flag = good_weapons
+		clr_character_flag = cheap_weapons
+    }
+}
+
+character_event = {
+	id = MNM.9127
+	hide_window = yes
+
+	is_triggered_only = yes
+    has_dlc = "Mystics"
+	
+	trigger = {
+		is_landed = no
+	}
+	
+	immediate = {
+		any_spouse = {
+			limit = {
+				dynasty = none
+			}
+			leave_court_and_die_effect = yes
+		}
+		leave_court_and_die_effect = yes
+	}
+}
+
+### ARTIFACT LOOTING ###
 
 character_event = {
 	id = MNM.9899
@@ -33,7 +1691,10 @@ character_event = {
 			holder_scope = {
 				if = {
 					limit = {
-						is_liege_or_above = ROOT
+						OR = {
+							character = ROOT
+							is_liege_or_above = ROOT
+						}
 					}
 					break = yes
 				}

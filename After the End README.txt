@@ -1,7 +1,7 @@
 AFTER THE END
 A post-apocalyptic North America mod for Crusader Kings II
 Version 0.9
-Compatible with CK2 2.7.0.2, and the Monks & Mystics DLC
+Compatible with CK2 2.7.1 beta, and the Monks & Mystics DLC
 
 
 	INSTALLATION

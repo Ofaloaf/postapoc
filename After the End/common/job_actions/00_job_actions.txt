@@ -1,0 +1,625 @@
+##########################################
+# COUNCILLOR ACTIONS
+##########################################
+# attribute = [diplomacy/stewardship/intrigue/martial/learning] - Character attribute is multiplied with the modifiers
+# trigger = Province scope trigger to determine if the action is meaningful in a province (the player character is FROM, the councillor is in 'new_character')
+# Events that can trigger off this action. This info is only used by the GUI.
+# All modifiers (like 'local_build_time_modifier') are multiplied by the attribute
+
+# Chancellor
+action_improve_relations = {
+	attribute = diplomacy
+	
+	potential = {
+	}
+	
+	trigger = {
+		any_province_lord = {
+			NOT = { character = FROM }
+			is_theocracy = no
+			FROM = {
+				job_chancellor = {
+					NOT = { character = PREVPREV } # Can't be sent to improve relations with himself...
+				}
+			}
+		}
+		is_within_diplo_range = FROM
+	}
+	
+	
+	events = { 910 911 }
+}
+
+action_clan_sentiment = {
+	attribute = diplomacy
+	
+	potential = {
+		FROM = {
+			is_nomadic = yes
+		}
+	}
+	
+	trigger = {
+		owner = {
+			is_nomadic = yes
+			NOT = { character = FROM }
+
+			FROM = {
+				job_chancellor = {
+					NOT = { character = PREVPREV } # Can't be sent to improve relations with himself...
+				}
+			}
+			
+			OR = {
+				vassal_of = FROM
+				same_liege = FROM
+				overlord_of = FROM
+			}
+		}
+	}
+	
+	events = { 20235 }
+}
+
+action_fabricate_claims = {
+	attribute = diplomacy
+	
+	potential = {
+		FROM = { is_nomadic = no }
+	}
+	
+	trigger = {
+		any_province_lord = {
+			NOT = { character = FROM }
+			FROM = {
+				job_chancellor = {
+					NOT = { character = PREVPREV } # Can't be sent to improve relations with himself...
+				}
+			}
+		}
+		is_within_diplo_range = FROM
+	}
+	
+	events = { 913 914 }
+}
+
+action_sow_dissent = {
+	attribute = diplomacy
+	
+	potential = {
+	}
+	
+	trigger = {
+		any_province_lord = {
+			NOT = { character = FROM }
+			NOT = { is_liege_or_above = FROM }
+		}
+		is_within_diplo_range = FROM
+	}
+	
+	events = { 916 917 }
+}
+
+action_statecraft = {
+	attribute = diplomacy
+
+	potential = {
+		has_dlc = Mystics
+	}
+
+	liege_modifier = statecraft_liege_mod
+
+	offmap = yes
+	
+	events = { MNM.78000 MNM.78003 } 
+}
+
+# Steward
+action_squeeze_peasants = {
+	attribute = stewardship
+
+	potential = {
+		FROM = {
+			is_tribal = no
+			is_nomadic = no
+		}
+	}
+
+	trigger = {
+		any_province_lord = {
+			character = FROM
+		}
+	}
+	
+	local_tax_modifier = 0.025
+	
+	events = { 920 921 }
+}
+
+action_collect_tribute = {
+	attribute = stewardship
+
+	potential = {
+		FROM = {
+			is_nomadic = yes
+		}
+	}
+
+	trigger = {
+		num_of_settlements = 1
+		any_province_lord = {
+			NOT = { character = FROM }
+			
+			FROM = {
+				job_treasurer = {
+					NOT = { character = PREVPREV } # Can't be sent to himself...
+				}
+			}
+			
+			OR = {
+				vassal_of = FROM
+				pays_tribute_to = FROM
+			}
+			capital_scope = {
+				province = ROOT
+			}
+		}
+	}
+	
+	events = { 20225 }
+}
+
+action_settle_tribe = {
+	attribute = stewardship
+
+	potential = {
+		FROM = {
+			is_tribal = yes
+		}
+	}
+
+	trigger = {
+		any_province_lord = {
+			character = FROM
+		}
+		NOT = { culture = FROM }
+	}
+	
+	events = { 925 20206 }
+}
+
+action_oversee_construction = {
+	attribute = stewardship
+	
+	potential = {
+	}
+
+	trigger = {
+		any_province_lord = {
+			character = FROM
+		}
+	}
+	
+	local_build_time_modifier = -0.025
+	
+	events = { 923 924 }
+}
+
+action_advance_eco_tech = {
+	attribute = stewardship
+
+	potential = {
+		FROM = {
+			is_tribal = no
+		}
+	}
+
+	trigger = {
+		any_province_lord = {
+			character = FROM
+		}
+		technology_can_spread = yes
+	}
+	
+	tech_growth_modifier_economy = 0.05
+	
+	events = { }
+}
+
+action_build_legend = {
+	attribute = stewardship
+
+	potential = {
+		FROM = {
+			is_tribal = yes
+		}
+	}
+
+	trigger = {
+		FROM = {
+			is_capital = PREV
+		}
+	}
+	
+	monthly_character_prestige = 0.1
+	
+	events = { 20208 }
+}
+
+action_administer_realm = {
+	attribute = stewardship
+
+	potential = {
+		has_dlc = Mystics
+	}
+
+	offmap = yes
+	
+	events = { MNM.70005 MNM.78007 }
+}
+
+# Spymaster
+action_uncover_plots = {
+	attribute = intrigue
+	
+	potential = {
+		NOT = { has_dlc = Mystics }
+	}
+	
+	trigger = {
+		any_province_lord = {
+			OR = {
+				is_liege_or_above = FROM
+				same_liege = FROM
+			}
+		}
+	}
+
+	plot_discovery_chance = 0.01
+	
+	events = { 929 931 9000 9020 }
+}
+
+action_uncover_plots_offmap = {
+	attribute = intrigue
+	
+	potential = {
+		has_dlc = Mystics
+	}
+	
+	offmap = yes
+
+	plot_discovery_chance = 0.01
+	
+	events = { MNM.70022 MNM.70024 MNM.70023 }
+}
+
+action_study_technology = {
+	attribute = intrigue
+	
+	potential = {
+	}
+	
+	trigger = {
+		has_higher_tech_than = FROM
+		any_province_lord = {
+			NOT = { is_liege_or_above = FROM }
+			NOT = { character = FROM }
+		}
+		is_within_diplo_range = FROM
+	}
+	
+	events = { 932 933 }
+}
+
+action_organize_spies = {
+	attribute = intrigue
+	
+	potential = {
+		NOT = {
+			has_dlc = "Mystics"
+		}
+	}
+	
+	trigger = {
+		any_province_lord = {
+			NOT = { character = FROM }
+		}
+		is_within_diplo_range = FROM
+	}
+	
+	plot_power_modifier = 0.005
+	
+	events = { 935 936 }
+}
+
+action_organize_spies_mystics = {
+	attribute = intrigue
+	
+	potential = {
+		has_dlc = "Mystics"
+	}
+	
+	trigger = {
+		any_province_lord = {
+			NOT = { character = FROM }
+		}
+		is_within_diplo_range = FROM
+	}
+	
+	plot_power_modifier = 0.005
+	
+	events = { 935 936 931 9000 9020 }
+}
+
+action_sabotage_province = {
+	attribute = intrigue
+
+	potential = {
+		has_dlc = Mystics
+	}
+
+	trigger = {
+		any_province_lord = {
+			NOT = {
+				tier = BARON
+			}
+			NOT = { character = FROM }
+		}
+		can_be_sabotaged_trigger = yes
+		is_within_diplo_range = FROM
+	}
+	
+	events = { MNM.70020 933 }
+}
+
+# Marshal
+action_advance_mil_tech = {
+	attribute = martial
+
+	potential = {
+		FROM = {
+			is_tribal = no
+		}
+	}
+	
+	trigger = {
+		any_province_lord = {
+			character = FROM
+		}
+		technology_can_spread = yes
+	}
+	
+	tech_growth_modifier_military = 0.05
+	
+	events = { 938 939 }
+}
+
+action_organize_raid = {
+	attribute = martial
+
+	potential = {
+		FROM = {
+			is_tribal = yes
+		}
+	}
+
+	trigger = {
+		FROM = {
+			is_capital = PREV
+		}
+	}
+	
+	events = { 20221 }
+}
+
+action_train_troops = {
+	attribute = martial
+	
+	potential = {
+		FROM = {
+			is_nomadic = no
+		}
+	}
+
+	trigger = {
+		any_province_lord = {
+			character = FROM
+		}
+	}
+	
+	levy_size = 0.025
+	levy_reinforce_rate = 0.05
+	
+	events = { 941 942 }
+}
+
+action_train_troops_nomadic = {
+	attribute = martial
+	
+	potential = {
+		FROM = {
+			is_nomadic = yes
+		}
+	}
+
+	trigger = {
+		FROM = {
+			is_capital = ROOT
+		}
+	}
+	
+	manpower_growth = 0.015
+	
+	events = { }
+}
+
+action_assist_arrest = {
+	attribute = martial
+	
+	potential = {
+	}
+	
+	trigger = {
+		any_province_lord = {
+			OR = {
+				character = FROM
+				is_liege_or_above = FROM
+			}
+		}
+	}
+	
+	arrest_chance_modifier = 0.01
+	local_revolt_risk = -0.01
+	
+	events = {  }
+}
+
+action_organize_army = {
+	attribute = martial
+
+	potential = {
+		has_dlc = Mystics
+	}
+
+	offmap = yes
+	
+	liege_modifier = organize_army_liege_mod
+	
+	attribute_cap = 25
+	
+	events = { MNM.70010 MNM.70012 MNM.70015 } 
+}
+
+# Court Chaplain
+action_inquisition = {
+	attribute = learning
+	
+	potential = {
+	}
+	
+	trigger = {
+		num_of_settlements = 1
+		NAND = {
+			FROM = { job_spiritual = { has_character_modifier = spiritual_refused_pagans } }  # See Event ZE.5040
+			owner = { religion_group = pagan_group }
+		}
+		OR = {
+			owner = {
+				FROM = { NOT = { religion_group = pagan_group } }
+				independent = yes
+				NOT = { religion = FROM }
+				religion_group = pagan_group
+				OR = {
+					NOT = { religion = aztec }
+					year = 1350
+				}
+				is_reformed_religion = no
+				capital_scope = {
+					province = ROOT
+				}
+				controls_religion = no
+				FROM = {
+					higher_tier_than = COUNT
+					OR = {
+						independent = yes
+						higher_tier_than = DUKE
+					}
+				}
+				NOT = {
+					has_opinion_modifier = { who = FROM modifier = opinion_sent_preacher }
+				}
+				is_within_diplo_range = FROM
+			}
+			any_province_lord = {
+				OR = {
+					character = FROM
+					is_liege_or_above = FROM
+				}
+			}
+		}
+	}
+
+	events = { 900 901 902 903 }
+}
+
+action_improve_rel_relations = {
+	attribute = learning
+	
+	potential = {
+		always = yes
+	}
+	
+	trigger = {
+		any_province_lord = {
+			religion = FROM
+			is_theocracy = yes
+			FROM = {
+				job_spiritual = {
+					NOT = { character = PREVPREV } # Can't be sent to improve relations with himself...
+				}
+			}
+		}
+		is_within_diplo_range = FROM
+	}
+	
+	events = { 906 907 }
+}
+
+action_advance_cul_tech = {
+	attribute = learning
+	
+	potential = {
+		FROM = {
+			is_tribal = no
+		}
+	}
+	
+	trigger = {
+		any_province_lord = {
+			OR = {
+				character = FROM
+				is_liege_or_above = FROM
+			}
+		}
+		technology_can_spread = yes
+	}
+	
+	tech_growth_modifier_culture = 0.05
+	
+	events = { 926 927 }
+}
+
+action_build_zeal = {
+	attribute = learning
+
+	potential = {
+		FROM = {
+			is_tribal = yes
+		}
+	}
+
+	trigger = {
+		FROM = {
+			is_capital = PREV
+		}
+	}
+	
+	monthly_character_piety = 0.05
+	
+	events = { 20218 }
+}
+
+action_hunt_heretics = {
+	attribute = learning
+
+	potential = {
+		has_dlc = Mystics
+	}
+	
+	liege_modifier = apostate_liege_mod
+
+	offmap = yes
+	
+	events = { MNM.70100 }
+}

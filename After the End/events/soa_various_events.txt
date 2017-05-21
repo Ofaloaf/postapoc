@@ -125,11 +125,20 @@ character_event = {
 	id = SoA.3000
 	hide_window = yes
 	
-	ai = no
 	only_playable = yes
 	
 	trigger = {
-		has_dlc = "Sons of Abraham"
+		OR = {
+			has_dlc = "Sons of Abraham"
+			has_dlc = "Mystics"
+		}
+		OR = {
+			ai = no
+			has_game_rule = {
+				name = supernatural_events
+				value = unrestricted
+			}
+		}
 		NOT = {
 			has_game_rule = {
 				name = supernatural_events
@@ -184,6 +193,7 @@ character_event = {
 }
 
 # Event triggers for the child
+# Can also be fired from event 335
 character_event = {
 	id = SoA.3001
 	hide_window = yes
@@ -198,7 +208,9 @@ character_event = {
 			hidden = yes
 			days = -1
 		}
+		remove_trait = sickly
 		FROM = { narrative_event = { id = SoA.3002 } }
+		character_event = { id = SoA.3019 days = 90 random = 90 } # Demon child tombola
 	}
 }
 
@@ -230,6 +242,7 @@ narrative_event = {
 			}
 		}
 	}
+	
 	option = {
 		name = EVTOPTB_SOA_3002 # Do nothing, mother
 		trigger = {
@@ -904,6 +917,82 @@ character_event = {
 	}
 }
 
+#############################
+# Demon child tombola!
+# Choose some new antics...
+#############################
+character_event = {
+	id = SoA.3019
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		character_event = { id = SoA.3019 days = 400 random = 400 } # More fun next time!
+		
+		# Spawn the Witch Nanny
+		if = {
+			limit = {
+				NOT = { has_character_flag = demon_child_non_pagan_got_nanny }
+				prisoner = no
+				is_incapable = no
+			}
+			character_event = { id = SoA.3070 }
+			break = yes
+		}
+		
+		# Try to murder a sibling (ahead in the line of succession) in bed?
+		if = {
+			limit = {
+				age = 3
+				NOT = { age = 16 }
+				prisoner = no
+				is_incapable = no
+				is_ruler = no
+				any_sibling = {
+					NOT = { trait = bastard }
+					NOT = { trait = incapable }
+					OR = {
+						is_older_than = ROOT
+						AND = {
+							trait = born_in_the_purple
+							ROOT = { NOT = { trait = born_in_the_purple } }
+						}
+						ROOT = {
+							trait = bastard
+						}
+						AND = {
+							is_female = no
+							ROOT = {
+								is_female = yes
+							}
+						}
+					}
+				}
+			}
+			character_event = { id = SoA.3030 }
+			break = yes
+		}
+		
+		# Get some help during a war
+		if = {
+			limit = {
+				is_ruler = yes
+				war = yes
+#				trait = possessed
+				OR = {
+					is_primary_war_defender = yes
+					is_primary_war_attacker = yes
+				}
+				NOT = { has_character_flag = demon_child_non_pagan_cultists }
+				is_at_sea = no
+			}
+			character_event = { id = SoA.3065 }
+			break = yes
+		}
+	}
+}
+
 # The Demon child's true nature asserts itself
 # Fired from on_adulthood
 character_event = {
@@ -935,19 +1024,77 @@ character_event = {
 		remove_trait = shy
 		remove_trait = trusting
 		add_trait = lustful
-		add_trait = envious
 		add_trait = deceitful
 		add_trait = ambitious
 		add_trait = cruel
 		add_trait = genius
 		add_trait = possessed
-		add_trait = impaler
+		add_trait = strong
 		change_diplomacy = 5
 		change_martial = 5
 		change_stewardship = 5
 		change_intrigue = 10
 		change_learning = 5
 		
+		if = {
+			limit = {
+				OR = {
+					trait = naive_appeaser
+					trait = underhanded_rogue
+					trait = charismatic_negotiator
+				}
+			}
+			clear_education_trait = yes
+			add_trait = grey_eminence
+		}
+		
+		if = {
+			limit = {
+				OR = {
+					trait = amateurish_plotter
+					trait = flamboyant_schemer
+					trait = intricate_webweaver
+				}
+			}
+			clear_education_trait = yes
+			add_trait = elusive_shadow
+		}
+		
+		if = {
+			limit = {
+				OR = {
+					trait = indulgent_wastrel
+					trait = thrifty_clerk
+					trait = fortune_builder
+				}
+			}
+			clear_education_trait = yes
+			add_trait = midas_touched
+		}
+		
+		if = {
+			limit = {
+				OR = {
+					trait = misguided_warrior
+					trait = tough_soldier
+					trait = skilled_tactician
+				}
+			}
+			clear_education_trait = yes
+			add_trait = brilliant_strategist
+		}
+		
+		if = {
+			limit = {
+				OR = {
+					trait = detached_priest
+					trait = martial_cleric
+					trait = scholarly_theologian
+				}
+			}
+			clear_education_trait = yes
+			add_trait = mastermind_theologian
+		}
 		add_character_modifier = {
 			name = voice_of_satan
 			duration = -1
@@ -995,45 +1142,13 @@ character_event = {
 	id = SoA.3030
 	hide_window = yes
 	
-	min_age = 3
-	max_age = 15
-	only_capable = yes
-	has_character_flag = demon_child_non_pagan
-	
-	trigger = {
-		is_ruler = no
-		has_dlc = "Sons of Abraham"
-		any_sibling = {
-			OR = {
-				is_older_than = ROOT
-				AND = {
-					trait = born_in_the_purple
-					ROOT = { NOT = { trait = born_in_the_purple } }
-				}
-				ROOT = {
-					trait = bastard
-				}
-				AND = {
-					is_female = no
-					ROOT = {
-						is_female = yes
-					}
-				}
-			}
-		}
-	}
-	
-	mean_time_to_happen = {
-		years = 3
-	}
+	is_triggered_only = yes
 	
 	immediate = {
 		random_sibling = {
 			limit = {
-				OR = {
-					is_female = no
-					ROOT = { is_female = yes }
-				}
+				NOT = { trait = bastard }
+				NOT = { trait = incapable }
 				OR = {
 					is_older_than = ROOT
 					AND = {
@@ -1190,7 +1305,7 @@ character_event = {
 	
 	option = { 
 		name = EVTOPTA_SOA_3037
-		add_trait = infirm
+		add_trait = incapable
 		hidden_tooltip = {
 			mother = { narrative_event = { id = SoA.3041 } }
 			father = { narrative_event = { id = SoA.3041 } }
@@ -1260,7 +1375,7 @@ character_event = {
 	
 	trigger = {
 		is_maimed_trigger = yes
-		trait = possessed
+#		trait = possessed
 		has_dlc = "Sons of Abraham"
 		OR = {
 			has_character_modifier = voice_of_satan
@@ -1302,6 +1417,10 @@ character_event = {
 			limit = { trait = mangled }
 			remove_trait = mangled
 		}
+		if = {
+			limit = { has_character_modifier = phantom_pain }
+			remove_character_modifier = phantom_pain
+		}
 	}
 }
 
@@ -1314,7 +1433,7 @@ character_event = {
 	
 	trigger = {
 		trait = blinded
-		trait = possessed
+#		trait = possessed
 		has_dlc = "Sons of Abraham"
 		OR = {
 			has_character_modifier = voice_of_satan
@@ -1345,7 +1464,7 @@ character_event = {
 	
 	trigger = {
 		trait = eunuch
-		trait = possessed
+#		trait = possessed
 		has_dlc = "Sons of Abraham"
 		OR = {
 			has_character_modifier = voice_of_satan
@@ -1381,7 +1500,7 @@ character_event = {
 			trait = incapable
 			trait = infirm
 		}
-		trait = possessed
+#		trait = possessed
 		has_dlc = "Sons of Abraham"
 		OR = {
 			has_character_modifier = voice_of_satan
@@ -1422,19 +1541,10 @@ character_event = {
 	border = GFX_event_normal_frame_religion
 	
 	trigger = {
-		trait = possessed
+#		trait = possessed
 		has_dlc = "Sons of Abraham"
-		OR = {
-			trait = syphilitic
-			trait = leper
-			trait = has_tuberculosis
-			trait = has_typhoid_fever
-			trait = has_typhus
-			trait = has_bubonic_plague
-			trait = has_measles
-			trait = has_small_pox
-			trait = has_aztec_disease
-		}
+		has_epidemic = yes
+		
 		OR = {
 			has_character_modifier = voice_of_satan
 			has_character_flag = demon_child_non_pagan
@@ -1442,45 +1552,16 @@ character_event = {
 	}
 	
 	mean_time_to_happen = {
-		months = 2
+		months = 1
 		modifier = {
-			factor = 10
+			factor = 12
 			NOT = { has_character_flag = demon_child_non_pagan }
 		}
 	}
 	
 	option = {
 		name = EVTOPTA_SOA_3054
-		if = {
-			limit = {
-				trait = syphilitic
-			}
-			remove_trait = syphilitic
-		}
-		if = {
-			limit = {
-				trait = leper
-			}
-			remove_trait = leper
-		}
-		if = {
-			limit = {
-				trait = has_tuberculosis
-			}
-			remove_trait = has_tuberculosis
-		}
-		if = {
-			limit = {
-				trait = has_typhoid_fever
-			}
-			remove_trait = has_typhoid_fever
-		}
-		if = {
-			limit = {
-				trait = has_typhus
-			}
-			remove_trait = has_typhus
-		}
+		
 		if = {
 			limit = {
 				trait = has_bubonic_plague
@@ -1488,24 +1569,10 @@ character_event = {
 			remove_trait = has_bubonic_plague
 			set_character_flag = achievement_i_got_better
 		}
-		if = {
-			limit = {
-				trait = has_measles
-			}
-			remove_trait = has_measles
-		}
-		if = {
-			limit = {
-				trait = has_small_pox
-			}
-			remove_trait = has_small_pox
-		}
-		if = {
-			limit = {
-				trait = has_aztec_disease
-			}
-			remove_trait = has_aztec_disease
-		}
+		
+		cure_illness = yes
+		
+		clear_disease_level_effect = yes
 	}
 }
 
@@ -1519,7 +1586,7 @@ character_event = {
 	prisoner = yes
 	
 	trigger = {
-		trait = possessed
+#		trait = possessed
 		has_dlc = "Sons of Abraham"
 		OR = {
 			has_character_modifier = voice_of_satan
@@ -1567,24 +1634,7 @@ character_event = {
 	picture = GFX_evt_burning_house
 	border = GFX_event_normal_frame_religion
 	
-	only_rulers = yes
-	has_character_flag = demon_child_non_pagan
-	war = yes
-	has_dlc = "Sons of Abraham"
-	
-	trigger = {
-		trait = possessed
-		OR = {
-			is_primary_war_defender = yes
-			is_primary_war_attacker = yes
-		}
-		NOT = { has_character_flag = demon_child_non_pagan_cultists }
-		is_at_sea = no
-	}
-	
-	mean_time_to_happen = {
-		months = 24
-	}
+	is_triggered_only = yes
 	
 	immediate = {
 		location = {
@@ -1758,19 +1808,7 @@ character_event = {
 	id = SoA.3070
 	hide_window = yes
 	
-	max_age = 15
-	prisoner = no
-	has_character_flag = demon_child_non_pagan
-	
-	trigger = {
-		has_dlc = "Sons of Abraham"
-		NOT = { religion_group = pagan_group }
-		NOT = { has_character_flag = demon_child_non_pagan_got_nanny }
-	}
-	
-	mean_time_to_happen = {
-		months = 3
-	}
+	is_triggered_only = yes
 	
 	immediate = {
 		set_character_flag = demon_child_non_pagan_got_nanny
@@ -2005,6 +2043,7 @@ character_event = {
 	hide_window = yes
 	
 	prisoner = no
+	min_age = 6
 	max_age = 15
 	has_character_flag = demon_child_non_pagan_got_nanny
 	

@@ -87,9 +87,9 @@ NDiplomacy = {
 	PIETY_OPINION_DIV = 50,										-- Divider for piety to church opinion
 	PIETY_OPINION_MAX = 10,										-- Max opinion impact of piety (positive OR negative)	
 	MIN_PREP_INV_TARGET_HOLDINGS = 9,							-- The target must control at least this many holdings within the target kingdom to be a valid prepared invasion target
-	MAX_PREP_INV_TARGET_HOLDINGS = 40,							-- The target must control at the most this many holdings within the target kingdom to be a valid prepared invasion target
-	MAX_PREP_INV_ATTACKER_HOLDINGS = 40,						-- The attacker must have fewer Holdings than this in the realm (disallow Prepared Invasions for rulers who are already very powerful)
-	PREP_INV_REQ_PRESTIGE = 1000,								-- Need to have this much Prestige to prepare an invasion
+	MAX_PREP_INV_TARGET_HOLDINGS = 50,							-- The target must control at the most this many holdings within the target kingdom to be a valid prepared invasion target
+	MAX_PREP_INV_ATTACKER_HOLDINGS = 50,						-- The attacker must have fewer Holdings than this in the realm (disallow Prepared Invasions for rulers who are already very powerful)
+	PREP_INV_REQ_PRESTIGE = 750,								-- Need to have this much Prestige to prepare an invasion
 	BASE_REVOLT_CHANCE_MOD = 250,								-- Pre Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO.
 	TOG_REVOLT_CHANCE_MOD = 100,								-- Old Gods rebel spawn chance modifier (fires on_rebel_revolt) : lower means fewer revolts. MUST NOT BE ZERO. 
 	JAIN_LIEGE_OPINION_BONUS = 15,								-- Jain Lieges Get Vassal Opinion Bonus
@@ -340,7 +340,7 @@ NDiplomacy = {
 	JOIN_AMBITION_INTERACTION_THRESHOLD_FOR_YES = 25,
 	JOIN_AMBITION_INTERACTION_MUST_HAVE_COST = 1,				-- Is having prestige/piety >= cost required for this action?
 	JOIN_AMBITION_INTERACTION_ENABLED = 1,						-- Should this action be used at all?
-
+	
 	ASK_TO_JOIN_AMBITION_INTERACTION_MONEY = 0,
 	ASK_TO_JOIN_AMBITION_INTERACTION_PIETY = 0,
 	ASK_TO_JOIN_AMBITION_INTERACTION_PRESTIGE = 0,
@@ -700,7 +700,7 @@ NDiplomacy = {
 	ASK_COUNCIL_POSITION_INTERACTION_THRESHOLD_FOR_YES = 0,     -- useless since this is an auto accepted interaction.
 	ASK_COUNCIL_POSITION_INTERACTION_MUST_HAVE_COST = 0,		-- Is having prestige/piety >= cost required for this action?
 	ASK_COUNCIL_POSITION_INTERACTION_ENABLED = 1,				-- Should this action be used at all?	
-		
+	
 	OFFER_CONSORT_INTERACTION_MONEY = 0,
 	OFFER_CONSORT_INTERACTION_PIETY = 0,
 	OFFER_CONSORT_INTERACTION_PRESTIGE = 0,
@@ -708,7 +708,17 @@ NDiplomacy = {
 	OFFER_CONSORT_INTERACTION_THRESHOLD_FOR_YES = 0,   	 		-- useless since this is an auto accepted interaction.
 	OFFER_CONSORT_INTERACTION_MUST_HAVE_COST = 0,				-- Is having prestige/piety >= cost required for this action?
 	OFFER_CONSORT_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
-		
+	
+	GIVE_ARTIFACT_INTERACTION_MONEY = 0,
+	GIVE_ARTIFACT_INTERACTION_PIETY = 0,
+	GIVE_ARTIFACT_INTERACTION_PRESTIGE = 0,
+	GIVE_ARTIFACT_INTERACTION_THRESHOLD_FOR_NO = 0,				-- useless since this is an auto accepted interaction.
+	GIVE_ARTIFACT_INTERACTION_THRESHOLD_FOR_YES = 0,   	 		-- useless since this is an auto accepted interaction.
+	GIVE_ARTIFACT_INTERACTION_MUST_HAVE_COST = 0,				-- Is having prestige/piety >= cost required for this action?
+	GIVE_ARTIFACT_INTERACTION_ENABLED = 1,						-- Should this action be used at all?	
+	
+	ARTIFACT_VALUE_OPINION_MULT = 6.0,								-- Multiplied with Artifact Quality
+	
 	LANDED_SIBLING_PRESTIGE_BONUS = 5,							-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
 	LANDED_HALF_SIBLING_PRESTIGE_BONUS = 5,						-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
 	LANDED_NIECE_PRESTIGE_BONUS = 2,							-- For religions with landed win prestige bonus. Is multiplied with the percentage of how many of your realm they own.
@@ -752,6 +762,8 @@ NDiplomacy = {
 
 	ALLIANCE_BREAKER_MODIFIER_MONTHS = 3650,				-- How long the alliance breaker temporary modifier lasts
 	TRUCE_BREAKER_MODIFIER_MONTHS = 3650,					-- How long the truce breaker temporary modifier lasts
+
+	DIPLO_ICON_DURATION_DAYS = 96							-- How long incoming diplomatic message stay before being auto declined
 },
 
 NCouncil = {
@@ -1510,6 +1522,8 @@ NGraphics = {
 	SEVERE_WINTER_VALUE = 255,
 	TREASURY_MODIFIER_ICON_FRAME = 13,
 	NUMBER_OF_DNA_PROPERTIES = 11,
+	CITY_MAIN_BUILDING_LEVEL_2 = 25,					-- If a main settlement has more building than that, it will use model level 2
+	CITY_MAIN_BUILDING_LEVEL_3 = 35,					-- If a main settlement has more building than that, it will use model level 3
 },
 
 NEngine = {
@@ -1538,7 +1552,7 @@ NAI =
 	MIL_AI_COUNTER_INVADE_DISTANCE_THRESHOLD = 120,			-- Defenders in wars will not counter invade past this distance
 	CRUSADE_CREATION_MONTH_DELAY = 360,						-- Months from the end of one Crusade before the AI will call a new one
 	NAVAL_INVASION_RANGE = 100,								-- Factor which increase AI invasion range if set higher
-	DOW_AGGRESSION_FACTOR = 0.75,							-- General aggressiveness declarations of war
+	DOW_AGGRESSION_FACTOR = 0.66,							-- General aggressiveness declarations of war
 	MARRIAGE_AI_PRESTIGE_VALUE = 0.33,						-- Multiplier for how highly AI values prestige when arranging marriages and evaluating marriage offers
 	MAX_KING_TITLES_TO_CREATE = 0,							-- AI will not seek to create/usurp more King-level titles than this (0 for unlimited)
 	MAX_EMPIRE_TITLES_TO_CREATE = 0,						-- AI will not seek to create/usurp more Empire-level titles than this (0 for unlimited)

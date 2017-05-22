@@ -2464,6 +2464,21 @@ character_event = {
 				character_event = { id = misc.6 }
 			}
 		}
+		# Other priests
+		any_independent_ruler = {
+			any_realm_character = {
+				limit = {
+					NOT = { has_law = enatic_succession }
+					OR = {
+						religion = high_church
+						religion = strangite
+					}
+					is_theocracy = yes
+					is_ruler = yes
+				}
+				character_event = { id = misc.9 }
+			}
+		}
 		
 		# Do any other game-initializing stuff here
 	}
@@ -2486,7 +2501,7 @@ character_event = {
 	}
 	
 	option = {
-		add_law = enatic_succession
+		primary_title = { add_law = enatic_succession }
 		if = {
 			limit = { is_female = no }
 			create_random_priest = {
@@ -2501,3 +2516,78 @@ character_event = {
 		}
 	}
 }
+
+character_event = {
+	id = misc.7
+	desc = "Ursuline death trigger"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		religion = ursuline
+		is_theocracy = yes
+		is_ruler = yes
+		controls_religion = no # Abbess-General has separate events
+		NOT = { current_heir = { is_female = yes } } # Preserve investiture if valid
+	}
+	
+	option = {
+		create_random_priest = {
+			random_traits = yes
+			female = yes
+			religion = ursuline
+		}
+		new_character = {
+			ROOT = {
+				any_demesne_title = { gain_title = PREVPREV }
+			}
+			primary_title = { add_law = enatic_succession }
+		}
+	}
+}
+
+character_event = {
+	id = misc.8
+	desc = "Replace First Lady"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		has_landed_title = d_libertarian
+		NOT = { current_heir = { is_female = yes } }
+	}
+	
+	option = {
+		create_random_priest = {
+			random_traits = yes
+			female = yes
+			religion = libertarian
+		}
+		new_character = {
+			ROOT = {
+				any_demesne_title = { gain_title = PREVPREV }
+			}
+			primary_title = { add_law = enatic_succession }
+		}
+	}
+}
+
+character_event = {
+	id = misc.9
+	desc = "High Church and Strangite Investiture"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		is_theocracy = yes
+		OR = {
+			religion = high_church
+			religion = strangite
+		}
+		NOT = { has_law = true_cognatic_succession }
+	}
+	
+	option = {
+		primary_title = { add_law = true_cognatic_succession }
+	}
+}				   

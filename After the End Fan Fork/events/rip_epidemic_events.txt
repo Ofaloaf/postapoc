@@ -45,9 +45,18 @@ character_event = {
 				set_character_flag = epidemic_blame_game
 				character_event = { id = RIP.13001 }
 			}
-			
-			##  Blaming Jews removed in AtE, since there is no Judiasm
-			
+			10 = { # Blame Jews
+				modifier = {
+					factor = 0
+					OR = {
+						has_character_modifier = expelled_jewish
+						religion_group = jewish_group
+						any_realm_province = { religion_group = jewish_group }
+					}
+				}
+				set_character_flag = epidemic_blame_game
+				character_event = { id = RIP.13400 }
+			}
 			10 = { # Witch hunt
 				modifier = {
 					factor = 0
@@ -600,9 +609,352 @@ character_event = {
 # blaming jews nets you some cash, but of course all jews leave.
 # protecting jews makes the population madder and perhaps some riots break out meaning you must punish people
 
-##
-##  Blaming Jews removed in AtE, since there is no Judiasm
-##
+character_event = { #blame game starts
+	id = RIP.13400
+	picture = GFX_evt_impalement
+	border = GFX_event_normal_frame_religion
+	desc = RIP.13400.d
+	
+	is_triggered_only = yes #Should not fired for Jewish rulers or rulers with Jewish provinces in their realm, or for those who have expelled Jews already
+	
+	immediate = {
+		
+	}	
+
+	option = {
+		name = RIP.13400.a
+		any_realm_province = {
+			limit = {
+				owner = { character = ROOT }
+			}
+			add_province_modifier = {
+				name = epidemic_blame_1
+				duration = 3650
+			}
+		}
+		hidden_tooltip = {
+			if = {
+				limit = {
+					rightful_religious_head_scope = { 
+						always = yes
+						NOT = {
+							character = ROOT
+						}
+					}
+				}
+				rightful_religious_head_scope = {
+					character_event = {	id = RIP.13401 days = 30 }
+				}
+			}
+		}
+		character_event = {	id = RIP.13402 days = 60 }
+	}
+
+	option = {
+		name = RIP.13400.b
+		#who cares?
+		any_realm_province = {
+			limit = {
+				owner = { character = ROOT }
+			}
+			add_province_modifier = {
+				name = epidemic_blame_2
+				duration = 3650
+			}
+		}
+	}
+}
+
+#character_event = { #Bonus if time: if you are jewish, blame infidels? 
+#	id = RIP.13450
+#	picture = GFX_evt_garden
+#	border = GFX_event_normal_frame_religion
+#	desc = RIP.13450.d 
+#	
+#	is_triggered_only = yes
+#	
+#	immediate = {
+#		
+#	}	
+#
+#	option = {
+#		name = RIP.13402.a
+#		#yeah, infidels are to blame
+#	}
+#
+#	option = {
+#		name = RIP.13402.b
+#		#leave off the infidels
+#	}
+#}
+
+character_event = { #head of religion chimes in. could be player.
+	id = RIP.13401
+	picture = GFX_evt_end_of_days
+	border = GFX_event_normal_frame_religion
+	desc = RIP.13401.d
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		
+	}	
+
+	option = {
+		name = RIP.13401.a
+		#leave off the jews
+		FROM = {
+			letter_event = { id = RIP.13404 }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 0.5
+				OR = {
+					trait = zealous
+					trait = cynical
+				}
+			}
+			modifier = {
+				factor = 10
+				OR = {
+					religion = jewish
+					trait = sympathy_judaism
+				}
+			}
+			modifier = {
+				factor = 2
+				is_virtous = yes
+			}
+		}			
+	}
+
+	option = {
+		name = RIP.13401.b
+		#yeah, jews are to blame
+		trigger = {
+			NOR = {
+				religion = jewish
+				trait = sympathy_judaism
+			}
+		}
+		FROM = {
+			letter_event = { id = RIP.13405 }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 2
+				is_wicked = yes
+			}
+		}
+	}
+}
+
+letter_event = { #don't blame jews
+	id = RIP.13404
+	border = GFX_event_letter_frame_religion
+	desc = RIP.13404.d # 
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		
+	}	
+
+	option = {
+		name = OK
+		set_character_flag = religion_head_says_stop
+	}
+
+}
+
+letter_event = { #blame jews
+	id = RIP.13405
+	border = GFX_event_letter_frame_religion
+	desc = RIP.13405.d # 
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		
+	}	
+
+	option = {
+		name = OK
+		#yeah, jews are to blame
+		set_character_flag = religion_head_says_go
+	}
+
+}
+
+character_event = { #you decide what to do
+	id = RIP.13402
+	picture = GFX_evt_suspicious_noble
+	border = GFX_event_normal_frame_religion
+	#desc = RIP.13402.d # change desc based on religion head stance
+	
+	desc = {
+		picture = GFX_evt_suspicious_noble
+		text = RIP.13402.d1
+		trigger = { has_character_flag = religion_head_says_stop }
+	}
+	desc = {
+		picture = GFX_evt_suspicious_noble
+		text = RIP.13402.d2
+		trigger = { has_character_flag = religion_head_says_go }
+	}
+	desc = {
+		picture = GFX_evt_suspicious_noble
+		text = RIP.13402.d3
+		trigger = {
+			NOR = { 
+				has_character_flag = religion_head_says_stop 
+				has_character_flag = religion_head_says_go
+			} 
+		}
+	}
+	
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		
+	}	
+
+	option = {
+		name = RIP.13402.a
+		#leave off the jews
+		character_event = { id = RIP.13403 days = 30 }
+		clr_character_flag = religion_head_says_stop
+		clr_character_flag = religion_head_says_go
+		
+	}
+
+	option = {
+		name = RIP.13402.b
+		#yeah, jews are to blame
+		clr_character_flag = religion_head_says_stop
+		clr_character_flag = religion_head_says_go
+		any_realm_province = {
+				limit = {
+					owner = { character = ROOT }
+				}
+				remove_province_modifier = epidemic_blame_1
+		}
+		prestige = -100
+			scaled_wealth = 2
+			banish_religion = jewish
+			if = {
+				limit = { trait = sympathy_judaism }
+				remove_trait = sympathy_judaism
+			}
+			if = {
+				limit = {
+					NOT = { trait = arbitrary }
+					has_character_modifier = borrowed_from_jews
+				}
+				add_trait = arbitrary
+			}
+			if = {
+				limit = { has_character_modifier = borrowed_from_jews }
+				remove_character_modifier = borrowed_from_jews
+			}
+			add_character_modifier = {
+				name = expelled_jewish
+				duration = -1
+				inherit = yes
+			}
+			custom_tooltip = {
+				text = jews_are_expelled
+			}
+			hidden_tooltip = {
+				character_event = { id = SoA.105 }
+				add_character_modifier = {
+					name = expelled_jews_timer
+					duration = 7300
+					hidden = yes
+				}
+			}
+			any_friend = {
+				limit = { religion_group = jewish_group }
+				remove_friend = ROOT
+			}
+	}
+}
+
+character_event = { #if you keep jews, stuff happens
+	id = RIP.13403
+	picture = GFX_evt_impalement
+	border = GFX_event_normal_frame_religion
+	#desc = RIP.13403.d #trigger this
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				any_demesne_province = {
+					owner = { character = ROOT }
+					NOT = { has_province_flag = pogrom_target }
+					any_province_holding = {
+						holding_type = city
+						
+					}
+				}
+			}			
+			random_demesne_province = {
+				limit = {
+					owner = { character = ROOT }
+					NOT = { has_province_flag = pogrom_target }
+					any_province_holding = {
+						holding_type = city
+					}
+				}
+				random_province_holding = {
+					limit = {
+						holding_type = city
+					}
+				save_event_target_as = pogrom_city_target
+				}
+				set_province_flag = pogrom_target
+				save_event_target_as = pogrom_province_target
+			}
+			set_character_flag = pogrom_target_selected
+		}		
+	}
+
+	desc = {
+		picture = GFX_end_of_days
+		text = RIP.13403.d1
+		trigger = { has_character_flag = pogrom_target_selected }
+	}
+	desc = {
+		picture = GFX_evt_end_of_days
+		text = RIP.13403.d2
+		trigger = { NOT = { has_character_flag = pogrom_target_selected } }
+	}
+
+	option = {
+		name = RIP.13403.a
+		event_target:pogrom_province_target = {
+			remove_province_modifier = epidemic_blame_1
+			add_province_modifier = {
+				name = epidemic_blame_2
+				duration = 3650
+			}
+		}
+		clr_character_flag = pogrom_target_selected
+		clear_event_target = pogrom_city_target
+	}
+
+	option = {
+		name = RIP.13403.b
+		prestige = -100
+		clr_character_flag = pogrom_target_selected
+		clear_event_target = pogrom_city_target
+	}
+}
 
 
 ###BLAME GAME: Witch hunt###

@@ -307,6 +307,273 @@ decisions = {
 			factor = 1
 		}
 	}
+	
+	build_new_yeshiva = {
+		only_playable = yes
+		is_high_prio = yes
+		
+		potential = {
+			has_dlc = "Sons of Abraham"
+			is_playable = yes
+			religion = jewish
+			NOT = { has_global_flag = new_yeshiva_built }
+			NOT = { has_global_flag = building_new_yeshiva }
+		}
+		allow = {
+			independent = yes
+			primary_title = { higher_tier_than = DUKE }
+			completely_controls = c_brooklyn
+			2 = {
+				religion = ROOT
+			}
+			wealth = 1500
+			piety = 1500
+		}
+		effect = {
+			hidden_tooltip = {
+				character_event = { id = SoA.100 }
+				2 = {	province_event = { id = SoA.10199 days = 1460 random = 50 }	}
+			}
+			set_global_flag = building_new_yeshiva
+			wealth = -1500
+			prestige = 500
+			piety = 500
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	install_grand_rebbe = {
+		only_playable = yes
+		is_high_prio = yes
+		
+		potential = {
+			has_dlc = "Sons of Abraham"
+			is_playable = yes
+			religion = jewish
+			has_global_flag = new_yeshiva_built
+			NOT = { has_global_flag = grand_rebbe_installed }
+		}
+		allow = {
+			independent = yes
+			primary_title = { higher_tier_than = DUKE }
+			completely_controls = c_brooklyn
+			2 = {
+				religion = jewish
+			}
+			piety = 1000
+		}
+		effect = {
+			set_global_flag = grand_rebbe_installed
+			activate_title = { title = d_jewish status = yes }
+			hidden_tooltip = {
+				create_random_priest = {
+					random_traits = yes
+					religion = ROOT
+					culture = ROOT
+					dynasty = random
+					female = no
+					age = 41
+				}
+				new_character = {
+					d_jewish = {
+						grant_title = PREV
+					}
+					narrative_event = { id = SoA.550 }
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	welcome_jews = {
+		only_playable = yes
+		
+		potential = {
+			#has_dlc = "Sons of Abraham"
+			is_playable = yes
+			NOR = {
+				religion_group = jewish_group 
+				has_character_modifier = expelled_jews_timer
+			}
+			has_character_modifier = expelled_jewish
+		}
+		allow = {
+			has_character_modifier = expelled_jewish
+		}
+		effect = {
+			scaled_wealth = -1
+			prestige = 50
+			remove_character_modifier = expelled_jewish
+			if = {
+				limit = {
+					NOT = { trait = zealous }
+					NOT = { trait = sympathy_judaism }
+				}
+				random = {
+					chance = 50
+					add_trait = sympathy_judaism
+				}
+			}
+			if = {
+				limit = {
+					NOT = { trait = kind }
+				}
+				random = {
+					chance = 50
+					add_trait = kind
+				}
+			}
+			custom_tooltip = {
+				text = jews_are_welcome
+			}
+			hidden_tooltip = {
+				character_event = { id = SoA.106 }
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0.1 # Less likely to do it
+			}
+			modifier = {
+				factor = 0
+				trait = zealous
+			}
+		}
+	}
+	
+	expel_jews = {
+		only_independent = yes
+		
+		potential = {
+			has_dlc = "Sons of Abraham"
+			is_playable = yes
+			OR = {
+				AND = {
+					independent = yes
+					primary_title = { higher_tier_than = DUKE }
+				}
+				ai = no            # So that it shows on player's list anyway
+			}
+			OR = {
+				religion_group = christian
+				religion_group = cult_of_saints
+				religion_group = oldworld
+				religion_group = latter_day_saints
+			}	
+			NOR = {
+				religion = anabaptist
+				religion_group = jewish_group
+				has_character_modifier = expelled_jewish
+				is_nomadic = yes
+				secret_religion = jewish
+				secret_religion = reform
+			}
+			age = 16
+		}
+		allow = {
+			independent = yes
+			primary_title = { higher_tier_than = DUKE }
+			OR = {
+				religion_group = christian
+				religion_group = cult_of_saints
+				religion_group = oldworld
+				religion_group = latter_day_saints
+			}
+			NOT = { any_realm_province = { religion_group = jewish_group } }
+			prisoner = no
+			NOT = { trait = incapable }
+		}
+		effect = {
+			prestige = -100
+			scaled_wealth = 2
+			banish_religion = jewish
+			if = {
+				limit = { trait = sympathy_judaism }
+				remove_trait = sympathy_judaism
+			}
+			if = {
+				limit = {
+					NOT = { trait = arbitrary }
+				}
+				add_trait = arbitrary
+			}
+			add_character_modifier = {
+				name = expelled_jewish
+				duration = -1
+				inherit = yes
+			}
+			custom_tooltip = {
+				text = jews_are_expelled
+			}
+			hidden_tooltip = {
+				character_event = { id = SoA.105 }
+				add_character_modifier = {
+					name = expelled_jews_timer
+					duration = 7300
+					hidden = yes
+				}
+			}
+			any_friend = {
+				limit = { religion_group = jewish_group }
+				remove_friend = ROOT
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0.001 # Less likely to do it
+			}
+			modifier = {
+				factor = 0
+				any_courtier = {
+					religion_group = jewish_group
+					reverse_opinion = { who = ROOT value = 20 }
+				}
+			}
+			modifier = {
+				factor = 0
+				any_friend = {
+					religion_group = jewish_group
+				}
+			}
+			modifier = {
+				factor = 0
+				any_spouse = {
+					religion_group = jewish_group
+				}
+			}
+			modifier = {
+				factor = 0
+				any_child = {
+					religion_group = jewish_group
+				}
+			}
+			modifier = {
+				factor = 0
+				trait = kind
+			}
+			modifier = {
+				factor = 0
+				trait = just
+			}
+			modifier = {
+				factor = 1.2
+				trait = zealous
+				trait = arbitrary
+			}
+			modifier = {
+				factor = 2
+				trait = greedy
+			}
+		}
+	}
 
 	form_new_kingdom = {
 		only_independent = yes

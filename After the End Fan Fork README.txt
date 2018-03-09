@@ -12,6 +12,8 @@ Compatible with CK2 2.8.1 and the Jade Dragon DLC
 5. If you have Sunset Invasion, enable it and the "After the End Fan Fork - Sunset Invasion DLC" mod. This will not cause an Aztec invasion, but it will allow Native American faces to show properly.
 6. Similarly, if you have African Portraits, enable it and the "After the End Fan Fork - African Faces DLC" mod.
 7. The "After the End Fan Fork - Mongol Faces DLC" works on the same principle.
+(WARNING - DO NOT ENABLE THE MONGOL FACES AND CHINESE FACES SUBMOD AT THE SAME TIME. ONLY USE THE MONGOL FACES DLC IF YOU DO NOT OWN JADE DRAGON.)
+8. Again, the "After the End Fan Fork - Chinese Faces DLC" works on the same principle.
 
 
 	CREDITS

@@ -1,1 +1,412 @@
-#
+
+# Written by Emil Tisander and Alexander Oltner
+
+###########################################
+#                                         #
+# Sky Burial events 					  #
+# by Emil Tisander                        #
+# ID HL.8000-HL.8050      	              #
+#                                         #
+###########################################
+
+namespace = HL
+
+# Sky Burial trigger event
+character_event = {
+	id = HL.8001
+	hide_window = yes
+
+	is_triggered_only = yes
+	
+	only_playable = yes
+	
+	trigger = {
+		has_dlc = "Horse Lords"
+		#death_in_china_trigger = no
+		death_no_trace_trigger = no
+		religion=gaian
+	}
+
+	immediate = {
+		if = {
+			limit = {
+				prestige = 20000
+			}
+			current_heir = {
+				set_character_flag = sky_burial_tomb
+			}
+		}
+		if = {
+			limit = {
+				current_heir = {
+					is_child_of = ROOT
+				}
+			}
+			if = {
+				limit = {
+					is_female = yes
+				}
+				current_heir = {
+					set_character_flag = sky_burial_mother
+				}
+			}
+			if = {
+				limit = {
+					is_female = no
+				}
+				current_heir = {
+					set_character_flag = sky_burial_father
+				}
+			}
+		}
+		if = {
+			limit = {
+				current_heir = {
+					sibling = ROOT
+				}
+			}
+			if = {
+				limit = {
+					is_female = yes
+				}
+				current_heir = {
+					set_character_flag = sky_burial_sister
+				}
+			}
+			if = {
+				limit = {
+					is_female = no
+				}
+				current_heir = {
+					set_character_flag = sky_burial_brother
+				}
+			}
+		}
+		current_heir = {
+			set_character_flag = sky_burial
+			character_event = { id = HL.8002 days = 60 }
+		}
+	}
+}
+
+# Clear event
+character_event = {
+	id = HL.8002
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = {
+		clr_character_flag = sky_burial
+		clr_character_flag = sky_burial_tomb
+		clr_character_flag = sky_burial_father
+		clr_character_flag = sky_burial_brother
+		clr_character_flag = sky_burial_mother
+		clr_character_flag = sky_burial_sister
+	}
+}
+
+# Decide on Burial
+character_event = {
+	id = HL.8005
+	title = EVTNAME_HL_8005
+	picture = GFX_evt_shaman
+	desc = { # Father
+		trigger = {
+			has_character_flag = sky_burial_father
+		}
+		text = EVTDESC_HL_8005_father
+	}
+	desc = { # Mother
+		trigger = {
+			has_character_flag = sky_burial_mother
+		}
+		text = EVTDESC_HL_8005_mother
+	}
+	desc = { # Brother
+		trigger = {
+			has_character_flag = sky_burial_brother
+		}
+		text = EVTDESC_HL_8005_brother
+	}
+	desc = { # Sister
+		trigger = {
+			has_character_flag = sky_burial_sister
+		}
+		text = EVTDESC_HL_8005_sister
+	}
+	desc = { # Any other predecessor
+		trigger = {
+			NOT = { has_character_flag = sky_burial_father }
+			NOT = { has_character_flag = sky_burial_brother }
+			NOT = { has_character_flag = sky_burial_mother }
+			NOT = { has_character_flag = sky_burial_sister }
+		}
+		text = EVTDESC_HL_8005_other
+	}
+	
+	is_triggered_only = yes
+	
+	option = { # Sky Burial
+		name = EVTOPTA_HL_8005
+		custom_tooltip = { text = EVTOPTC_HL_8005_custom_tooltip_a }
+		hidden_tooltip = {
+			random_list = {
+				25 = { character_event = { id = HL.8006 days = 10 } }
+				25 = { character_event = { id = HL.8008 days = 10 } }
+				50 = { character_event = { id = HL.8010 days = 10 } }
+			}
+		}
+	}
+}
+
+# Sky Burial - Bad weather
+character_event = {
+	id = HL.8006
+	title = EVTNAME_HL_8006
+	desc = EVTDESC_HL_8006
+	picture = GFX_evt_nomad_camp
+	
+	is_triggered_only = yes
+	
+	option = { # Find shelter
+		name = EVTOPTA_HL_8006
+		if = {
+			limit = {
+				NOT = { trait = patient }
+			}
+			random = {
+				chance = 30
+				add_trait = patient
+				hidden_tooltip = {
+					character_event = { id = 38264 } # Notify patient
+				}
+			}
+		}
+		if = {
+			limit = {
+				trait = patient
+			}
+			prestige = 30
+		}
+		hidden_tooltip = {
+			character_event = { id = HL.8010 days = 5 }
+		}
+	}
+	option = { # Continue
+		name = EVTOPTB_HL_8006
+		if = {
+			limit = {
+				NOT = { trait = brave }
+				NOT = { trait = craven }
+			}
+			random_list = {
+				30 = {
+					add_trait = brave
+					hidden_tooltip = {
+						character_event = { id = 38270 }
+					}
+				}
+				30 = {
+					if = {
+						limit = {
+							NOT = {
+								has_dlc = "Reapers"
+							}
+						}
+						add_trait = ill
+						hidden_tooltip = {
+							character_event = { id = 38290 } # Notify ill
+						}
+					}
+					if = {
+						limit = {
+							has_dlc = "Reapers"
+						}
+						add_symptom_effect = yes
+					}
+				}
+				40 = { }
+			}
+		}
+		if = {
+			limit = {
+				trait = craven
+				NOT = { trait = brave }
+			}
+			random_list = {
+				50 = { remove_trait = craven }
+				30 = {
+					if = {
+						limit = {
+							NOT = {
+								has_dlc = "Reapers"
+							}
+						}
+						add_trait = ill
+						hidden_tooltip = {
+							character_event = { id = 38290 } # Notify ill
+						}
+					}
+					if = {
+						limit = {
+							has_dlc = "Reapers"
+						}
+						add_symptom_effect = yes
+					}
+				}
+				20 = { }
+			}
+		}
+		if = {
+			limit = {
+				trait = brave
+				NOT = { trait = content }
+			}
+			random_list = {
+				30 = {
+					add_trait = ambitious
+					hidden_tooltip = {
+						character_event = { id = 38278 }
+					}
+				}
+				30 = {
+					if = {
+						limit = {
+							NOT = {
+								has_dlc = "Reapers"
+							}
+						}
+						add_trait = ill
+						hidden_tooltip = {
+							character_event = { id = 38290 } # Notify ill
+						}
+					}
+					if = {
+						limit = {
+							has_dlc = "Reapers"
+						}
+						add_symptom_effect = yes
+					}
+				}
+				40 = { }
+			}
+		}
+		hidden_tooltip = {
+			character_event = { id = HL.8010 days = 5 }
+		}
+	}
+}
+
+# Sky Burial - Hermit encountered
+character_event = {
+	id = HL.8008
+	title = EVTNAME_HL_8008
+	desc = EVTDESC_HL_8008
+	picture = GFX_evt_lunatic
+	
+	is_triggered_only = yes
+	
+	option = { # Give gift
+		name = EVTOPTA_HL_8008
+		wealth = -10
+		trigger = {
+			NOT = { trait = greedy }
+		}
+		if = {
+			limit = {
+				NOT = { trait = charitable }
+			}
+			random = {
+				chance = 50
+				add_trait = charitable
+				hidden_tooltip = {
+					character_event = { id = 38273 }
+				}
+			}
+		}
+		if = {
+			limit = {
+				trait = charitable
+			}
+			prestige = 20
+		}
+		hidden_tooltip = {
+			character_event = { id = HL.8010 days = 5 }
+		}
+	}
+	option = { # Ask to join
+		name = EVTOPTB_HL_8008
+		ai_chance = {
+			factor = 0
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = NONE
+			female = no
+			age = 40
+			religion = ROOT
+			culture = ROOT
+			trait = brilliant_strategist
+			attributes = {
+				martial = 10
+			}
+		}
+		hidden_tooltip = {
+			character_event = { id = HL.8010 days = 5 }
+		}
+	}
+	option = { # Leave the hermit
+		name = EVTOPTC_HL_8008
+		hidden_tooltip = {
+			character_event = { id = HL.8010 days = 5 }
+		}
+	}
+}
+
+# Perform Sky Burial
+character_event = {
+	id = HL.8010
+	title = EVTNAME_HL_8010
+	desc = EVTDESC_HL_8010
+	picture = GFX_evt_shaman
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_HL_8010
+		prestige = 100
+		hidden_tooltip = {
+			random = {
+				chance = 10
+				character_event = { id = HL.8011 days = 10 }
+			}
+		}
+	}
+}
+
+# Followed by a Vulture
+character_event = {
+	id = HL.8011
+	title = EVTNAME_HL_8011
+	desc = EVTDESC_HL_8011
+	picture = GFX_evt_nomad_camp
+	
+	is_triggered_only = yes
+	
+	option = { # Keep the vulture
+		name = EVTOPTA_HL_8011
+		prestige = 10
+		if = {
+			limit = {
+				NOT = { trait = falconer }
+			}
+			add_trait = falconer
+		}
+	}
+	option = { # Send it away
+		name = EVTOPTB_HL_8011
+	}
+}
+
+#No Mongol Wrestling events

@@ -72,15 +72,17 @@ NDefines.NEndGame.DYN9_ID = 1889009
 NDefines.NEndGame.DYN10_SCORE = 15000
 NDefines.NEndGame.DYN10_ID = 1519000
 NDefines.NEndGame.DYN11_SCORE = 10000
-NDefines.NEndGame.DYN11_ID = 2001034
+NDefines.NEndGame.DYN11_ID = 1788046 
 NDefines.NEndGame.DYN12_SCORE = 7500
-NDefines.NEndGame.DYN12_ID = 1491901
+NDefines.NEndGame.DYN12_ID = 1796003
 NDefines.NEndGame.DYN13_SCORE = 5000
-NDefines.NEndGame.DYN13_ID = 1788046
+NDefines.NEndGame.DYN13_ID = 1491901
 NDefines.NEndGame.DYN14_SCORE = 2000
-NDefines.NEndGame.DYN14_ID = 1796003
+NDefines.NEndGame.DYN14_ID = 1790001 
 NDefines.NEndGame.DYN15_SCORE = 1000
-NDefines.NEndGame.DYN15_ID = 1790001
+NDefines.NEndGame.DYN15_ID = 2001034 
+
+11 = mahonic
 
 NDefines.NLearningScenario.START_YEAR = 2666
 NDefines.NLearningScenario.START_MONTH = 7

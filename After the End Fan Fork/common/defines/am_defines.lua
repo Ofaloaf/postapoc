@@ -80,9 +80,7 @@ NDefines.NEndGame.DYN13_ID = 1491901
 NDefines.NEndGame.DYN14_SCORE = 2000
 NDefines.NEndGame.DYN14_ID = 1790001 
 NDefines.NEndGame.DYN15_SCORE = 1000
-NDefines.NEndGame.DYN15_ID = 2001034 
-
-11 = mahonic
+NDefines.NEndGame.DYN15_ID = 2001034
 
 NDefines.NLearningScenario.START_YEAR = 2666
 NDefines.NLearningScenario.START_MONTH = 7

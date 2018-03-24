@@ -28,6 +28,9 @@ CactusHat
 ObediahTheSlim
 tsf4
 BomberHarris
+Wat Tambor
+Norse_Emperor
+KoraxTheGhoul
 
 Original mod team:
 Mod Creator: Ofaloaf
@@ -57,6 +60,7 @@ Jewish Flags: User:Hosmich for the Yiddish flag, User:Zirland for the background
 Jewish Artifacts: User:An Encore Performance From The Boys In The Band for the flag used in the Jewish banner, and User:Daniel G. for the menorah used in the Golden Menorah image
 Jewish CoAs: User:Gilgamesh for the Star of David emblem, User:An Encore Performance From The Boys In The Band for the Ink Flag-style Star of David emblem, User:Scrumshus for the Shin emblem, User:AnonMoos for the Chai emblem, User:Meul for the Khamsa emblem (plain), User:Madboy74 for the Khamsa emblem (open eye), User:Dan Pelleg for the Shalom emblem, en:User:Cameltrader for the Lion of Judah emblem (taken from the Emblem of Jerusalem), and User:Mushki Brichta for the Shofar emblem.
 Papal Tiara artifact: John Bellairs (http://www.bellairsia.com/) for the photos of the Papal Tiara.
+Shomrim flag: Shomrim Brooklyn South Safety Patrol
 
 Music:
 "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru"

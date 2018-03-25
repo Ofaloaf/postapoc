@@ -63,7 +63,7 @@ Papal Tiara artifact: John Bellairs (http://www.bellairsia.com/) for the photos 
 Shomrim flag: Shomrim Brooklyn South Safety Patrol
 
 Music:
-"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru"
+"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past"
 Kevin MacLeod (incompetech.com)
 
 "Lazy Days"

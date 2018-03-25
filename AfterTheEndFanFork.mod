@@ -12,3 +12,5 @@ replace_path = "common/death"
 replace_path = "common/landed_titles"
 replace_path = "gfx/flags"
 replace_path = "music"
+
+picture = "After The End Fan Fork.png"

@@ -1,0 +1,34 @@
+The game supports dynamic secret cults for religion. These are generated at game start based on one or more templates, and works in conjunction with the "secret religion" system.
+In the secret religion system, each character can have a secret religion. This is exposed through a number of triggers and effects.
+Triggers:
+	secret_religion - Compares the secret religion of the character to the right-hand-side
+	true_religion - Compares the secret religion of the character if they have one, otherwise their public religion
+	Both of the above, and the old "religion" trigger, default to comparing against the same level of visibility if used with a scope. E.G., secret_religion = FROM will check that two scopes have the same secret religion. If used in a non-character scope (E.G., province) it will use the regular religion of that scope, but the appropriate visibility of the scope it is compared to. So location = { secret_religion = ROOT } will check that one's location has the same religion as one's secret religion
+	If different levels of visibility are to be compared, the scopes can be expanded: religion = { target_type = secret target = ROOT }. The three target_types are public, secret, and true
+	
+	has_secret_religion - Takes "yes" or "no", and simply checks if a character has a secret religion
+	
+Effects:
+	set_secret_religion - Sets the secret religion of the character to the right-hand-side. Like the triggers, can be expanded to specify what visibility to use (the old "religion" trigger also supports this now). Defaults to "secret". There's also a corresponding console command
+	clear_secret_religion - Removes a character's secret religion
+	convert_to_secret_religion - Takes "yes" or a character scope. Sets your public religion to your secret religion, or the target character's secret religion if a scope is used
+	secret_religion works to set secret religion in history
+	
+Scopes:
+	secret_religious_cult - This scopes to the secret religious cult of the character's true religion. If used in another scope that has a religion (E.G., a province) it will return the secret religious cult of that religion. Can also be used on the right-hand-side of most triggers and effects that take a society or religion
+	Societies can now have an associated religion, defined using associated_religion. This means that religion triggers now work within society scopes, and that societies can be used as the right-hand-side for most religion related triggers and effects
+	The society itself is "FROM" in most triggers defined within the society. Exceptions: "is_visible" in the rank modifiers, "non_interference", and "obedient". There you can use "same_society" instead
+	
+Localisation:
+	Added "SecretReligion" and "TrueReligion" text promotions so that the religions can be easily accessed for localisation purposes
+
+For localisation, the society will behave as if its tag were secret_RELIGIONTAG_society, so you could for example define secret_catholic_society_desc in order for that description to show in the Catholic society. If no religion-specific key is used then "secret_religious_society_template" will be used instead (E.G., secret_religious_society_template_desc)
+The same applies to currency, art, sound, and the rank up decision. For those normally defined in the society itself (currency, rank art, rank up decision, selection sound), the tag is appended with the type: _currency, _ranks, _rank_up, and _selected, respectively
+Note that if you do add the name of a rank, you have to add both the male and female versions
+
+Religion definition:
+	Religions will default to using the secret_religious_society_template template, but this can be overridden.
+	dynamic_cult = no will make it so no dynamic cult is generated
+	dynamic_cult_template = NAME will make it so a specific template is used instead of secret_religious_society_template
+	secret_cult = NAME will make it so a specific regular society is used rather than one being generated
+	secret_religion = no will make it so the religion cannot be used as a secret religion at all

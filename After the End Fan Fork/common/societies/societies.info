@@ -1,0 +1,138 @@
+Societies
+
+Variables:
+member_score_per_rank, floating value, how much member score a character recieves for every rank
+member_score_per_attribute, floating value, how much member score a character recieves for every point of society attribute
+member_score_per_currency, floating value, how much member score a character recieves for every point of currency
+member_score, MTTH, root is character, bonus member score based on triggers.
+is_religious, whether the society is religion-based or not, used for opinion value
+opinion_to_other_members, integer, 		the opinion modifier applied when both characters are members
+opinion_to_pretenders, integer,			the opinion modifier from a member towards someone who is perceived to be a member but is not
+opinion_to_perceived_members, integer,	the opinion modifier from a non-member toward someone who is perceived to be a member
+opinion_per_rank_above, integer, the opinion bonus characters in the society get for how much they're outranked by another member. E.G., if the bonus is 5, someone at rank 1 will get a +15 bonus with someone at rank 4
+custom_tooltip, a localisation key for modifiers in society ranks that is localized and added to the tooltip for rank icons
+society_rank_up_decision, a key for the decision that ranks up a member in the society
+sound, a key for a sound effect to play while the society is selected in the societies tab. The sound key is defined in interface/sound.sfx
+obedient, used within society_rank to define when other (AI) characters in the society will be obedient (roughly equivalent to "debug_yesmen") towards characters of this rank. ROOT is the rank holder, FROM is the potentially obedient character
+obedience_tooltip, string, the localisation key to be shown for the given rank, explaining what characters are obedient
+non_interference, global to the society itself. Non-interfering AI characters will not take any hostile action towards the character. Only characters within the society will be non-interfering. ROOT is the target of diplomatic actions. FROM is the character taking the action
+non_interference_tooltip, string, the localisation key to be shown under "influence", explaining what characters are non-interfering
+devil_worshipper, bool, used for the is_devil_worshipper trigger. Also suppresses the "religious differences" opinion modifiers with other members of the same society
+criminal, bool, used for the is_criminal trigger
+active, trigger, used to determine if the society is active. If not met, it will be impossible to see or join the society, and no members will be generated for it at game start, and all existing members will be booted out of it within a month. Note that events and the like that reference the society will continue to act as if the society existed normally. Note that the conditions for this trigger are not shown in the UI anywhere, so you may want a global event or similar if this is something that can happen *during* a campaign. ROOT is the society
+indestructible, bool, used to determine whether a society is "indestructible". Indestructible societies will use the startup_populate trigger to find an existing character to lead the society. It will choose the character in the world who would get the highest society membership score, with landed characters having their score reduced to 1/100th of what they'd otherwise get, since affecting a landed character is much more disruptive than affecting a courtier. If there's no eligible character, the on_society_failed_to_find_new_leader on-action will fire
+template, bool, indicates whether the society is a template. See dynamic_societies.info for an explanation of what that means
+associated_religion, string, defines what religion is associated with the society. Is used for religion triggers, effects, and similar
+
+### Effect for societies:
+join_society = the_assassins 				# joins the named society. Scope must be a character
+
+leave_society = yes/no 						# leaves the society the character is a member of. Scope must be a character
+
+society_rank_up = {							# rank up a character in a specific society
+	society = society_key
+	rank = number_of_ranks
+}
+society_rank_up = x 						# ranks up a society member by x. Scope must be a character
+
+society_rank_down = {						# rank down a character in a specific society
+	society = society_key
+	rank = number_of_ranks
+}
+society_rank_down = x 						# ranks down a society member by x. Scope must be a character
+
+any_society_member = {						# executes effect on all society members that fulfills the limit
+	limit = {
+		age = 16							# example
+		learning = 5						# example
+	}
+	prestige = 100							# example
+}
+
+random_society_member = {					# executes effect on a random society member that fulfills the limit
+	limit = {
+		society_member_of = the_assassins	# example
+	}
+	prestige = 100							# example
+}
+
+change_plot_power = 10						# Add 10 plot power of the plot owned by the scoped characters
+
+set_intrested_society = the_assassins		# Make a character interested in joining the society called "the_assasins"
+
+change_society_currency = {					# Change the society currency of the scoped character in a specified society
+	society = the_assassins					# Which society
+	value = value							# How much
+}
+change_society_currency = value				# Change the currency of scope character in their society
+
+set_society_grandmaster = (yes/no)			# Set or unset a character as the grandmaster of their society.
+
+add_society_modifier = 	{					# Adds a timed modifier to the society of scoped character. Works with days and years.
+	modifier = failed_mission
+	years = 2
+}
+
+set_discovered_society = society_name 		# Scope must be a character, sets the character as "revealed" to be part of society_name
+set_discovered_society = yes				# Scope must be a character, sets the character as revealed to part of their current society
+clr_discovered_society = yes				# Scope must be a character, resets the character's revealed society
+
+# Triggers
+
+is_in_society = yes 						# scope must be a character. Checks if character is member of any society or not
+
+society_is_devil_worshiper = no				# scope must be a character. Checks if character's society is a devil worshiping society or not
+
+society_is_criminal = yes 					# scope must be a character. Checks if character's society is a criminal society or not
+
+society_member_of = the_assassins 			# scope must be a character. Checks if character is member of named society
+
+society_rank = { 							# scope must be a character. Checks if character belongs to named society and if character rank in society equals x
+	society = the_assassins 				# example
+	rank = x 								# example, also works with following comparisons: <, <=, > and >=
+}
+society_rank = x							# compare the society rank of the scope character
+
+society_currency = { 						# scope must be a character. Checks if character belongs to named society and if character currency in society equals x
+	society = the_assassins #example
+	value = x 								# example, also works with following comparisons: <, <=, > and >=
+}
+society_currency = x						# scope must be character, compares the currency of the characters society.
+
+society_influence = { 						# Checks if a given society's influence equals x. 
+											# If no society name is given, it will use either the society in the current scope, or the society of the character in the current scope
+											# if no society name is given, and the current scope is neither a society nor a character, it will always return false
+	society = the_assassins 				# example, not required
+	value = x 								# example, also works with following comparisons: <, <=, > and >=
+}
+
+is_society_rank_full = { 					# Checks if named society's rank is full
+	society = the_assassins # example
+	rank = x 								# example
+}
+
+any_society_member = {						# returns true if any society member fulfills conditions
+	age = 16								# example
+	learning = 5							# example
+}
+
+society_can_rank_up = yes/no				# Check if a character can rank up within their society
+
+society_can_rank_down = yes/no				# Check if a character can rank down within their society
+
+interested_in_society = the_assassins		# Check if a character is interested in the society with the tag "the_assassins"
+
+same_society_as = fromfrom					# Checks if scope character is in the same society as target character.
+
+can_join_society = the_satanists			# Checks if scope character can join the specified society
+
+days_in_society >= x						# Checks if scope character has been in a society x days
+
+days_at_current_society_rank = x			# Checks if scope character has been at current rank in society x days
+
+is_society_grandmaster = (yes/no)			# Checks if scope character is the grandmaster of their society
+
+is_society_discovered = yes					# Scope must be a character, returns true if the character has been "revealed" as part of a secret society, whether they're actually a member of it or not
+is_society_discovered_real = yes			# Scope must be a character, returns true if the character has been revealed as part of a secret society, and they are actually part of it
+
+num_of_society_members > 5					# Scope must be a character or society. Returns true if the society has at least this many members. Also supports <, <=, ==, and >=

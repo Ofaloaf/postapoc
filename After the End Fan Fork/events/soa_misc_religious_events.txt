@@ -2897,11 +2897,236 @@ narrative_event = {
 #I want to keep these but at the same time I don't want to fucking deal with the localization
 # Massacre at Beziers - fires from on_siege_over_winner
 # Shepherds' Crusade
+narrative_event = {
+	id = SoA.5401
+	title = EVTNAME_SoA_5401
+	desc = EVTDESC_SoA_5401
+	picture = GFX_evt_peasants
+	border = GFX_event_narrative_frame_war
+	
+	only_playable = yes
+	religion_group = christian
+	war = yes
+	has_dlc = "Sons of Abraham"
+	
+	trigger = {
+		higher_tier_than = DUKE
+		OR = {
+			religion = catholic
+			religion = neognostic
+			religion = sedevacantist
+			religion = ursuline
+			religion = angeline
+		}
+		any_war = {
+			using_cb = crusade
+		}
+		any_war = {
+			NOT = {
+				OR = {
+					using_cb = depose_liege
+					using_cb = bid_for_independence
+				}
+			}
+		}
+		NOT = { has_global_flag = shepherds_crusade }
+	}
+
+	mean_time_to_happen = {
+		months = 1000
+	}
+	
+	immediate = {
+		set_global_flag = shepherds_crusade
+	}
+	
+	option = {
+		name = EVTOPTA_SoA_5401
+		trigger = {
+			wealth = 500
+		}
+		wealth = -500
+	}
+	
+	option = {
+		name = EVTOPTC_SoA_5401
+		set_global_flag = shepherds_crusade_active
+		random_realm_province = { province_event = { id = SoA.5405 } }
+	}
+}
+
+province_event = {
+	id = SoA.5405
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	immediate = {
+		create_character = {
+			random_traits = yes
+			dynasty = none
+			religion = FROM
+			culture = comanche #closest equivalent I can think of to Hungarian
+			female = no
+			age = 60
+			trait = martial_cleric
+			trait = zealous
+			trait = monk
+		}
+		new_character = {
+			set_character_flag = shepherds_crusade_leader
+			set_character_flag = special_marshal
+			give_nickname = nick_the_master_of_texas
+			prestige = 50
+			piety = 200
+			create_title = {
+				tier = DUKE
+				landless = yes
+				temporary = yes
+				rebel = yes
+				culture = ROOT
+				name = "SHEPHERDS_CRUSADE"
+				holder = THIS
+			}
+			spawn_unit = {
+				owner = THIS
+				#leader = THIS
+				province = ROOT
+				home = ROOT
+				troops = {
+					light_infantry = { 10000 10000 }
+				}
+				attrition = 1.0
+				disband_on_peace = yes
+			}
+			spawn_unit = {
+				owner = THIS
+				province = ROOT
+				home = ROOT
+				troops = {
+					light_infantry = { 10000 10000 }
+				}
+				attrition = 1.0
+				disband_on_peace = yes
+			}
+			spawn_unit = {
+				owner = THIS
+				province = ROOT
+				home = ROOT
+				troops = {
+					light_infantry = { 10000 10000 }
+				}
+				attrition = 1.0
+				disband_on_peace = yes
+			}
+			set_defacto_liege = FROM
+			FROM = {
+				capital_scope = {
+					holder_scope = {
+						reverse_war = {
+							target = PREVPREVPREV
+							casus_belli = depose_liege
+						}
+					}
+				}
+			}
+			character_event = { id = SoA.5402 days = 365 random = 180 } # Collapse which will come later
+		}
+	}
+}
+
 # Shepherds crusade collapses
+character_event = {
+	id = SoA.5402
+
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	immediate = {
+		any_war = {
+				limit = {
+					attacker = { character = ROOT }
+				}
+			end_war = invalid
+		}
+		death = {
+			death_reason = death_accident
+		}
+		clr_global_flag = shepherds_crusade_active
+		FROMFROM = {
+			character_event = { id = SoA.5403 }
+		}
+	}
+}
+
 # Notify player of Shepherds crusade collapse
+character_event = {
+	id = SoA.5403
+	desc = EVTDESC_SoA_5403
+	picture = GFX_evt_stone_church
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_SoA_5403
+	}
+}
+
 # Shepherds' Crusade kills a local Jew or priest. Fired from 'on_siege_over_loc_chars'.
 # Siege winner unit owner in the 'new_character' scope, lost holding title in FROM, local character in ROOT.
+character_event = {
+	id = SoA.5406
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		OR = {
+			religion_group = jewish_group
+			is_priest = yes
+		}
+		new_character = {
+			rebel = yes
+			has_character_flag = shepherds_crusade_leader
+		}
+	}
+	
+	immediate = {
+		random = {
+			chance = 50
+			new_character = {
+				ROOT = {
+					death = {
+						death_reason = death_rabble
+						killer = PREV
+					}
+				}
+			}
+			any_liege = { # Inform the victim's lieges
+				character_event = {
+					id = SoA.5409
+				}
+			}
+		}
+	}
+}
+
 # Liege notified of killing of character by Shepherds' Crusade
+character_event = {
+	id = SoA.5409
+	desc = EVTDESC_SoA_5409
+	picture = GFX_evt_beheading
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_SoA_5409
+	}
+}
 
 ###########################################
 #                                         #

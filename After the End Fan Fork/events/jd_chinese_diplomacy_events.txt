@@ -1,1 +1,243 @@
-#Disabled for now
+character_event = { # Sokher visits
+	id = JD.7010
+	desc = EVTDESC_JD_7010
+    picture = GFX_evt_jewish_market
+	
+	only_playable = yes
+	only_capable = yes
+    has_dlc = "Jade Dragon"
+    prisoner = no
+    war = no
+    min_age = 16
+
+	is_triggered_only = yes
+	
+	trigger = {
+		NOR = {
+			has_character_flag = sokherim_visit
+			has_character_modifier = expelled_jewish
+		}
+		any_realm_province = {
+			OR = {
+				trade_route = atlantic_trade
+				trade_route = caribbean_trade
+				trade_route = great_waters_trade
+				trade_route = interstate_trade
+				trade_route = great_pacific_trade
+			}
+			NOR = {
+				has_province_modifier = radhanite_favor
+				has_province_modifier = radhanite_favor_big
+			}
+			any_province_holding = {
+				holding_type = city
+				holder_scope = {
+					tier = BARON
+				}
+			}
+		}
+	}
+	
+	immediate = {
+		hidden_effect = {
+			create_random_steward = {
+				random_traits = yes
+				dynasty = actually_culture
+				female = no
+				age = 33
+				culture = yiddish
+				religion = jewish
+				flag = ai_flag_refuse_conversion
+				attributes = {
+					diplomacy = 2
+					learning = 2
+					stewardship = 14
+					intrigue = 2
+					martial = 2
+				}
+			}
+			new_character = {
+				character_event = { id = misc.3 } # Diversity
+				remove_trait = slow
+				remove_trait = imbecile
+				remove_trait = dull
+				
+				wealth = 50
+				
+				add_trait = shrewd
+				
+				save_event_target_as = sokherim_merchant
+			}
+			random_realm_province = {
+				limit = {
+					OR = {
+						trade_route = atlantic_trade
+						trade_route = caribbean_trade
+						trade_route = great_waters_trade
+						trade_route = interstate_trade
+						trade_route = great_pacific_trade
+					}
+					NOR = {
+						has_province_modifier = radhanite_favor
+						has_province_modifier = radhanite_favor_big
+					}
+					any_province_holding = {
+						holding_type = city
+						holder_scope = {
+							tier = BARON
+						}
+					}
+				}
+				save_event_target_as = sokherim_location
+			}
+			event_target:sokherim_location = {
+				random_province_holding = {
+					limit = {
+						holding_type = city
+						holder_scope = {
+							tier = BARON
+						}
+					}
+					save_event_target_as = sokherim_location_barony
+				}
+			}
+			event_target:sokherim_location_barony = {
+				holder_scope = {
+					save_event_target_as = sokherim_location_barony_holder
+				}
+			}
+		}
+		
+		set_character_flag = sokherim_visit
+	}
+	
+	option = { # Accept offer
+		name = EVTOPTA_JD_7010
+		custom_tooltip = {
+			text = EVTOPTA_JD_7010_TT
+		}
+		event_target:sokherim_merchant = {
+			show_portrait = yes
+		}
+		transfer_scaled_wealth = {
+			to = event_target:sokherim_merchant
+			value = 0.5
+			min = 100
+		}
+		event_target:sokherim_location = {
+			add_province_modifier = {
+				name = radhanite_favor
+				years = 50
+			}
+		}
+		ai_chance = { 
+			factor = 10
+			modifier = {
+				factor = 0
+				NOT = {
+					wealth = 200
+				}
+			}
+		}
+	}
+	
+	option = { # Bring him over for... dinner
+		name = EVTOPTB_JD_7010
+		tooltip_info = cannibal_trait
+		trigger = {
+			trait = cannibal_trait
+		}
+		event_target:sokherim_merchant = {
+			death = {
+				death_reason = death_execution_eaten
+				killer = ROOT
+			}
+		}
+		wealth = 50
+		if = {
+			limit = {
+				trait = stressed
+			}
+			remove_trait = stressed
+		}
+		if = {
+			limit = {
+				trait = depressed
+			}
+			remove_trait = depressed
+		}
+		ai_chance = { 
+			factor = 100
+		}
+	}
+
+	option = { # One-up the Sokher
+		name = EVTOPTC_JD_7010
+		trigger = {
+			event_target:sokherim_location = {
+				always = yes
+			}
+			event_target:sokherim_location_barony = {
+				always = yes
+			}
+			event_target:sokherim_location_barony_holder = {
+				is_alive = yes
+			}
+		}
+		custom_tooltip = {
+			text = EVTOPTC_JD_7010_TT
+		}
+		prestige = -100
+		transfer_scaled_wealth = {
+			to = event_target:sokherim_merchant
+			value = 0.5
+			min = 100
+		}
+		event_target:sokherim_merchant = {
+			usurp_title = event_target:sokherim_location_barony
+			opinion = {
+				modifier = opinion_loyal_servant
+				who = ROOT
+				years = 100
+			}
+		}
+		event_target:sokherim_location = {
+			add_province_modifier = {
+				name = radhanite_favor_big
+				years = 100
+			}
+		}
+		event_target:sokherim_location_barony_holder = {
+			opinion = {
+				who = ROOT
+				years = 100
+				modifier = opinion_outraged
+			}
+		}
+		ai_chance = { 
+			factor = 5
+			modifier = {
+				factor = 0
+				NOT = {
+					wealth = 200
+				}
+			}
+		}
+	}
+	
+	option = { # Politely decline
+		name = EVTOPTD_JD_7010
+		custom_tooltip = {
+			text = EVTOPTD_JD_7010_TT
+			hidden_effect = {
+				event_target:sokherim_merchant = {
+					leave_court_and_die_effect = yes
+				}
+			}
+		}
+		ai_chance = { 
+			factor = 100
+		}
+	}
+
+}

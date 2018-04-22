@@ -14,3 +14,5 @@ replace_path = "gfx/flags"
 replace_path = "music"
 
 picture = "After The End Fan Fork.jpg"
+
+tags = { "After the End" }

@@ -1,4 +1,4 @@
-name = "AtE FF - Mongol Faces DLC (DO NOT USE IF YOU OWN JADE DRAGON)"
+name = "After the End Fan Fork - Mongol Faces DLC"
 path = "mod/After the End Fan Fork - Mongol Faces DLC"
 
 dependencies = { "After the End Fan Fork" }

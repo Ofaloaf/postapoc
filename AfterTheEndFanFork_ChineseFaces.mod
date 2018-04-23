@@ -1,4 +1,4 @@
-name = "After the End Fan Fork - Chinese Faces DLC"
+name = "AtE FF - Chinese Faces DLC (Use if you own Jade Dragon)"
 path = "mod/After the End Fan Fork - Chinese Faces DLC"
 
 dependencies = { "After the End Fan Fork" }

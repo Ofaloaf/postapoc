@@ -809,141 +809,6 @@ targeted_decisions = {
 		}
 	}
 
-	#Action: cold ones recruit
-	cold_ones_recruit = {
-		is_in_society = yes
-
-		ai_target_filter = realm
-		ai_check_interval = 12
-
-		from_potential = {
-			is_adult = yes
-			prisoner = no
-			NOT = { trait = incapable }
-			NOT = { has_character_modifier = recruitment_timer }
-			society_member_of = the_cold_ones
-			OR = {
-				ai = no
-				society_rank = {
-					society = the_cold_ones
-					rank == 2
-				}
-				society_rank = {
-					society = the_cold_ones
-					rank == 3
-				}
-			}
-		}
-		potential = {
-			OR = {
-				FROM = { ai = no }
-				ai = no
-			}
-			OR = {
-				FROM = { ai = yes } # Only checks realm, so by definition in range
-				is_within_diplo_range = FROM
-			}
-			is_adult = yes
-			prisoner = no
-			NOT = { trait = incapable }
-			is_in_society = no
-
-			#AI cannot invite other AIs when society is full
-			NAND = {
-				ai = yes
-				FROM = { ai = yes }
-				NOT = { can_join_society = the_cold_ones }
-			}
-
-			#Blocks so AI recruits sensible people (who might say no)
-			OR = {
-				FROM = { ai = no }
-				is_friend = FROM
-				is_lover = FROM
-				is_close_relative = FROM
-				trait = trusting
-				has_impious_trait_trigger = yes
-				trait = drunkard
-				trait = possessed
-				trait = lunatic
-				interested_in_society = the_cold_ones
-			}
-
-			NAND = {
-				FROM = { ai = yes }
-				trait = zealous
-			}
-		}
-		allow = {
-			OR = {
-				religion = thelemic
-				religion = thelemic_reformed
-				religion = nousthreskeia
-			}
-			is_inaccessible_trigger = no
-			custom_tooltip = {
-				text = cold_ones_recruit_block_tooltip
-				OR = {
-					NOT = { has_character_flag = cold_ones_attempted_recruitment }
-					interested_in_society = the_cold_ones
-				}
-				NOT = { has_character_flag = being_recruited_by_the_cold_ones }
-			}
-			has_cold_ones_prerequisites = yes
-			FROM = {
-				is_inaccessible_trigger = no
-				custom_tooltip = {
-					text = recruit_delay_timer_tooltip
-					NOT = { has_character_modifier = recruitment_delay_timer }
-				}
-			}
-		}
-		effect = {
-			set_character_flag = cold_ones_attempted_recruitment
-			set_character_flag = being_recruited_by_the_cold_ones
-			FROM = {
-				save_event_target_as = satanists_recruiter
-			}
-			hidden_effect = { 
-				character_event = { id = MNM.7001 days = 3 } # recruitment chain
-				character_event = { id = MNM.7030 days = 365 } # sends delayed back up, in case recruitment fails somehow
-				FROM = {
-					if = {
-						limit = { ai = yes }
-						add_character_modifier = {
-							name = recruitment_timer
-							days = 730
-							hidden = yes
-						}
-					}
-					add_character_modifier = {
-						name = recruitment_delay_timer
-						days = 90
-						hidden = yes
-					}
-				}
-			}
-		}
-		revoke_allowed = {
-			always = no
-		}
-		ai_will_do = {
-			factor = 1
-			modifier = {
-				factor = 0.1 # slow down
-			}
-			modifier = {
-				factor = 10 # recruit interested parties
-				interested_in_society = the_cold_ones
-			}
-			modifier = {
-				factor = 0 # don't recruit characters interested in something else
-				NOT = { interested_in_society = the_cold_ones }
-				is_interested_in_any_society = yes
-			}
-		}
-	}
-
 	#Action: plaguebringers_recruit
 	plaguebringers_recruit = {
 		is_in_society = yes
@@ -1548,9 +1413,7 @@ targeted_decisions = {
 		}
 		allow = {
 			OR = {
-				religion = cetic
-				religion = gaian
-				religion = shinto
+				religion_group = pacific
 			}
 			is_inaccessible_trigger = no
 			custom_tooltip = {
@@ -1816,6 +1679,8 @@ targeted_decisions = {
 			OR = {
 				religion = occultist
 				religion = occultist_reformed
+				religion = thelemic
+				religion = thelemic_reformed
 			}
 			is_inaccessible_trigger = no
 			custom_tooltip = {
@@ -2784,13 +2649,6 @@ targeted_decisions = {
 						}
 					}
 					AND = {
-						society_member_of = the_cold_ones
-						is_society_rank_full = {
-							society = the_cold_ones
-							rank = 1
-						}
-					}
-					AND = {
 						society_member_of = the_plaguebringers
 						is_society_rank_full = {
 							society = the_plaguebringers
@@ -2880,19 +2738,6 @@ targeted_decisions = {
 				}
 				AND = {
 					FROM = {
-						society_member_of = the_cold_ones
-					}
-					OR = {
-						religion = thelemic
-						religion = thelemic_reformed
-						secret_religion = thelemic
-						secret_religion = thelemic_reformed
-						religion = nousthreskeia
-						secret_religion = nousthreskeia		
-					}
-				}
-				AND = {
-					FROM = {
 						society_member_of = the_plaguebringers
 					}
 					OR = {
@@ -2960,12 +2805,8 @@ targeted_decisions = {
 						society_member_of = bohemian_grove
 					}
 					OR = {
-						religion = cetic
-						religion = gaian
-						religion = shinto
-						secret_religion = cetic
-						secret_religion = gaian
-						secret_religion = shinto
+						religion_group = pacific
+						secret_religion_group = pacific
 					}
 				}
 				AND = {
@@ -2984,8 +2825,12 @@ targeted_decisions = {
 					OR = {
 						religion = occultist
 						religion = occultist_reformed
+						religion = thelemic
+						religion = thelemic_reformed
+						secret_religion = occultist
 						secret_religion = occultist_reformed
-						secret_religion = occultist_reformed
+						secret_religion = thelemic
+						secret_religion = thelemic_reformed
 					}
 				}
 			}

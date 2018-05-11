@@ -1,4 +1,4 @@
-name = "After the End Fan Fork"
+name = "After the End Fan Fork v0.2"
 path = "mod/After the End Fan Fork"
 user_dir = "After the End Fan Fork"
 

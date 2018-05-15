@@ -8,11 +8,143 @@
 namespace = ZE
 
 #Steward has low stewardship and is proud, borrows money from jews
-# event ZE.3000 removed in AtE
+character_event = {
+	id = ZE.3000
+	picture = GFX_evt_courtiers_talking
+	border = GFX_event_normal_frame_economy
+	desc = EVTDESC_ZE_3000
+
+	is_triggered_only = yes
+	only_playable = yes
+
+	trigger = { 
+		has_dlc = "Sons of Abraham"
+		has_dlc = "Zeus"
+		job_treasurer = {
+			trait = proud
+			NOR = { 
+				stewardship = 8
+				trait = incapable
+				is_inaccessible_trigger = yes
+			}
+			prisoner = no
+		}
+		OR = {
+			religion_group = christian
+			religion_group = cult_of_saints
+			religion_group = latter_day_saints
+			religion_group = oldworld
+		}
+		prisoner = no
+		is_nomadic = no
+		is_adult = yes
+		NOR = { 
+			trait = incapable
+			is_inaccessible_trigger = yes
+			religion_group = jewish_group
+			has_character_modifier = borrowed_from_jews
+			has_character_modifier = expelled_jewish
+			has_character_flag = ZE.3000_flag
+		}
+		top_liege = { NOT = { has_character_modifier = expelled_jewish } }
+	}
+
+
+	immediate = {
+		set_character_flag = ZE.3000_flag
+		add_character_modifier = {
+			name = borrowed_from_jews
+			duration = -1
+			inherit = yes
+		}
+		job_treasurer = { save_event_target_as = target_treasurer }
+	}
+
+	option = {
+		name = EVTOPTA_ZE_3000
+		wealth = 300
+		hidden_tooltip = {
+			character_event = { id = ZE.3001 days = 14 }
+		}
+	}
+}
+
 
 #Jewish merchants approach court to talk payment plan, player finds out steward lent money
-# event ZE.3001 removed in AtE
+character_event = {
+	id = ZE.3001
+	picture = GFX_evt_jewish_market
+	border = GFX_event_normal_frame_economy
+	desc = EVTDESC_ZE_3001
 
+	is_triggered_only = yes
+	only_playable = yes
+
+	#Fire the steward
+	option = {
+		trigger = {
+			event_target:target_treasurer = { has_job_title = job_treasurer	}
+		}
+	
+		name = EVTOPTA_ZE_3001
+
+		if = {
+			limit = {
+				NOT = { trait = just }
+				NOT = { trait = arbitrary }
+			}
+			add_trait = just
+		}
+		if = {
+			limit = { trait = arbitrary }
+			remove_trait = arbitrary
+		}
+		opinion = {
+			modifier = opinion_very_disappointed
+			who = event_target:target_treasurer
+			years = 5
+		}
+		event_target:target_treasurer = {
+			show_scope_change = no
+			if = { limit = { has_job_title = job_treasurer} remove_title = job_treasurer }
+		}
+	}
+
+	#punish steward
+	option = {
+		trigger = {
+			trait = wroth
+		}
+		name = EVTOPTB_ZE_3001
+		#effects on you
+		if = { limit = { trait = kind } remove_trait = kind }
+		if = { limit = { NOT = { trait = cruel } } add_trait = cruel }
+		#steward
+		event_target:target_treasurer = {
+			show_scope_change = no
+			add_rival = ROOT
+			if = { limit = { has_job_title = job_treasurer} remove_title = job_treasurer }
+			if = { limit = { is_maimed_trigger = yes } death = { death_reason = death_execution killer = ROOT } break = yes }
+			if = { limit = { trait = wounded } add_maimed_trait_effect = yes }
+			if = { limit = { NOT = { trait = wounded } } add_trait = wounded }
+		}
+	}
+
+	#Do nothing
+	option = {
+		name = EVTOPTC_ZE_3001
+		if = { limit = { trait = wroth } remove_trait = wroth }
+		if = { limit = { NOT = { trait = patient }} add_trait = patient }
+		event_target:target_treasurer = {
+			show_scope_change = no
+			opinion = {
+				modifier = opinion_grateful
+				who = ROOT
+				years = 5
+			}
+		}
+	}
+}
 
 #Steward has high stewardship, makes extra money
 character_event = {
@@ -554,14 +686,45 @@ character_event = {
 			NOT = { has_character_flag = ZE.3011_failed_flag }
 		}
 		name = EVTOPTA_ZE_3014
-		if = { limit = { trait = detached_priest } remove_trait = detached_priest add_trait = thrifty_clerk break = yes}
-		if = { limit = { trait = misguided_warrior } remove_trait = misguided_warrior add_trait = thrifty_clerk break = yes}
-		if = { limit = { trait = indulgent_wastrel } remove_trait = indulgent_wastrel add_trait = thrifty_clerk break = yes}
-		if = { limit = { trait = naive_appeaser } remove_trait = naive_appeaser add_trait = thrifty_clerk break = yes}
-		if = { limit = { trait = amateurish_plotter } remove_trait = amateurish_plotter add_trait = thrifty_clerk break = yes}
-		if = { limit = { trait = arbitrary } remove_trait = arbitrary}
-		if = { limit = { NOT = { trait = just } } add_trait = just change_stewardship = 1 break = yes}
-		change_stewardship = 3
+		if = {
+			limit = { has_bottom_tier_education_trait_trigger = yes }
+			trigger_switch = {
+				on_trigger = trait
+				detached_priest = {
+					remove_trait = detached_priest
+					add_trait = thrifty_clerk
+				}
+				misguided_warrior = {
+					remove_trait = misguided_warrior
+					add_trait = thrifty_clerk
+				}
+				indulgent_wastrel = {
+					remove_trait = indulgent_wastrel
+					add_trait = thrifty_clerk
+				}
+				naive_appeaser = {
+					remove_trait = naive_appeaser
+					add_trait = thrifty_clerk
+				}
+				amateurish_plotter = {
+					remove_trait = amateurish_plotter
+					add_trait = thrifty_clerk
+				}
+			}
+		}
+		else = {
+			if = {
+				limit = { trait = arbitrary }
+				remove_trait = arbitrary
+			}
+			if = {
+				limit = { NOT = { trait = just } }
+				add_trait = just
+				change_stewardship = 1
+				break = yes
+			}
+			change_stewardship = 3
+		}
 	}
 
 	#wasnt for me

@@ -2790,20 +2790,13 @@ character_event = {
 			modifier = {
 				factor = 0.25
 				OR = {
-					culture_group = yankee
-					culture_group = appalachian  # The most stubborn pagans
+					culture = yankee
+					culture = appalachian  # The most stubborn pagans
 				}
 			}
-			#modifier = {
-			#	factor = 0.25
-			#	culture_group = east_slavic # Like alcohol
-			#	event_target:missionary_physician_target = {
-			#		religion_group = muslim
-			#	}
-			#}
 			modifier = {
 				factor = 0.25
-				culture_group = amerodeutsch # These guys like their alcohol
+				culture_group = amerodeutsch # Like alcohol
 				event_target:missionary_physician_target = {
 					religion_group = latter_day_saints
 				}
@@ -2836,20 +2829,27 @@ character_event = {
 		religion = event_target:missionary_physician_target
 		prestige = -500
 		piety = 250
-		any_courtier = {
-			limit = { 
-				is_close_relative = ROOT
-				NOT = { trait = zealous }
+		hidden_tooltip = {
+			any_courtier = {
+				limit = { 
+					is_close_relative = ROOT
+					NOT = { trait = zealous }
+					NOT = { has_character_flag = ai_flag_refuse_conversion }
+					NOT = { trait = stubborn }
+				}
+				religion = event_target:missionary_physician_target
 			}
-			religion = event_target:missionary_physician_target
-		}
-		any_spouse = {
-			limit = { 
-				is_consort = no
-				NOT = { trait = zealous }
+			any_spouse = {
+				limit = { 
+					is_consort = no
+					NOT = { trait = zealous }
+					NOT = { has_character_flag = ai_flag_refuse_conversion }
+					NOT = { trait = stubborn }
+				}
+				religion = event_target:missionary_physician_target
 			}
-			religion = event_target:missionary_physician_target
 		}
+		custom_tooltip = { text = EVTOPTB_RIP_4101_TT }
 	}
 	
 	option = {
@@ -3922,7 +3922,7 @@ character_event = { # Execution nicknames
 							NOR = {
 								NOT = { piety = -50 }
 								trait = possessed
-								trait = kinslayer
+								is_any_kinslayer_trigger = yes
 							}
 						}
 					}
@@ -3971,7 +3971,10 @@ character_event = {
 			any_friend = { is_alive = yes }
 			any_rival = { is_alive = yes }
 		}
-		NOT = { death_reason = death_missing }
+		NOR = {
+			death_no_trace_trigger = yes
+			death_in_china_trigger = yes
+		}
 	}
 
 	option = {
@@ -4928,6 +4931,7 @@ character_event = {
 	id = RIP.29014
 	border = GFX_event_normal_frame_intrigue
 	desc = EVTDSC_RIP_29014
+	portrait = event_target:rip_dead
 	picture = GFX_evt_bloody_tools
 
 	is_triggered_only = yes
@@ -6321,7 +6325,7 @@ character_event = {
 					factor = 0
 					OR = {	
 						has_character_modifier = martially_ambidextrous
-						has_character_modifier = iron_hand
+						has_artifact = prosthetic_hand_metal
 						trait = blinded
 					}
 				}
@@ -6332,8 +6336,8 @@ character_event = {
 				modifier = {
 					factor = 0
 					OR = {	
-						has_character_modifier = iron_hand
-						has_character_modifier = golden_hand
+						has_artifact = prosthetic_hand_gold
+						has_artifact = prosthetic_hand_metal
 					}
 				}
 				character_event = { id = RIP.29305 }
@@ -6531,10 +6535,7 @@ character_event = {
 
 		scaled_wealth = { value = -0.75 min = -100 }
 
-		add_character_modifier = {
-			name = golden_hand 
-			duration = -1
-		}
+		add_artifact = prosthetic_hand_gold
 	}
 
 	#Iron hand
@@ -6544,10 +6545,7 @@ character_event = {
 
 		scaled_wealth = { value = -0.50 min = -50 }
 
-		add_character_modifier = {
-			name = iron_hand 
-			duration = -1
-		}
+		add_artifact = prosthetic_hand_metal
 
 		hidden_tooltip = {
 			random = {
@@ -6615,7 +6613,7 @@ character_event = {
 				modifier = {
 					factor = 0
 					OR = {	
-						has_character_modifier = prosthetic_leg
+						has_artifact = prosthetic_leg
 						has_character_modifier = peg_leg
 					}
 				}
@@ -6784,10 +6782,7 @@ character_event = {
 
 		scaled_wealth = { value = -0.35 min = -35 }
 
-		add_character_modifier = {
-			name = prosthetic_leg 
-			duration = -1
-		}
+		add_artifact = prosthetic_leg_artifact 
 	}
 
 	#Peg leg
@@ -7284,8 +7279,8 @@ character_event = {
 		}
 		if = {
 			limit = { has_character_flag = make_friend }
-			add_lover = FROM
-			clr_character_flag = make_lover
+			add_friend = FROM
+			clr_character_flag = make_friend
 		}
 		
 		reverse_opinion = {
@@ -8354,6 +8349,7 @@ letter_event = {
 			any_war = {
 				limit = {
 					defender = { character = event_target:target_defender }
+					attacker = { character = FROM }
 				}
 				end_war = whitepeace
 			}
@@ -8417,6 +8413,7 @@ letter_event = {
 			any_war = {
 				limit = {
 					defender = { character = event_target:target_defender }
+					attacker = { character = FROM }
 				}
 				end_war = whitepeace
 			}
@@ -8544,6 +8541,7 @@ letter_event = {
 			any_war = {
 				limit = {
 					defender = { character = event_target:target_defender }
+					attacker = { character = FROM }
 				}
 				end_war = whitepeace
 			}
@@ -8613,6 +8611,7 @@ letter_event = {
 		any_war = {
 			limit = {
 				defender = { character = event_target:target_defender }
+				attacker = { character = ROOT }
 			}
 			end_war = whitepeace
 		}
@@ -8908,6 +8907,7 @@ letter_event = {
 			any_war = {
 				limit = {
 					attacker = { character = event_target:target_attacker }
+					defender = { character = FROM }
 				}
 				end_war = success
 			}
@@ -8969,6 +8969,7 @@ letter_event = {
 			any_war = {
 				limit = {
 					attacker = { character = event_target:target_attacker }
+					defender = { character = FROM }
 				}
 				end_war = success
 			}
@@ -9094,6 +9095,7 @@ letter_event = {
 			any_war = {
 				limit = {
 					attacker = { character = event_target:target_attacker }
+					defender = { character = FROM }
 				}
 				end_war = success
 			}
@@ -9161,6 +9163,7 @@ letter_event = {
 		any_war = {
 			limit = {
 				attacker = { character = event_target:target_attacker }
+				defender = { character = FROM }
 			}
 			end_war = success
 		}
@@ -13312,7 +13315,7 @@ long_character_event = { # loss - death2
 #	id = RIP.30307
 #	desc = RIP.30307.d
 #	border = GFX_event_normal_frame_war
-#	picture = GFX_evt_suspicious_noble #TODO better pic
+#	picture = GFX_evt_suspicious_noble
 #
 #	is_triggered_only = yes
 #
@@ -13337,11 +13340,11 @@ character_event = { # flag clear
 	}
 }
 
-character_event = { # 
+character_event = {
 	id = RIP.30309
 	desc = placeholdername_19 #RIP.30309.d
 	border = GFX_event_normal_frame_diplomacy
-	picture = GFX_evt_suspicious_noble #TODO better pic
+	picture = GFX_evt_suspicious_noble
 
 	is_triggered_only = yes
 
@@ -13366,7 +13369,7 @@ character_event = { # trick
 	id = RIP.30310
 	desc = placeholdername_11# RIP.30310.d
 	border = GFX_event_normal_frame_intrigue 
-	picture = GFX_evt_suspicious_noble #TODO better pic
+	picture = GFX_evt_suspicious_noble
 
 	is_triggered_only = yes
 
@@ -13395,7 +13398,7 @@ character_event = { # the power of money
 	id = RIP.30311
 	desc = placeholdername_14# RIP.30311.d
 	border = GFX_event_normal_frame_economy
-	picture = GFX_evt_suspicious_noble #TODO better pic
+	picture = GFX_evt_suspicious_noble
 
 	is_triggered_only = yes
 
@@ -13453,7 +13456,7 @@ character_event = { # debate
 	id = RIP.30312
 	desc = placeholdername_23 #RIP.30312.d
 	border = GFX_event_normal_frame_religion
-	picture = GFX_evt_suspicious_noble #TODO better pic
+	picture = GFX_evt_suspicious_noble
 
 	is_triggered_only = yes
 
@@ -13472,7 +13475,7 @@ character_event = { # debate2
 	id = RIP.30313
 	desc = placeholdername_26 #RIP.30313.d
 	border = GFX_event_normal_frame_religion
-	picture = GFX_evt_suspicious_noble #TODO better pic
+	picture = GFX_evt_suspicious_noble
 
 	is_triggered_only = yes
 
@@ -13493,7 +13496,7 @@ character_event = { # debate3
 	id = RIP.30314
 	desc = placeholdername_29 #RIP.30314.d
 	border = GFX_event_normal_frame_religion
-	picture = GFX_evt_suspicious_noble #TODO better pic
+	picture = GFX_evt_suspicious_noble
 
 	is_triggered_only = yes
 
@@ -13727,7 +13730,7 @@ character_event = { # spare event
 	id = RIP.30400
 	desc = RIP.30302.d
 	border = GFX_event_normal_frame_war
-	picture = GFX_evt_suspicious_noble #TODO better pic
+	picture = GFX_evt_suspicious_noble
 
 	is_triggered_only = yes
 

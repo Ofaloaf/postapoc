@@ -237,7 +237,148 @@ society_decisions = { # Society decisions are only evaluated by members of socie
 
 #Hermetic/mystic (not yet!)
 
-#Monastic orders (not yet!)
+#Monastic orders
+society_decisions = {
+	monastic_order_penance = {
+		
+		potential = {
+			has_dlc = "Mystics"
+			is_christian_monastic_member_trigger = yes
+			has_quest = quest_monastic_order_penance
+		}
+
+		allow = {
+			has_quest = quest_monastic_order_penance
+			custom_tooltip = {
+				text = monastic_order_penance_allow_tt
+				OR = {
+					NOT = { has_character_flag = holy_seclusion_timer }
+					had_character_flag = { flag = holy_seclusion_timer days = 1000 }
+				}
+			}
+		}
+
+		effect = {
+			add_character_modifier = {
+				name = doing_penance
+				duration = -1
+			}
+			hidden_effect = { character_event = { id = MNM.4403 } }
+		}
+
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 0.1
+
+			modifier = {
+				factor = 0.01
+				war = yes
+			}
+			modifier = {
+				factor = 0.1
+				OR = {
+					trait = gregarious
+					trait = socializer
+				}
+			}
+			modifier = {
+				factor = 5
+				is_virtous = yes
+			}
+		}
+	}
+
+	monastic_order_meditation = {
+		
+		potential = {
+			has_dlc = "Mystics"
+			is_dharmic_monastic_member_trigger = yes
+			has_quest = quest_monastic_order_meditation
+		}
+
+		allow = {
+			has_quest = quest_monastic_order_meditation
+			custom_tooltip = {
+				text = monastic_order_meditation_allow_tt
+				OR = {
+					NOT = { has_character_flag = holy_seclusion_timer }
+					had_character_flag = { flag = holy_seclusion_timer days = 1000 }
+				}
+			}
+		}
+
+		effect = {
+			add_character_modifier = {
+				name = in_meditation
+				duration = -1
+			}
+			hidden_effect = { character_event = { id = MNM.4403 } }
+		}
+
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 0.1
+
+			modifier = {
+				factor = 0.01
+				war = yes
+			}
+			modifier = {
+				factor = 0.1
+				OR = {
+					trait = gregarious
+					trait = socializer
+				}
+			}
+			modifier = {
+				factor = 5
+				is_virtous = yes
+			}
+		}
+	}
+
+	monastic_order_rejoin_world = {
+
+		potential = {
+			has_dlc = "Mystics"
+			OR = {
+				has_character_modifier = doing_penance
+				has_character_modifier = in_meditation
+			}
+		}
+
+		allow = {
+			OR = {
+				has_character_modifier = doing_penance
+				has_character_modifier = in_meditation
+			}
+			piety = 100
+		}
+
+		effect = {
+			remove_character_modifier = doing_penance
+			remove_character_modifier = in_meditation
+			hidden_effect = {
+				clr_character_flag = success_seculison_desc_A #Flags from 4426
+				clr_character_flag = success_seculison_desc_B
+				clr_character_flag = success_seculison_desc_C
+			}
+			piety = -100
+		}
+
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 0
+		}
+	}
+}	
 
 ###THE MEN IN BLACK/THE ASSASSINS###
 society_decisions = {
@@ -1012,7 +1153,199 @@ targeted_decisions = {
 	}
 }
 
-#Monastic Orders (why is this here twice?)
+	#Monastic Orders
+
+	#Switch Celibate
+	monastic_orders_go_celibate = {
+		
+		potential = {
+			OR = {
+				is_dharmic_monastic_member_trigger = yes
+				is_christian_monastic_member_trigger = yes
+			}
+			society_rank >= 2
+			NOT = { has_character_modifier = promise_of_celibacy }
+			NOT = { trait = celibate }
+		}
+
+		allow = {
+			NOT = {
+				trait = celibate
+				trait = hedonist
+				trait = seducer
+				trait = seductress
+			}
+		}
+
+		effect = {
+			tooltip = {
+				add_trait = celibate
+			}
+			character_event = {
+				id = MNM.4090
+			}
+		}
+		
+		ai_will_do = {
+			factor = 0
+		}
+	}
+
+	monastic_orders_stop_celibate = {
+		
+		potential = {
+			OR = {
+				is_christian_monastic_member_trigger = yes
+				is_dharmic_monastic_member_trigger = yes
+			}
+			society_rank >= 2
+			trait = celibate
+		}
+
+		allow = {
+			trait = celibate
+		}
+
+		effect = {
+			tooltip = {
+				remove_trait = celibate
+			}
+			character_event = {
+				id = MNM.4091
+			}
+		}
+		
+		ai_will_do = {
+			factor = 0
+		}
+	}
+
+	monastic_orders_donate_to_charity = {
+		only_playable = yes
+		
+		potential = {
+			is_monastic_member_trigger = yes
+			OR = {
+				has_quest = quest_monastic_order_donate_to_charity
+				NOT = { has_character_modifier = recently_donated_to_charity}
+			}
+			NOT = { has_character_flag = donate_to_charity_cooldown }
+		}
+
+		allow = {
+			wealth = 100
+		}
+
+		effect = {
+			set_character_flag = donate_to_charity_cooldown
+			tooltip = {
+				wealth = -100
+				if = {
+					limit = { has_quest = quest_monastic_order_donate_to_charity }
+					add_society_currency_medium_effect = yes
+				}
+				if = {
+					limit = { NOT = { has_quest = quest_monastic_order_donate_to_charity } }
+					add_society_currency_minor_effect = yes
+				}
+				add_character_modifier = {
+					modifier = recently_donated_to_charity
+					days = 360
+				}
+				if = {
+					limit = { 
+						NOR = {
+							trait = charitable
+							trait = greedy 
+						} 
+					}
+					random = {
+						chance = 30
+						add_trait = charitable
+					}
+				}
+				if = {
+					limit = { trait = greedy }
+					random = {
+						chance = 40
+						remove_trait = greedy
+					}
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						is_society_grandmaster = no
+					}
+					random_society_member = {
+						limit = {
+							same_society_as = ROOT
+							is_society_grandmaster = yes
+						}
+						character_event = {
+							id = MNM.4013
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						is_society_grandmaster = yes
+						any_society_member = {
+							same_society_as = ROOT
+							is_society_grandmaster = no
+						}
+					}
+					random_society_member = {
+						limit = {
+							same_society_as = ROOT
+							is_society_grandmaster = no
+						}
+						character_event = {
+							id = MNM.4013
+						}
+					}
+				}
+				else = {
+					wealth = -100
+					if = {
+						limit = { NOT = { has_quest = quest_monastic_order_donate_to_charity } }
+						add_society_currency_minor_effect = yes
+					}
+					
+					if = {
+						limit = { has_quest = quest_monastic_order_donate_to_charity }
+						clr_quest = quest_monastic_order_donate_to_charity
+						sound_effect = monastic_orders_donate_charity
+						hidden_effect = { monastic_order_purity_effect = yes }
+						add_society_currency_medium_effect = yes
+					}
+
+					add_character_modifier = {
+						modifier = recently_donated_to_charity
+						days = 360
+					}
+					if = {
+						limit = { NOT = { trait = greedy } }
+						random = {
+							chance = 30
+							add_trait = charitable
+						}
+					}
+					if = {
+						limit = { trait = greedy }
+						random = {
+							chance = 40
+							remove_trait = greedy
+						}
+					}
+					clr_character_flag = donate_to_charity_cooldown
+				}
+			}
+		}
+	}
+
+
+}
 
 #Devil Worshippers
 targeted_decisions = {

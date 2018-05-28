@@ -15,7 +15,7 @@ society_decisions = {
 			society_rank >= 3
 			is_monastic_member_trigger = yes
 			NOT = { has_character_flag = ascetic_arriving }
-			NOT = { has_character_modifier = recently_invited_ascetic}
+			NOT = { has_character_modifier = recently_invited_ascetic }
 		}
 
 		allow = {
@@ -33,6 +33,53 @@ society_decisions = {
 			}
 			add_character_modifier = {
 				name = recently_invited_ascetic
+				duration = 365
+			}
+		}
+
+		revoke_allowed = {
+			always = no
+		}
+
+		ai_will_do = {
+			factor = 0.001
+			modifier = {
+				factor = 0.1
+				any_courtier = { is_monastic_member_trigger = yes } #Less likely to invite if there is already someone else at court
+			}
+			modifier = {
+				any_courtier = { has_job_title = job_spiritual learning = 16 }
+				factor = 0.01
+			}
+		}
+	}
+	
+	chabad_invite_rabbi = {
+		only_playable = yes
+		
+		potential = {
+			has_dlc = "Mystics"
+			society_rank >= 3
+			is_monastic_member_trigger = yes
+			NOT = { has_character_flag = raabbi_arriving }
+			NOT = { has_character_modifier = recently_invited_rabbi }
+		}
+
+		allow = {
+			has_society_currency_medium_trigger = yes
+			is_inaccessible_trigger = no
+		}
+
+		effect = {
+			set_character_flag = raabbi_arriving
+			detract_society_currency_medium_effect = yes
+			
+			custom_tooltip = {
+				text = chabad_invite_rabbi_tt
+				character_event = { id = MNM.4432 days = 7 }
+			}
+			add_character_modifier = {
+				name = recently_invited_rabbi
 				duration = 365
 			}
 		}
@@ -337,6 +384,7 @@ targetted_decisions = {
 						factor = 0
 						OR = {
 							trait = chaste
+							religion_group = jewish_group #being chaste is not a virtue in Judaism
 							FROM = { NOT = { trait = chaste } }
 						}
 					}
@@ -482,7 +530,7 @@ title_decisions = {
 		effect = {
 			FROM = {
 				change_society_currency = -1000
-				hidden_tooltip = { character_event = { id = MNM.4990 } }
+				hidden_tooltip = { character_event = { id = MNM.49901 } }
 			}
 			location = {
 				religion = FROM
@@ -496,7 +544,67 @@ title_decisions = {
 					limit = {
 						holder_scope = { NOT = { character = FROM } }
 					}
-					holder_scope = { character_event = { id = MNM.4991 } }
+					holder_scope = { character_event = { id = MNM.49911 } }
+				}
+			}
+		}
+		
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	chabad_convert_yiddish = {
+		only_playable = yes
+		ai_check_interval = 3
+		
+		from_potential = {
+			has_dlc = "Mystics"
+			is_ruler = yes
+			is_monastic_member_trigger = yes
+			society_rank == 4
+		}
+		
+		potential = {
+			tier = COUNT
+			location = { NOT = { religion = FROM } }
+			holder_scope = {
+				OR = {
+					is_liege_or_above = FROM
+					character = FROM
+					culture = yiddish
+				}
+			}
+		}
+		
+		allow = {
+			FROM = {
+				society_currency >= 1000
+			}
+			location = {
+				religion = FROM
+				NOT = { culture = yiddish }
+			}
+		}
+		
+		effect = {
+			FROM = {
+				change_society_currency = -1000
+				hidden_tooltip = { character_event = { id = MNM.49901 } }
+			}
+			location = {
+				culture = yiddish
+				add_province_modifier = {
+					name = cultural_tension
+					years = 2
+				}
+			}
+			hidden_tooltip = {
+				if = { # Notify county owner
+					limit = {
+						holder_scope = { NOT = { character = FROM } }
+					}
+					holder_scope = { character_event = { id = MNM.49911 } }
 				}
 			}
 		}

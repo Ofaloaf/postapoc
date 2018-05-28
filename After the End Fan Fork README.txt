@@ -68,6 +68,7 @@ Papal Tiara artifact: John Bellairs (http://www.bellairsia.com/) for the photos 
 Shomrim flag: Shomrim Brooklyn South Safety Patrol
 Other flags: User:Sodacan for the flag of New France, User:Urocyon for the flag of the Great Lakes/Vinnland, User:Wighson for the recreation of the original Bear Flag (used in the flag for the Golden Bears)
 Freemason image (used in Knight Templar trait): User:miguelalmario
+Grand Rebbe flag: Credit to oren neu dag for the source image (Chabad Moshiach flag)
 
 Music:
 "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past"

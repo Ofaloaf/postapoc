@@ -3176,6 +3176,407 @@ character_event = {
 	}
 }
 
+#POWER: Benedictine becomes diligent
+#Ping event for Benedictine Diligent (mentee)
+character_event = {
+	id = MNM.4600
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	trigger = { NOT = { trait = diligent } }
+
+	immediate = { 
+		save_event_target_as = benedictines_diligent_mentee
+		if = {
+    	    limit = {
+    	        NOT = {
+    	            any_society_member = {
+    	                society_member_of = monastic_order_benedictine
+    	                trait = diligent
+    	                NOT = { character = ROOT }
+    	            }
+    	        }
+    	    }
+    	    random_society_member = {
+    	        limit = {
+    	            society_member_of = monastic_order_benedictine
+    	            ai = yes
+    	            NOT = { trait = diligent }
+    	            NOT = { character = ROOT }
+    	        }
+    	        add_trait = diligent
+    	    }
+    	}
+		random_society_member = {
+    	    limit = {
+    	        society_member_of = monastic_order_benedictine
+    	        trait = diligent
+    	        NOT = { character = ROOT }
+    	    }
+    	    save_event_target_as = benedictines_diligent_mentor
+    	}
+   		random_society_member = {
+    	    limit = {
+    	        society_member_of = monastic_order_benedictine
+    	        society_rank = { rank == 4 }
+    	        trait = diligent
+    	        NOT = { character = ROOT }
+    	    }
+    	    save_event_target_as = benedictines_diligent_mentor
+    	}
+    	event_target:benedictines_diligent_mentor = { character_event = { id = MNM.4601 } }
+	}
+}
+
+#Benedictine Diligent Mentor: should I help fellow benedictine become diligent?
+character_event = {
+	id = MNM.4601
+	picture = GFX_evt_monastery_monks
+
+	trigger = { is_monastic_member_trigger = yes }
+
+	desc = {
+		trigger = { #target is slothful
+			event_target:benedictines_diligent_mentee = {
+				trait = slothful
+			} 
+		}
+		text = EVTDESC_MNM_4601_SLOTHFUL
+	}
+	desc = {
+		trigger = { #target is not diligent
+			event_target:benedictines_diligent_mentee = {
+				NOT = { 
+					trait = slothful 
+				}
+			}
+		}
+		text = EVTDESC_MNM_4601_REGULAR
+	}
+
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	option = { #offer to help in exchange for money
+		name = EVTOPTA_MNM_4601
+		custom_tooltip = { text = EVTOPTA_MNM_4601_TOOLTIP }
+		hidden_effect = {
+			event_target:benedictines_diligent_mentee = {
+				character_event = { id = MNM.4603 days = 7 random = 7 }
+			}
+		}
+		event_target:benedictines_diligent_mentee = {
+			set_character_flag = appear_in_option
+			clr_character_flag = appear_in_option
+		}
+	}
+
+	option = { #nah
+		name = EVTOPTB_MNM_4601
+		custom_tooltip = { text = EVTOPTB_MNM_4601_TOOLTIP }
+		ai_chance = { factor = 0 }
+	}
+}
+
+
+#Benedictines Diligent Mentee: receive offer of help
+letter_event = {
+	id = MNM.4603
+	border = GFX_event_letter_frame_religion
+
+	desc = {
+		trigger = { trait = slothful }
+		text = EVTDESC_MNM_4603_SLOTHFUL
+	}
+	desc = {
+		trigger = { 
+			NOT = { trait = slothful }
+		}
+		text = EVTDESC_MNM_4603_REGULAR
+	}
+
+	is_triggered_only = yes
+
+	option = { #accept help in exchange for money
+		name = EVTOPTA_MNM_4603
+		hidden_effect = {
+			event_target:benedictines_diligent_mentor = {
+				character_event = { id = MNM.4604 days = 7 random = 7 }
+			}
+		}
+		transfer_scaled_wealth = {
+			to = event_target:benedictines_diligent_mentor
+			value = 0.25
+			min = 30
+		}
+		ai_chance = { factor = 0.9 }
+	}
+
+	option = { #HOW DARE HE?!
+		trigger = { trait = slothful }
+		name = EVTOPTB_MNM_4603_SLOTHFUL
+		hidden_effect = {
+			event_target:benedictines_diligent_mentor = {
+				set_character_flag = MNM_4603_rejected_help_outraged
+				character_event = { id = MNM.4608 days = 7 random = 7 }
+			}
+		}
+		opinion = {
+			who = event_target:benedictines_diligent_mentor
+			modifier = opinion_outraged
+			years = 5
+		}
+		prestige = 100
+		ai_chance = { 
+			factor = 0.1 
+			modifier = {
+				factor = 2
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+		}
+	}
+
+	option = { #I don't need help
+		trigger = { NOT = { trait = slothful } }
+		name = EVTOPTC_MNM_4603_REGULAR
+		hidden_effect = {
+			event_target:benedictines_diligent_mentor = {
+				set_character_flag = MNM_4603_rejected_help_normal
+				character_event = { id = MNM.4608 days = 7 random = 7 }
+			}
+		}
+		prestige = 25
+		ai_chance = { 
+			factor = 0.1 
+			modifier = {
+				factor = 2
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+		}
+	}
+}
+
+#Benedictines Diligent Mentor: mentee accepted offer
+letter_event = {
+	id = MNM.4604
+	border = GFX_event_letter_frame_religion
+
+	desc = { text = EVTDESC_MNM_4604 }
+
+	is_triggered_only = yes
+
+	trigger = { is_monastic_member_trigger = yes }
+
+	option = { #Give help
+		name = EVTOPTA_MNM_4604
+		custom_tooltip = { text = EVTOPTA_MNM_4604_TOOLTIP }
+		hidden_effect = {
+			event_target:benedictines_diligent_mentee = {
+				character_event = { id = MNM.4605 days = 7 random = 7 }
+			}
+		}
+		tooltip = {
+			event_target:benedictines_diligent_mentee = {
+				transfer_scaled_wealth = {
+					to = event_target:benedictines_diligent_mentor
+					value = 0.25
+					min = 50
+				}
+			}
+			reverse_opinion = {
+				who = event_target:benedictines_diligent_mentee
+				modifier = opinion_very_grateful
+				years = 5
+			}
+		}
+	}
+}
+
+#Benedictines Diligent Mentee: help received
+character_event = {
+	id = MNM.4605
+	picture = GFX_evt_monastery_monks
+
+	desc = { text = EVTDESC_MNM_4605 }
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	option = { #Receive help
+		name = EVTOPTA_MNM_4605
+		hidden_effect = {
+			event_target:benedictines_diligent_mentor = {
+				character_event = { id = MNM.4606 days = 7 random = 7 }
+			}
+		}
+		opinion = {
+			who = event_target:benedictines_diligent_mentor
+			modifier = opinion_very_grateful
+			years = 5
+		}
+	}
+}
+
+#Ping event for Benedictines Diligent: add Diligent (and remove slothful)
+character_event = {
+	id = MNM.4606
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { 
+		event_target:benedictines_diligent_mentee = {
+			character_event = { id = MNM.4607 days = 30 random = 30 }
+		}
+	}
+}
+
+#Benedictines Diligent Mentee: add Diligent (and remove slothful)
+character_event = {
+	id = MNM.4607
+	picture = GFX_evt_monastery_monks
+
+	desc = {
+		trigger = { trait = slothful }
+		text = EVTDESC_MNM_4607_SLOTHFUL
+	}
+	desc = {
+		trigger = { 
+			NOT = { trait = slothful }
+		}
+		text = EVTDESC_MNM_4607_REGULAR
+	}
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	immediate = {
+		if = {
+			limit = {
+				trait = slothful
+			}
+			set_character_flag = MNM_4609_had_slothful
+		}
+		if = {
+			limit = {
+				NOT = { trait = slothful }
+			}
+			set_character_flag = MNM_4609_not_had_slothful
+		}
+	}
+
+	option = {
+		name = EVTOPTA_MNM_4607
+		if = {
+			limit = { trait = slothful }
+			remove_trait = slothful
+		}
+		add_trait = diligent
+		hidden_effect = {
+			character_event = { id = MNM.4609 }
+		}
+	}
+}
+
+#Benedictine Diligent mentor: mentee rejected offer
+letter_event = {
+	id = MNM.4608
+	border = GFX_event_letter_frame_religion
+
+	desc = {
+		trigger = { 
+			has_character_flag = MNM_4603_rejected_help_outraged
+		} 
+		text = EVTDESC_MNM_4608_OUTRAGED 
+	}
+	desc = {
+		trigger = { 
+			has_character_flag = MNM_4603_rejected_help_normal
+		} 
+		text = EVTDESC_MNM_4608_NORMAL 
+	}
+
+	is_triggered_only = yes
+
+	option = { #Oh dear...
+		trigger = {
+			has_character_flag = MNM_4603_rejected_help_outraged
+		}
+		name = EVTOPTA_MNM_4608_OUTRAGED
+		custom_tooltip = { text = EVTOPTA_MNM_4608_TOOLTIP }
+		tooltip = {
+			reverse_opinion = {
+				who = event_target:benedictines_diligent_mentee
+				modifier = opinion_outraged
+				years = 5
+			}
+		}
+	}
+	option = { #Alright then
+		trigger = {
+			has_character_flag = MNM_4603_rejected_help_normal
+		}
+		name = EVTOPTA_MNM_4608_NORMAL
+		custom_tooltip = { text = EVTOPTA_MNM_4608_TOOLTIP }
+	}
+}
+
+#Benedictines Diligent notify mentor mentee became Diligent
+character_event = {
+	id = MNM.4609
+	picture = GFX_evt_monastery_monks
+
+	desc = {
+		trigger = { #target is slothful
+			event_target:benedictines_diligent_mentee = {
+				has_character_flag =  MNM_4609_had_slothful
+			} 
+		}
+		text = EVTDESC_MNM_4609_SLOTHFUL
+	}
+	desc = {
+		trigger = { #target is not diligent
+			event_target:benedictines_diligent_mentee = {
+				NOR = { 
+					has_character_flag = MNM_4609_not_had_slothful 
+				}
+			}
+		}
+		text = EVTDESC_MNM_4609_REGULAR
+	}
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_4609
+		tooltip = { 
+			event_target:benedictines_diligent_mentee = {
+				if = {
+					limit = { trait = slothful }
+					remove_trait = slothful
+				}
+				add_trait = diligent
+			}
+		}
+		hidden_effect = {
+			event_target:benedictines_diligent_mentee = {
+				clr_character_flag = MNM_4609_had_slothful
+				clr_character_flag = MNM_4609_not_had_slothful
+			}
+		}
+	}
+}
 
 #POWER: Leibowitz becomes erudite
 #Ping event for Leibowitzian Erudite (mentee)

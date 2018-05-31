@@ -15,23 +15,29 @@ Compatible with CK2 2.8.1 and the Jade Dragon DLC
 DO NOT ENABLE THE MONGOL FACES AND CHINESE FACES SUBMODS AT THE SAME TIME. ONLY USE THE MONGOL FACES IF YOU DO NOT OWN JADE DRAGON.
 
 	CREDITS
+Mod Creator: Ofaloaf	
+	
 Fan Fork Team:
 9Kbits
 Dryhad
 GSonderling
 Peterhobo1
 Colin Nash
-Scarlet
+Scarlet (former)
 CactusHat
 ObediahTheSlim
 tsf4
 BomberHarris
-Wat Tambor
+Sigiswulf
 Norse_Emperor
 KoraxTheGhoul
+Nexerus
+Lord Puurple
+Katanasama
+Deds
+123
 
 Original mod team:
-Mod Creator: Ofaloaf
 
 Main Team:
 Ofaloaf
@@ -52,6 +58,7 @@ Casus bellis from Project Balance
 Titular Empires from CK2+ (old version) by Wiz
 Portraits from Lux Invicta by DarkReborn and others
 Clothing and headgear from AGOT Congenital Overhaul by LancelotLoire
+Dynasty CoAs from ARKOpack
 
 Images:
 Jewish Flags: User:Hosmich for the Yiddish flag, User:Zirland for the background of the Neoladino flag (Simple Andalusian flag), and User:Frater5 for the menorah in the Neoladino flag
@@ -61,6 +68,7 @@ Papal Tiara artifact: John Bellairs (http://www.bellairsia.com/) for the photos 
 Shomrim flag: Shomrim Brooklyn South Safety Patrol
 Other flags: User:Sodacan for the flag of New France, User:Urocyon for the flag of the Great Lakes/Vinnland, User:Wighson for the recreation of the original Bear Flag (used in the flag for the Golden Bears)
 Freemason image (used in Knight Templar trait): User:miguelalmario
+Grand Rebbe flag: Credit to oren neu dag for the source image (Chabad Moshiach flag)
 
 Music:
 "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past"

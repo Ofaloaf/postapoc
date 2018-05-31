@@ -1,1 +1,496 @@
-#
+###########################################
+#                                         #
+# Charlemagne Religious Events            #
+#                                         #
+# ID CM.4000-CM.4999                      #
+#                                         #
+###########################################
+
+# Written by Tobias Bodlund
+
+namespace = CM
+
+###########################################
+# Festival of Sol Invicta  CM.4100-CM.4199#
+###########################################
+
+# Invite vassals to festival
+character_event = {
+	id = CM.4100
+	desc = EVTDESC_CM_4100
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_CM_4100
+		any_vassal = {
+			limit = {
+				prisoner = no
+				war = no
+				NOT = { trait = incapable }
+				age = 16
+				NOT = { has_character_flag = do_not_disturb }
+			}
+			letter_event = {
+				id = CM.4101
+				tooltip = EVTTOOLTIP1_RoI_1000
+			}
+		}
+		hidden_tooltip = { character_event = { id = CM.4120 days = 12 } }
+	}
+}
+
+# Vassal receives invitation
+letter_event = {
+	id = CM.4101
+	desc = EVTDESC_CM_4101
+	border = GFX_event_letter_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_CM_4101 #Travel to the feast
+		ai_chance = {
+			factor = 2
+			modifier = {
+				factor = 10
+				has_focus = focus_theology
+				religion = sol_invicta
+			}
+			modifier  = {
+				factor = 0.1
+				is_inaccessible_trigger = yes
+			}
+			modifier  = {
+				factor = 2
+				opinion = { who = from value = -30 }
+			}
+			modifier  = {
+				factor = 5
+				opinion = { who = from value = -15 }
+			}
+			modifier  = {
+				factor = 5
+				opinion = { who = from value = 0 }
+			}
+		}
+		set_character_flag = do_not_disturb
+		hidden_tooltip = { character_event = { id = CM.4105 days = 12 } } # Hidden - arrives at feast
+		hidden_tooltip = { character_event = { id = CM.4199 days = 42 } } # Safety event for clearing all flags
+		end_inaccessibility_effect = yes #removes in_hiding or in_seclusion
+	}
+	option = {
+		name = EVTOPTB_RoI_1001 #Refuse invitation
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 0
+				opinion = { who = FROM value = 25 }
+				NOT = { is_inaccessible_trigger = yes }
+			}
+			modifier  = {
+				factor = 5
+				NOT = {
+					religion = sol_invicta
+				}
+			}
+		}
+		FROM = {
+			letter_event = {
+				id = CM.4102
+				days = 3
+				tooltip = EVTTOOLTIP1_RoI_2001
+			}
+		}
+	}
+}
+
+# If vassal refuses to come to the feast
+letter_event = {
+	id = CM.4102
+	desc = EVTDESC_CM_4102
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_SoA_502 
+		opinion = {
+			modifier = opinion_dislike
+			who = FROM
+			years = 2
+		}
+	}
+}
+
+# Festival begins
+character_event = {
+	id = CM.4120
+	desc = EVTDESC_CM_4120
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_CM_4120
+		set_character_flag = zun_feast_begun
+		hidden_tooltip = { character_event = { id = CM.4195 days = 30 } } # End festival
+		hidden_tooltip = { character_event = { id = CM.4199 days = 31 } } # Clearing all flags and modifiers after feast
+		hidden_tooltip = {
+			narrative_event = { id = CM.4130 days = 10 } # Walking in the sun
+			character_event = { id = CM.4190 days = 20 } # Temple ceremony
+		}
+		any_courtier = {
+			limit = {
+				is_adult = yes
+				is_ruler = no
+				NOT = { trait = incapable }
+				religion = sol_invicta
+			}
+			set_character_flag = attending_zun_feast
+			narrative_event = { id = CM.4130 days = 10 } # Walking in the sun
+			hidden_tooltip = { character_event = { id = CM.4199 days = 31 } } # Clearing all flags and modifiers after feast
+		}
+	}
+}
+
+# Vassal arrives at festival
+character_event = {
+	id = CM.4105
+	desc = EVTDESC_CM_4120
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_CM_4120
+		hidden_tooltip = {
+			if = {
+				limit = {
+					religion = sol_invicta
+				}
+				narrative_event = { id = CM.4130 days = 10 } # Walking in the sun
+			}
+			character_event = { id = CM.4190 days = 20 } # Temple ceremony
+		}
+	}
+}
+
+# Festival ends
+character_event = {
+	id = CM.4195
+
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		character_event = { id = CM.4196 }
+		any_vassal = {
+			limit = {
+				has_character_flag = attending_zun_feast
+				ROOT = { is_liege_of = THIS }
+			}
+			character_event = { id = CM.4198 }
+		}
+	}
+}
+
+# Festival is over - host
+character_event = {
+	id = CM.4196
+	desc = EVTDESC_CM_4196
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_CM_4196
+		add_character_modifier = {
+			name = large_feast_timer
+			duration = 365
+			hidden = yes
+		}
+		remove_character_modifier = holding_zun_feast
+		clr_character_flag = zun_feast_begun
+		clr_character_flag = do_not_disturb
+	}
+}
+
+# Festival is over - guest
+character_event = {
+	id = CM.4198
+	desc = EVTDESC_CM_4196
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_CM_4196
+		add_character_modifier = {
+			name = large_feast_timer
+			duration = 365
+			hidden = yes
+		}
+		opinion = {
+			modifier = opinion_enjoyed_feast
+			who = FROM
+			years = 2
+		}
+		clr_character_flag = attending_zun_feast
+		clr_character_flag = do_not_disturb
+	}
+}
+
+# Clear all character flags and modifiers - safety catch
+character_event = {
+	id = CM.4199
+
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		remove_character_modifier = holding_zun_feast
+		clr_character_flag = attending_zun_feast
+		clr_character_flag = zun_feast_begun
+		clr_character_flag = do_not_disturb
+	}
+}
+
+# Walking in the sun
+narrative_event = {
+	id = CM.4130
+	title = EVTTITLE_CM_4130
+	desc = EVTDESC_CM_4130
+	picture = GFX_evt_sun_temple
+	border = GFX_event_narrative_frame_religion
+
+	is_triggered_only = yes
+	
+	capable_only = yes
+	
+	option = {
+		name = EVTOPTA_CM_4130
+		piety = 30
+		hidden_tooltip = {
+			random_list = {
+				5 = { character_event = { id = CM.4131 } } # Weak or old character becomes ill
+				5 = { character_event = { id = CM.4133 } } # Character goes insane
+				5 = { character_event = { id = CM.4135 } } # Character becomes possessed
+				10 = { character_event = { id = CM.4137 } } # Character becomes zealous
+				10 = { character_event = { id = CM.4139 } } # Character becomes stronger
+				10 = { character_event = { id = CM.4141 } } # Character becomes wiser
+				5 = { character_event = { id = CM.4143 } } # Zealous character stares into sun and goes blind
+				300 = {} # No event
+			}
+		}
+	}
+}
+
+# Weak or old character becomes ill or incapable
+character_event = {
+	id = CM.4131
+	desc = EVTDESC_CM_4131
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		immortal = no
+		OR = {
+			age = 70
+			health_traits = 1
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_CM_4131
+		if = {
+			limit = {
+				is_ill = yes
+			}
+			add_trait = incapable
+		}
+		if = {
+			limit = {
+				is_ill = no
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_dlc = "Reapers"
+					}
+				}
+				add_trait = ill
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				add_symptom_effect = yes
+			}
+		}
+	}
+}
+
+# Character goes insane
+character_event = {
+	id = CM.4133
+	desc = EVTDESC_CM_4133
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		NOT = { trait = lunatic }
+		OR = {
+			trait = stressed
+			trait = depressed
+			AND = {
+				health_traits = 1
+				trait = zealous
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_CM_4133
+		add_trait = lunatic
+	}
+}
+
+# Character becomes possessed
+character_event = {
+	id = CM.4135
+	desc = EVTDESC_CM_4135
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		NOT = { trait = possessed }
+		trait = zealous
+	}
+	
+	option = {
+		name = EVTOPTA_CM_4135
+		add_trait = possessed
+	}
+}
+
+# Character becomes zealous
+character_event = {
+	id = CM.4137
+	desc = EVTDESC_CM_4137
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		NOT = { trait = zealous }
+		NOT = { trait = cynical }
+	}
+	
+	option = {
+		name = EVTOPTA_CM_4137
+		add_trait = zealous
+	}
+}
+
+# Character becomes stronger
+character_event = {
+	id = CM.4139
+	desc = EVTDESC_CM_4139
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		is_strong_trigger = no
+		is_weak_trigger = no
+		NOT = { trait = slothful }
+		NOT = { health_traits = 1 }
+	}
+	
+	option = {
+		name = EVTOPTA_CM_4137
+		add_trait = robust
+	}
+}
+
+# Character becomes wiser
+character_event = {
+	id = CM.4141
+	desc = EVTDESC_CM_4141
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		is_smart_trigger = no
+	}
+	
+	option = {
+		name = EVTOPTA_CM_4141
+		add_trait = shrewd
+	}
+}
+
+# Character stares into sun and becomes blind
+character_event = {
+	id = CM.4143
+	desc = EVTDESC_CM_4143
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = zealous
+		NOT = { trait = blinded }
+	}
+	
+	option = {
+		name = EVTOPTA_CM_4143
+		if = {
+			limit = {
+				trait = one_eyed
+			}
+			remove_trait = one_eyed
+		}
+		add_trait = blinded
+	}
+}
+
+
+# Temple ceremony - host and guests
+character_event = {
+	id = CM.4190
+	desc = EVTDESC_CM_4190
+	picture = GFX_evt_sun_temple
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_CM_4190
+		piety = 20
+		add_character_modifier = {
+			name = large_feast_timer
+			duration = 365
+			hidden = yes
+		}
+	}
+}

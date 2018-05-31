@@ -2923,6 +2923,139 @@ targeted_decisions = {
 		}
 	}
 
+	unseelie_petitioners_recruit = {
+		is_in_society = yes
+
+		ai_target_filter = realm
+
+		from_potential = {
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			NOT = { has_character_modifier = recruitment_timer }
+			society_member_of = unseelie_petitioners
+			OR = {
+				ai = no
+				society_rank = {
+					society = unseelie_petitioners
+					rank == 2
+				}
+				society_rank = {
+					society = unseelie_petitioners
+					rank == 3
+				}
+			}
+		}
+		potential = {
+			OR = {
+				FROM = { ai = no }
+				ai = no
+			}
+			OR = {
+				FROM = { ai = yes } # Only checks realm, so by definition in range
+				is_within_diplo_range = FROM
+			}
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			is_in_society = no
+
+			#Can't invite someone who recently left due to fear of persecution
+			OR = {
+				had_character_flag = { flag = ancrel_left_secret_society days = 1825 }
+				NOT = { has_character_flag = ancrel_left_secret_society }
+			}
+
+			#AI cannot invite other AIs when society is full
+			NAND = {
+				ai = yes
+				FROM = { ai = yes }
+				NOT = { can_join_society = unseelie_petitioners }
+			}
+
+			#Blocks so AI recruits sensible people (who might say no)
+			OR = {
+				FROM = { ai = no }
+				is_friend = FROM
+				is_lover = FROM
+				is_close_relative = FROM
+				trait = trusting
+				has_impious_trait_trigger = yes
+				trait = drunkard
+				trait = possessed
+				trait = lunatic
+				interested_in_society = unseelie_petitioners
+			}
+
+			NAND = {
+				FROM = { ai = yes }
+				trait = zealous
+			}
+		}
+		allow = {
+			religion_openly_in_celtic_subgroup_trigger = yes
+			is_inaccessible_trigger = no
+			custom_tooltip = {
+				text = unseelie_recruit_block_tooltip
+				OR = {
+					NOT = { has_character_flag = unseelie_attempted_recruitment }
+					interested_in_society = unseelie_petitioners
+				}
+				NOT = { has_character_flag = being_recruited_by_the_unseelie }
+			}
+			has_unseelie_prerequisites = yes
+			FROM = {
+				is_inaccessible_trigger = no
+				custom_tooltip = {
+					text = recruit_delay_timer_tooltip
+					NOT = { has_character_modifier = recruitment_delay_timer }
+				}
+			}
+		}
+		effect = {
+			set_character_flag = unseelie_attempted_recruitment
+			set_character_flag = being_recruited_by_the_unseelie
+			FROM = {
+				save_event_target_as = satanists_recruiter
+			}
+			hidden_effect = { 
+				character_event = { id = MNM.7001 days = 3 } # recruitment chain
+				character_event = { id = MNM.7030 days = 365 } # sends delayed back up, in case recruitment fails somehow
+				FROM = {
+					if = {
+						limit = { ai = yes }
+						add_character_modifier = {
+							name = recruitment_timer
+							days = 730
+							hidden = yes
+						}
+					}
+					add_character_modifier = {
+						name = recruitment_delay_timer
+						days = 90
+						hidden = yes
+					}
+				}
+			}
+		}
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.01 # slow down
+			}
+			modifier = {
+				factor = 10 # recruit interested parties
+				interested_in_society = unseelie_petitioners
+			}
+			modifier = {
+				factor = 0 # don't recruit characters interested in something else
+				NOT = { interested_in_society = unseelie_petitioners }
+				is_interested_in_any_society = yes
+			}
+		}
+	}
+
 	#Action: Sacrifice prisoner
 	prisoner_dark_sacrifice = {
 		only_playable = yes

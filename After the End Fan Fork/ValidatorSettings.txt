@@ -1,0 +1,175 @@
+# This is the settings file for CK2 and expansions
+# To use, copy this to your CK2 installation base or mod directory and rename it "ValidatorSettings.txt"
+# If you don't want to use it then don't copy it.
+# Uncomment something to use it, or comment something to disable it.
+
+###########################################
+# General
+###########################################
+
+# Generates files containing flag and variable analysis.
+AddFlag = TraceFlags
+
+# Turn this on to spit out errors when you use something that is valid, but causes bugginess in one
+# of the patches. Note that if you turn this on, the error messages will not look any different from
+# if you had made an error. So e.g. if the add_betrothal command is broken, and you use it, then
+# the Validator will say something like "add_betrothal is not a valid child" without explaining that
+# it is invalid because it doesn't work in the latest patch. So be careful if you turn this on, and
+# if you wonder what gets turned on due to buggy behavior, just search in the Extension\Data\Ck2
+# folder for "WarnOnBuggyBehavior" and you should see what gets changed.
+#AddFlag = WarnOnBuggyBehavior
+
+# Ignores the warning when there is only one item in an OR clause
+AddFlag = ContextValidator.IgnoreOneItemInOrClauseWarning
+# Ignores the warning when there is only one item in an AND clause
+AddFlag = ContextValidator.IgnoreOneItemInAndClauseWarning
+# Ignores the warning when there is only one item in an NAND clause
+AddFlag = ContextValidator.IgnoreOneItemInNandClauseWarning
+# Add a warning when there are multiple clauses in a NOT clause. Use NAND instead.
+#AddFlag = ContextValidator.WarnOnMultiNotClause
+# Add a warning when there is an OR or AND clause inside a NOT clause. Use NAND or NOR instead.
+#AddFlag = ContextValidator.WarnOnOrAndInNot
+# Ignores the warning when we are already in an AND clause.
+AddFlag = ContextValidator.IgnoreAlreadyInAndClauseWarning
+# Ignores the warning "Having a factor of 1 is useless."
+#AddFlag = ContextValidator.NoWarnOnFactorOne
+# Ignore Feb 29 errors for leap years
+#AddFlag = IgnoreFeb29Errors
+#Allow character_event = { id = ... } to call a letter_event, and so on
+AddFlag = ContextValidator.AllowCharacterWideTargeting
+# Enable check that a modifier={} clause has something besides a "factor=" entry.
+#AddFlag = EnableNonFactorCheck
+
+
+# For nicknames that currently don't exist but might be planned for the future
+#(AddToEnum Nickname) = { nick_the_one_eyed nick_the_trembling nick_the_black }
+
+# Cultures that for some reason don't appear in the files but that you want
+# to consider valid anyways.
+(AddToEnum Culture) = {sicilian_greek sicilian}
+
+# Culture groups that for some reason don't appear in the files but that you want
+# to consider valid anyways.
+(AddToEnum CultureGroup) = {sicilian_group italian_group judaic}
+
+# Religions that for some reason don't appear in the files but that you want
+# to consider valid anyways.
+#(AddToEnum Religion) = { }
+
+# Religion groups that for some reason don't appear in the files but that you want
+# to consider valid anyways.
+#(AddToEnum ReligionGroup) = { }
+
+
+###########################################
+# LOCALIZATION
+###########################################
+
+# Disables check that all keys are found in the localization file. This assumes that you use keys everywhere. If not you'll get lots of false positives.
+#AddFlag = NoCheckKey
+# Don't check for the existence of a "_adj" entry for titles
+#AddFlag = NoTitleAdjCheckKey
+# If localization keys appear in both vanilla and in a mod, don't report an error.
+AddFlag = Localization.IgnoreDuplicatesIfInVanilla
+
+
+###########################################
+# CHARACTER HISTORY
+###########################################
+
+# Disables checks that dates are in chronological order, and that there are no duplicates within groups of dates.
+AddFlag = CharacterHistory.NoComplexDateChecks
+# Disables checks that all other events are between the single birth and death date.
+AddFlag = CharacterHistory.NoBirthDeathCheck
+# Sets the minimum age of marriage
+(SetVar CharacterHistory.MinAgeOfMarriage) = 16
+# Sets the minimum age of being a parent
+(SetVar CharacterHistory.MinAgeOfParent) = 16
+# Sets the minimum age of being a guardian
+(SetVar CharacterHistory.MinAgeOfGuardian) = 16
+# Sets the maximum age of someone needing a guardian
+(SetVar CharacterHistory.MaxAgeNeedingGuardian) = 15
+# Sets the maximum age of someone
+(SetVar CharacterHistory.MaxAge) = 100
+# Sets the most days that the father can be dead before a child is born
+(SetVar CharacterHistory.MaxDaysFatherDeadBeforeChild) = 300
+# Disables twin check
+#AddFlag = CharacterHistory.NoTwinCheck
+# Disables bastard check
+#AddFlag = CharacterHistory.NoBastardCheck
+# Don't enforce characters needing a death date
+#AddFlag = CharacterHistory.NoDeathDateNeeded
+# Don't do disconnected dynasty checks
+#AddFlag = CharacterHistory.NoDisconnectedDynastyChecks
+
+# These flags disable the corresponding checks for history, but only if the solution
+# would make the birth date before year 1. What this means is say character X is married
+# on 2.1.1. Then to be at the age of marriage, they would need to be born in year -14.1.1
+# which isn't possible. So in that case errors are suppressed.
+# 
+# These flags are probably useful for early-year mods, which may have characters that should
+# be born in BC years but can't due to engine limitations.
+#AddFlag = CharacterHistory.NoMinAgeOfMarriageIfEarly
+#AddFlag = CharacterHistory.NoMinAgeOfParentIfEarly
+#AddFlag = CharacterHistory.NoMinAgeOfGuardianIfEarly
+
+###########################################
+# EVENTS
+###########################################
+
+# Don't check for triggered only but never called events
+#AddFlag = Events.NoChecksForTriggerOnlyButNeverCalled
+# Warn when an event has no options. AI-only events don't need any options, so
+# this might bring up lots of false positives.
+#AddFlag = Events.CheckForEventsWithNoOptions
+# Disable checks for missing option, desc, picture in events without hide_window=yes.
+# NOTE: This was renamed from Event.NoNonHideWindowChecks
+#AddFlag = Events.NoNonHideWindowChecks
+# Disables warnings about possible ID collisions.
+# Reason for warnings: Could you add a warning if a non-namespace event ID is greater than 999999, or a namespace event ID is greater than 99999? These have the potential of causing an ID collision between non-namespace and namespace IDs, or between namespaces, because of the way event ID blocks are assigned to namespaces (100000 ID blocks, starting at 1000000.) 
+#AddFlag = Event.NoCheckIdCollision
+# Disable checking for leading zeros in event IDs. It is good to have a uniform ID for each event.
+AddFlag = Events.NoCheckLeadingZeroInId
+# Disable checking that events start with GFX_event_[normal|narrative|letter|long]_frame depending on the event type
+#AddFlag = Events.NoCheckEventBorderPrefix
+# Disables checks that an event with hide_window=yes 
+AddFlag = Events.DisableSpecialHideWindowChecks
+
+###########################################
+# DECISIONS
+###########################################
+
+# Disable check for unique decision names across files. There will still be a check for unique names in a single file.
+#AddFlag = Decisions.NoUniqueIdCheck
+
+###########################################
+# PROVINCE HISTORY
+###########################################
+
+# Suppresses warnings if the file is empty.
+#AddFlag = ProvinceHistory.NoWarnOnEmptyFile
+# Disables checks that dates are in chronological order, and that there are no duplicates within groups of dates.
+#AddFlag = ProvinceHistory.NoComplexDateChecks
+
+###########################################
+# TITLE HISTORY
+###########################################
+
+# Disables checks that dates are in chronological order, and that there are no duplicates within groups of dates.
+#AddFlag = TitleHistory.NoComplexDateChecks
+
+###########################################
+# TITLES
+###########################################
+
+# Allows duplicate entries in the landed_titles, as titles will get merged. Note this disables some related checks, such as that a color is specified
+AddFlag = Titles.AllowDuplicateEntries
+# For emperor/king/duke titles, will not enforce that they have a capital
+# Note that this may be a risky thing to do so be careful
+# zijistark says this: Titular titles don't strictly need capital assignments. However, titular titles can and do become de jure either by event or through drift, although obviously some special-purpose titular titles will never do so, depending upon the mod. IMHO, it'd be a best practice to always assign capitals to titles, even if a titular title such as e_summer_sea receives a placeholder capital like province 1. Titles that end-up de jure w/o a capital can cause numerous issues-- a) they screw with game mechanics re: free capital movement and AI capital choice, b) the assumption that de jure titles have a capital is a very useful one to make in general-purpose script, and c) such titles without capitals will never match a GeographicalRegion even when they really ought to do so and may cause abnormal or incoherent behavior as a result. (https://forum.paradoxplaza.com/forum/index.php?threads/the-validator-find-errors-quickly-and-with-minimal-pain.597480/page-100#post-20312271)
+#AddFlag = Titles.AllowSomeTitlesWithoutCapital
+
+
+
+
+

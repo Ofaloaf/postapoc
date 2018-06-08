@@ -145,6 +145,22 @@ character_event = {
 				set_character_flag = monastic_orders_mission_dharmic_pilgrimage
 			}
 			10 = {
+				modifier = { factor = 0 is_playable = no }
+				modifier = {
+					NOT = { religion_group = latter_day_saints }
+					factor = 0
+				}
+				modifier = {
+					trait = pilgrim
+					factor = 0
+				}
+				modifier = {
+					trait = on_pilgrimage
+					factor = 0
+				}
+				set_character_flag = monastic_orders_mission_mormon_pilgrimage
+			}
+			10 = {
 				trigger = {
 					is_playable = yes
 					any_demesne_province = {
@@ -227,6 +243,7 @@ character_event = {
 				monastic_orders_mission_theology = 				{ clr_character_flag = monastic_orders_mission_theology society_quest_event = { id = MNM.4015 } }
 				monastic_orders_mission_christian_pilgrimage = 	{ clr_character_flag = monastic_orders_mission_christian_pilgrimage society_quest_event = { id = MNM.4019 } }
 				monastic_orders_mission_dharmic_pilgrimage = 	{ clr_character_flag = monastic_orders_mission_dharmic_pilgrimage society_quest_event = { id = MNM.8095 } }
+				monastic_orders_mission_mormon_pilgrimage = 	{ clr_character_flag = monastic_orders_mission_mormon_pilgrimage society_quest_event = { id = MNM.40190 } }
 				monastic_orders_mission_temple = 				{ clr_character_flag = monastic_orders_mission_temple society_quest_event = { id = MNM.4023 } }
 			}
 		}
@@ -2480,7 +2497,6 @@ letter_event = {
 	}
 }
 
-
 #MISSION: Dharmic Pilgrimage
 society_quest_event = {
 	id = MNM.8095
@@ -2622,6 +2638,146 @@ letter_event = {
 		add_society_currency_major_effect = yes
 	}
 }
+
+#MISSION: Mormon Pilgrimage
+society_quest_event = {
+	id = MNM.40190
+	desc = EVTDESC_MNM_40190
+	border = GFX_event_letter_frame_religion
+
+	is_triggered_only = yes
+
+
+	option = {
+		name = ACCEPT
+		set_quest = quest_monastic_order_pilgrimage_mormon
+	}
+	
+	option = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+#send to grandmaster for Ping
+character_event = {
+	id = MNM.40200
+	is_triggered_only = yes
+	hide_window = yes
+
+	immediate = {
+		if = { #If YOU are the leader of the society, find someone random...
+			limit = {
+				is_society_grandmaster = yes
+			}
+			random_society_member = {
+				limit = {
+					same_society_as = ROOT
+					NOT = { character = ROOT }
+				}
+				character_event = {
+					id = MNM.40210
+				}
+			}
+		}
+		else_if = { #Else, find the leader (provided they are available)...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+					is_society_grandmaster = yes
+					NOT = { character = ROOT }
+					block_general_event_trigger = no
+				}
+			}
+			random_society_member = {
+				limit = {
+					same_society_as = ROOT
+					is_society_grandmaster = yes
+					NOT = { character = ROOT }
+					block_general_event_trigger = no
+				}
+				character_event = {
+					id = MNM.40210
+				}
+			}		
+		}
+		else_if = { #If not, find someone who is...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+					NOT = { character = ROOT }
+					block_general_event_trigger = no
+				}
+			}
+			random_society_member = {
+				limit = {
+					same_society_as = ROOT
+					NOT = { character = ROOT }
+					block_general_event_trigger = no
+				}
+				character_event = {
+					id = MNM.40210
+				}
+			}		
+		}
+		else = { #Else, send it to yourself ...
+			character_event = {
+				id = MNM.40210
+			}
+		}
+	}
+}
+
+
+#Ping
+character_event = {
+	id = MNM.40210
+	is_triggered_only = yes
+	hide_window = yes
+
+	immediate = {
+		FROM = {
+			character_event = {
+				id = MNM.40220
+			}
+		}
+	}
+}
+
+letter_event = {
+	id = MNM.40220
+	border = GFX_event_letter_frame_religion
+
+	is_triggered_only = yes
+
+	desc = {
+		trigger = { FROM = { NOT = { character = ROOT } } }
+		text = EVTDESC_MNM_40220
+	}
+	desc = {
+		trigger = { FROM = { character = ROOT } } #Added in case everyone is in prison or something...!
+		text = EVTDESC_MNM_40220_fallback
+	}
+
+	option = {
+		name = EVTOPT_MNM_40220
+		
+		clr_quest = quest_monastic_order_pilgrimage_mormon
+		sound_effect = monastic_orders_pilgrimage
+		hidden_effect = { monastic_order_purity_effect = yes }
+		
+		add_society_currency_major_effect = yes
+	}
+}
+
 
 #MISSION: Build a Temple
 society_quest_event = {
@@ -4752,11 +4908,12 @@ character_event = {
 		OR = {
 			society_member_of = monastic_order_benedictine
 			society_member_of = monastic_order_dominican
-			#society_member_of = monastic_order_orthodox
-			#society_member_of = monastic_order_nestorian
-			#society_member_of = monastic_order_monophysite
+			society_member_of = monastic_order_evangelical
+			society_member_of = monastic_order_ursuline
+			society_member_of = monastic_order_mormon
 			#society_member_of = monastic_order_jain
 			society_member_of = monastic_order_hindu
+			society_member_of = monastic_order_jewish
 			#society_member_of = monastic_order_buddhist
 		}
 	}
@@ -5349,9 +5506,9 @@ character_event = {
 			society_member_of = monastic_order_benedictine
 			society_member_of = monastic_order_dominican
 			society_member_of = monastic_order_leibowitz
-			#society_member_of = monastic_order_orthodox
-			#society_member_of = monastic_order_nestorian
-			#society_member_of = monastic_order_monophysite
+			society_member_of = monastic_order_evangelical
+			society_member_of = monastic_order_ursuline
+			society_member_of = monastic_order_mormon
 			#society_member_of = monastic_order_jain
 			society_member_of = monastic_order_hindu
 			society_member_of = monastic_order_jewish
@@ -5378,10 +5535,10 @@ character_event = {
 				set_character_flag = monastic_artifact_crown_of_thorns
 			}
 			20 = {
-				modifier = { factor = 0 NOT = { religion_group = christian } }
+				modifier = { factor = 0 NOR = { religion_group = christian religion_group = latter_day_saints } }
 				modifier = {
 					factor = 0
-					has_artifact = fragment_of_true_cross
+					has_artifact = ate_fragment_of_true_cross
 				}
 				set_character_flag = monastic_artifact_fragment_of_true_cross
 			}
@@ -5875,29 +6032,29 @@ character_event = {
 		}
 		if = {
 			limit = {
-				society_member_of = monastic_order_orthodox
+				society_member_of = monastic_order_evangelical
 			}
 			leave_society = yes
 			hidden_effect = {
-				set_character_flag = betrayed_monastic_order_orthodox
+				set_character_flag = betrayed_monastic_order_evangelical
 			}
 		}
 		if = {
 			limit = {
-				society_member_of = monastic_order_nestorian
+				society_member_of = monastic_order_ursuline
 			}
 			leave_society = yes
 			hidden_effect = {
-				set_character_flag = betrayed_monastic_order_nestorian
+				set_character_flag = betrayed_monastic_order_ursuline
 			}
 		}
 		if = {
 			limit = {
-				society_member_of = monastic_order_monophysite
+				society_member_of = monastic_order_mormon
 			}
 			leave_society = yes
 			hidden_effect = {
-				set_character_flag = betrayed_monastic_order_monophysite
+				set_character_flag = betrayed_monastic_order_mormon
 			}
 		}
 		if = {
@@ -6170,7 +6327,7 @@ character_event = { # win - no wound
 			on_trigger = has_character_flag
 			monastic_artifact_seamless_robe_of_jesus = { add_artifact = seamless_robe_of_jesus }
 			monastic_artifact_crown_of_thorns = { add_artifact = crown_of_thorns }
-			monastic_artifact_fragment_of_true_cross = { add_artifact = fragment_of_true_cross }
+			monastic_artifact_fragment_of_true_cross = { add_artifact = ate_fragment_of_true_cross }
 			monastic_artifact_holy_foreskin = { add_artifact = holy_foreskin }
 			monastic_artifact_image_of_edessa = { add_artifact = image_of_edessa }
 			monastic_artifact_elaborate_danda = { add_artifact = elaborate_danda }
@@ -6372,7 +6529,7 @@ character_event = { # win - wound
 			on_trigger = has_character_flag
 			monastic_artifact_seamless_robe_of_jesus = { add_artifact = seamless_robe_of_jesus }
 			monastic_artifact_crown_of_thorns = { add_artifact = crown_of_thorns }
-			monastic_artifact_fragment_of_true_cross = { add_artifact = fragment_of_true_cross }
+			monastic_artifact_fragment_of_true_cross = { add_artifact = ate_fragment_of_true_cross }
 			monastic_artifact_holy_foreskin = { add_artifact = holy_foreskin }
 			monastic_artifact_image_of_edessa = { add_artifact = image_of_edessa }
 			monastic_artifact_elaborate_danda = { add_artifact = elaborate_danda }
@@ -6582,7 +6739,7 @@ character_event = { # win - maimed
 			on_trigger = has_character_flag
 			monastic_artifact_seamless_robe_of_jesus = { add_artifact = seamless_robe_of_jesus }
 			monastic_artifact_crown_of_thorns = { add_artifact = crown_of_thorns }
-			monastic_artifact_fragment_of_true_cross = { add_artifact = fragment_of_true_cross }
+			monastic_artifact_fragment_of_true_cross = { add_artifact = ate_fragment_of_true_cross }
 			monastic_artifact_holy_foreskin = { add_artifact = holy_foreskin }
 			monastic_artifact_image_of_edessa = { add_artifact = image_of_edessa }
 			monastic_artifact_elaborate_danda = { add_artifact = elaborate_danda }
@@ -6793,7 +6950,7 @@ character_event = {
 			on_trigger = has_character_flag
 			monastic_artifact_seamless_robe_of_jesus = { add_artifact = seamless_robe_of_jesus }
 			monastic_artifact_crown_of_thorns = { add_artifact = crown_of_thorns }
-			monastic_artifact_fragment_of_true_cross = { add_artifact = fragment_of_true_cross }
+			monastic_artifact_fragment_of_true_cross = { add_artifact = ate_fragment_of_true_cross }
 			monastic_artifact_holy_foreskin = { add_artifact = holy_foreskin }
 			monastic_artifact_image_of_edessa = { add_artifact = image_of_edessa }
 			monastic_artifact_elaborate_danda = { add_artifact = elaborate_danda }
@@ -6835,7 +6992,7 @@ character_event = {
 			on_trigger = has_character_flag
 			monastic_artifact_seamless_robe_of_jesus = { add_artifact = seamless_robe_of_jesus }
 			monastic_artifact_crown_of_thorns = { add_artifact = crown_of_thorns }
-			monastic_artifact_fragment_of_true_cross = { add_artifact = fragment_of_true_cross }
+			monastic_artifact_fragment_of_true_cross = { add_artifact = ate_fragment_of_true_cross }
 			monastic_artifact_holy_foreskin = { add_artifact = holy_foreskin }
 			monastic_artifact_image_of_edessa = { add_artifact = image_of_edessa }
 			monastic_artifact_elaborate_danda = { add_artifact = elaborate_danda }
@@ -6876,7 +7033,7 @@ character_event = {
 			on_trigger = has_character_flag
 			monastic_artifact_seamless_robe_of_jesus = { add_artifact = seamless_robe_of_jesus }
 			monastic_artifact_crown_of_thorns = { add_artifact = crown_of_thorns }
-			monastic_artifact_fragment_of_true_cross = { add_artifact = fragment_of_true_cross }
+			monastic_artifact_fragment_of_true_cross = { add_artifact = ate_fragment_of_true_cross }
 			monastic_artifact_holy_foreskin = { add_artifact = holy_foreskin }
 			monastic_artifact_image_of_edessa = { add_artifact = image_of_edessa }
 			monastic_artifact_elaborate_danda = { add_artifact = elaborate_danda }
@@ -6974,7 +7131,7 @@ letter_event = {
     			}
     			AND = {
     				has_character_flag = monastic_artifact_fragment_of_true_cross
-    				has_artifact = fragment_of_true_cross
+    				has_artifact = ate_fragment_of_true_cross
     			}
     			AND = {
     				has_character_flag = monastic_artifact_holy_foreskin
@@ -7017,7 +7174,7 @@ letter_event = {
 				destroy_artifact = crown_of_thorns
 			}
 			monastic_artifact_fragment_of_true_cross = {
-				destroy_artifact = fragment_of_true_cross
+				destroy_artifact = ate_fragment_of_true_cross
 			}
 			monastic_artifact_holy_foreskin = {
 				destroy_artifact = holy_foreskin
@@ -7109,29 +7266,29 @@ letter_event = {
 		}
 		if = {
 			limit = {
-				society_member_of = monastic_order_orthodox
+				society_member_of = monastic_order_evangelical
 			}
 			leave_society = yes
 			hidden_effect = {
-				set_character_flag = betrayed_monastic_order_orthodox
+				set_character_flag = betrayed_monastic_order_evangelical
 			}
 		}
 		if = {
 			limit = {
-				society_member_of = monastic_order_nestorian
+				society_member_of = monastic_order_ursuline
 			}
 			leave_society = yes
 			hidden_effect = {
-				set_character_flag = betrayed_monastic_order_nestorian
+				set_character_flag = betrayed_monastic_order_ursuline
 			}
 		}
 		if = {
 			limit = {
-				society_member_of = monastic_order_monophysite
+				society_member_of = monastic_order_mormon
 			}
 			leave_society = yes
 			hidden_effect = {
-				set_character_flag = betrayed_monastic_order_monophysite
+				set_character_flag = betrayed_monastic_order_mormon
 			}
 		}
 		if = {

@@ -1,80 +1,4 @@
-decisions = {
-	become_banker = {
-		potential = {
-			age = 16
-			NOT = { trait = incapable }
-			prisoner = no
-			NOT = { trait = banker }
-			OR = {
-				controls_religion = no			# any secular ruler
-				religion_group = oldworld		# Americanists and Consumerists okay with moneylending
-				religion_group = pagan_group	# reformed pagans also okay with it
-				religion_group = jewish_group	# Jews okay with it as well
-			}
-			OR = {
-				ai = no
-				is_patrician = yes
-				wealth = 500
-				monthly_income = 5
-			}
-		}
-		allow = {
-			wealth = 500
-			OR = {
-				religion = consumerist
-				religion_group = jewish_group
-				is_patrician = yes
-				stewardship = 12
-				trait = greedy
-				trait = cynical
-			}
-			is_tribal = no
-			is_nomadic = no
-			NOT = { has_character_flag = loan_taken }
-		}
-		effect = {
-			add_trait = banker
-			wealth = -500
-			hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
-		}
-		revoke_allowed = {
-			always = no
-		}
-		ai_will_do = {
-			factor = 1
-			modifier = { factor = 0.01 }
-			modifier = { factor = 2 stewardship = 10 }
-			modifier = { factor = 2 stewardship = 15 }
-			modifier = { factor = 5 trait = greedy }
-			modifier = { factor = 2 trait = cynical	}
-			modifier = { factor = 5	is_patrician = yes }
-			modifier = { factor = 2 wealth = 1000 }
-			modifier = { factor = 3 religion_group = oldworld }
-			modifier = { factor = 3 religion_group = jewish_group }
-		}
-	}
-	
-	leave_banking = {
-		potential = {
-			trait = banker
-		}
-		allow = {
-			
-		}
-		effect = {
-			character_event = { id = bank.10 }
-		}
-		revoke_allowed = { always = no }
-		ai_will_do = {
-			factor = 1
-			modifier = { factor = 0.001 }
-			modifier = { factor = 0.5 wealth = 250 }
-			modifier = { factor = 10 NOT = { wealth = -100 } }
-			modifier = { factor = 10 NOT = { monthly_income = 0 } }
-			modifier = { factor = 5 war = yes }
-		}
-	}
-	
+decisions = {	
 	borrow_money = {
 		potential = {
 			is_ruler = yes
@@ -362,6 +286,107 @@ decisions = {
 		effect = {
 			change_society_currency = -500
 			hidden_tooltip = { letter_event = { id = bank.48 } }
+		}
+	}
+	
+	title_decisions = {
+	# Banking Society Rank 4 Power - Increase Prosperity
+	monastic_order_convert_county = {
+		only_playable = yes
+		ai_check_interval = 3
+		
+		from_potential = {
+			has_dlc = "Mystics"
+			has_dlc = "Reapers"
+			is_ruler = yes
+			society_member_of = banking_society
+			society_rank == 4
+			NOT = { has_character_modifier = increased_prosperity }
+		}
+		
+		potential = {
+			tier = COUNT
+			location = { NOT = { has_province_modifier = prosperity_modifier_3 } }
+			holder_scope = {
+				OR = {
+					is_liege_or_above = FROM
+					character = FROM
+				}
+			}
+		}
+		
+		allow = {
+			FROM = {
+				society_currency >= 1000
+			}
+			location = {
+				NOT = { has_province_modifier = prosperity_modifier_3 }
+			}
+		}
+		
+		effect = {
+			FROM = {
+				change_society_currency = -1000
+				hidden_tooltip = { character_event = { id = bank.49 } }
+			}
+			location = {
+				if = {
+					limit = {
+						has_province_modifier = depopulated_3
+					}
+					remove_province_modifier = depopulated_3
+					add_province_modifier = {
+						name = depopulated_2
+						duration = -1
+					}
+				}
+				if = {
+					limit = {
+						has_province_modifier = depopulated_2
+					}
+					remove_province_modifier = depopulated_2
+					add_province_modifier = {
+						name = depopulated_1
+						duration = -1
+					}
+				}
+				if = {
+					limit = {
+						has_province_modifier = depopulated_1
+					}
+					remove_province_modifier = depopulated_1
+				}
+				if = {
+					limit = {
+						has_province_modifier = prosperity_modifier_1
+					}
+					remove_province_modifier = prosperity_modifier_1
+					add_province_modifier = {
+						name = prosperity_modifier_2
+						duration = -1
+					}
+				}
+				if = {
+					limit = {
+						has_province_modifier = prosperity_modifier_2
+					}
+					remove_province_modifier = prosperity_modifier_2
+					add_province_modifier = {
+						name = prosperity_modifier_3
+						duration = -1
+					}
+				}
+				else = {
+					add_province_modifier = {
+						name = prosperity_modifier_1
+						duration = -1
+					}
+				}
+			}
+		}
+		
+		ai_will_do = {
+			factor = 1
 		}
 	}
 }

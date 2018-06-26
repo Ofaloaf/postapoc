@@ -256,7 +256,10 @@ character_event = {
 			any_playable_ruler = {
 				limit = {
 					NOT = { distance = { who = ROOT distance = 400 } }
-					society_member_of = banking_society
+					OR = {
+						society_member_of = banking_society
+						trait = banker
+					}
 				}
 				character_event = { id = bank.15 days = 5 }
 			}
@@ -320,7 +323,10 @@ character_event = {
 	hide_window = yes
 	
 	trigger = {
-		society_member_of = banking_society
+		OR = {
+			society_member_of = banking_society
+			trait = banker
+		}
 		OR = {
 			prisoner = yes
 			trait = incapable
@@ -388,6 +394,13 @@ character_event = {
 	
 	immediate = {
 		if = {
+			limit = {
+				NOT = { has_dlc = "Mystics" }
+				trait = banker
+			}
+			current_heir = { character_event = { id = bank.21 days = 3 } }
+		}
+		if = {
 			limit = { has_character_flag = loan_taken }
 			current_heir = {
 				character_event = { id = bank.22 days = 3 }
@@ -419,7 +432,62 @@ character_event = {
 		}
 	}
 	option = { }
-}	
+}
+
+character_event = {
+	id = bank.21
+	desc = EVTDESC_bank_inherit
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	trigger = {
+		dynasty = FROM
+	}
+	
+	option = {
+		name = EVTOPT_bank_inherit_greedy
+		trigger = {
+			NOT = { has_dlc = "Mystics" }
+			NOT = { trait = banker }
+			trait = greedy
+			prisoner = no
+			NOT = { trait = incapable }
+			age = 16
+		}
+		tooltip_info = greedy
+		prestige = 10
+		add_trait = banker
+		hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
+	}
+	
+	option = {
+		name = EVTOPT_bank_inherit
+		trigger = {
+			NOT = { trait = banker }
+			prisoner = no
+			NOT = { trait = incapable }
+			age = 16
+		}
+		add_trait = banker
+		hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
+	}
+	
+	option = {
+		name = EVTOPT_bank_cashout
+		trigger = {
+			NOT = { trait = banker }
+		}
+		character_event = { id = bank.10 }
+	}
+	
+	option = {
+		name = EVTOPT_bank_double
+		trigger = {
+			trait = banker
+		}
+		wealth = 450
+	}
+}
 
 character_event = {
 	id = bank.22
@@ -559,7 +627,10 @@ character_event = {
 	only_rulers = yes
 	
 	trigger = {
-		society_member_of = banking_society
+		OR = {
+			society_member_of = banking_society
+			trait = banker
+		}
 		month = 11
 		NOT = { has_character_modifier = banking_results }
 	}

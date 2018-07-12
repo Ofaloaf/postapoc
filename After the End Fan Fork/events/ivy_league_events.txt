@@ -1,0 +1,652 @@
+namespace = faculty
+
+#Thanks to GSonderling for writing these. Really sorry that I didn't use the rest of your work.
+
+#This is the quest_collaborator receiving the mission and giving it back to you.
+character_event = {
+    id = faculty.140
+    hide_window = yes #instant event, no need to show it
+    is_triggered_only = yes
+    immediate = { FROM = { society_quest_event = { id = faculty.141 days = 7 random = 7 } } }
+}
+
+#This event is set as a society_quest_event, not character_event. This is the accept or refuse the quest event, the next parts of the quest use the regular character_event.
+society_quest_event = {
+    id = faculty.141
+    desc = EVTDESC_faculty_141
+
+    is_triggered_only = yes
+   
+    option = { 
+		name = ACCEPT
+		
+		set_quest = quest_faculty_quest_1 
+	}
+
+	option = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = { #will delay the next quest for a while
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0.3 }
+	}
+}
+
+###Funding quest
+character_event = {
+    id = faculty.142
+    desc = EVTDESC_faculty_142
+    picture = GFX_evt_throne_room
+    border = GFX_event_normal_frame_war
+
+    trigger = {	
+		has_quest = quest_faculty_quest_2
+		society_member_of = ivy_league
+		NOT = { is_inaccessible_trigger = yes }
+		prisoner = no
+	}
+	
+	mean_time_to_happen = {
+		months = 5
+	}
+	
+	# Give them money
+    option = { 
+        name = EVTOPTA_faculty_142		
+		FROM = {					
+			character_event = {
+				id = faculty.501
+			}		
+		}
+		hidden_tooltip = {
+			add_character_modifier = {
+				name = decided_on_uni_contribution
+				duration = 2000
+			}
+		}
+		ai_chance = {
+			factor = 0.01
+			modifier = {
+				factor = 10
+				wealth = 500
+			}
+			modifier = {
+				factor = 0.5
+				OR = {
+					trait = greedy
+					trait = hedonist
+					religion = gaian
+					religion = pirate
+				}
+			}
+			modifier = {
+				factor = 50
+				opinion = { who = ROOT value = 70 }
+			}
+			modifier = {
+				factor = 150
+				opinion = { who = ROOT value = 90 }
+			}
+		}
+		wealth = -150
+    }
+	# Nope
+    option = {
+        name = EVTOPTB_faculty_142		
+		FROMFROM = {					
+			character_event = {
+				id = faculty.500
+			}
+		}
+		hidden_tooltip = {
+			add_character_modifier = {
+				name = decided_on_uni_contribution
+				duration = 2000
+			}
+		}
+		ai_chance = {
+			factor = 0.8
+		}
+    }
+}
+
+# Students fighting
+character_event = {
+    id = faculty.150
+    desc = EVTDESC_faculty_150
+    picture = GFX_evt_throne_room
+    border = GFX_event_normal_frame_war
+
+    is_triggered_only = yes
+
+	trigger = {
+		society_member_of = ivy_league
+		OR = {
+			martial = 15
+			trait = arbitrary
+			diplomacy = 15
+		}
+	}
+	mean_time_to_happen = {
+		months = 100
+	}
+    option = {
+        name = EVTOPTA_faculty_150
+		trigger = {
+			martial = 15			
+		}
+		random_list = {
+			10 = {
+				modifier = {
+					factor = 10
+					martial = 20
+				}
+			}
+			100 = {
+				modifier = {
+					factor = 10
+					trait = strong
+				}
+			}	
+			100 = {
+				modifier = {
+					factor = 10
+					OR = {
+						martial = 10
+						trait = weak
+					}
+				}
+				add_maimed_trait_effect = yes
+			}	
+		}
+	}
+    option = {
+        name = EVTOPTB_faculty_150
+		trigger = {
+			trait = arbitrary
+		}
+		random_list = {
+			50 = {
+				modifier = {
+					factor = 10
+					OR = {
+						learning = 20
+						trait = scholar
+						society_rank >= 2
+					}
+					
+				}
+				prestige = 10
+			}
+				
+			100 = {
+				modifier = {
+					factor = 10
+					OR = {
+						learning = 10
+						trait = dwarf
+						trait = stutter
+						trait = lisp
+					}
+				}
+				prestige = -10
+			}	
+		}
+
+    }
+	option = {
+        name = EVTOPTC_faculty_150
+		trigger = {
+			diplomacy = 15
+		}
+		random_list = {
+			100 = {
+				modifier = {
+					factor = 10
+					OR = {
+						diplomacy = 20
+						trait = poet
+					}
+					
+				}
+				prestige = 10
+			}				
+			100 = {
+				modifier = {
+					factor = 10
+					OR = {
+						diplomacy = 10
+						trait = stutter
+						trait = lisp
+					}
+				}
+				prestige = -10
+			}	
+		}
+		
+    }
+    option = {
+        name = EVTOPTD_faculty_150
+		prestige = -10
+		
+    }
+}
+
+### Rebuild library/scriptorium
+#This is the quest_collaborator receiving the mission and giving it back to you.
+
+character_event = {
+	id = faculty.160
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = { FROM = { society_quest_event = { id = faculty.161 days = 7 random = 7} } }
+}
+
+#This event is set as a society_quest_event, not character_event. This is the accept or refuse the quest event, the next parts of the quest use the regular character_event.
+society_quest_event = {
+    id = faculty.161
+    desc = EVTDESC_faculty_161
+    is_triggered_only = yes
+   	capable_only = yes
+	
+    option = { 
+		name = ACCEPT
+		
+		set_quest = quest_faculty_quest_2		
+	}
+
+	option = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = { #will delay the next quest for a while
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+		ai_chance = { factor = 0.3 }
+	}
+}
+
+#Purchase books
+character_event = {
+    id = faculty.162
+    desc = EVTDESC_faculty_162
+    picture = GFX_evt_throne_room
+    border = GFX_event_normal_frame_war
+	capable_only = yes
+	trigger = {		
+		has_quest = quest_faculty_quest_2
+		is_member_of_faculty_trigger = yes
+		NOT = { check_variable = { which = projectprogress value = 9} }
+		NOT = { is_inaccessible_trigger = yes }
+		prisoner = no
+	}
+	
+	mean_time_to_happen = {
+		months = 5
+	}
+	
+	# High quality
+    option = { 
+        name = EVTOPTA_faculty_162		
+				
+		ai_chance = {
+			factor = 0.01
+			modifier = {
+				factor = 10
+				wealth = 500
+			}
+			modifier = {
+				factor = 0.5
+				OR = {
+					trait = greedy
+					trait = hedonist
+				}
+			}
+		}
+		ROOT = {
+			change_variable = { which = projectprogress value = 4 }
+		}
+		wealth = -100
+    }
+	# Low quality
+    option = {
+        name = EVTOPTB_faculty_162		
+		wealth = -50
+		ROOT = {
+			change_variable = { which = projectprogress value = 2 }
+		}
+		ai_chance = {
+			factor = 0.8
+		}
+    }
+	# Bargain
+	option = {
+        name = EVTOPTC_faculty_162		
+		trigger = {
+			OR = {
+				learning = 20
+				stewardship = 20
+			}
+		}
+		ROOT = {
+			change_variable = { which = projectprogress value = 3 }
+		}
+		wealth = -50
+		ai_chance = {
+			factor = 1
+		}
+    }
+	# End quest
+    option = {
+        name = EVTOPTD_faculty_162		
+		prestige = -100
+		character_event = {
+				id = faculty.500
+		}
+		ROOT = {
+			set_variable = { which = projectprogress value = 0 }
+		}
+		ai_chance = {
+			factor = 0.1
+			modifier = {
+				factor = 100
+				NOT = { wealth = 100}
+			}
+		}
+    }
+}
+
+#Fix roof and plumbing
+character_event = {
+    id = faculty.163
+    desc = EVTDESC_faculty_163
+    picture = GFX_evt_throne_room
+    border = GFX_event_normal_frame_war
+	capable_only = yes
+
+	trigger = {		
+		has_quest = quest_faculty_quest_2
+		is_member_of_faculty_trigger = yes
+		NOT = { is_inaccessible_trigger = yes }
+		NOT = { check_variable = { which = projectprogress value = 9} }
+		prisoner = no
+	}
+	
+	mean_time_to_happen = {
+		months = 5
+	}
+	
+	# High quality
+    option = { 
+        name = EVTOPTA_faculty_163		
+				
+		ai_chance = {
+			factor = 0.01
+			modifier = {
+				factor = 10
+				wealth = 500
+			}
+			modifier = {
+				factor = 0.5
+				OR = {
+					trait = greedy
+					trait = hedonist					
+				}
+			}
+		}
+		ROOT = {
+			change_variable = { which = projectprogress value = 4 }
+		}
+		wealth = -100
+    }
+	# Low quality
+    option = {
+        name = EVTOPTB_faculty_163		
+		wealth = -50
+		ai_chance = {
+			factor = 0.8
+		}
+		ROOT = {
+			change_variable = { which = projectprogress value = 2 }
+		}
+    }
+	# Bargain
+	option = {
+        name = EVTOPTC_faculty_163		
+		trigger = {
+			OR = {
+				learning = 20
+				stewardship = 20
+			}
+		}
+		wealth = -50
+		ROOT = {
+			change_variable = { which = projectprogress value = 3 }
+		}
+		ai_chance = {
+			factor = 1
+		}
+    }
+	# End quest
+    option = {
+        name = EVTOPTD_faculty_163		
+		prestige = -100
+		character_event = {
+			id = faculty.500
+		}
+		ROOT = {
+			set_variable = { which = projectprogress value = 0 }
+		}
+		ai_chance = {
+			factor = 0.1
+			modifier = {
+				factor = 100
+				NOT = { wealth = 100}
+			}
+		}
+    }
+}
+
+# Build printing engine
+character_event = {
+    id = faculty.164
+    desc = EVTDESC_faculty_164
+    picture = GFX_evt_throne_room
+    border = GFX_event_normal_frame_war
+	capable_only = yes
+	is_ruler = yes
+	trigger = {
+		has_quest = quest_faculty_quest_2
+		is_member_of_faculty_trigger = yes
+		check_variable = { which = projectprogress value = 5}
+		NOT = { check_variable = { which = projectprogress value = 9} }
+		NOT = { is_inaccessible_trigger = yes }
+		prisoner = no
+		wealth = 100
+		learning = 20
+	}
+	mean_time_to_happen = {
+		months = 5
+	}
+		
+	# High quality
+    option = { 
+        name = EVTOPTA_faculty_164
+		
+		ai_chance = {
+			factor = 0.01
+			modifier = {
+				factor = 10
+				wealth = 500
+			}
+			modifier = {
+				factor = 0.5
+				OR = {
+					trait = greedy
+					trait = hedonist
+					religion = gaian
+				}
+			}
+		}
+		ROOT = {
+			change_variable = { which = projectprogress value = 4 }
+		}
+		wealth = -300
+    }
+	# Bargain
+	option = {
+        name = EVTOPTB_faculty_164
+		trigger = {
+			OR = {
+				learning = 25
+				stewardship = 25
+			}
+		}
+		ROOT = {
+			change_variable = { which = projectprogress value = 3 }
+		}
+		wealth = -200
+		ai_chance = {
+			factor = 1
+		}
+    }
+	# Don't do it
+    option = {
+        name = EVTOPTC_faculty_164		
+		ai_chance = {
+			factor = 0.1
+			modifier = {
+				factor = 100
+				NOT = { wealth = 200}
+			}
+		}
+    }
+}
+
+# Library finished
+character_event = {
+    id = faculty.165
+    desc = EVTDESC_faculty_165
+    picture = GFX_evt_throne_room
+    border = GFX_event_normal_frame_war
+	capable_only = yes
+
+	trigger = {	
+		has_quest = quest_faculty_quest_2
+		is_member_of_faculty_trigger = yes
+		NOT = { is_inaccessible_trigger = yes }
+		prisoner = no
+		check_variable = { which = projectprogress value = 3}
+	}
+	
+	mean_time_to_happen = {
+		months = 30
+	}
+	
+	# Famous success
+    option = { 
+        name = EVTOPTA_faculty_165
+		trigger = {
+			check_variable = { which = projectprogress value = 9}			
+		}
+		character_event = {
+			id = faculty.501
+		}
+		prestige = 500
+		# Increased rewards
+		add_mission_succeed_influence_effect = yes #quest add society influence
+		change_society_currency = 200 #reward	
+		ROOT = {
+			set_variable = { which = projectprogress value = 0 }
+		}
+    }
+	# Moderate success
+	option = {
+        name = EVTOPTB_faculty_165
+		trigger = {
+			NOT = {	check_variable = { which = projectprogress value = 9} }
+			check_variable = { which = projectprogress value = 6}
+		}
+		character_event = {
+			id = faculty.501
+		}
+		# Increased rewards
+		change_society_currency = 100 #reward	
+		ROOT = {
+			set_variable = { which = projectprogress value = 0 }
+		}
+		ai_chance = {
+			factor = 1
+		}
+    }
+	# Catastrophe
+    option = {
+        name = EVTOPTC_faculty_165
+		trigger = {
+			NOT = {	check_variable = { which = projectprogress value = 9} }
+			NOT = { check_variable = { which = projectprogress value = 6} }
+			check_variable = { which = projectprogress value = 3} 
+		}
+		ROOT = {
+			set_variable = { which = projectprogress value = 0 }
+		}
+		character_event = {
+			id = faculty.500
+		}
+		ai_chance = {
+			factor = 1
+		}
+    }
+}
+
+# General quest failure 
+character_event = {
+	id = faculty.500
+	is_triggered_only = yes
+	hide_window = yes
+	immediate = {
+		add_mission_fail_influence_effect = yes #quest remove society influence
+		change_society_currency = -100 #penalty
+		
+		clr_quest = { 
+			id = quest_faculty_quest_1 #remove the quest
+			id = quest_faculty_quest_2 #remove the quest
+			failure = yes				
+		}
+		log = " [Root.GetBestName] failed in their mission for the Ivy League."
+		add_character_modifier = { #will delay the next quest for a while
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}		
+	}
+}
+
+# General quest success 
+character_event = {
+	id = faculty.501
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		add_mission_succeed_influence_effect = yes #quest add society influence
+		change_society_currency = 200 #reward				
+		clr_quest = { 
+			id = quest_faculty_quest_1 #remove the quest
+			id = quest_faculty_quest_2 #remove the quest
+			failure = no
+		}
+		log = "[Root.GetBestName] succeeded in their mission for the Ivy League."
+		add_character_modifier = { #will delay the next quest for a while
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 800
+		}
+	}
+}

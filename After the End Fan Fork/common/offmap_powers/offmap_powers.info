@@ -1,0 +1,223 @@
+#
+# 00_offmap_powers.txt
+#
+
+# this is a new database that is used to create "offmap powers" That is nations not represented on the map but with a significant influence over it
+# For example, China
+
+# example:
+china = {													# used to name the offmap powers in related scopes, effects and triggers
+	name = TXT_CHINA										# the localization line used to represent the name of the offmap_power if no other name has been set through history/script. Also used for GetShort/FullGenericName
+	window_name = domestic_offmaps_window					# the name of their UI window (vanilla window is in domestic_offmaps.gui). Means that each offmap can have its own screen.
+	button_name = icon_offmaps_entry								# the name of the UI window to use for the button that opens interaction with the offmap power
+															# Note that a number of elements cannot be removed/renamed, and that others might have their tooltips broken if renamed
+															# Also be aware that deleting the original window type is likely to cause a crash
+	currency_name = TXT_GRACE								# the localization line used to represent the name of the currency used in interactions, decisions, etc related to that power. This plus "_desc" will be used for its description
+	currency_gain = monthly_grace							# the name of the modifier that gives currency each month. Also needs to be defined in the modifier_definitions folder
+	currency_below_zero = yes								# whether the currency can go below 0. Defaults to "no"
+	currency_reset_on_dynasty_change = yes					# whether everyone gets their currency set to 0 when a new offmap ruler has a different dynasty from the last one. Defaults to "no"
+	holder_title = china_emperor							# the minor title associated with being the overlord of that offmap power
+															#	this is not, and should not be accessible to player characters
+															#	characters with that minor title will be considered "offmap" and will not be accessible to interactions, events, etc. Events with "offmap = allow" or "offmap = only" can trigger for offmaps - other events will not
+															#   This minor title can also not be granted in any way by a character to another, but is obtained automatically when becoming
+															#	holder of this offmap power
+
+	governor_title = e_china_west_governor					# the regular landed associated with the offmap_powers, who will be their mean way of influencing the map.
+															# the governor title and the governor will act as a normal character and the map (declare wars, tributarize, vassalize, etc)	
+															# once again players won't be able to become governor
+															# this title should be landless to ensure it always exists
+	tier = emperor											# what tier the offmap should be considered. Mostly used for localisation, but the various "tier" triggers also work on offmaps. Also used for their portrait frame outside the offmap screen
+	coa_religion = taoist									# what religion's CoA type to use on the offmap screen. If not specified, whatever religion the emperor's dynasty has will be used
+	government = confucian_bureaucracy						# what government type to use for the emperor
+	beginning_of_history = 618.6.18							# what date to start generating holders for if the offmap isn't present in a save, or no history is defined
+	sound = china_interaction_interface						# what sound to use as the background SFX for the offmap screen
+	
+	display_trigger = { has_dlc = "Jade Dragon" }			# trigger for whether to show the button to open the offmap screen. ROOT is the offmap power. FROM is the player. The trigger is evaluated once a month
+	policies = {											# list of valid policies, from the policies database
+	}
+	statuses = {											# list of valid statuses, from the statuses database
+	}
+	buttons = {												# list of what interaction buttons exist for the offmap. Also have to be in the "main" window of the gui for the offmap
+		offmap_gifts = {									# name of the button. Has to match name in .gui file
+			is_active_trigger = {							# When the button lights up. Has no actual gameplay effect, but is useful for showing whether tribute decisions in general are disabled. ROOT is the offmap's governor. FROM is the player
+				china_offmap_tribute_decisions_enabled_trigger = yes
+			}
+			display_trigger = {								# When the button is visible at all. Same scopes as the active trigger
+				always = yes
+			}
+		}
+	}
+	monthly_currency_gain = {								# Triggered monthly gains of offmap currency
+		offmap_female_test = {								# The key is used for localisation
+			value = 10										# Value defines how much
+			FROM = { is_female = yes }						# Everything else is a trigger
+		}													# ROOT is the offmap governor
+		offmap_male_test = {								# FROM is the person gaining currency
+			value = 5										# Only "playable" characters can gain currency this way, for performance reasons
+			FROM = { is_female = no }						# There is no automatic range check, so if relevant this has to be checked in the trigger
+		}
+	}
+
+	holder_succession = {									# weighted lists and effects to create a new character to hold the title
+															# ROOT is the offmap, FROM is the old holder, new_character is the new holder with what's been filled out so far. Order goes: gender, religion, culture, graphical culture, dynasty. So for religion for example you can refer to gender, but not anything else. Note that "FROM" does not exist as a scope if there is no previous holder
+		is_female = {										# chances of getting a female holder, as a percentage
+															# if the total is >= 100, the new holder will always be female
+															# if the totla is <= 0, the new holder will always be male
+			value = 5
+			additive_modifier = {
+				value = 45
+				has_game_rule = {
+					name = gender
+					value = all
+				}
+			}
+		}
+
+		####
+		# culture, religion, dynasty, graphical_culture work in exactly the same way: they are weighted value lists
+		# culture is used below as an example
+		culture = {
+			FROM = {										# The left hand side here, is an EventScopeValue, which is a normal keyword (FROM, FROMFROM, ROOT, etc)
+															# or a value from the type you want (here, a culture)
+															# the right hand side is a normal MTTH  (you can have modifiers to the base value), but only the entry
+															# with the highest score will be used.
+															# entries with a score of 0 or less will be ignored
+				value = 10									# the scope here is the offmap_power, with From being the old holder
+			}
+			han = {
+				value = 1
+			}
+		}
+
+		### note: default_religion and default_culture have been removed since we now have weighted list, you can just add the culture or religion you want with a weight of 0
+	}
+	
+	diplomatic_range = {}									# Trigger for who is in range of China. Extends the governor's normal diplomatic range. ROOT is the character potentially in range, while FROM is the governor. Note that the governor title must have a capital defined, as this is used if it has no land. If none is defined, everything will be considered in range
+	non_aggression_modifier = name							# Name of the temporary modifier used to denote "peace deals" with the offmap power. At the moment only used for display purposes, other than what you do with it in script
+	
+	icon_triggers = {										# Icons that can show in the boxes status_icons_left and status_icons_right on the offmap screen
+		china_test_right = {								# Name of the icon. Used for the tooltip. Name is the header, name plus "_desc" the delayed part
+			right = yes										# Whether to put it in status_icons_left or status_icons_right. Put in status_icons_left if set to "no" or not set
+			frame = 2										# What frame of the GFX defined in its window to use. Frames is recommended over separate windows for each icon, as it uses less memory. Note that this can only change the frame of the icon "offmap_triggered_icon"
+			trigger = { always = yes }						# When the icon should show up. ROOT is the player. FROM is the offmap power
+			window_name = "example_name"					# The name of the window to use for the icon. Will use offmap_triggered_icon if not set
+		}
+	}
+	
+	temple_names = {										# What names to give the offmap rulers. Leave the section out entirely, or blank, to use normal naming instead
+		{ # The first block contains "founder names". The first person of a dynasty will use this block. Leave the block empty to not use founder names.
+			FounderName
+		}
+		{ # The blocks after will be used in order by non-founders, with a random order within each block.
+			NonFounderName
+		}
+	}
+}
+
+Unless a death reason is specified, all offmap ruler deaths happen with "death_offmap". This is used to indicate that they used to be an offmap ruler; using another death reason will result in their stats not getting hidden on their character sheet
+
+### Related scopes:
+offmap_name	= {}											# The name of an offmap power can be used to scope to them. E.G., "offmap_china = {}". Also works on the right-hand-side of some triggers and effects that normally takes characters, where it will scope to the governor
+any_character/random_character does not include offmap rulers, but does include their governor
+
+### available scopes in offmap_power scope (also available in holder, governor or governor_title scopes)
+	governor						 # Returns the governor
+	governor_title					 # Returns the governor title
+	offmap_power					 # Returns the offmap power
+	offmap_ruler					 # Returns the offmap ruler
+	offmap_prev_ruler				 # Returns the previous offmap ruler (invalid if there hasn't been a previous ruler yet)
+
+### available triggers in offmap_power scope (also available in holder, governor or governor_title scopes)
+	has_offmap_flag = busy			# will return true if the offmap power, its current policy or its current status has the flag
+	has_offmap_tmp_flag = busy		# will return true only if the offmap power has the flag (ie it was set with set_offmap_tmp_flag)
+	had_offmap_flag = { flag = busy days = X } # will return true if the offmap power has had the flag set for at least X number of days ('years' and 'months' are also valid arguments).
+	has_offmap_name = "NAME"		# checks if the offmap uses the given name key. E.G., "TXT_CHINA"
+	has_had_offmap_name = "NAME"	# checks if the offmap has used the given name key at any point. Includes the currently used name, not just past names
+	is_within_diplo_range = ROOT	# like is_within_diplo_range works, except the governor is used. Also the case if an offmap is on the right-hand-side of the equals sign
+	is_offmap_tag = offmap_china	# checks if the offmap is the given tag. Also takes scopes
+	is_offmap_tag_including_dead = offmap_china	# checks if the offmap is the given tag. Also takes scopes. Will also work for dead offmap rulers, but is more resource intensive
+	
+### Offmap related triggers
+	is_offmap_governor = yes		# checks if the character is governor of an offmap title
+	is_offmap_ruler = yes			# checks if the  character is ruler of an offmap title
+	has_offmap_currency = { offmap = offmap_china value > 5 } # checks if the character has the specified amount of currency with the given offmap power
+	has_offmap_news_enabled = offmap_china # checks if the character receives news from the given offmap power (toggled in the offmap view). Always returns true for AI characters
+	portrait_offmap = offmap_china	# checks if the character rules or has ruled the given offmap. Only usable in portrait GFX script (elsewhere the regular triggers fulfill this purpose)
+
+# policy related triggers
+	has_policy = policy_name - Checks if the offmap has the given policy
+	prev_policy = policy_name - Checks if the offmap had the given policy as its last policy
+	has_policy_flag = flag_name - Checks if the offmap has a policy with the given flag
+	prev_policy_flag = flag_name - Checks if the offmapæs last policy has the given flag
+	days_since_policy_change > 1 - Checks how long ago the policy changed. Note that setting the same policy as is currently present (E.G., "changing" to china_stable while china_stable is already active) will reset the timer
+
+# status related triggers
+	has_status = status_name - Checks if the offmap has the given status
+	prev_status = status_name - Checks if the offmap had the given status as its last status
+	has_status_flag = flag_name - Checks if the offmap has a status with the given flag
+	prev_status_flag = flag_name - Checks if the offmapæs last status has the given flag
+	days_since_status_change > 1 - Checks how long ago the status changed. Note that setting the same policy as is currently present (E.G., "changing" to china_stable while china_stable is already active) will reset the timer
+
+# like and dislike related triggers
+	offmap_has_like = like_name - Checks if the emperor has the given like
+	offmap_has_dislike = like_name - Checks if the emperor has the given dislike
+	(dis)liked_by_offmap = {		# Checks if the offmap (dis)likes you, or the optional context
+		type = offmap_china			# The offmap to check against
+		context = context_name		# Optional context. If provided, it'll return true if the emperor's (dis)like has this context, and the scripted trigger returns true, or if the emperor's (dis)like has no context, and the scripted trigger returns true. If not provided, if the (dis)like has a context it will always return false
+	}
+	
+### available effects in offmap_power scope (also available in holder, governor or governor_title scopes)
+	set_offmap_tmp_flag = busy (or set_offmap_flag = busy)
+	clr_offmap_tmp_flag = busy (or clr_offmap_flag = busy)
+	set_offmap_holder = ROOT
+	set_offmap_name = "NAME"
+	add_offmap_currency = { offmap = offmap_china value = 1 }
+	set_offmap_currency = { offmap = offmap_china value = 1 }
+	set_offmap_like = { offmap = offmap_china type = random/likes_arabs }
+	set_offmap_dislike = { offmap = offmap_china type = random/likes_arabs }
+
+
+# policy related effects
+	set_policy = policy_name - Sets the offmap's policy to the given policy
+
+# Status related effects
+	set_status = status_name - Sets the offmap's status to the given status
+
+# character related triggers
+	is_offmap_ruler = yes # Checks if the scoped character is an offmap ruler
+	is_offmap_governor = yes # Checks if the scoped character is an offmap ruler
+	is_or_was_offmap_power_ruler # Checks if the scoped character is an offmap ruler, or was one when they died
+	
+### available loc commands
+	The name of the offmap itself supports custom loc with the following scopes: ROOT is the offmap itself. FROM is the holder. FROMFROM is the governor
+
+	Offmap - Gets the Offmap power from the governor title, governor, or holder, or any vassal/courtier of the governor
+	Ruler - Gets the ruler from the Offmap
+	PrevRuler - Gets the previous ruler from the Offmap
+	PrevGovernor - Gets the previous governor from the Offmap
+	Governor - Gets the governor from the Offmap
+	GovernorTitle - Gets the governor title from the Offmap
+	GetShortName - Gets the short name from the Offmap; the key set in the offmap itself, or via history/script
+	GetShortGenericName - Gets the generic short name from the Offmap; the key set in the offmap itself, even if one has been set in history/script
+	GetFullName - Gets the full name from the Offmap. The short name key plus "_full". If that isn't defined, offmap_full_title is used with the short name and the title tier
+	GetFullGenericName - Gets the generic full name from the Offmap. The short name key plus "_full". If that isn't defined, offmap_full_title is used with the short name and the title tier
+	GetCurrency - Gets the name of the Offmap's currency (E.G., Grace)
+	GetPolicy - Gets the name of the current policy from the Offmap
+	GetPrevPolicy - Gets the name of the previous policy from the Offmap
+	GetStatus - Gets the name of the current status from the Offmap
+	GetPrevStatus - Gets the name of the previous status from the Offmap
+	PrimaryTitle - Gets the Offmap power from the governor
+
+# History effects
+618.6.18 = { # The date of the change to the offmap title
+	holder = 217700 				- Sets the holder to the character with the given ID
+	name = "tang_china" 			- Sets the name to the given loc key
+	status = china_stable 			- Sets the status of the empire to the given status
+	policy = china_open 			- Sets the policy of the empire to the given status
+	set_offmap_flag = test_flag		- Sets the given flag for the offmap
+	clr_offmap_flag = test_flag2	- Removes the given flag for the offmap
+}
+
+# Decisions
+offmap_decisions = {} # Anything in here will be shown on the offmap screen via the two interaction buttons as long as their potential is met. FROM is the decision taker. ROOT is the governor of the offmap title
+button_name = offmap_gifts   # This will cause the decision to show on the menu of the "offmap_gifts" button. You can use this however you like, but each decision can only belong to a single button

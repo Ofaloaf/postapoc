@@ -1,0 +1,884 @@
+namespace = JD
+
+character_event = {
+	id = JD.30020
+	
+	hide_window = yes
+
+	has_dlc = "Jade Dragon"
+
+	is_triggered_only = yes
+	
+	trigger = {
+		# China is the aggressor
+		offmap_china = {
+			governor = {
+				character = FROM
+			}
+		}
+	}
+	
+	immediate = {
+		save_event_target_as = china_war_opponent
+		
+		# Abort Kowtow chain if necessary
+		if = {
+			limit = {
+				trait = kow_tow_travels
+			}
+			set_character_flag = kow_tow_abort_war
+			character_event = {
+				id = JD.32299
+			}
+		}
+		FROM = {
+			save_event_target_as = china_war_governor
+			save_event_target_as = china_war_aggressor
+			# Swap the From and root scope and merge up with JD.30030
+			character_event = { id = JD.30040 }
+		}
+		log = "JD.30020 - This: [This.GetBestName] From: [From.GetBestName]"
+	}
+}
+
+character_event = {
+	id = JD.30030
+	
+	hide_window = yes
+
+	has_dlc = "Jade Dragon"
+
+	is_triggered_only = yes
+	
+	trigger = {
+		# China is the defender
+		offmap_china = {
+			governor = {
+				character = PREVPREV
+			}
+		}
+	}
+	
+	immediate = {
+		save_event_target_as = china_war_governor
+		save_event_target_as = china_war_aggressor
+		FROM = {
+			save_event_target_as = china_war_opponent
+			
+			# Abort Kowtow chain if necessary
+			if = {
+				limit = {
+					trait = kow_tow_travels
+				}
+				set_character_flag = kow_tow_abort_war
+				character_event = {
+					id = JD.32299
+				}
+			}
+			
+			# Remove Kowtow trait if character is takes hostile actions
+			if = {
+				limit = {
+					OR = {
+						trait = kow_tow_completed_tier_1
+						trait = kow_tow_completed_tier_2
+						trait = kow_tow_completed_tier_3
+					}
+				}
+				remove_trait = kow_tow_completed_tier_1
+				remove_trait = kow_tow_completed_tier_2
+				remove_trait = kow_tow_completed_tier_3
+			}
+		}
+		# Keep the From and root scope and merge up with JD.30020
+		repeat_event = { id = JD.30040 }
+		log = "JD.30030 - This: [This.GetBestName] From: [From.GetBestName]"
+	}
+}
+
+character_event = {
+	id = JD.30040
+	
+	hide_window = yes
+
+	has_dlc = "Jade Dragon"
+
+	is_triggered_only = yes
+	
+	immediate = {
+		offmap_china = {
+			if = {
+				limit = {
+					NOT = { has_offmap_flag = china_entered_war }
+				}
+				set_offmap_flag = china_entered_war
+			}
+		}
+
+		if = { #Variables set elsewhere, run effects and notification event
+			limit = { NOT = { has_offmap_tmp_flag = china_war_variables_set } }
+
+			### To manipulate the troop spawning for specific situations modify the parameter variables (china_war_troop_quantity, china_war_troop_quality, china_war_target_match_mult, and china_war_minimum_commander_martial) after the following block.
+			set_variable = {
+				which = china_war_troop_quantity
+				value = 8
+				# 8 regiments of ~500 units
+			}
+			set_variable = {
+				which = china_war_target_match_mult
+				value = 0.95
+			}
+			set_variable = {
+				which = china_war_troop_quality
+				value = 4
+				# Value between 1-7
+			}
+			set_variable = {
+				which = china_war_minimum_commander_martial
+				value = 14
+			}
+			###
+		}
+		else = { clr_offmap_tmp_flag = china_war_variables_set }
+
+		# Manipulate the parameter variables dependent on the current status in China.		
+		china_war_modify_variables_by_status_effect = yes
+		# Manipulate the parameter variables dependent on the current century.
+		china_war_modify_variables_by_century_effect = yes
+		
+		### Match mult calculation against the opponents troops.
+		export_to_variable = {
+			which = china_temp_troop_calc
+			value = realm_levies_plus_allies
+			who = FROM
+		}
+		
+		divide_variable = {
+			which = china_temp_troop_calc
+			value = 500
+		}
+		
+		multiply_variable = {
+			which = china_temp_troop_calc
+			which = china_war_target_match_mult
+		}
+		
+		change_variable = {
+			which = china_war_troop_quantity
+			which = china_temp_troop_calc
+		}
+		###
+		
+		### Remove troops for a portion of levies of the western protectorate.
+		export_to_variable = {
+			which = china_temp_troop_calc
+			value = realm_levies
+		}
+		
+		subtract_variable = {
+			which = china_temp_troop_calc
+			value = 7500 ## AI extra consideration from the spawned troops needs to be removed here
+		}
+		
+		divide_variable = {
+			which = china_temp_troop_calc
+			value = 780 # For every 780 troops of levies Mainland will send 500 troops less to help.
+		}
+		
+		subtract_variable = {
+			which = china_war_troop_quantity
+			which = china_temp_troop_calc
+		}
+		###
+		
+		any_courtier_or_vassal = { # Copy the variable to all courtiers and vassals
+			set_variable = {
+				which = china_war_minimum_commander_martial
+				which = PREV
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = {
+					any_courtier_or_vassal = {
+						count = 3
+						martial = china_war_minimum_commander_martial
+					}
+				}
+			} # Not enough proficient commanders, create more
+			# Custom effect utilizes china_war_minimum_commander_martial variable
+			log = "JD.30040 - spawning commanders"
+			china_spawn_commander_effect = yes
+			china_spawn_commander_effect = yes
+			china_spawn_commander_effect = yes
+		}
+		
+		if = {
+			limit = {
+				NOT = {
+					check_variable = {
+						which = china_war_troop_quantity
+						value = 1
+					}
+				}
+			}
+			break = yes
+		}
+		
+		# Hardcap at 175k troopspawn
+		if = {
+			limit = {	
+				check_variable = {
+					which = china_war_troop_quantity
+					value > 350
+				}
+			}
+			set_variable = {
+				which = china_war_troop_quantity
+				value = 350
+			}
+		}
+
+		# Troop spawn override
+		if = {
+			limit = {
+				check_variable = {
+					which = china_war_troop_quantity_override
+					value > 0
+				}
+				check_variable = {
+					which = china_war_troop_quantity_override
+					which = china_war_troop_quantity
+				}
+			}
+			set_variable = {
+				which = china_war_troop_quantity
+				which = china_war_troop_quantity_override
+			}
+			set_variable = { 
+				which = china_war_troop_quantity_override
+				value = 0
+			}
+		}
+		
+		
+		if = {
+			limit = {
+				FROM = {
+					capital_scope = {
+						NOT = { region = world_india }
+					}
+				}
+			}
+			1513 = { # Jiuquan
+				save_event_target_as = spawn_province
+			}
+			
+			# Currently not compatible with hardcap 200k
+			#if = { # Spawning more than 11k troops will split the stack.
+			#	limit = {
+			#		check_variable = {
+			#			which = china_war_troop_quantity
+			#			value > 22
+			#		}
+			#	}
+			#	set_variable = {
+			#		which = china_war_troop_quantity_temp
+			#		which = china_war_troop_quantity
+			#	}
+			#	divide_variable = {
+			#		which = china_war_troop_quantity
+			#		value = 2
+			#	}
+			#	subtract_variable = {
+			#		which = china_war_troop_quantity_temp
+			#		which = china_war_troop_quantity
+			#	}
+			#	china_war_spawn_troops_effect = yes
+			#	# Requires the current things to function properly:
+			#	# event_target:spawn_province
+			#	# variable: china_war_troop_quality
+			#	# variable: china_war_troop_quantity
+			#	set_variable = {
+			#		which = china_war_troop_quantity
+			#		which = china_war_troop_quantity_temp
+			#	}
+			#	1514 = { # ejin
+			#		save_event_target_as = spawn_province
+			#	}
+			#}
+		
+			china_war_spawn_troops_effect = yes
+			# Requires the current things to function properly:
+			# event_target:spawn_province
+			# variable: china_war_troop_quality
+			# variable: china_war_troop_quantity
+		}
+		else = {
+			offmap_china = { set_offmap_flag = troop_spawn_india_temp }
+			1318 = { # Samatata
+				save_event_target_as = spawn_province
+			}
+			set_variable = {
+				which = boat_spawns
+				which = china_war_troop_quantity
+			}
+			multiply_variable = {
+				which = boat_spawns
+				value = 5
+			}
+			while = {
+				limit = {
+					check_variable = {
+						which = boat_spawns
+						value = 1
+					}
+				}
+				change_variable = {
+					which = boat_spawns
+					value = -1
+				}
+				spawn_fleet = {
+					province = 1411 # ganges delta
+					owner = ROOT
+					disband_on_peace = yes
+					troops =
+					{
+						galleys = { 1 1 }
+					}
+					merge = yes
+				}
+			}
+		
+			china_war_spawn_troops_effect = yes
+			# Requires the current things to function properly:
+			# event_target:spawn_province
+			# variable: china_war_troop_quality
+			# variable: china_war_troop_quantity
+		}
+			
+		FROM = { # Notify enemy of extra troops.
+			character_event = { id = JD.30045 }
+		}
+	}
+}
+
+character_event = {
+	id = JD.30045
+	has_dlc = "Jade Dragon"
+	
+	desc = {
+		text = EVTDESC_JD_30045
+		trigger = {
+			NOT = { offmap_china = { has_offmap_flag = troop_spawn_india_temp } }
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_30045_INDIA
+		trigger = {
+			offmap_china = { has_offmap_flag = troop_spawn_india_temp }
+		}
+	}
+    picture = GFX_evt_china_invades
+    border = GFX_event_normal_frame_war
+    
+    is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_JD_30045
+		if = {
+			limit = {
+				NOT = { offmap_china = { has_offmap_flag = troop_spawn_india_temp } }
+			}
+			custom_tooltip = {
+				text = EVTTOOLTIPA_JD_30045
+			}
+		}
+		if = {
+			limit = {
+				offmap_china = { has_offmap_flag = troop_spawn_india_temp }
+			}
+			custom_tooltip = {
+				text = EVTTOOLTIPB_JD_30045
+			}
+			hidden_effect = {
+				offmap_china = { clr_offmap_flag = troop_spawn_india_temp }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = JD.30047
+	
+	desc = EVTDESC_JD_30047
+
+	has_dlc = "Jade Dragon"
+
+    picture = GFX_evt_china_rebel_general
+    border = GFX_event_normal_frame_war
+    
+    is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_JD_30047
+		if = {
+			limit = {
+				NOT = { offmap_china = { has_offmap_flag = troop_spawn_india_temp } }
+			}
+			custom_tooltip = {
+				text = EVTTOOLTIPA_JD_30045
+			}
+		}
+		if = {
+			limit = {
+				offmap_china = { has_offmap_flag = troop_spawn_india_temp }
+			}
+			custom_tooltip = {
+				text = EVTTOOLTIPB_JD_30045
+			}
+			hidden_effect = {
+				offmap_china = { clr_offmap_flag = troop_spawn_india_temp }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = JD.30050
+	
+	hide_window = yes
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		# on_war_ended_whitepeace
+		# China is a main participant
+		offmap_china = {
+			governor = {
+				OR = {
+					character = ROOT
+					character = FROM
+				}
+			}
+		}
+	}
+	
+	immediate = {
+		character_event = { id = JD.30053 days = 1 } # Delayed event to clear flags properly
+
+		if = {
+			limit = {
+				offmap_china = {
+					governor = {
+						character = ROOT
+					}
+				}
+			}
+
+			### China was the defender...
+			offmap_china = { set_offmap_tmp_flag = china_was_defender_but_white_peace }
+			ROOT = { save_event_target_as = the_protector_general }
+			FROM = { save_event_target_as = the_aggressor }
+		}
+		if = {
+			limit = {
+				offmap_china = {
+					governor = {
+						character = FROM
+					}
+				}
+			}
+			### China was the aggressor... 	
+			offmap_china = { set_offmap_tmp_flag = china_was_aggressor_but_white_peace }
+			FROM = { save_event_target_as = the_protector_general }
+			ROOT = { save_event_target_as = the_defender }
+		}
+
+		if = { limit = { using_unimportant_cb = no } #Makes sure this is not sent during unimportant wars (revolts, etc)...
+			any_player = {
+				limit = {
+					has_offmap_news_enabled = offmap_china
+					is_within_diplo_range = event_target:the_protector_general
+				}
+	    		narrative_event = { id = JD.10131 days = 1 } #News: "China white peace'd with someone"
+			}
+		}
+	}
+}
+
+character_event = {
+	id = JD.30051
+	
+	hide_window = yes
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		# on_war_ended_victory
+		# China is the aggressor
+		offmap_china = {
+			governor = {
+				OR = {
+					character = ROOT
+					character = FROM
+				}
+			}
+		}
+	}
+	
+	immediate = {
+		character_event = { id = JD.30053 days = 1 } # Delayed event to clear flags properly
+		if = {
+			limit = {
+				offmap_china = {
+					governor = {
+						character = ROOT
+					}
+				}
+			}
+			### China lost a defensive war
+
+			if = { limit = { using_unimportant_cb = no } #Makes sure this is not sent during unimportant wars (revolts, etc)...
+
+				ROOT = { save_event_target_as = the_protector_general }
+				FROM = { save_event_target_as = the_winner }
+				offmap_china = {
+					set_offmap_tmp_flag = china_lost_defensive_war
+				}
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = offmap_china
+						is_within_diplo_range = event_target:the_protector_general
+					}
+		    		narrative_event = { id = JD.10106 days = 1 } #News: "China lost a war"
+				}
+			}
+		}
+		if = {
+			limit = {
+				offmap_china = {
+					governor = {
+						character = FROM
+					}
+				}
+			}
+			### China won an offensive war
+
+			if = { limit = { using_unimportant_cb = no } #Makes sure this is not sent during unimportant wars (revolts, etc)...
+
+				FROM = { save_event_target_as = the_protector_general }
+				ROOT = { save_event_target_as = the_loser }
+
+				offmap_china = {
+					set_offmap_tmp_flag = china_won_offensive_war
+				}
+
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = offmap_china
+						is_within_diplo_range = event_target:the_protector_general
+					}
+		    		narrative_event = { id = JD.10107 days = 1 } #News: "China won a war"
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = JD.30052
+	
+	hide_window = yes
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		# on_war_ended_defeat
+		offmap_china = {
+			governor = {
+				OR = {
+					character = ROOT
+					character = FROM
+				}
+			}
+		}
+	}
+	
+	immediate = {
+		character_event = { id = JD.30053 days = 1 } # Delayed event to clear flags properly
+		if = {
+			limit = {
+				offmap_china = {
+					governor = {
+						character = ROOT
+					}
+				}
+			}
+			### China won a defensive war
+
+			if = { limit = { using_unimportant_cb = no } #Makes sure this is not sent during unimportant wars (revolts, etc)...
+
+				ROOT = { save_event_target_as = the_protector_general }
+				FROM = { save_event_target_as = the_loser }
+				offmap_china = {
+					set_offmap_tmp_flag = china_won_defensive_war
+				}
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = offmap_china
+						is_within_diplo_range = event_target:the_protector_general
+					}
+		    		narrative_event = { id = JD.10107 days = 1 } #News: "China won a war"
+				}
+			}
+		}
+		if = {
+			limit = {
+				offmap_china = {
+					governor = {
+						character = FROM
+					}
+				}
+			}
+			### China lost an offensive war
+
+			if = { limit = { using_unimportant_cb = no } #Makes sure this is not sent during unimportant wars (revolts, etc)...
+
+				FROM = { save_event_target_as = the_protector_general }
+				ROOT = { save_event_target_as = the_winner }
+				offmap_china = {
+					set_offmap_tmp_flag = china_lost_offensive_war
+				}
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = offmap_china
+						is_within_diplo_range = event_target:the_protector_general
+					}
+		    		narrative_event = { id = JD.10106 days = 1 } #News: "China lost a war"
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = JD.30053
+	
+	hide_window = yes
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				offmap_china = {
+					governor = {
+						war = no
+					}
+				}
+			}
+			offmap_china = {
+				clr_offmap_flag = china_sent_war_reinforcements
+				clr_offmap_flag = china_entered_war
+			}
+		}
+	}
+}
+
+narrative_event = { #NEWS: visible event for player (China lost a war) 
+    id = JD.10106
+	has_dlc = "Jade Dragon"
+    title = NEWS_FROM_CHINA
+	picture = GFX_evt_china_civil_war
+	portrait = offmap_china
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+    is_triggered_only = yes
+    
+	desc = {
+		text = EVTDESC_JD_10106_A
+		trigger = {
+			offmap_china = {
+				has_offmap_tmp_flag = china_lost_offensive_war
+			}
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_10106_B
+		trigger = {
+			offmap_china = {
+				has_offmap_tmp_flag = china_lost_defensive_war
+			}
+		}
+	}
+
+	trigger = { NOT = { offmap_china = { has_offmap_flag = no_war_news } } }
+
+	fail_trigger_effect = { offmap_china = { clr_offmap_flag = no_war_news } }
+
+    option = {      
+        name = {
+        	text = EVTOPTA_JD_10106
+	        trigger = {
+	        	ROOT = { character = FROMFROM } #if you, the player who receives this event, was the winner of the war
+	        }
+        }
+        name = {
+        	text = EVTOPTB_JD_10106
+	        trigger = {
+	        	NOT = { ROOT = { character = FROMFROM } } #if not
+	        }
+        }
+        custom_tooltip = { text = EVTOPTA_JD_10106_TT }
+        show_portrait = event_target:the_winner
+    }
+    after = {
+		hidden_effect = {
+			offmap_china = {
+				clr_offmap_tmp_flag = china_lost_offensive_war
+				clr_offmap_tmp_flag = china_lost_defensive_war
+			}
+		}
+	}
+}
+
+narrative_event = { #NEWS: visible event for player (China won a war) 
+    id = JD.10107
+	has_dlc = "Jade Dragon"
+    title = NEWS_FROM_CHINA
+	picture = GFX_evt_china_expansionist
+	portrait = offmap_china
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+    is_triggered_only = yes
+    
+	desc = {
+		text = EVTDESC_JD_10107_A
+		trigger = {
+			offmap_china = {
+				has_offmap_tmp_flag = china_won_defensive_war
+			}
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_10107_B
+		trigger = {
+			offmap_china = {
+				has_offmap_tmp_flag = china_won_offensive_war
+			}
+		}
+	}
+
+	trigger = { NOT = { offmap_china = { has_offmap_flag = no_war_news } } }
+
+	fail_trigger_effect = { offmap_china = { clr_offmap_flag = no_war_news } }
+
+    option = {
+        name = {
+        	text = EVTOPTA_JD_10107
+        	trigger = { ROOT = { character = FROM } } #if you, the player who receives this event, was the loser of the war
+        }
+    	name = {
+    		text = EVTOPTB_JD_10107
+    		trigger = { NOT = { ROOT = { character = FROM } } } #if not
+    	}
+
+    	custom_tooltip = { text = EVTOPTA_JD_10107_TT }
+    	show_portrait = event_target:the_loser
+    }
+    after = {
+		hidden_effect = {
+			offmap_china = {
+				clr_offmap_tmp_flag = china_won_defensive_war
+				clr_offmap_tmp_flag = china_won_offensive_war
+			}
+		}
+	}
+}
+
+narrative_event = { #NEWS: visible event for player (China had White Peace in a war) 
+    id = JD.10131
+	has_dlc = "Jade Dragon"
+    title = NEWS_FROM_CHINA
+	picture = GFX_evt_china_isolationist
+	portrait = offmap_china
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+    is_triggered_only = yes
+    
+	desc = {
+		text = EVTDESC_JD_10131_A
+		trigger = {
+			offmap_china = {
+				has_offmap_tmp_flag = china_was_defender_but_white_peace
+			}
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_10131_B
+		trigger = {
+			offmap_china = {
+				has_offmap_tmp_flag = china_was_aggressor_but_white_peace
+			}
+		}
+	}
+
+	trigger = { NOT = { offmap_china = { has_offmap_flag = no_war_news } } }
+
+	fail_trigger_effect = { offmap_china = { clr_offmap_flag = no_war_news } }
+
+    option = {      
+        name = {
+        	text = EVTOPTA_JD_10131
+	        trigger = {  #if you, the player who receives this event, was in this war
+	        	ROOT = {
+	        		OR = {
+		        		character = FROM
+	        			character = FROMFROM
+	        		}
+		        }
+	        }
+	    }
+	    name = {
+        	text = EVTOPTB_JD_10131
+	        trigger = {  #if not
+	        	ROOT = {
+	        		NOR = {
+		        		character = FROM
+	        			character = FROMFROM
+	        		}
+		        }
+	        }
+	    }
+
+	    if = {
+	    	limit = { offmap_china = { has_offmap_tmp_flag = china_was_defender_but_white_peace } }
+	    	custom_tooltip = { text = EVTOPTA_JD_10131_TT }
+	    	show_portrait = event_target:the_aggressor
+	    }
+	    if = {
+	    	limit = { offmap_china = { has_offmap_tmp_flag = china_was_aggressor_but_white_peace } }
+	    	custom_tooltip = { text = EVTOPTB_JD_10131_TT }
+	    	show_portrait = event_target:the_defender
+	    }
+	}
+
+	after = {
+		hidden_effect = {
+			offmap_china = {
+				clr_offmap_tmp_flag = china_was_defender_but_white_peace
+				clr_offmap_tmp_flag = china_was_aggressor_but_white_peace
+			}
+		}
+	}
+}

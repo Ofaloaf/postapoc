@@ -1,1 +1,934 @@
-#Disabled for now
+
+namespace = JD
+
+character_event = { # Yearly event for Raiding China
+    id = JD.4000
+	has_dlc = "Jade Dragon"
+    hide_window = yes
+    is_triggered_only = yes
+	
+	trigger = {
+		has_character_modifier = china_raid_active
+		offmap_china = {
+			NOT = {
+				governor = {
+					war_with = ROOT
+				}
+			}
+		}
+	}
+	
+    immediate = {
+		if = { # Remove raiding if no longer allowed to raid
+			limit = {
+				OR = {
+					independent = no
+					NOT = {
+						is_allowed_to_loot = yes
+					}
+					is_landed = no
+				}
+			}
+			remove_character_modifier = china_raid_active
+			add_character_modifier = {
+				name = china_raid_grace_cd
+				hidden = yes
+				years = 5
+			}
+			character_event = { id = JD.4001 }
+			break = yes
+		}
+		random_list = { # All raids give Gold + Prestige and Population for Nomads
+			400 = { # Only Gold + Prestige
+				set_character_flag = normal_raid_outcome
+				character_event = { id = JD.4020 }
+			}
+			30 = { # Prisoner of opposite sex with attractive trait
+				set_character_flag = normal_raid_outcome_character
+				character_event = { id = JD.4020 }
+			}
+			30 = { # Captured siege engineer
+				set_character_flag = normal_raid_outcome_siege_engineer
+				character_event = { id = JD.4020 }
+			}
+			30 = { # Slightly more gold + prestige
+				set_character_flag = normal_raid_outcome_extra
+				character_event = { id = JD.4020 }
+			}
+			30 = { # Bad outcome
+				set_character_flag = normal_raid_outcome_bad
+				character_event = { id = JD.4020 }
+			}
+			15 = { # Minor artifact
+				set_character_flag = normal_raid_outcome_artifact
+				character_event = { id = JD.4020 }
+			}
+			5 = { # An enormous amount of gold + prestige
+				set_character_flag = normal_raid_outcome_extra_plus
+				character_event = { id = JD.4020 }
+			}
+			5 = { # A panda
+				modifier = {
+					factor = 0
+					has_character_modifier = panda_pet
+				}
+				set_character_flag = normal_raid_outcome_panda
+				character_event = { id = JD.4020 }
+			}
+		}
+	}
+}
+
+character_event = { # No longer allowed to raid
+    id = JD.4001
+	has_dlc = "Jade Dragon"
+    desc = EVTDESC_JD_4001
+	
+    picture = GFX_evt_china_stable
+	border = GFX_event_normal_frame_war
+	
+    is_triggered_only = yes
+	
+	notification = yes
+	
+	option = {     
+        name = EVTOPTA_JD_4001
+    }
+}
+
+character_event = { # Normal Outcome
+    id = JD.4020
+	has_dlc = "Jade Dragon"
+	
+    picture = GFX_evt_china_unrest
+	border = GFX_event_normal_frame_war
+	
+    is_triggered_only = yes
+	
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome
+		trigger = {
+			has_character_flag = normal_raid_outcome
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome_artifact
+		trigger = {
+			has_character_flag = normal_raid_outcome_artifact
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome_character
+		trigger = {
+			has_character_flag = normal_raid_outcome_character
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome_siege_engineer
+		trigger = {
+			has_character_flag = normal_raid_outcome_siege_engineer
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome_extra
+		trigger = {
+			has_character_flag = normal_raid_outcome_extra
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome_extra_plus
+		trigger = {
+			has_character_flag = normal_raid_outcome_extra_plus
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome_bad
+		trigger = {
+			has_character_flag = normal_raid_outcome_bad
+		}
+	}
+	desc = {
+		text = EVTDESC_JD_4020_normal_raid_outcome_panda
+		trigger = {
+			has_character_flag = normal_raid_outcome_panda
+		}
+	}
+	
+	immediate = {
+		if = {
+			limit = {
+				has_character_flag = normal_raid_outcome_character
+			}
+			if = {
+				limit = {
+					is_female = yes
+				}
+				create_character = {
+					age = 20
+					dynasty = actually_culture
+					religion = taoist
+					culture = han
+					female = no
+					health = 6
+					random_traits = yes
+				}
+			}
+			if = {
+				limit = {
+					is_female = no
+				}
+				create_character = {
+					age = 20
+					dynasty = actually_culture
+					religion = taoist
+					culture = han
+					female = yes
+					health = 6
+					random_traits = yes
+				}
+			}
+			new_character = {
+				remove_trait = clubfooted
+                remove_trait = harelip
+                remove_trait = hunchback 
+                remove_trait = lisp
+                remove_trait = stutter
+                remove_trait = ugly
+                remove_trait = dwarf
+                remove_trait = weak	
+				
+				add_trait = fair
+				
+				random = {
+					chance = 35
+					add_trait = strong
+				}
+				random = {
+					chance = 35
+					add_trait = quick
+				}
+				save_event_target_as = captured_character
+			}
+		}
+		if = {
+			limit = {
+				has_character_flag = normal_raid_outcome_siege_engineer
+			}
+			create_character = {
+				age = 32
+				dynasty = actually_culture
+				religion = taoist
+				culture = han
+				female = no
+				health = 6
+				random_traits = yes
+				attributes = {
+					diplomacy = 2
+					learning = 2
+					stewardship = 2
+					intrigue = 2
+					martial = 13
+				}
+			}
+			new_character = {
+				set_character_flag = originated_from_chinese_court
+                set_character_flag = no_court_invites
+				set_character_flag = taught_chinese_strategy
+				set_character_flag = is_chinese_siege_engineer
+				set_character_flag = ignore_refund
+				
+				remove_trait = weak
+				remove_trait = slow
+				remove_trait = imbecile
+				remove_trait = dull
+				
+				remove_trait = craven
+				remove_trait = mystic
+				remove_trait = socializer
+				remove_trait = gamer
+				remove_trait = hedonist
+				remove_trait = duelist
+				remove_trait = hunter
+				remove_trait = strategist
+				remove_trait = administrator
+				remove_trait = architect
+				remove_trait = gardener
+				remove_trait = schemer
+				remove_trait = impaler
+				remove_trait = seducer
+				remove_trait = seductress
+				remove_trait = theologian
+				remove_trait = scholar
+				
+				add_trait = sapper
+				
+				if = {
+					limit = {
+						offmap_china = {
+							has_status = china_golden_age
+						}
+					}
+					change_martial = 5
+				}
+				
+                random_list = { # Flavor Randomization
+					15 = {
+						change_martial = 2
+					}
+					10 = {
+						add_trait = robust
+					}
+					10 = {
+						add_trait = duelist
+					}
+					10 = {
+						add_trait = architect
+					}
+					5 = {
+						add_trait = strategist
+					}
+					5 = {
+						change_martial = 4
+					}
+					5 = {
+						if = {
+							limit = {
+								has_dlc = "Reapers"
+							}
+							add_trait = one_eyed
+						}
+					}
+					5 = { 
+						add_trait = shrewd
+					}
+				}
+				save_event_target_as = captured_engineer
+			}
+		}
+	}
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome
+		}
+		prestige = 50
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 0.25 min = 15 max = 75 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 0.25 min = 30 max = 100 }
+			population = 150
+		}
+		clr_character_flag = normal_raid_outcome
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_artifact
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_artifact
+		}
+		prestige = 75
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 0.75 min = 30 max = 125 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 0.75 min = 70 max = 175 }
+			population = 150
+		}
+		custom_tooltip = {
+			text = artifact_raid_tt
+			hidden_effect = {
+				random_list = {
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = soccer_ball
+							}
+						}
+						add_artifact = soccer_ball
+						#new_artifact = {
+						#	set_name="chinese_artwork_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = oriental_rug
+							}
+						}
+						add_artifact = oriental_rug
+						#new_artifact = {
+						#	set_name="chinese_calligraphy_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = carranca
+							}
+						}
+						add_artifact = carranca
+						#new_artifact = {
+						#	set_name="chinese_sculpture_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = paubrasilia_dyed_robes
+							}
+						}
+						add_artifact = paubrasilia_dyed_robes
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_prev_emperor_sculpture
+							}
+							offmap_china = {
+								offmap_prev_ruler = {
+									always = yes
+								}
+							}
+						}
+						offmap_china = {
+							offmap_prev_ruler = {
+								save_event_target_as = prev_emperor
+							}
+						}
+						add_artifact = brazilian_prev_emperor_sculpture
+						new_artifact = {
+							set_name="chinese_figurine_name"
+						}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = berimbau
+							} 
+						}
+						add_artifact = berimbau
+						#new_artifact = {
+						#	set_name="chinese_arm_protector_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = dragoon_lance
+							}
+						}
+						add_artifact = dragoon_lance
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = jungle_knife
+							}
+						}
+						add_artifact = jungle_knife
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_firearm
+							}
+						}
+						add_artifact = brazilian_firearm
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = paubrasilia_sculpture
+							}
+						}
+						add_artifact = paubrasilia_sculpture
+						#new_artifact = {
+						#	set_name="chinese_bronze_sculpture_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_book_health
+							}
+						}
+						add_artifact = brazilian_book_health
+						#new_artifact = {
+						#	set_name="chinese_book_health_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_book_action
+							}
+						}
+						add_artifact = brazilian_book_action
+						#new_artifact = {
+						#	set_name="chinese_book_law_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_book_history
+							}
+						}
+						add_artifact = brazilian_book_history
+						#new_artifact = {
+						#	set_name="chinese_book_history_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_book_economy
+							}
+						}
+						add_artifact = brazilian_book_economy
+						#new_artifact = {
+						#	set_name="chinese_book_economy_name"
+						#}
+					}
+					1 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_painting_of_glitterhoof
+							}
+						}
+						add_artifact = brazilian_painting_of_glitterhoof
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_tapestry
+							}
+						}
+						random_independent_ruler = {
+							limit = {
+								any_realm_province = {
+									trade_route = caribbean_trade
+								}
+							}
+							random_realm_province = {
+								limit = {
+									trade_route = caribbean_trade
+								}
+								save_event_target_as = tapestry_target
+							}
+						}
+						add_artifact = brazilian_tapestry
+						#new_artifact = {
+						#	set_name="chinese_tapestry_name"
+						#}
+					}
+					10 = {
+						trigger = {
+							NOT = {
+								has_artifact = brazilian_tapestry_grand
+							}
+						}
+						add_artifact = brazilian_tapestry_grand
+						#new_artifact = {
+						#	set_name="chinese_tapestry_grand_name"
+						#}
+					}
+				}
+			}
+		}
+		clr_character_flag = normal_raid_outcome_artifact
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_character
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_character
+		}
+		prestige = 75
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 0.6 min = 30 max = 125 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 0.6 min = 70 max = 175 }
+			population = 150
+		}
+		event_target:captured_character = {
+            show_portrait = yes
+			opinion = {
+				who = ROOT
+				modifier = opinion_abducted
+				years = 10
+			}
+        }
+		clr_character_flag = normal_raid_outcome_character
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_character_b
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_character
+			is_female = no
+			has_concubinage = yes
+			event_target:captured_character = {
+				is_female = yes
+			}
+			NOT = {
+				num_of_consorts = 3
+			}
+		}
+		prestige = 75
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 0.6 min = 30 max = 125 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 0.6 min = 70 max = 175 }
+			population = 150
+		}
+		if = {
+			limit = {
+				is_female = no
+				has_concubinage = yes
+				event_target:captured_character = {
+					is_female = yes
+				}
+				NOT = {
+					num_of_consorts = 3
+				}
+			}
+			event_target:captured_character = {
+				show_portrait = yes
+				add_consort = ROOT
+				opinion = {
+					who = ROOT
+					modifier = opinion_abducted
+					years = 10
+				}
+			}
+		}
+		clr_character_flag = normal_raid_outcome_character
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_siege_engineer
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_siege_engineer
+		}
+		prestige = 75
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 0.6 min = 30 max = 125 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 0.6 min = 70 max = 175 }
+			population = 150
+		}
+		event_target:captured_engineer = {
+            show_portrait = yes
+			opinion = {
+				who = ROOT
+				modifier = opinion_abducted
+				years = 10
+			}
+        }
+		clr_character_flag = normal_raid_outcome_siege_engineer
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_siege_engineer_b
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_siege_engineer
+		}
+		prestige = 75
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 0.6 min = 30 max = 125 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 0.6 min = 70 max = 175 }
+			population = 150
+		}
+		event_target:captured_engineer = {
+            show_portrait = yes
+			opinion = {
+				who = ROOT
+				modifier = opinion_abducted
+				years = 10
+			}
+        }
+		custom_tooltip = {
+			text = fire_commander_tt
+			hidden_effect = {
+				event_target:captured_engineer = {
+					if = {
+						limit = { 
+							can_hold_title = title_commander 
+							ROOT = { can_grant_title = title_commander }
+						}
+						give_minor_title = title_commander
+					}
+					else_if = {
+						limit = {
+							NOT = {
+								has_minor_title = title_commander
+							}
+							ROOT = {
+								any_realm_character = {
+									NOR = {
+										has_character_flag = originated_from_chinese_court
+										has_character_flag = taught_chinese_strategy
+									}
+									NOT = {
+										higher_tier_than = BARON
+									}
+									liege = { character = ROOT }
+									has_minor_title = title_commander
+									NOT = {
+										martial = 10
+									}
+								}
+							}
+						}
+						ROOT = {
+							random_realm_character = {
+								limit = {
+									NOR = {
+										has_character_flag = originated_from_chinese_court
+										has_character_flag = taught_chinese_strategy
+									}
+									NOT = {
+										higher_tier_than = BARON
+									}
+									liege = { character = ROOT }
+									has_minor_title = title_commander
+									NOT = {
+										martial = 10
+									}
+								}
+								remove_title = title_commander
+							}
+						}
+						give_minor_title = title_commander
+					}
+					else_if = {
+						limit = {
+							NOT = {
+								has_minor_title = title_commander
+							}
+							ROOT = {
+								any_realm_character = {
+									NOR = {
+										has_character_flag = originated_from_chinese_court
+										has_character_flag = taught_chinese_strategy
+									}
+									NOT = {
+										higher_tier_than = BARON
+									}
+									liege = { character = ROOT }
+									has_minor_title = title_commander
+									martial = 10
+								}
+							}
+						}
+						ROOT = {
+							random_realm_character = {
+								limit = {
+									NOR = {
+										has_character_flag = originated_from_chinese_court
+										has_character_flag = taught_chinese_strategy
+									}
+									NOT = {
+										higher_tier_than = BARON
+									}
+									liege = { character = ROOT }
+									has_minor_title = title_commander
+									martial = 10
+								}
+								remove_title = title_commander
+							}
+						}
+						give_minor_title = title_commander
+					}
+					else = {
+						ROOT = {
+							random_realm_character = {
+								limit = {
+									has_minor_title = title_commander
+								}
+								remove_title = title_commander
+							}
+						}
+						give_minor_title = title_commander
+					}
+				}
+			}
+		}
+		clr_character_flag = normal_raid_outcome_siege_engineer
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_extra
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_extra
+		}
+		prestige = 150
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 1.5 min = 30 max = 200 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 1.5 min = 60 max = 300 }
+			population = 300
+		}
+		clr_character_flag = normal_raid_outcome_extra
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_extra_plus
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_extra_plus
+		}
+		prestige = 300
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 2.5 min = 60 max = 300 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 2.5 min = 120 max = 400 }
+			population = 600
+		}
+		clr_character_flag = normal_raid_outcome_extra_plus
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_bad
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_bad
+		}
+		prestige = -50
+		clr_character_flag = normal_raid_outcome_bad
+    }
+	
+	option = {
+        name = EVTOPT_JD_4020_normal_raid_outcome_panda
+		
+		trigger = {
+			has_character_flag = normal_raid_outcome_panda
+		}
+		prestige = 200
+		add_character_modifier = {
+			modifier = panda_pet
+			duration = -1
+		}
+		if = {
+			limit = {
+				is_nomadic = no
+			}
+			scaled_wealth = { value = 1 min = 35 max = 150 }
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			scaled_wealth = { value = 1 min = 70 max = 225 }
+			population = 200
+		}
+		hidden_tooltip = { character_event = { id = JD.4030 days = 7000 random = 2000 } } # Panda dies
+		clr_character_flag = normal_raid_outcome_panda
+    }
+}
+
+# Panda dies
+character_event = {
+	id = JD.4030
+	has_dlc = "Jade Dragon"
+	desc = EVTDESC_JD_4030
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	trigger = {
+		has_character_modifier = panda_pet
+	}
+	
+	option = { # I will miss it
+		name = EVTOPTA_JD_4030
+		remove_character_modifier = panda_pet
+		prestige = 5
+	}
+	option = { # Give in to despair
+		name = EVTOPTB_JD_4030
+		remove_character_modifier = panda_pet
+		if = {
+			limit = {
+				NOT = {
+					trait = depressed
+				}
+			}
+			random = {
+				chance = 50
+				add_trait = depressed
+				hidden_tooltip = {
+					character_event = {
+						id = 38288 #Notify Depressed
+					}
+				}
+			}
+		}
+	}
+}

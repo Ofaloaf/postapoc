@@ -583,14 +583,11 @@ character_event = {  # Unusually heavy rain stops travel (WIP)
 	picture = GFX_evt_carriage_default #placeholder
     border = GFX_event_normal_frame_diplomacy
 
-
 	trigger = {
 		trait = kow_tow_travels
 		has_character_flag = boa_vista_leg
 		has_character_flag = brazil_heavy_rain
 	}
-	
-	hide_from = yes
 	
 	is_triggered_only = yes
 
@@ -626,14 +623,11 @@ character_event = {  # Unusually heavy rain gives you pneumonia (WIP)
 	picture = GFX_evt_carriage_default #placeholder
     border = GFX_event_normal_frame_diplomacy
 
-
 	trigger = {
 		trait = kow_tow_travels
 		has_character_flag = boa_vista_leg
 		has_character_flag = brazil_heavy_rain
 	}
-	
-	hide_from = yes
 	
 	is_triggered_only = yes
 
@@ -674,8 +668,8 @@ character_event = {  # Good weather raises spirits (WIP)
 	desc = EVTDESC_plscometobr_9
 	picture = GFX_evt_carriage_default #placeholder
     border = GFX_event_normal_frame_diplomacy
-
-
+	is_triggered_only = yes
+	
 	trigger = {
 		trait = kow_tow_travels
 		has_character_flag = boa_vista_leg
@@ -1422,7 +1416,7 @@ character_event = { #Amazon leg event tombola
 			}
 			50 = { # Encounter with a jaguar (Apocalypse Now reference)
 				trigger = {
-					NOR = { has_character_flag = met_jaguar }
+					NOT = { has_character_flag = met_jaguar }
 					has_injury_trigger = no
 					check_variable = {
 						which = amazon_travel_events
@@ -1430,20 +1424,26 @@ character_event = { #Amazon leg event tombola
 					}
 				}
 				character_event = {
-					id = plscometobr.
+					id = plscometobr.23
 				}
 				break = yes
 			}
 			50 = { # Attacked by hostile natives while sailing (Apocalypse Now reference)
 				trigger = {
+					NOT = { has_character_flag = met_natives }
 					has_injury_trigger = no
+					check_variable = {
+						which = amazon_travel_events
+						value > 1
+					}
 				}
 				character_event = {
-					id = plscometobr.
+					id = plscometobr.24
 				}
 				break = yes
 			}
-			50 = { # Befriend natives while stopping for repairs, maybe take Ayahuasca
+			50 = { # Francophone plantation (Apocalypse Now reference)
+				NOT = { has_character_flag = met_cajuns }
 				trigger = {
 					check_variable = {
 						which = amazon_travel_events
@@ -1451,7 +1451,7 @@ character_event = { #Amazon leg event tombola
 					}
 				}
 				character_event = {
-					id = plscometobr.
+					id = plscometobr.25
 				}
 				break = yes
 			}
@@ -1467,7 +1467,7 @@ character_event = { #Amazon leg event tombola
 			50 = { # Find trading station commanded by insane warlord (Heart of Darkness/Apocalypse Now reference, only available towards end of journey)
 				trigger = {
 					NOT = { has_character_flag = met_kurtz }
-					check_variable = {
+					check_variable = { #Can only happen at the end of your journey
 						which = amazon_travel_events
 						value == 1
 					}
@@ -1689,6 +1689,7 @@ character_event = { #Mercenaries: "We're here to escort you!"
     
 	trigger = {
 		trait = kow_tow_travels
+		has_character_flag = amazon_leg
 	}
 
     option = { # Er, change of plans! (Hire bodygaurds)
@@ -1806,51 +1807,376 @@ character_event = { #We see starving people...
     }
 }
 
+character_event = {
+	id = plscometobr.23
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_23
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_jaguar
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_23
+		if = {
+			limit = {
+				has_character_flag = hired_body_guards
+			}
+			custom_tooltip = { text = jaguar_bodyguard_help_tt }
+		}
+		else = {
+			custom_tooltip = { text = jaguar_encounter_tt }
+		}
+		random_list = {
+			20 = {
+				#Uninjured
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = { combat_rating = 2 factor = 2  }
+				modifier = { combat_rating < 0 factor = 0.5  } 
+				modifier = { has_character_modifier = hired_body_guards factor = 3 }
+				
+			}
+			50 = {
+				#You get injured
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = { combat_rating < 0 factor = 1.5  } 
+				modifier = { has_character_modifier = hired_body_guards factor = 0.5 }
+    			hidden_effect = { add_trait = wounded }
+    		}
+			20 = {
+				#You get severely injured
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = { combat_rating < 0 factor = 1.5  }
+				modifier = { has_character_modifier = hired_body_guards factor = 0.5 }
+    			hidden_effect = { add_maimed_trait_effect = yes }
+			}
+			10 = {
+				#You are slain in personal combat!
+    			modifier = { is_weak_trigger = yes factor = 2 }
+				modifier = { combat_rating < 0 factor = 2  }
+				modifier = { has_character_modifier = hired_body_guards factor = 0 }
+    			hidden_effect = { death = { death_reason = death_accident } }
+    		}
+		}
+	}
+}
+
+character_event = {
+	id = plscometobr.24
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_24
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_natives
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_24
+		random_list = {
+			30 = {
+				#Uninjured
+				modifier = { has_character_modifier = hired_body_guards factor = 2 }
+				custom_tooltip = { text = natives_uninjured_tt }
+			}
+			50 = {
+				#You get injured
+				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
+				custom_tooltip = { text = natives_wounded_tt }
+    		}
+			15 = {
+				#You get severely injured
+				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
+				custom_tooltip = { text = natives_severely_injured_tt }
+			}
+			5 = {
+				#You are slain in personal combat!
+				modifier = { has_character_modifier = hired_body_guards factor = 0.25 }
+    			hidden_effect = { death = { death_reason = death_accident } }
+				custom_tooltip = { text = natives_death_tt }
+    		}
+		}
+	}
+}
+
+character_event = { #Cajun Plantation
+	id = plscometobr.25
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_25
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_cajuns
+	}
+	
+	option = { # Accept offer
+		name = EVTOPTA_plscometobr_25
+		character_event = { id = plscometobr.26 days = 1 }
+	}
+	
+	option = { # Refuse, continue journey
+		name = EVTOPTB_plscometobr_25
+	}
+}
+
+character_event = { #Dinner
+	id = plscometobr.26
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_26 # Default (stable)
+		trigger = {
+			offmap_china = { has_status = china_stable }
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_26 #Discuss unrest
+		trigger = {
+			offmap_china = { has_status = china_unrest }
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_26 #Discuss civil war
+		trigger = {
+			offmap_china = { has_status = china_civil_war }
+		}
+	}
+	desc = {
+		text = EVTDESCD_plscometobr_26 #Discuss Amazonian invasion
+		trigger = {
+			offmap_china = { has_status = china_mongol_invasion }
+		}
+	}
+	desc = {
+		text = EVTDESCE_plscometobr_26 #Discuss Gaucho invasion
+		trigger = {
+			offmap_china = { has_status = china_jurchen_invasion }
+		}
+	}
+	desc = {
+		text = EVTDESCF_plscometobr_26 #Discuss famine
+		trigger = {
+			offmap_china = { has_status = china_famine }
+		}
+	}
+	desc = {
+		text = EVTDESCG_plscometobr_26 #Discuss plague
+		trigger = {
+			offmap_china = { has_status = china_plague }
+		}
+	}
+	desc = {
+		text = EVTDESCH_plscometobr_26 #Discuss golden age
+		trigger = {
+			offmap_china = { has_status = china_golden_age }
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		character_event = { id = plscometobr.27 days = 1 }
+	}
+	
+	option = {
+		name =  EVTOPTA_plscometobr_26 # Agree
+	}
+	option = {
+		name = EVTOPTB_plscometobr_26 # Dismiss
+	}
+}
+
+character_event = { #Meet charming young Cajun
+	id = plscometobr.27
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_27
+		trigger = {
+			has_character_flag = cajun_female_lover
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_27
+		trigger = {
+			has_character_flag = cajun_male_lover
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						is_female = no
+						NOT = { trait = homosexual }
+					}
+					AND = {
+						is_female = yes
+						trait = homosexual
+					}
+				}
+			}
+			set_character_flag = cajun_female_lover
+		}
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						is_female = yes
+						NOT = { trait = homosexual }
+					}
+					AND = {
+						is_female = no
+						trait = homosexual
+					}
+				}
+			}
+			set_character_flag = cajun_male_lover
+		}
+	}
+	
+	option = { #Bring lover with you
+		name = EVTOPTA_plscometobr_27
+		if = {
+			has_character_flag = cajun_female_lover
+			create_character = {
+				random_traits = no
+				dynasty = NONE
+				religion = ursuline
+				culture = cajun
+				female = yes
+				age = 19
+				trait = grey_eminence
+				trait = fair
+				trait = kind
+				trait = lustful
+				attributes = {
+					diplomacy = 8
+				}
+			}
+			new_character = {
+				character_event = { id = misc.3 } # Diversity
+				if = {
+					limit = { ROOT = { trait = homosexual } }
+					add_trait = homosexual
+				}
+				add_lover = ROOT
+				add_sympathy_for_prevs_open_religion_effect = yes
+			}
+		}
+		if = {
+			has_character_flag = cajun_male_lover
+			create_character = {
+				random_traits = no
+				dynasty = NONE
+				religion = ursuline
+				culture = cajun
+				female = yes
+				age = 19
+				trait = grey_eminence
+				trait = fair
+				trait = kind
+				trait = lustful
+				attributes = {
+					diplomacy = 8
+				}
+			}
+			new_character = {
+				character_event = { id = misc.3 } # Diversity
+				if = {
+					limit = { ROOT = { trait = homosexual } }
+					add_trait = homosexual
+				}
+				add_lover = ROOT
+				add_sympathy_for_prevs_open_religion_effect = yes
+			}
+		}
+		custom_tooltip = { text = bring_cajun_lover_tt }
+	}
+	
+	option = { #Don't bring lover with you
+		name = EVTOPTB_plscometobr_27
+		custom_tooltip = { text = dont_bring_cajun_lover_tt }
+	}
+}
+
 #Done with this file for now. However, I will include the ideas for the rest of the journey:
-#Encounter Jaguar event: A jaguar attacks your camp while you stop for the night.
-	#You have a chance of getting wounded or getting a severe injury. The chances of these outcomes are affected by your stats and traits (high martial characters are less likely to get hurt, etc)
-	#If you have a mercenary company with you, your chances also go down, as they will help you out.
-
-#Hostile natives event: Your ship suddenly gets attacked by arrows and spears as you travel downriver.
-	#You have a chance of getting wounded or getting a severe injury, as in the jaguar event. However, even if you escape injury or death, you may fall ill because the arrows/spears were poisoned.
-	#Mercenary company cannot affect the outcome, as you were caught by surprise.
-
-#Friendly natives event: You are approached by natives as you stop for the night. However, these natives turn out to be friendly, and offer you some ayahuasca (hallucinogenic drug).
-	#Declining the drug ends the event - nothing else of note happens during the visit.
-	#You can accept the drug, but this isn't possible if you are a zealous ruler and your culture/religion doesn't give you access to vision quests.
-		#Accepting the drug doesn't give you the full vision quest thing, but gives you an event describing a drug trip.
-		#This event can have one of two descriptions and outcomes - good trip and bad trip. These are selected at random, but dependent on traits - for example, gregarious or trusting rulers are more likely to get a good trip, while shy or paranoid rulers are more likely to get a bad trip.
-			#Good trip - minor temporary stat boost and removal of certain traits, such as craven, shy, paranoid, proud, etc. The natives are pleased.
-			#Bad trip - minor temporary stat decrease and removal of certain traits, such as brave, gregarious, trusting, etc. The natives are disappointed.
-	#If you accept the drug and have a good trip, the natives will offer you a native guide.
-		#The guide (who is always male) will have high diplomacy, and will join your court if you choose to hire him. You can also just politely decline, with no drawbacks.
-		
+	
 #Catch jungle illness event
 	#Chance of developing measles, the flu, dysentery, or tuberculosis
 
 #Kurtz event (by far the most complex)
 	#As your journey through the Amazon comes to a close, you encounter what looks like a dilapidated trading station. In front of it are several severed heads stuck on pikes. However, a man waves to you from the shore.
-		#You can just continue on your journey, not wanting to get involved in whatever is going on..
+		#You can just continue on your journey, not wanting to get involved in whatever is going on.
 		#You can investigate the station further, bringing your mercenaries with you if you hired them earlier.
-	#As you leave your sailboat, you encounter the man. He describes the leader of the station, Kurtz, at length. You get the impression that both he and Kurtz may be insane.
+	#As you leave your boat, you encounter the man. He describes the leader of the station, Kurtz, at length. You get the impression that both he and Kurtz may be insane.
 		#You can choose to continue with him to meet Kurtz.
 		#You can attempt to return to your boat.
-	#If you try to leave, you are suddenly cornered by a group of natives, who are also under the employ of Kurtz. They order you to come with them to the station at once.
+	#If you try to leave, you are cornered by a group of armed natives, who are also under the employ of Kurtz. They order you to come with them to the station at once.
 		#You can accept their offer.
 		#You can make a run for it.
 			#You escape back to your boat, with a chance of injury. (More likely to succeed with high martial/intrigue.)
 			#You fail, and are wounded by the natives, who then drag you back to the station.
-			#If you have a mercenary company, they can engage the natives in battle, guaranteeing your escape. However, the mercenaries may not be so lucky... (chance of removing the mercenary modifier)
+			#If you have a mercenary company, they can engage the natives in battle, guaranteeing your escape. However, the mercenaries may not be so lucky... (chance of removing the mercenary modifier, kills the merc leader)
 	#If you don't manage to escape, you are brought before Kurtz, who declares that you are his prisoner. (You aren't actually imprisoned, but your journey is put on pause.) For the next few days, you are treated to Kurtz's ramblings on human nature and feudal society.
 	#One day, you realize that the natives are conducting a religious ceremony and Kurtz is away writing down his thoughts, giving you a chance to escape.
 		#You can try to escape quietly, which has a higher chance of succeeding if you have high Intrigue.
 			#If you are caught by the natives, you have to make a run for it - your mercenary company is not here to help you. If you do not successfully escape, you are killed on the spot.
 			#If you manage to sneak past them successfully, you make it back onto your ship and get the fuck out of there.
 		#You can try to kill Kurtz before leaving.
-			#You first try to sneak up on Kurtz as he is writing, before killing him with his own Jungle Knife. This has a higher chance of succeeding if you have high intrigue.
-			#Kurtz may notice you as you enter his room, forcing you into a duel with him. If you win, you still manage to kill him and get his Jungle Knife. If you fail, you die on the spot.
-			#No matter what, his last words are "The horror, the horror..."
-			#Either way, if you successfully kill Kurtz, you can simply walk out of the camp. The natives will recognize you as their new ruler, and you get a Jungle Knife and a unique artifact (Kurtz's Writings) in your inventory.
-	#As you return to your journey, you reflect on Kurtz's thoughts, which may cause you to become Cynical, Cruel, and/or Greedy.
+			#You sneak up on Kurtz as he is writing, and grab his Jungle Knife from the wall. As you approach, he puts his pen down, but does not try to fight back. You slit his throat. 
+			#After killing Kurtz, you simply walk out of the camp. The natives will recognize you as their new ruler, and you get a Jungle Knife and a unique artifact (Kurtz's Writings) in your inventory.
+			#As you return to your journey, you reflect on Kurtz's writings, which may cause you to become Cynical, Cruel, and/or Possessed.
 
 #Then there are the overseas events. Haven't quite figured these out yet, but the homesickness event from vanilla will be incorporated. There will also be an event where you are attacked by pirates.

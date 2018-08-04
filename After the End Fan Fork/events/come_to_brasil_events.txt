@@ -1692,7 +1692,7 @@ character_event = { #Mercenaries: "We're here to escort you!"
 		has_character_flag = amazon_leg
 	}
 
-    option = { # Er, change of plans! (Hire bodygaurds)
+    option = { # Er, change of plans! (Hire bodyguards)
     	name = EVTOPTA_plscometobr_21
     	custom_tooltip = {
     		text = EVTOPTA_plscometobr_21_tt
@@ -2223,35 +2223,641 @@ character_event = { #Kurtz Event Start (Meet Russian follower of Kurtz)
 	option = { # Go to Kurtz
 		name = EVTOPTA_plscometobr_29
 		character_event = { id = plscometobr.30 }
+		custom_tooltip = { text = kurtz_curiosity_killed_cat_tt }
 	}
 
 	option = { # Keep sailing
 		name = EVTOPTB_plscometobr_29
+		custom_tooltip = { text = kurtz_better_left_alone_tt }
 	}
 }
-#Done with this file for now. However, I will include the ideas for the rest of the journey:
 
-#Kurtz event (by far the most complex)
-	#As your journey through the Amazon comes to a close, you encounter what looks like a dilapidated trading station. In front of it are several severed heads stuck on pikes. However, a man waves to you from the shore.
-		#You can just continue on your journey, not wanting to get involved in whatever is going on.
-		#You can investigate the station further, bringing your mercenaries with you if you hired them earlier.
-	#As you leave your boat, you encounter the man. He describes the leader of the station, Kurtz, at length. You get the impression that both he and Kurtz may be insane.
-		#You can choose to continue with him to meet Kurtz.
-		#You can attempt to return to your boat.
-	#If you try to leave, you are cornered by a group of armed natives, who are also under the employ of Kurtz. They order you to come with them to the station at once.
-		#You can accept their offer.
-		#You can make a run for it.
-			#You escape back to your boat, with a chance of injury. (More likely to succeed with high martial/intrigue.)
-			#You fail, and are wounded by the natives, who then drag you back to the station.
-			#If you have a mercenary company, they can engage the natives in battle, guaranteeing your escape. However, the mercenaries may not be so lucky... (chance of removing the mercenary modifier, kills the merc leader)
-	#If you don't manage to escape, you are brought before Kurtz, who declares that you are his prisoner. (You aren't actually imprisoned, but your journey is put on pause.) For the next few days, you are treated to Kurtz's ramblings on human nature and feudal society.
-	#One day, you realize that the natives are conducting a religious ceremony and Kurtz is away writing down his thoughts, giving you a chance to escape.
-		#You can try to escape quietly, which has a higher chance of succeeding if you have high Intrigue.
-			#If you are caught by the natives, you have to make a run for it - your mercenary company is not here to help you. If you do not successfully escape, you are killed on the spot.
-			#If you manage to sneak past them successfully, you make it back onto your ship and get the fuck out of there.
-		#You can try to kill Kurtz before leaving.
-			#You sneak up on Kurtz as he is writing, and grab his Jungle Knife from the wall. As you approach, he puts his pen down, but does not try to fight back. You slit his throat. 
-			#After killing Kurtz, you simply walk out of the camp. The natives will recognize you as their new ruler, and you get a Jungle Knife and a unique artifact (Kurtz's Writings) in your inventory.
-			#As you return to your journey, you reflect on Kurtz's writings, which may cause you to become Cynical, Cruel, and/or Possessed.
+character_event = { #Encounter with Russian photojournalist
+	id = plscometobr.30
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_30
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = { # Meet Kurtz
+		name = EVTOPTA_plscometobr_30
+		character_event = { id = plscometobr.34 }
+		custom_tooltip = { text = kurtz_go_quietly_tt }
+	}
 
+	option = { # Try to leave
+		name = EVTOPTB_plscometobr_30
+		character_event = { id = plscometobr.31 }
+		custom_tooltip = { text = kurtz_try_to_leave_tt }
+	}
+}
+
+character_event = { #Confronted by natives
+	id = plscometobr.31
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_31
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = { # Surrender to Kurtz
+		name = EVTOPTA_plscometobr_31
+		character_event = { id = plscometobr.34 }
+		custom_tooltip = { text = kurtz_surrender_tt }
+	}
+
+	option = { # Make a run for it!
+		name = EVTOPTB_plscometobr_30
+		custom_tooltip = { text = kurtz_escape_attempt_tt }
+		trigger = {
+			NOT = { has_character_modifier = hired_body_guards }
+		}
+		random_list = {
+			10 = {
+				#Uninjured, escape
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = {
+					OR = { 
+						martial = 8
+						intrigue = 8
+					}
+					factor = 1.5 
+				}
+				modifier = {
+					OR = {
+						martial = 10
+						intrigue = 10
+					}
+					factor = 2 
+				}
+				set_character_flag = kurtz_escape_uninjured
+				character_event = { id = plscometobr.32 } # Notification event for escape
+			}
+			40 = {
+				#You get injured, escape
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_escape_injured
+    			hidden_effect = { add_trait = wounded }
+				character_event = { id = plscometobr.32 } # Notification event for escape
+    		}
+			50 = {
+				#Failure, captured
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 4
+						intrigue = 4
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_captured
+    			character_event = { id = plscometobr.33 } # Notification event for capture
+			}
+		}
+	}
+	
+	option = { # Order your bodyguards to engage the natives!
+		name = EVTOPTC_plscometobr_30
+		custom_tooltip = { text = kurtz_bodyguard_fight_tt }
+		trigger = {
+			has_character_modifier = hired_body_guards
+		}
+		random_list = {
+			30 = {
+				#Uninjured, bodyguards are fine
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = {
+					OR = { 
+						martial = 8
+						intrigue = 8
+					}
+					factor = 1.5 
+				}
+				modifier = {
+					OR = {
+						martial = 10
+						intrigue = 10
+					}
+					factor = 2 
+				}
+				set_character_flag = kurtz_escape_uninjured
+				character_event = { id = plscometobr.32 } # Notification event for escape
+			}
+			50 = {
+				#You get injured, bodyguards are fine
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_escape_injured
+    			hidden_effect = { add_trait = wounded }
+				character_event = { id = plscometobr.32 } # Notification event for escape
+    		}
+			20 = {
+				#You get severely injured, bodyguards sacrifice themselves
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 4
+						intrigue = 4
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_escape_bodyguard_death
+    			hidden_effect = { add_maimed_trait_effect = yes }
+				hidden_effect = { remove_character_modifier = hired_body_guards }
+				character_event = { id = plscometobr.32 } # Notification event for bodyguard death
+			}
+		}
+	}
+}
+
+character_event = { #Notification event for escape
+	id = plscometobr.32
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_32
+		trigger = {
+			has_character_flag = kurtz_escape_uninjured
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_32
+		trigger = {
+			has_character_flag = kurtz_escape_injured
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_32
+		trigger = {
+			has_character_flag = kurtz_escape_bodyguard_death
+		}
+	}
+
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		clr_character_flag = kurtz_escape_uninjured
+		clr_character_flag = kurtz_escape_injured
+		clr_character_flag = kurtz_escape_bodyguard_death
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_32
+		custom_tooltip = { text = kurtz_escape_successful_tt }
+	}
+}
+
+character_event = { #Notification event for capture by natives
+	id = plscometobr.33
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_33
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_33
+		custom_tooltip = { text = captured_by_kurtz_tt }
+	}
+}
+
+character_event = { #Meet Kurtz
+	id = plscometobr.34
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_34
+		trigger = {
+			NOT = { has_character_flag = kurtz_captured }
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_34
+		trigger = {
+			has_character_flag = kurtz_captured
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_34
+		custom_tooltip = { text = kurtz_prisoner_tt }
+		character_event = { id = plscometobr.35 days = 2 }
+	}
+}
+
+character_event = { #Kurtz Rant 1
+	id = plscometobr.35
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_35
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_35
+		custom_tooltip = { text = continued_kurtz_prisoner_tt }
+		character_event = { id = plscometobr.36 days = 2 }
+	}
+}
+
+character_event = { #Kurtz Rant 2
+	id = plscometobr.36
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_36
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_36
+		custom_tooltip = { text = continued_kurtz_prisoner_tt }
+		character_event = { id = plscometobr.37 days = 2 }
+	}
+}
+
+character_event = { #Chance to escape
+	id = plscometobr.37
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_37
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_37 #Sneak out quietly
+		custom_tooltip = { text = kurtz_sneak_out_tt }
+		character_event = { id = plscometobr.37 }
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_37 #Kill Kurtz
+		custom_tooltip = { text = kurtz_confront_tt }
+		character_event = { id = plscometobr.40 }
+	}
+}
+
+character_event = { #Determine whether you are caught or not was successful
+	id = plscometobr.37
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		random_list = {
+			50 = { #Escape successfully
+				modifier = {
+					OR = {
+						has_trait = amateurish_plotter
+						has_trait = flamboyant_schemer
+					}
+					factor = 1.5
+				}
+				modifier = {
+					OR = {
+						has_trait = intricate_webweaver
+						has_trait = elusive_shadow
+					}
+					factor = 3
+				}
+				modifier = {
+					intrigue = 10
+					factor = 3
+				}
+				modifier = {
+					intrigue = 8
+					factor = 2
+				}
+				modifier = {
+					intrigue = 4
+					factor = 0.5
+				}
+				modifier = {
+					intrigue = 2
+					factor = 0.25
+				}
+				character_event = { id = plscometobr.38 } #Sneak out successfully
+			}
+			50 = { #Caught trying to escape
+				modifier = {
+					OR = {
+						has_trait = amateurish_plotter
+						has_trait = flamboyant_schemer
+					}
+					factor = 0.5
+				}
+				modifier = {
+					OR = {
+						has_trait = intricate_webweaver
+						has_trait = elusive_shadow
+					}
+					factor = 0.25
+				}
+				modifier = {
+					intrigue = 10
+					factor = 0.25
+				}
+				modifier = {
+					intrigue = 8
+					factor = 0.5
+				}
+				modifier = {
+					intrigue = 4
+					factor = 1.5
+				}
+				modifier = {
+					intrigue = 2
+					factor = 3
+				}
+				character_event = { id = plscometobr.39 } # Caught
+			}
+		}
+	}
+}
+
+character_event = { #Notification event for escape
+	id = plscometobr.38
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_38
+		trigger = {
+			NOR = {
+				has_character_flag = kurtz_caught_escaping
+				has_character_flag = kurtz_caught_escaping_injured
+				has_character_flag = kurtz_caught_escaping_severely_injured
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_38
+		trigger = {
+			has_character_flag = kurtz_caught_escaping
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_38
+		trigger = {
+			has_character_flag = kurtz_caught_escaping_injured
+		}
+	}
+	desc = {
+		text = EVTDESCD_plscometobr_38
+		trigger = {
+			has_character_flag = kurtz_caught_escaping_severely_injured
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_38
+		custom_tooltip = { text = kurtz_escape_successful_tt }
+	}
+}
+
+character_event = { #Notification event for getting caught
+	id = plscometobr.39
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_39
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_39
+		custom_tooltip = { text = kurtz_oh_shit_tt }
+		random_list = {
+			20 = {
+				#Uninjured, escape
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = {
+					OR = { 
+						martial = 8
+						intrigue = 8
+					}
+					factor = 1.5 
+				}
+				modifier = {
+					OR = {
+						martial = 10
+						intrigue = 10
+					}
+					factor = 2 
+				}
+				set_character_flag = kurtz_caught_escaping
+				character_event = { id = plscometobr.38 } # Notification event for escape
+			}
+			35 = {
+				#You get injured, escape
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_caught_escaping_injured
+    			hidden_effect = { add_trait = wounded }
+				character_event = { id = plscometobr.38 } # Notification event for escape
+    		}
+			35 = {
+				#You get severely injured, escape
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_caught_escaping_severely_injured
+    			hidden_effect = { add_maimed_trait_effect = yes }
+				character_event = { id = plscometobr.38 } # Notification event for escape
+    		}
+			10 = {
+				#Failure, killed
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 4
+						intrigue = 4
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_captured
+    			hidden_effect = { death = { death_reason = death_accident } }
+			}
+		}
+	}
+}
+
+character_event = { #Kurtz lets you kill him
+	id = plscometobr.40
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_40
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_40
+		custom_tooltip = { text = mister_kurtz_dead_tt }
+		character_event = { id = plscometobr.41 }
+	}
+}
+
+character_event = { #Return to ship, reflect on experience
+	id = plscometobr.41
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_41
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_41
+		custom_tooltip = { text = the_horror_tt }
+		add_artifact = jungle_knife
+		add_artifact = kurtz_writings
+		random_list = {
+			50 = {
+				modifier = { has_trait = cynical factor = 0 }
+				add_trait = cynical
+			}
+			50 = {
+				modifier = { has_trait = cruel factor = 0 }
+				add_trait = cruel
+			}
+			50 = {
+				modifier = { has_trait = possessed factor = 0 }
+				add_trait = possessed
+			}
+			10 = {
+				#Nothing
+			}
+		}
+	}
+}
 #Then there are the overseas events. Haven't quite figured these out yet, but the homesickness event from vanilla will be incorporated. There will also be an event where you are attacked by pirates.

@@ -1382,7 +1382,7 @@ character_event = { #Amazon leg event tombola
 				}
 			} 
 			### No more travel events - Move on to the overseas leg
-			character_event = { id = plscometobr. days = 50 random = 30 }
+			character_event = { id = plscometobr.42 days = 50 random = 30 }
 			break = yes
 		}
 		
@@ -1443,8 +1443,8 @@ character_event = { #Amazon leg event tombola
 				break = yes
 			}
 			50 = { # Francophone plantation (Apocalypse Now reference)
-				NOT = { has_character_flag = met_cajuns }
 				trigger = {
+					NOT = { has_character_flag = met_cajuns }
 					check_variable = {
 						which = amazon_travel_events
 						value > 1
@@ -1481,7 +1481,7 @@ character_event = { #Amazon leg event tombola
 	}
 	
 	### No more possible travel events - Continue to the coast anyway with extra delay
-	character_event = { id = plscometobr. days = 75 random = 30 }
+	character_event = { id = plscometobr.42 days = 75 random = 30 }
 }
 
 #Kow-Tow traveling event: You encounter Mercenaries (how? Depends on the status of Brazil)
@@ -1803,7 +1803,7 @@ character_event = { #We see starving people...
         clr_character_flag = china_famine
         clr_character_flag = china_plague
         clr_character_flag = china_golden_age
-        return_to_travel_tombola_effect = yes
+        return_to_travel_amazon_leg_effect = yes
     }
 }
 
@@ -1870,6 +1870,7 @@ character_event = {
     			hidden_effect = { death = { death_reason = death_accident } }
     		}
 		}
+		return_to_travel_amazon_leg_effect = yes
 	}
 }
 
@@ -1918,6 +1919,7 @@ character_event = {
 				custom_tooltip = { text = natives_death_tt }
     		}
 		}
+		return_to_travel_amazon_leg_effect = yes
 	}
 }
 
@@ -2153,11 +2155,13 @@ character_event = { #Meet charming young Cajun
 			}
 		}
 		custom_tooltip = { text = bring_cajun_lover_tt }
+		return_to_travel_amazon_leg_effect = yes
 	}
 	
 	option = { #Don't bring lover with you
 		name = EVTOPTB_plscometobr_27
 		custom_tooltip = { text = dont_bring_cajun_lover_tt }
+		return_to_travel_amazon_leg_effect = yes
 	}
 }
 
@@ -2197,6 +2201,7 @@ character_event = { #Catch Jungle Illness
 				custom_tooltip = { text = jungle_illness_tt }
 			}
 		}
+		return_to_travel_amazon_leg_effect = yes
 	}
 }
 
@@ -2445,6 +2450,7 @@ character_event = { #Notification event for escape
 	option = {
 		name = EVTOPTA_plscometobr_32
 		custom_tooltip = { text = kurtz_escape_successful_tt }
+		return_to_travel_amazon_leg_effect = yes
 	}
 }
 
@@ -2708,6 +2714,7 @@ character_event = { #Notification event for escape
 	option = {
 		name = EVTOPTA_plscometobr_38
 		custom_tooltip = { text = kurtz_escape_successful_tt }
+		return_to_travel_amazon_leg_effect = yes
 	}
 }
 
@@ -2858,6 +2865,177 @@ character_event = { #Return to ship, reflect on experience
 				#Nothing
 			}
 		}
+		return_to_travel_amazon_leg_effect = yes
 	}
 }
-#Then there are the overseas events. Haven't quite figured these out yet, but the homesickness event from vanilla will be incorporated. There will also be an event where you are attacked by pirates.
+
+character_event = { #Arrival at Belem, start of overseas leg
+	id = plscometobr.42
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BELEM_ARRIVAL
+	
+	desc = EVTDESC_plscometobr_42
+	picture = GFX_br_placeholder #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		clr_character_flag = amazon_leg
+		set_character_flag = overseas_leg
+		
+		random_list = {
+			75 = {
+				set_variable = {
+					which = overseas_travel_events
+					value = 2
+				}
+			}
+			25 = {
+				set_variable = {
+					which = overseas_travel_events
+					value = 3
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_42
+		hidden_tooltip = {
+				character_event = {
+				id = plscometobr.43 # random amazon travel event tombola
+				days = 70
+				random = 15
+			}
+		}
+	}
+}
+
+character_event = { #Overseas leg event tombola
+	id = plscometobr.43
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = overseas_leg
+	}
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				NOT = {
+					check_variable = {
+						which = overseas_travel_events
+						value = 1
+					}
+				}
+			} 
+			### No more travel events - Come to Brazil
+			character_event = { id = plscometobr. days = 50 random = 30 }
+			break = yes
+		}
+		
+		# Fire a random travel event 
+		random_list = {
+			50 = {
+				character_event = { id = plscometobr. }  # Homesick (I really miss <person>)
+				trigger = {
+					NOT = { has_character_flag = missed_loved_one }
+					any_courtier_or_vassal = {
+						OR = {
+							is_lover = ROOT
+							any_spouse = { character = ROOT }
+							AND = {
+								OR = {
+									is_mother = ROOT
+									is_father = ROOT
+								}
+								NOR = {
+									is_lover = ROOT
+									any_spouse = { character = ROOT }
+								}
+							}
+							AND = {
+								is_child_of = ROOT
+								NOR = {
+									is_lover = ROOT
+									any_spouse = { character = ROOT }
+								}
+							}
+							AND = {
+								is_friend = ROOT
+								NOR = {
+									is_lover = ROOT
+									any_spouse = { character = ROOT }
+									is_mother = ROOT
+									is_father = ROOT
+									is_child_of = ROOT
+								}
+							}
+						}
+					}
+				}
+				break = yes
+			}
+			50 = { # Attacked by pirates
+				trigger = {
+					NOT = { has_character_flag = pirates_attacked }
+					has_injury_trigger = no
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Chance of getting scurvy
+				trigger = {
+					NOT = { has_character_flag = brazil_scurvy }
+					has_injury_trigger = no
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Shark Attack
+				trigger = {
+					NOT = { has_character_flag = shark_attack }
+					has_injury_trigger = no
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Find shipwreck survivor
+				trigger = {
+					NOT = { has_character_flag = shipwreck_survivor }
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Encounter storm (chance of death!)
+				trigger = {
+					NOT = { has_character_flag = storm_encountered }
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+		}
+	}
+	
+	### No more possible travel events - Continue to Brazil anyway with extra delay
+	character_event = { id = plscometobr. days = 75 random = 30 }
+}

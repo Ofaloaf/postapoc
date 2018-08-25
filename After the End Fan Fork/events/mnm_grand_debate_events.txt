@@ -1,0 +1,2538 @@
+###########################################
+#                                         #
+# M&M Grand Debate Events                 #
+#                                         #
+# MNM.5000-5299                           #
+#                                         #
+###########################################
+
+#IDs:
+#5000-5099 Emil
+#5100-5199 Joel
+#5200-5299 Milla
+
+namespace = MNM
+
+##################
+# THE GRAND DEBATE
+##################
+# Invitations has been sent out
+character_event = {
+	id = MNM.1980
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1980
+	picture = GFX_evt_gathering_of_minds
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1980
+		hidden_tooltip = {
+			character_event = { id = MNM.1983 days = 60 }
+			set_character_flag = hosting_grand_debate
+			society = {
+				any_society_member = {
+					limit = {
+						age = 16
+						NOT = { trait = incapable }
+						NOT = { is_inaccessible_trigger = yes }
+						NOT = { has_character_flag = do_not_disturb }
+						prisoner = no
+					}
+					clr_character_flag = tournament_has_ended
+					character_event = { id = MNM.1981 }
+				}
+			}
+		}
+	}
+}
+
+# Debate Invite
+character_event = {
+	id = MNM.1981
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1981
+	picture = GFX_evt_courier
+
+	is_triggered_only = yes
+
+	trigger = { NOT = { is_inaccessible_trigger = yes } }
+
+	option = { # Accept
+		name = EVTOPTA_MNM_1981
+		ai_chance = {
+			factor = 100
+			modifier  = {
+				factor = 0.001
+				ai = yes
+				is_inaccessible_trigger = yes
+			}
+		}
+		prestige = 50
+		set_character_flag = attending_grand_debate
+		set_character_flag = do_not_disturb
+		hidden_tooltip = {
+			character_event = { id = MNM.1982 days = 300 } # Safety catch flag clearing
+			set_variable = { which = debate_score value = 0 } # Reset debate score
+		}
+	}
+	option = { # Decline
+		name = EVTOPTB_MNM_1981
+		ai_chance = {
+			factor = 0.1
+		}
+	}
+}
+
+# Safety catch - clears character flags and modifiers
+character_event = {
+ 	id = MNM.1982
+
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = do_not_disturb
+		clr_character_flag = attending_grand_debate
+		clr_character_flag = grand_debate_has_ended
+		clr_character_flag = debate_winner
+		clr_character_flag = grand_debate_begins
+		society = {
+			any_society_member = {
+				limit = {
+					has_character_flag = attending_grand_debate
+				}
+				clr_character_flag = debate_winner
+				clr_character_flag = attending_grand_debate
+				clr_character_flag = do_not_disturb
+				clr_character_flag = grand_debate_has_ended
+			}
+		}
+	}
+}
+
+
+# The Grand Debate starts
+character_event = {
+	id = MNM.1983
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1983
+	picture = GFX_evt_gathering_of_minds
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1983
+		
+		hidden_tooltip = {
+			save_event_target_as = debate_host
+			set_character_flag = grand_debate_begins
+			set_character_flag = attending_grand_debate
+			chronicle = {
+				entry = CHRONICLE_GRAND_DEBATE
+				picture = GFX_evt_gathering_of_minds
+			}
+			society = {
+				any_society_member = {
+					limit = {
+						has_character_flag = attending_grand_debate
+					}
+					character_event = { id = MNM.1984 days = 1 random = 15 } # Random events
+					character_event = { id = MNM.1985 days = 46 } # Set score
+				}
+			}
+			character_event = { id = MNM.1986 days = 48 } # Select winner
+			character_event = { id = MNM.1988 days = 51 } # Notify winners
+		}
+	}
+}
+
+# Random events during Grand Debate
+character_event = {
+	id = MNM.1984
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	trigger = {
+		has_character_flag = attending_grand_debate
+		is_incapable = no
+		prisoner = no
+		NOT = { is_inaccessible_trigger = yes }
+	}
+	
+	immediate = {
+		random_list = {
+			10 = {
+				trigger = {
+					NOT = { trait = poet }
+			    	society = {
+				    	any_society_member = {
+							has_character_flag = attending_grand_debate
+							is_incapable = no
+							prisoner = no
+							NOT = { is_inaccessible_trigger = yes }
+							NOT = { character = ROOT }
+							in_command = no
+							NOT = { is_rival = ROOT }
+							trait = poet
+						}
+					}
+				}
+				character_event = { id = MNM.5201 } #Choose to gain Poet, or progress
+			}
+			10 = {
+			    trigger = {
+			    	society = {
+				    	any_society_member = {
+				    		is_rival = ROOT
+				    		has_character_flag = attending_grand_debate
+							is_incapable = no
+							prisoner = no
+							NOT = { character = ROOT }
+							in_command = no
+							NOT = {
+								has_opinion_modifier = {
+									modifier = opinion_scholarly_appreciation
+									who = ROOT
+								}
+							}
+				    	}
+				    }
+			    }
+				character_event = { id = MNM.5202 } #Sway a rival
+			}
+			10 = {
+				trigger = {
+				    society = {
+				    	any_society_member = {
+				    		has_character_flag = attending_grand_debate
+							is_incapable = no
+							prisoner = no
+							NOT = { character = ROOT }
+							in_command = no
+							NOT = { is_close_relative = ROOT }
+				    	}
+				    }
+				}
+				character_event = { id = MNM.5203 } #Develop feelings towards other member maybe
+			}
+			10 = {
+				character_event = { id = MNM.5204 } #Try the comedic approach
+			}
+			10 = {
+			    trigger = {
+				    society = {
+				    	any_society_member = {
+				    		count = 2
+				    		has_character_flag = attending_grand_debate
+							is_incapable = no
+							prisoner = no
+							NOT = { character = ROOT }
+							in_command = no
+							NOT = { is_close_relative = ROOT }
+				    	}
+				    }
+				}
+				character_event = { id = MNM.5207 } #The Mediator
+			}
+			10 = {
+			    trigger = {
+			    	NOT = { has_character_modifier = childish_prankster }
+			    	society = {
+				    	any_society_member = {
+				    		has_character_flag = attending_grand_debate
+							is_incapable = no
+							prisoner = no
+							NOT = { character = ROOT }
+							in_command = no
+							NOT = { is_close_relative = ROOT }
+				    	}	
+				    }
+				    any_artifact = {
+						has_artifact_flag = ingredient
+					}
+			    }
+				character_event = { id = MNM.5208 } #Sabotage someone else (and yourself)?
+			}
+			10 = {
+				trigger = {
+			    	OR = {
+				    	any_lover = {
+				    		prisoner = no
+				    		is_incapable = no
+				    	}
+			    		any_spouse = {
+			    			prisoner = no
+			    			is_incapable = no
+			    		}
+			    		any_friend = {
+			    			prisoner = no
+			    			is_incapable = no
+			    		}
+			    		any_child = {
+							is_incapable = no
+							prisoner = no
+							is_child_of = ROOT
+							age = 6
+							NOT = { is_rival = ROOT }
+							opinion = { who = ROOT value = 0 }
+			    		}
+			    		mother = {
+			    			is_alive = yes
+			    			is_incapable = no
+			    			prisoner = no
+			    			NOT = { is_rival = ROOT }
+			    		}
+			    		father = {
+			    			is_alive = yes
+			    			is_incapable = no
+			    			prisoner = no
+			    			NOT = { is_rival = ROOT }
+			    		}
+			    	}
+			    }
+				character_event = { id = MNM.5209 } # Surge of creativity: focus on studies, or write letter to someone?
+			}
+			5 = {
+				trigger = { NOT = { trait = stressed } }
+				character_event = { id = MNM.5211 } # Mental break-down
+			}
+			10 = { # Bad lodgings/homesick
+				trigger = {	
+					NOT = { character = event_target:debate_host }
+				}
+				character_event = { id = MNM.5100 }
+			}
+			3 = { # Sabotage notes
+				modifier = {
+					factor = 2
+					trait = deceitful
+				}
+				trigger = {
+					society = {
+						any_society_member = {
+							NOT = { character = ROOT }
+							has_character_flag = attending_grand_debate
+							learning = ROOT
+						}
+					}
+				}
+				character_event = { id = MNM.5101 }
+			}
+			10 = { # Find abandoned notes
+				character_event = { id = MNM.5102 }
+			}
+		}
+	}
+}
+
+# Set debate score
+character_event = {
+	id = MNM.1985
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		export_to_variable = {
+			which = debate_learning
+			value = learning
+		}
+		change_variable = {
+			which = debate_score
+			which = debate_learning
+			which = ROOT
+		}
+		if = {
+			limit = { trait = gregarious }
+			change_variable = { which = debate_score value = 1 }
+		}
+		if = {
+			limit = { trait = socializer }
+			change_variable = { which = debate_score value = 1 }
+		}
+		if = {
+			limit = { trait = shy }
+			change_variable = { which = debate_score value = -1 }
+		}
+		if = {
+			limit = { trait = fair }
+			change_variable = { which = debate_score value = 1 }
+		}
+		if = {
+			limit = { trait = stutter }
+			change_variable = { which = debate_score value = -2 }
+		}
+		if = {
+			limit = { trait = lisp }
+			change_variable = { which = debate_score value = -2 }
+		}
+		if = {
+			limit = { trait = incapable }
+			change_variable = { which = debate_score value = -100 }
+		}
+		random_list = {
+			10 = {
+				set_character_flag = debate_score_20
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 54 } }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_19
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 51 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 60 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_18
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 48 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 57 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_17
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 45 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 54 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_16
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 42 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 51 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_15
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 39 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 48 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_14
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 36 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 45 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_13
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 33 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 42 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_12
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 30 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 39 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_11
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 27 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 36 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_10
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 24 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 33 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_09
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 21 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 30 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_08
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 18 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 27 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_07
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 15 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 24 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_06
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 12 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 21 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_05
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 9 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 18 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_04
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 6 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 15 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_03
+				modifier = {
+					factor = 0
+					NOT = { check_variable = { which = debate_score value = 3 } }
+				}
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 12 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_02
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 9 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_01
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 6 }
+				}
+			}
+			10 = {
+				set_character_flag = debate_score_00
+				modifier = {
+					factor = 0
+					check_variable = { which = debate_score value = 3 }
+				}
+			}
+		}
+	}
+}
+
+# Select the winner
+character_event = {
+	id = MNM.1986
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		society = {
+			random_society_member = {
+				limit = { has_character_flag = debate_score_20 }
+				clr_character_flag = debate_score_20
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_19 }
+				clr_character_flag = debate_score_19
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_18 }
+				clr_character_flag = debate_score_18
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_17 }
+				clr_character_flag = debate_score_17
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_16 }
+				clr_character_flag = debate_score_16
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_15 }
+				clr_character_flag = debate_score_15
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_14 }
+				clr_character_flag = debate_score_14
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_13 }
+				clr_character_flag = debate_score_13
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_12 }
+				clr_character_flag = debate_score_12
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_11 }
+				clr_character_flag = debate_score_11
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_10 }
+				clr_character_flag = debate_score_10
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_09 }
+				clr_character_flag = debate_score_09
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_08 }
+				clr_character_flag = debate_score_08
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_07 }
+				clr_character_flag = debate_score_07
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_06 }
+				clr_character_flag = debate_score_06
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_05 }
+				clr_character_flag = debate_score_05
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_04 }
+				clr_character_flag = debate_score_04
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_03 }
+				clr_character_flag = debate_score_03
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_02 }
+				clr_character_flag = debate_score_02
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_01 }
+				clr_character_flag = debate_score_01
+				set_character_flag = debate_winner
+				break = yes
+			}
+			random_society_member = {
+				limit = { has_character_flag = debate_score_00 }
+				clr_character_flag = debate_score_00
+				set_character_flag = debate_winner
+				break = yes
+			}
+		}
+	}
+}
+
+# Notify winners
+character_event = {
+	id = MNM.1988
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		society = {
+			any_society_member = {
+				limit = { has_character_flag = debate_winner }
+				character_event = { id = MNM.1989 }
+			}
+		}
+	}
+}
+
+# Character scores top placement
+character_event = {
+	id = MNM.1989
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1989
+	picture = GFX_evt_gathering_of_minds
+	
+	has_character_flag = attending_grand_debate
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_1989
+		
+		wealth = 100
+		prestige = 300
+		change_society_currency = 200
+		hidden_tooltip = {
+			society = {
+				any_society_member = {
+					limit = {
+						has_character_flag = hosting_grand_debate
+						NOT = { character = ROOT }
+					}
+					character_event = { id = MNM.1990 days = 3 } # Inform host
+				}
+				any_society_member = {
+					limit = {
+						has_character_flag = hosting_grand_debate
+						character = ROOT
+					}
+					character_event = { id = MNM.1993 days = 3 } # If host is winner - End the debate
+				}
+				any_society_member = {
+					limit = {
+						has_character_flag = attending_grand_debate
+						NOT = { has_character_flag = hosting_grand_debate }
+						NOT = { character = ROOT }
+					}
+					character_event = { id = MNM.1991 days = 3 } # Inform other participants
+				}
+			}
+		}
+	}
+}
+
+# Inform host about winner
+character_event = {
+	id = MNM.1990
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1990
+	picture = GFX_evt_gathering_of_minds
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1990
+		opinion = {
+			modifier = opinion_debate_winner
+			who = FROM
+			years = 10
+		}
+		character_event = { id = MNM.1993 days = 5 }
+	}
+}
+
+# Inform others about winner
+character_event = {
+	id = MNM.1991
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1990
+	picture = GFX_evt_gathering_of_minds
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1991
+	}
+}
+
+# The Grand Debate ends
+character_event = {
+	id = MNM.1993
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1993
+	picture = GFX_evt_gathering_of_minds
+	
+	hide_from = yes
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1993
+		
+		add_society_modifier = {
+			modifier = held_grand_debate_modifier
+			years = 5
+		}
+		
+		custom_tooltip = {
+			text = GRAND_DEBATE_PARTICIPANT_OPINION_TOOLTIP
+		}
+		hidden_tooltip = {
+			society = {
+				any_society_member = {
+					limit = {
+						has_character_flag = attending_grand_debate
+						NOT = { has_character_flag = debate_winner }
+					}
+					if = {
+						limit = {
+							NOT = { character = PREVPREV }
+						}
+						opinion = {
+							modifier = opinion_debate_participant
+							who = PREVPREV
+							years = 5
+						}
+					}
+					
+					random_list = { # Select outcome
+						10 = { # Good outcome - Upgrade your education trait
+							modifier = {
+								factor = 2
+								OR = {
+									has_character_flag = debate_score_20
+									has_character_flag = debate_score_19
+									has_character_flag = debate_score_18
+									has_character_flag = debate_score_17
+									has_character_flag = debate_score_16
+								}
+							}
+							modifier = {
+								factor = 0
+								OR = {
+									trait = grey_eminence
+									trait = brilliant_strategist
+									trait = midas_touched
+									trait = elusive_shadow
+									trait = mastermind_theologian
+								}
+							}
+							character_event = { id = MNM.1994 }
+						}
+						20 = { # Good outcome
+							modifier = {
+								factor = 2
+								OR = {
+									has_character_flag = debate_score_20
+									has_character_flag = debate_score_19
+									has_character_flag = debate_score_18
+									has_character_flag = debate_score_17
+									has_character_flag = debate_score_16
+									has_character_flag = debate_score_15
+									has_character_flag = debate_score_14
+									has_character_flag = debate_score_13
+									has_character_flag = debate_score_12
+								}
+							}
+							character_event = { id = MNM.1995 }
+						}
+						30 = { # Decent outcome
+							character_event = { id = MNM.1996 }
+						}
+						30 = { # Normal outcome
+							character_event = { id = MNM.1997 }
+						}
+						10 = { # Bad outcome
+							modifier = {
+								factor = 2
+								OR = {
+									has_character_flag = debate_score_03
+									has_character_flag = debate_score_02
+									has_character_flag = debate_score_01
+									has_character_flag = debate_score_00
+								}
+							}
+							modifier = {
+								factor = 0
+								OR = {
+									has_character_flag = debate_score_20
+									has_character_flag = debate_score_19
+									has_character_flag = debate_score_18
+									has_character_flag = debate_score_17
+									has_character_flag = debate_score_16
+									has_character_flag = debate_score_15
+									has_character_flag = debate_score_14
+									has_character_flag = debate_score_13
+									has_character_flag = debate_score_12
+								}
+							}
+							character_event = { id = MNM.1998 }
+						}
+					}
+					clr_character_flag = attending_grand_debate
+					clr_character_flag = do_not_disturb
+					clr_character_flag = debate_score_20
+					clr_character_flag = debate_score_19
+					clr_character_flag = debate_score_18
+					clr_character_flag = debate_score_17
+					clr_character_flag = debate_score_16
+					clr_character_flag = debate_score_15
+					clr_character_flag = debate_score_14
+					clr_character_flag = debate_score_13
+					clr_character_flag = debate_score_12
+					clr_character_flag = debate_score_11
+					clr_character_flag = debate_score_10
+					clr_character_flag = debate_score_09
+					clr_character_flag = debate_score_08
+					clr_character_flag = debate_score_07
+					clr_character_flag = debate_score_06
+					clr_character_flag = debate_score_05
+					clr_character_flag = debate_score_04
+					clr_character_flag = debate_score_03
+					clr_character_flag = debate_score_02
+					clr_character_flag = debate_score_01
+					clr_character_flag = debate_score_00
+				}
+				any_society_member = {
+					limit = {
+						has_character_flag = attending_grand_debate
+						has_character_flag = debate_winner
+					}
+					clr_character_flag = debate_winner
+					clr_character_flag = attending_grand_debate
+					clr_character_flag = do_not_disturb
+					set_character_flag = grand_debate_has_ended
+				}
+			}
+			clr_global_flag = holding_grand_debate
+			clr_global_flag = held_grand_debate
+			set_global_flag = held_grand_debate
+			clr_character_flag = attending_grand_debate
+			clr_character_flag = hosting_grand_debate
+			clr_character_flag = grand_debate_begins
+			clr_character_flag = debate_winner
+			clr_character_flag = do_not_disturb
+			set_character_flag = grand_debate_has_ended
+		}
+	}
+}
+
+# The Grand Debate ends - Education upgrade
+character_event = {
+	id = MNM.1994
+	title = GRAND_DEBATE_TITLE
+	picture = GFX_evt_gathering_of_minds
+	
+	desc = {
+		text = EVTDESC_MNM_1994
+		trigger = {
+			event_target:debate_host = { NOT = { character = ROOT } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_1994_HOST
+		trigger = {
+			event_target:debate_host = { character = ROOT }
+		}
+	}
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1994
+		
+		prestige = 50
+		upgrade_education_effect = yes
+	}
+}
+
+# The Grand Debate ends - Good outcome
+character_event = {
+	id = MNM.1995
+	title = GRAND_DEBATE_TITLE
+	picture = GFX_evt_gathering_of_minds
+	
+	desc = {
+		text = EVTDESC_MNM_1995
+		trigger = {
+			event_target:debate_host = { NOT = { character = ROOT } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_1995_HOST
+		trigger = {
+			event_target:debate_host = { character = ROOT }
+		}
+	}
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1995
+		
+		prestige = 50
+		add_character_modifier = {
+			name = debater
+			years = 3
+		}
+	}
+}
+
+# The Grand Debate ends - Decent outcome
+character_event = {
+	id = MNM.1996
+	title = GRAND_DEBATE_TITLE
+	picture = GFX_evt_gathering_of_minds
+	
+	desc = {
+		text = EVTDESC_MNM_1996
+		trigger = {
+			event_target:debate_host = { NOT = { character = ROOT } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_1996_HOST
+		trigger = {
+			event_target:debate_host = { character = ROOT }
+		}
+	}
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1996
+		
+		prestige = 50
+	}
+}
+
+# The Grand Debate ends - Normal outcome
+character_event = {
+	id = MNM.1997
+	title = GRAND_DEBATE_TITLE
+	picture = GFX_evt_gathering_of_minds
+	
+	desc = {
+		text = EVTDESC_MNM_1997
+		trigger = {
+			event_target:debate_host = { NOT = { character = ROOT } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_1997_HOST
+		trigger = {
+			event_target:debate_host = { character = ROOT }
+		}
+	}
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1997
+		
+		random = {
+			chance = 10
+			change_learning = 1
+		}
+	}
+}
+
+# The Grand Debate ends - Bad outcome
+character_event = {
+	id = MNM.1998
+	title = GRAND_DEBATE_TITLE
+	desc = EVTDESC_MNM_1998
+	picture = GFX_evt_gathering_of_minds
+	
+	desc = {
+		text = EVTDESC_MNM_1998
+		trigger = {
+			event_target:debate_host = { NOT = { character = ROOT } }
+		}
+	}
+	desc = {
+		text = EVTDESC_MNM_1998_HOST
+		trigger = {
+			event_target:debate_host = { character = ROOT }
+		}
+	}
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_MNM_1998
+		
+		prestige = -100
+		random = {
+			chance = 10
+			change_learning = -1
+		}
+	}
+}
+
+
+######################################################
+######## RANDOM EVENTS (for participants) ############
+######################################################
+
+character_event = { # Gain Poet trait (or not)
+    id = MNM.5201
+    desc = EVTDESC_MNM_5201
+    picture = GFX_evt_shady_meeting
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+    	NOT = { trait = poet }
+
+    	society = {
+	    	any_society_member = {
+				has_character_flag = attending_grand_debate
+				is_incapable = no
+				prisoner = no
+				NOT = { is_inaccessible_trigger = yes }
+				NOT = { character = ROOT }
+				in_command = no
+				NOT = { is_rival = ROOT }
+				trait = poet
+			}
+		}
+    }
+
+    immediate = {
+    	society = {
+	    	random_society_member = { #find a fellow poet if you can
+				limit = {
+					has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { is_inaccessible_trigger = yes }
+					NOT = { character = ROOT }
+					in_command = no
+					NOT = { is_rival = ROOT }
+					trait = poet
+				}
+				save_event_target_as = fellow_debater_target
+				break = yes
+			}
+			random_society_member = { #otherwise grab anyone
+				limit = {
+					has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { is_inaccessible_trigger = yes }
+					NOT = { character = ROOT }
+					in_command = no
+					NOT = { is_rival = ROOT }
+				}
+				save_event_target_as = fellow_debater_target
+				break = yes
+			}
+		}
+    }
+
+    option = {
+        name = EVTOPTA_MNM_5201 #sit down and write something beautiful
+        custom_tooltip = { text = EVTOPTA_MNM_5201_TT }
+        add_trait = poet
+    }
+    option = {      
+        name = EVTOPTB_MNM_5201 #Steer my arguments back to logos
+        custom_tooltip = { text = EVTOPTB_MNM_5201_TT }
+        hidden_effect = { change_variable = { which = debate_score value = 1 } }
+    }
+}
+
+character_event = { # Sway a rival
+    id = MNM.5202
+    desc = EVTDESC_MNM_5202
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+    	society = {
+	    	any_society_member = {
+	    		is_rival = ROOT
+	    		has_character_flag = attending_grand_debate
+				is_incapable = no
+				prisoner = no
+				NOT = { character = ROOT }
+				in_command = no
+				NOT = {
+					has_opinion_modifier = {
+						modifier = opinion_scholarly_appreciation
+						who = ROOT
+					}
+				}
+	    	}
+	    }
+    }
+
+    immediate = {
+	    society = {
+	    	random_society_member = {
+				limit = {
+					has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { is_inaccessible_trigger = yes }
+					NOT = { character = ROOT }
+					in_command = no
+					NOT = {
+						has_opinion_modifier = {
+							modifier = opinion_scholarly_appreciation
+							who = ROOT
+						}
+					}
+				}
+				save_event_target_as = rival_debater_target
+				break = yes
+			}
+	    }
+	}
+
+    option = {
+        name = EVTOPTA_MNM_5202 # I am glad we can see beyond our differences
+     	reverse_opinion = {
+			who = event_target:rival_debater_target
+			modifier = opinion_scholarly_appreciation
+			years = 10
+		}   
+    }
+}
+
+character_event = { # Develop a crush of some sort (on random hermetic present at debate)
+    id = MNM.5203
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+	    society = {
+	    	any_society_member = {
+	    		has_character_flag = attending_grand_debate
+				is_incapable = no
+				prisoner = no
+				NOT = { character = ROOT }
+				in_command = no
+				NOT = { is_close_relative = ROOT }
+	    	}
+	    }
+	}
+
+    immediate = {
+    	society = {
+	    	random_society_member = {
+				limit = {
+			    	has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { character = ROOT }
+					in_command = no
+					NOT = { is_close_relative = ROOT }
+				}
+				save_event_target_as = striking_debater_target
+				break = yes
+			}
+		}
+    }
+
+    desc = {
+    	text = EVTDESC_MNM_5203_A # Wow, they are so great
+    	trigger = {
+    		event_target:striking_debater_target = {
+    			NOR = {
+	    			is_lover = ROOT
+	    			ROOT_possibly_romantically_interested_trigger = yes
+	    		}
+    		}
+    	}
+    }
+    desc = {
+    	text = EVTDESC_MNM_5203_B # I knew I already liked them, but wow
+    	trigger = {
+    		event_target:striking_debater_target = {
+    			OR = {
+    				is_lover = ROOT
+    				ROOT_possibly_romantically_interested_trigger = yes
+    			}
+    		}
+    	}
+    }
+
+    option = {
+        name = EVTOPTA_MNM_5203 # I am not sure what these feelings are
+     	if = {
+     		limit = {
+     			event_target:striking_debater_target = {
+	    			NOR = {
+		    			is_lover = ROOT
+		    			ROOT_possibly_romantically_interested_trigger = yes
+		    		}
+	    		}
+     		}
+	     	random_list = {
+	     		10 = {
+		     		opinion = {
+						who = event_target:striking_debater_target
+						modifier = opinion_scholarly_appreciation
+						years = 10
+					}
+				}
+				10 = {
+		     		opinion = {
+						who = event_target:striking_debater_target
+						modifier = opinion_budding_friendship
+						years = 10
+					}
+					hidden_effect = {
+			     		reverse_opinion = {
+							who = event_target:striking_debater_target
+							modifier = opinion_budding_friendship
+							years = 10
+						}
+					}
+				}
+				10 = {
+					trigger = { NOT = { trait = envious } }
+					add_trait_envious_effect = yes
+				}
+			}
+     	}
+
+     	if = {
+     		limit = {
+     			event_target:striking_debater_target = {
+	    			OR = {
+	    				is_lover = ROOT
+	    				ROOT_possibly_romantically_interested_trigger = yes
+	    			}
+	    		}
+     		}
+	     	random_list = {
+	     		35 = {
+		     		opinion = {
+						who = event_target:striking_debater_target
+						modifier = opinion_scholarly_appreciation
+						years = 10
+					}
+				}
+				25 = {
+		     		opinion = {
+						who = event_target:striking_debater_target
+						modifier = opinion_budding_romance
+						years = 10
+					}
+					hidden_effect = {
+			     		reverse_opinion = {
+							who = event_target:striking_debater_target
+							modifier = opinion_budding_romance
+							years = 10
+						}
+					}
+				}
+				20 = {
+		     		opinion = {
+						who = event_target:striking_debater_target
+						modifier = opinion_budding_friendship
+						years = 10
+					}
+					hidden_effect = {
+			     		reverse_opinion = {
+							who = event_target:striking_debater_target
+							modifier = opinion_budding_friendship
+							years = 10
+						}
+					}
+				}
+				5 = {
+					trigger = { NOT = { trait = envious } }
+					add_trait = envious
+					hidden_tooltip = { character_event = { id = 38271 } }
+				}
+			}
+     	}
+    }
+}
+
+character_event = { # Use humor?
+    id = MNM.5204
+    desc = EVTDESC_MNM_5204
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+    option = {
+        name = EVTOPTA_MNM_5204 # I will try to use humor!
+        custom_tooltip = { text = EVTOPTA_MNM_5204_TT }
+        hidden_effect = {
+        	random_list = {
+	        	50 = {
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 7
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 9
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 11
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 13
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 15
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 17
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 19
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 21
+	        		}
+	        		modifier = {
+	        			factor = 1.1
+	        			diplomacy = 23
+	        		}
+	        		modifier = {
+						factor = 1.2
+						trait = genius
+					}
+					modifier = {
+						factor = 1.1
+						trait = quick
+					}
+					modifier = {
+						factor = 1.1
+						trait = shrewd
+					}
+					modifier = {
+						factor = 1.1
+						trait = gregarious
+					}
+					modifier = {
+						factor = 0.5
+						trait = dull
+					}
+					modifier = {
+						factor = 0.5
+						trait = slow
+					}
+					modifier = {
+						factor = 0.1
+						trait = imbecile
+					}
+	        		character_event = { id = MNM.5205 days = 3 random = 5 } #it works!
+	        	}
+	        	50 = {
+	        		character_event = { id = MNM.5206 days = 3 random = 5 } #it fails
+	        	}
+	        }
+        }
+    }
+    option = {
+        name = EVTOPTB_MNM_5204 # I will NOT stoop that low
+        custom_tooltip = { text = EVTOPTB_MNM_5204_TT }
+    }
+}
+
+character_event = { # SUCCESS - I charmed their socks off with my jokes!
+    id = MNM.5205
+    desc = EVTDESC_MNM_5205
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+	trigger = {
+    	is_alive = yes
+    }
+
+    option = {
+        name = EVTOPTA_MNM_5205 # I am great!
+        if = {
+        	limit = {
+        		NOT = { trait = gregarious }
+        	}
+        	add_trait = gregarious
+        }
+        hidden_effect = { change_variable = { which = debate_score value = 1 } }
+    }
+}
+
+character_event = { # FAILURE - People find me a philistine
+    id = MNM.5206
+    desc = EVTDESC_MNM_5206
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+    	is_alive = yes
+    }
+
+    option = {
+        name = EVTOPTA_MNM_5206 # I am great!
+        if = {
+        	limit = {
+        		NOT = { trait = shy }
+        	}
+        	add_trait = shy
+        }
+        hidden_effect = { change_variable = { which = debate_score value = -1 } }
+    }
+}
+
+character_event = { #The Mediator
+    id = MNM.5207
+    desc = EVTDESC_MNM_5207
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+	    society = {
+	    	any_society_member = {
+	    		count = 2
+	    		has_character_flag = attending_grand_debate
+				is_incapable = no
+				prisoner = no
+				NOT = { character = ROOT }
+				in_command = no
+				NOT = { is_close_relative = ROOT }
+	    	}
+	    }
+	}
+
+    immediate = {
+    	society = {
+	    	random_society_member = {
+	    		limit = {
+	    			has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { character = ROOT }
+					in_command = no
+				}
+				save_event_target_as = fellow_member_1
+	    	}
+	    	random_society_member = {
+	    		limit = {
+	    			has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { character = ROOT }
+					in_command = no
+				}
+				save_event_target_as = fellow_member_2
+	    	}
+	    }
+    }
+
+    option = {      
+        name = EVTOPTA_MNM_5207 #member 1 is pleased, 2 not so much
+ 		
+ 		reverse_opinion = {
+			who = event_target:fellow_member_1
+			modifier = opinion_mediator
+			years = 10
+		}
+		reverse_opinion = {
+			who = event_target:fellow_member_2
+			modifier = opinion_meddler
+			years = 10
+		}
+    }
+    option = {      
+        name = EVTOPTB_MNM_5207 #member 2 is pleased, 1 not so much
+
+		reverse_opinion = {
+			who = event_target:fellow_member_1
+			modifier = opinion_meddler
+			years = 10
+		}
+        reverse_opinion = {
+			who = event_target:fellow_member_2
+			modifier = opinion_mediator
+			years = 10
+		}
+    }
+    option = {      
+        name = EVTOPTC_MNM_5207  # both are pleased
+        tooltip_info = diplomacy
+
+		reverse_opinion = {
+			who = event_target:fellow_member_1
+			modifier = opinion_mediator
+			years = 10
+		}
+        reverse_opinion = {
+			who = event_target:fellow_member_2
+			modifier = opinion_mediator
+			years = 10
+		}
+		
+		hidden_effect = { change_variable = { which = debate_score value = 1 } }
+
+		trigger = {
+			diplomacy = 17
+		}
+    }
+    option = {      
+        name = EVTOPTD_MNM_5207 #nothing happens
+    }
+}
+
+
+#Dragging someone down with you
+character_event = {
+    id = MNM.5208
+    desc = EVTDESC_MNM_5208 # Fellow hermetic is being pompous
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+    	society = {
+	    	any_society_member = {
+	    		has_character_flag = attending_grand_debate
+				is_incapable = no
+				prisoner = no
+				NOT = { character = ROOT }
+				in_command = no
+				NOT = { is_close_relative = ROOT }
+	    	}
+	    }
+    }
+
+    immediate = {
+	    select_random_hermetic_ingredient_effect = yes
+	    select_random_hermetic_ingredient_effect = yes
+    	society = {
+	    	random_society_member = {
+	    		limit = {
+	    			has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { character = ROOT }
+					in_command = no
+					is_rival = ROOT
+				}
+				save_event_target_as = fellow_member_target
+				break = yes
+	    	}
+	    	random_society_member = {
+	    		limit = {
+	    			has_character_flag = attending_grand_debate
+					is_incapable = no
+					prisoner = no
+					NOT = { character = ROOT }
+					in_command = no
+				}
+				save_event_target_as = fellow_member_target
+	    	}
+	    }
+    }
+
+    option = {
+        name = EVTOPTA_MNM_5208 # it would be worth sabotaging them
+        custom_tooltip = { text = EVTOPTA_MNM_5208_TT }
+		add_character_modifier = {
+			name = childish_prankster
+			years = 5
+		}
+
+		event_target:fellow_member_target = {
+			add_character_modifier = {
+				name = tarnished_reputation
+				years = 5
+			}
+		}
+		if = {
+			limit = {
+				has_selected_ingredient_2_trigger = yes
+			}
+			destroy_selected_ingredient_1_and_2_effect = yes
+		}
+		if = {
+			limit = {
+				has_selected_ingredient_1_trigger = yes
+				has_selected_ingredient_2_trigger = no
+			}
+			destroy_selected_ingredient_1_effect = yes
+		}
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 50
+				OR = {
+					trait = ambitious
+					trait = cruel
+					has_vice_trigger = yes
+				}
+			}
+		}
+    }
+    option = {      
+        name = EVTOPTB_MNM_5208 #I respect my fellow scholars!
+        custom_tooltip = { text = EVTOPTB_MNM_5208_TT }
+
+        ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 50
+				trait = kind
+			}
+		}
+    }
+    after = {
+    	remove_selection_of_ingredients_effect = yes
+    }
+}
+
+#Deal with surge of inspiration (prepare arguments for tomorrow's discussion, or write a letter to someone you care about?)
+character_event = {
+    id = MNM.5209
+    desc = EVTDESC_MNM_5209
+    picture = GFX_evt_gathering_of_minds
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+    	OR = {
+	    	any_lover = {
+	    		always = yes
+	    	}
+    		any_spouse = {
+    			always = yes
+    		}
+    		any_friend = {
+    			always = yes
+    		}
+    		any_child = {
+				is_incapable = no
+				prisoner = no
+				is_child_of = ROOT
+				age = 6
+				NOT = { is_rival = ROOT }
+				opinion = { who = ROOT value = 0 }
+    		}
+    	}
+    }
+
+    immediate = {
+    	random_lover = { # Find a target, preferably lover, then spouse, then friend, then a child...
+    		limit = {
+				is_incapable = no
+				prisoner = no
+			}
+			save_event_target_as = inspired_letter_target
+			set_character_flag = love_letters_flag
+			break = yes
+    	}
+    	random_spouse = {
+    		limit = {
+				is_incapable = no
+				prisoner = no
+			}
+			save_event_target_as = inspired_letter_target
+			set_character_flag = love_letters_flag
+			break = yes
+    	}
+    	random_friend = {
+    		limit = {
+				is_incapable = no
+				prisoner = no
+			}
+			save_event_target_as = inspired_letter_target
+			set_character_flag = pen_pal_flag
+			break = yes
+    	}
+    	random_child = {
+    		limit = {
+				is_incapable = no
+				prisoner = no
+				is_child_of = ROOT
+				age = 6
+				NOT = { is_rival = ROOT }
+				opinion = { who = ROOT value = 0 }
+			}
+			save_event_target_as = inspired_letter_target
+			set_character_flag = pen_pal_flag
+			break = yes
+    	}
+    	mother = {
+    		if = {
+    			limit = {
+	    			is_alive = yes
+					is_incapable = no
+					prisoner = no
+					NOT = { is_rival = ROOT }
+					opinion = { who = ROOT value = 0 }
+				}
+				save_event_target_as = inspired_letter_target
+				set_character_flag = delighted_parent_flag
+				break = yes
+			}
+    	}
+    	father = {
+	    	if = {
+	    		limit = {
+	    			is_alive = yes
+					is_incapable = no
+					prisoner = no
+					NOT = { is_rival = ROOT }
+					opinion = { who = ROOT value = 0 }
+				}
+				save_event_target_as = inspired_letter_target
+				set_character_flag = delighted_parent_flag
+				break = yes
+	    	}
+	    }
+    }
+   
+    option = {
+        name = {
+        	text = EVTOPTA_MNM_5209_love_target # I will write a letter to them
+        	trigger = {
+        		event_target:inspired_letter_target = {
+        			OR = {
+        				has_opinion_modifier = { who = ROOT modifier = opinion_budding_romance }
+        				has_opinion_modifier = { who = ROOT modifier = opinion_lover }
+        			}
+        		}
+        	}
+        }
+
+        name = {
+        	text = EVTOPTA_MNM_5209_friendly_target # I will write a letter to them
+        	trigger = {
+        		event_target:inspired_letter_target = {
+        			opinion = { who = ROOT value = 0 }
+        		}
+        	}
+        }
+
+        name = {
+        	text = EVTOPTA_MNM_5209_hostile_target # I will write a letter to them
+        	trigger = {
+        		event_target:inspired_letter_target = {
+        			NOT = { opinion = { who = ROOT value = 0 } }
+        		}
+        	}
+        }
+        custom_tooltip = { text = EVTOPTA_MNM_5209_TT }
+        event_target:inspired_letter_target = {
+	        trigger_switch = {
+	        	on_trigger = has_character_flag
+	        	love_letters_flag = {
+			        opinion = {
+						who = ROOT
+						modifier = opinion_love_letters
+						years = 10
+					}
+	        	}
+	        	pen_pal_flag = {
+			        opinion = {
+						who = ROOT
+						modifier = opinion_pen_pal
+						years = 10
+					}
+	        	}
+	        	delighted_parent_flag = {
+			        opinion = {
+						who = ROOT
+						modifier = opinion_delighted_parent
+						years = 10
+					}
+	        	}
+	        }
+        }
+        event_target:inspired_letter_target = { character_event = { id = MNM.5210 days = 10 } }
+    }
+
+    option = { #special poet trait option
+        name = {
+        	text = EVTOPTB_MNM_5209_love_target # I will write a letter to them
+        	trigger = {
+        		event_target:inspired_letter_target = {
+        			OR = {
+        				has_opinion_modifier = { who = ROOT modifier = opinion_budding_romance }
+        				has_opinion_modifier = { who = ROOT modifier = opinion_lover }
+        			}
+        		}
+        	}
+        }
+
+        name = {
+        	text = EVTOPTB_MNM_5209_friendly_target # I will write a letter to them
+        	trigger = {
+        		event_target:inspired_letter_target = {
+        			opinion = { who = ROOT value = 0 }
+        		}
+        	}
+        }
+
+        name = {
+        	text = EVTOPTB_MNM_5209_hostile_target # I will write a letter to them
+        	trigger = {
+        		event_target:inspired_letter_target = {
+        			NOT = { opinion = { who = ROOT value = 0 } }
+        		}
+        	}
+        }
+
+
+        custom_tooltip = { text = EVTOPTB_MNM_5209_TT }
+
+        event_target:inspired_letter_target = {
+	        trigger_switch = {
+	        	on_trigger = has_character_flag
+	        	love_letters_flag = {
+			        opinion = {
+						who = ROOT
+						modifier = opinion_poet_love_letters
+						years = 10
+					}
+	        	}
+	        	pen_pal_flag = {
+			        opinion = {
+						who = ROOT
+						modifier = opinion_poet_pen_pal
+						years = 10
+					}
+	        	}
+	        	delighted_parent_flag = {
+			        opinion = {
+						who = ROOT
+						modifier = opinion_poet_delighted_parent
+						years = 10
+					}
+	        	}
+	        }
+        }
+        event_target:inspired_letter_target = {
+        	set_character_flag = poetic_letter
+        	character_event = { id = MNM.5210 days = 10 }
+        }
+
+        tooltip_info = poet
+        trigger = { trait = poet }
+    }
+    option = {      
+        name = EVTOPTC_MNM_5209 # I will focus on the debate
+        custom_tooltip = { text = EVTOPTC_MNM_5209_TT }
+        hidden_effect = { change_variable = { which = debate_score value = 1 } }
+    }
+}
+
+character_event = { # inspired_letter_target recieves a letter
+    id = MNM.5210
+    desc = EVTDESC_MNM_5210
+    picture = GFX_evt_recieve_letter
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+    trigger = {
+		is_incapable = no
+		prisoner = no
+    }
+
+    option = {
+        name = EVTOPTA_MNM_5210
+        if = {
+        	limit = { has_character_flag = poetic_flag }
+	        tooltip = {
+	        	trigger_switch = {
+		        	on_trigger = has_character_flag
+		        	love_letters_flag = {
+				        opinion = {
+							who = ROOT
+							modifier = opinion_love_letters
+							years = 10
+						}
+		        	}
+		        	pen_pal_flag = {
+				        opinion = {
+							who = ROOT
+							modifier = opinion_pen_pal
+							years = 10
+						}
+		        	}
+		        	delighted_parent_flag = {
+				        opinion = {
+							who = ROOT
+							modifier = opinion_delighted_parent
+							years = 10
+						}
+		        	}
+		        }
+			}
+        }
+        if = {
+        	limit = { NOT = { has_character_flag = poetic_flag } }
+	        tooltip = {
+	        	trigger_switch = {
+		        	on_trigger = has_character_flag
+		        	love_letters_flag = {
+				        opinion = {
+							who = ROOT
+							modifier = opinion_poet_love_letters
+							years = 10
+						}
+		        	}
+		        	pen_pal_flag = {
+				        opinion = {
+							who = ROOT
+							modifier = opinion_poet_pen_pal
+							years = 10
+						}
+		        	}
+		        	delighted_parent_flag = {
+				        opinion = {
+							who = ROOT
+							modifier = opinion_poet_delighted_parent
+							years = 10
+						}
+		        	}
+		        }
+			}
+        }
+
+		clr_character_flag = love_letters_flag
+		clr_character_flag = pen_pal_flag
+		clr_character_flag = delighted_parent_flag
+		clr_character_flag = poetic_flag
+    }
+}
+
+character_event = { # Mental break-down
+    id = MNM.5211
+    desc = EVTDESC_MNM_5211
+    picture = GFX_evt_secret_ceremony
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    
+    trigger = {
+    	NOT = { trait = stressed }
+    }
+
+    immediate = {
+    	#picks a herb...
+    	select_random_hermetic_ingredient_herb_effect = yes
+    	if = { #if no herb was available...
+    		limit = { has_selected_ingredient_1_trigger = no }
+    		select_random_hermetic_ingredient_effect = yes
+    	}
+    }
+
+    option = { # It's a lot of pressure, but it's worth it
+        name = EVTOPTA_MNM_5211
+        custom_tooltip = { text = EVTOPTA_MNM_5211_TT }
+
+        add_trait = stressed
+    }
+    option = { # I'll use my potions
+        name = EVTOPTC_MNM_5211
+        tooltip_info = yes
+        custom_tooltip = { text = ingredient_option_available_tt }
+        
+        custom_tooltip = { text = EVTOPTA_MNM_5211_TT }
+
+
+        random = {
+        	chance = 50
+        	add_trait = stressed
+        }
+
+        if = {
+        	limit = { selected_ingredient_is_sleep_inducing_trigger = no }
+			random = {
+	        	chance = 50
+	        	add_character_modifier = {
+					modifier = nauseous_from_potion
+					years = 1
+				}
+	        }
+        }
+        
+        destroy_selected_ingredient_1_effect = yes
+
+        trigger = {
+        	any_artifact = {
+        		has_artifact_flag = ingredient
+        	}
+        }
+    }
+    option = { # I should back down
+        name = EVTOPTB_MNM_5211
+        custom_tooltip = { text = EVTOPTB_MNM_5211_TT }
+        hidden_effect = { change_variable = { which = debate_score value = -2 } }
+    }
+
+    after = {
+    	remove_selection_of_ingredients_effect = yes
+    }
+}
+
+#Complain about lodgings / be homesick
+character_event = {
+	id = MNM.5100
+	desc =  EVTDESC_MNM_5100
+	picture = GFX_evt_secret_ceremony
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_5100 # My back!
+		add_character_modifier = {
+			modifier = bad_nights_sleep
+			months = 12
+		}
+		opinion = {
+			who = event_target:debate_host
+			modifier = opinion_poor_accommodations
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_MNM_5100
+		
+		clear_delayed_event = { id = MNM.1984 }
+		clear_delayed_event = { id = MNM.1985 }
+		clr_character_flag = attending_grand_debate
+	}
+	
+	option = {
+		name = EVTOPTC_MNM_5100 # I can use these sleepless nights to get some more work done
+		trigger = {
+			trait = diligent
+		}
+		tooltip_info = diligent
+		
+		add_character_modifier = {
+			modifier = nocturnal_studies
+			months = 12
+		}
+	}
+}
+
+#Sabotage others
+character_event = {
+	id = MNM.5101
+	desc = EVTDESC_MNM_5101
+	picture = GFX_evt_shady_meeting
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		society = {
+			random_society_member = {
+				limit = {
+					NOT = { character = ROOT }
+					has_character_flag = attending_grand_debate
+					learning = ROOT
+				}
+				save_event_target_as = sabotage_target
+			}
+		}
+	}
+	
+	option = { # Leave fake notes
+		name = EVTOPTA_MNM_5101
+		custom_tooltip = {
+			text = EVTTOOLTIPA_MNM_5101
+		}
+		event_target:sabotage_target = {
+			set_character_flag = got_fake_note_planted
+			character_event = {	id = MNM.5102 }
+		}
+	}
+	
+	option = { # Destroy notes
+		name = EVTOPTB_MNM_5101
+		custom_tooltip = {
+			text = EVTTOOLTIPB_MNM_5101
+		}
+		event_target:sabotage_target = {
+			character_event = {	id = MNM.5103 }
+		}
+	}
+	
+	option = { # Leave it be
+		name = EVTOPTC_MNM_5101
+		if = {
+			limit = {
+				trait = deceitful
+			}
+			remove_trait = deceitful
+			break = yes
+		}
+		random = {
+			chance = 35
+			add_trait_kind_effect = yes
+		}
+	}
+}
+
+#Finding strange notes/Flying notes (read, or discard?)
+character_event = {
+	id = MNM.5102
+	desc = {
+		text = EVTDESCA_MNM_5102
+		trigger = {
+			NOT = { has_character_flag = got_fake_note_planted }
+		}
+	}
+	desc = {
+		text = EVTDESCB_MNM_5102
+		trigger = {
+			has_character_flag = got_fake_note_planted
+		}
+	}
+	picture = GFX_evt_gathering_of_minds
+	border = GFX_event_normal_frame_religion
+	
+	hide_from = yes
+	
+	is_triggered_only = yes
+	
+	option = { # Take the notes and use them
+		name = EVTOPTA_MNM_5102
+		
+		custom_tooltip = {
+			text = EVTTOOLTIP_MNM_5102
+			hidden_effect = {
+				if = {
+					limit = {
+						has_character_flag = got_fake_note_planted
+					}
+					set_character_flag = embarrassingly_misinformed
+				}
+				character_event = { id = MNM.5105 days = 5 }
+			}
+		}
+	}
+	
+	option = { # Disregard the notes / I trust in my own work
+		name = EVTOPTB_MNM_5102
+		trigger = {
+			NOR = {
+				has_character_flag = got_fake_note_planted
+				intrigue = 18
+			}
+		}
+		
+		prestige = 25
+	}
+	
+	option = { # This is clearly made up nonsense
+		name = EVTOPTC_MNM_5102
+		trigger = {
+			has_character_flag = got_fake_note_planted
+			intrigue = 18
+		}
+		tooltip_info = intrigue
+		
+		prestige = 25
+	}
+	
+	after = {
+		hidden_effect = {
+			if = {
+				limit = {
+					has_character_flag = got_fake_note_planted
+				}
+				FROM = { character_event = { id = MNM.5106 days = 5 } }
+			}
+		}
+		clr_character_flag = got_fake_note_planted
+	}
+}
+
+#Someone sabotaged my notes
+character_event = {
+	id = MNM.5103
+	desc = EVTDESC_MNM_5103
+	picture = GFX_evt_secret_ceremony
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = { # An unfortunate accident
+		name = EVTOPTA_MNM_5103
+		custom_tooltip = {
+			text = EVTTOOLTIP_MNM_5103
+			hidden_effect = {
+				change_variable = { which = debate_score value = -2 }
+			}
+		}
+		
+		random = {
+			chance = 35
+			add_trait_patient_effect = yes
+		}
+	}
+	
+	option = { # She/he did that on purpose
+		name = EVTOPTB_MNM_5103
+		custom_tooltip = {
+			text = EVTTOOLTIP_MNM_5103
+			hidden_effect = {
+				change_variable = { which = debate_score value = -2 }
+			}
+		}
+		tooltip = { add_rival = FROM }
+		hidden_effect = { FROM = { character_event = { id = MNM.5104 days = 5 } } }
+	}
+}
+
+#Notify rival
+character_event = {
+	id = MNM.5104
+	desc = EVTDESC_MNM_5104
+	picture = GFX_evt_secret_ceremony
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_5104
+		add_rival = FROM
+	}
+}
+
+character_event = { # Outcome of notes
+	id = MNM.5105
+	desc = {
+		text = EVTDESCA_MNM_5015
+		trigger = {
+			NOR = { 
+				has_character_flag = embarrassingly_misinformed
+				has_character_flag = plagiarism_discovered
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCB_MNM_5015
+		trigger = {
+			has_character_flag = embarrassingly_misinformed
+		}
+	}
+	desc = {
+		text = EVTDESCC_MNM_5015
+		trigger = {
+			has_character_flag = plagiarism_discovered
+		}
+	}
+	picture = GFX_evt_gathering_of_minds
+	border = GFX_event_normal_frame_religion
+	
+	hide_from = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				NOT = { has_character_flag = embarrassingly_misinformed }
+			}
+			random = {
+				chance = 15
+				set_character_flag = plagiarism_discovered
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_MNM_5105
+		trigger = {
+			NOR = { 
+				has_character_flag = embarrassingly_misinformed 
+				has_character_flag = plagiarism_discovered
+			}
+		}
+		
+		prestige = 50
+		custom_tooltip = {
+			text = EVTTOOLTIPA_MNM_5105
+			hidden_effect = {
+				change_variable = { which = debate_score value = 2 }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_MNM_5105
+		trigger = {
+			has_character_flag = embarrassingly_misinformed
+		}
+		
+		prestige = -25
+		custom_tooltip = {
+			text = EVTTOOLTIPB_MNM_5105
+			hidden_effect = {
+				change_variable = { which = debate_score value = -2 }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_MNM_5105
+		trigger = {
+			has_character_flag = plagiarism_discovered
+		}
+		
+		prestige = -25
+		custom_tooltip = {
+			text = EVTTOOLTIPB_MNM_5105
+			hidden_effect = {
+				change_variable = { which = debate_score value = -2 }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTD_MNM_5105
+		trigger = {
+			has_character_flag = plagiarism_discovered
+			diplomacy = 18
+		}
+	}
+}
+
+character_event = { # Outcome of planting notes
+	id = MNM.5106
+	desc = {
+		text = EVTDESCA_MNM_5106
+		trigger = {
+			FROM  = { has_character_flag = embarrassingly_misinformed }
+		}
+	}
+	desc = {
+		text = EVTDESCB_MNM_5106
+		trigger = {
+			NOT = {
+				FROM = { has_character_flag = embarrassingly_misinformed }
+			}
+		}
+	}
+	picture = GFX_evt_shady_meeting
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_MNM_5106
+		trigger = {
+			FROM  = { has_character_flag = embarrassingly_misinformed }
+		}
+		
+		add_character_modifier = {
+			modifier = mischievous_deeds
+			years = 2
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_MNM_5106
+		trigger = {
+			NOT = {
+				FROM = { has_character_flag = embarrassingly_misinformed }
+			}
+		}
+	}
+	
+	after = {
+		clr_character_flag = embarrassingly_misinformed
+		clr_character_flag = plagiarism_discovered
+	}
+}

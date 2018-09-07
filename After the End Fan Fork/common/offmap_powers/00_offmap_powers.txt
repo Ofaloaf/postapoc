@@ -1,1 +1,1533 @@
-#Disabled for now
+offmap_china = {
+	name = china_china
+	window_name = domestic_offmaps_window
+	button_name = icon_offmaps_entry
+	currency_name = TXT_GRACE
+	currency_gain = monthly_grace
+	currency_reset_on_dynasty_change = yes
+	holder_title = title_china_emperor			# minor title used to identify a character as holder of this offmap power
+	governor_title = e_china_west_governor
+	tier = emperor
+	non_aggression_modifier = peace_deal_with_china
+	coa_religion = apostolic
+	government = feudal_government
+	beginning_of_history = 2323.7.2 #anniversary of Bahian independence day
+	sound = china_interaction_interface
+	display_trigger = {
+		has_dlc = "Jade Dragon"
+	}
+	policies = {
+		china_open
+		china_isolationist
+		china_expansionist
+	}
+	statuses = {
+		china_stable
+		china_unrest
+		china_civil_war #may have to add other statuses depending on how things work out
+		# brasil_religious_civil_war_candomble
+		# brasil_religious_civil_war_charismatic
+		china_mongol_invasion #actually Amazonian invasion
+		china_jurchen_invasion #actually Gaucho invasion
+		china_famine
+		china_plague
+		china_golden_age
+	}
+	buttons = {
+		offmap_gifts = {
+			is_active_trigger = {
+				china_offmap_tribute_decisions_enabled_trigger = yes
+			}
+		}
+		offmap_boons = {
+			is_active_trigger = {
+				china_offmap_boon_decisions_enabled_trigger = yes
+			}
+		}
+		offmap_hostility = {
+			is_active_trigger = {
+				china_offmap_hostile_decisions_enabled_trigger = yes
+			}
+			display_trigger = {
+				NOT = { offmap_china = { offmap_ruler = { dynasty = FROM } } }
+			}
+		}
+		offmap_hostility2 = {
+			display_trigger = {
+				always = no
+			}
+		}
+	}
+	
+	#These conditions only effect the appearance of the button, it does not actually disable them from being clickable. The same triggers are used in all tribute/boon decisions respectively
+	
+	icon_triggers = {
+		china_physician_cd = {
+			frame = 9
+			trigger = {
+				hidden_tooltip = {
+					has_character_flag = chinese_grace_physician_sent
+				}
+			}
+		}
+		china_raid_cd = {
+			frame = 8
+			right = yes	
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = china_raid_grace_cd
+				}
+			}
+		}
+		china_famine_cd = {
+			frame = 7
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = china_send_relief
+				}
+			}
+		}
+		china_tributary_cd = {
+			frame = 6
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = chinese_grace_tributary_timer
+				}
+			}
+		}
+		china_boon_cd = {
+			frame = 5
+			right = yes	
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = jd_china_boon_cd
+				}
+			}
+		}
+		china_commander_cd = {
+			frame = 4
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = chinese_grace_send_commander_timer
+				}
+			}
+		}
+		china_eunuch_cd = { #this should be send monk
+			frame = 3
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = chinese_grace_send_eunuch_timer
+				}
+			}
+		}
+		china_concubine_cd = { #this should be send nun
+			frame = 2
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = chinese_grace_send_concubine_timer
+				}
+			}
+		}
+		china_gift_cd = {
+			frame = 1
+			trigger = {
+				hidden_tooltip = {
+					has_character_modifier = chinese_grace_send_gift_timer
+				}
+			}
+		}
+	}
+	
+	monthly_currency_gain = {
+		offmap_same_dynasty = {
+			value = 10
+			offmap_china = { offmap_ruler = { dynasty = FROM } }
+		}
+		offmap_war_with_me = {
+			value = -10
+			war_with = FROM
+		}
+		offmap_likes_me = {
+			value = 1
+			FROM = { is_liked_by_China_trigger = yes }
+			is_within_diplo_range = FROM
+		}
+		offmap_likes_tributaries = {
+			value = 2
+			offmap_china = {			
+				offmap_has_like = likes_tributaries
+			}
+			FROM = {
+				is_tributary = {
+					type = offmap
+				}
+			}
+		}
+		vassal_of_WP = {
+			value = 2
+			FROM = {
+				liege = {
+					has_landed_title = e_china_west_governor
+				}
+			}
+		}
+		offmap_same_culture_and_religion = {
+			value = 2
+			offmap_ruler = {
+				culture = FROM
+				religion = FROM
+			}
+			is_within_diplo_range = FROM
+		}
+	}
+	
+	temple_names = {
+		{}
+		{}
+	}
+	holder_succession = {
+		is_female = {					# chances of getting a female holder, as a percentage: if the total is >= 100, the new holder will always be female. If the total is <= 0, the new holder will always be male
+			value = 5
+			additive_modifier = {
+				value = 45
+				has_game_rule = {
+					name = gender
+					value = all
+				}
+			}
+		}
+		culture = {
+			brazilian = { # default culture for new emperor
+				value = 99 # if any other value reaches 100, it will be picked instead
+			}
+			FROM = { # default culture for new emperor
+								# the left side here (and for culture, religion, graphical_culture and dynasty) can be a right hand side value (FROM, ROOT, a culture name, etc). and the right hand side / inside the brackets is a standard MTTH evaluation. Only the one with the highest weight will be used. If there's a tie, one of the tied values is picked at random
+				value = 0
+				additive_modifier = { #the new emperor will keep current culture if things are great
+					value = 100
+					#china_is_fine_trigger = yes
+					FROM = { culture_scope = { always = yes } } # Essentially a check that the previous emperor actually exists
+				}
+			}
+		}
+
+		graphical_culture = { #oh boy here we go!
+			mediterranean = {
+				value = 75
+			}
+			brown = {
+				value = 10
+			}
+			black = {
+				value = 10
+			}
+			chinese = {
+				value = 5
+			}
+		}
+
+		religion = {
+			apostolic = { # default religion for new emperor
+				value = 99 # if any other value reaches 100, it will be picked instead (unless equal, then it will randomize)
+			}
+			FROM = {
+				value = 0
+				additive_modifier = { # the new emperor will keep current religion if things are great
+					value = 100
+					#china_is_fine_trigger = yes
+					FROM = { religion_scope = { always = yes } } # Essentially a check that the previous emperor actually exists
+				}
+			}
+		}
+
+		dynasty = {
+			FROM = { #default dynasty for new emperor
+				value = 99 #might drop from modifiers -- highest value will be picked instead (unless equal, then it will randomize)
+			}
+			actually_culture = {
+				value = 0
+				additive_modifier = {
+					value = 100
+					NOT = { FROM = { character = yes } }
+				}
+				additive_modifier = { #Fix for simulating Chinese history on old save boot-up
+					value = 100
+					random < 12
+					has_game_started = no
+				}
+			}
+		}
+		
+		likes = {
+			likes_nuns = {
+				value = 300
+				modifier = {
+					factor = 0.1
+					FROMFROM = { is_female = yes }
+				}
+			}
+			likes_monks = {
+				value = 300
+			}
+			likes_wealth = {
+				value = 300
+			}
+			likes_tributaries = {
+				value = 100
+			}
+			likes_venezolano = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = venezolano
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_caribbanglo = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = caribbanglo
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_antillais = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							OR = {
+								culture_group = antillais
+								culture = creole
+							}
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_caribeno = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = caribeno
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_antiliaanse = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = antiliaanse
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_colombiano = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = colombiano
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_centrolatino = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = centrolatino
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_indigenous = { #South American
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							OR = {
+								culture_group = andean
+								culture_group = arawak
+							}
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_amerodeutsch = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_amerodeutsch = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_mexicano = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_mexicano = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_southern = { #Southern US, includes Cajun
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_southern = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_yank = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_yank = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_afroanglo = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_afroanglo = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_native_americans = { #ALL Native American culture groups
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_native_americans = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_canadians = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_canadians = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_californian = { #both Californian and North Pacific
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_californian = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_cowboys = { #West Anglo and Rockland
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_cowboys = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_offmap = { #all offmap cultures that aren't Portuguese
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_offmap = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			likes_mesoamericans = { #lol this will stay the same, gottem
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_mesoamericans = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+			}
+			
+			likes_pirate = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = pirate
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion_group = pirate }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = apostolic }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_christians = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = christian
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = {
+						religion_group = christian
+					}
+				}
+				modifier = {
+					factor = 1.5
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_mormons = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = latter_day_saints
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = {
+						religion_group = latter_day_saints
+					}
+				}
+				modifier = {
+					factor = 1.5
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_jews = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = jewish_group
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { likes_jews = yes }
+				}
+			}
+			
+			likes_gracia_divina = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = 
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = gracia_divina }
+				}
+				modifier = {
+					factor = 1.5
+					FROMFROM = { religion = apostolic }
+				}
+				modifier = {
+					factor = 0.25
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_sacred_heart = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = sacred_heart
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = sacred_heart }
+				}
+				modifier = {
+					factor = 1.5
+					FROMFROM = { religion = apostolic }
+				}
+				modifier = {
+					factor = 0.25
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_rastafarian = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = rastafarian
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = rastafarian }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_voodoo = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = voodoo
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = voodoo }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_santeria = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = santeria
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = santeria }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_candomble = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = candomble
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = {
+						religion = candomble
+					}
+				}
+				modifier = {
+					factor = 1.5
+					FROMFROM = { religion = apostolic }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_espiritista = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_espiritista = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { likes_espiritista = yes }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_hindus = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = hindu
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = hindu }
+				}
+				modifier = {
+					factor = 3
+					FROMFROM = { religion = cetic } #probably not even worth including
+				}
+			}
+			
+			likes_mesoamerican_gods = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_mesoamerican_gods = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { likes_mesoamerican_gods = yes }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			
+			likes_oldworld = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_oldworld = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { likes_oldworld = yes }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = charismatic }
+				}
+			}
+		}
+		
+		dislikes = {
+			likes_nuns = {
+				value = 100
+				#modifier = {
+				#	factor = 5.0
+				#	FROMFROM = { is_female = yes }
+				#}
+			}
+			likes_monks = {
+				value = 100
+			}
+			likes_tributaries = {
+				value = 100
+			}
+			likes_wealth = {
+				value = 100
+			}
+			likes_venezolano = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = venezolano
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						culture_group = venezolano
+					}
+				}
+			}
+			likes_caribbanglo = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = caribbanglo
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						culture_group = caribbanglo
+					}
+				}
+			}
+			likes_antillais = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							OR = {
+								culture_group = antillais
+								culture = creole
+							}
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						OR = {
+							culture_group = antillais
+							culture = creole
+						}
+					}
+				}
+			}
+			likes_caribeno = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = caribeno
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						culture_group = caribeno
+					}
+				}
+			}
+			likes_antiliaanse = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = antiliaanse
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						culture_group = antiliaanse
+					}
+				}
+			}
+			likes_colombiano = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = colombiano
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						culture_group = colombiano
+					}
+				}
+			}
+			likes_centrolatino = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							culture_group = centrolatino
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						culture_group = centrolatino
+					}
+				}
+			}
+			likes_indigenous = { #South American
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							OR = {
+								culture_group = andean
+								culture_group = arawak
+							}
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						OR = {
+							culture_group = andean
+							culture_group = arawak
+						}
+					}
+				}
+			}
+			likes_amerodeutsch = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_amerodeutsch = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_amerodeutsch = yes
+					}
+				}
+			}
+			likes_mexicano = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_mexicano = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_mexicano = yes
+					}
+				}
+			}
+			likes_southern = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_southern = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_southern = yes
+					}
+				}
+			}
+			likes_yank = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_yank = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_yank = yes
+					}
+				}
+			}
+			likes_afroanglo = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_afroanglo = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_afroanglo = yes
+					}
+				}
+			}
+			likes_native_americans = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_native_americans = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_native_americans = yes
+					}
+				}
+			}
+			likes_canadians = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_canadians = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_canadians = yes
+					}
+				}
+			}
+			likes_californian = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_californian = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_californian = yes
+					}
+				}
+			}
+			likes_cowboys = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_cowboys = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_cowboys = yes
+					}
+				}
+			}
+			likes_offmap = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_offmap = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_offmap = yes
+					}
+				}
+			}
+			likes_mesoamericans = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_mesoamericans = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						likes_mesoamericans = yes
+					}
+				}
+			}
+			likes_pirate = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = pirate
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion_group = pirate }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_christians = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = christian
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						religion_group = christian
+					}
+				}
+			}
+			likes_mormons = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = latter_day_saints
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = {
+						religion_group = latter_day_saints
+					}
+				}
+			}
+			likes_jews = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = jewish_group
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion_group = jewish_group }
+				}
+			}
+			likes_cult_of_saints = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion_group = cult_of_saints
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion_group = cult_of_saints }
+				}
+				modifier = {
+					factor = 0.75
+					FROMFROM = { religion = apostolic }
+				}
+				modifier = {
+					factor = 1.25
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_rastafarian = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = rastafarian
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = rastafarian }
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_voodoo = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = voodoo
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = voodoo }
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_candomble = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = candomble
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = apostolic }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_santeria = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = santeria
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = santeria }
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_espiritista = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_espiritista = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { likes_espiritista = yes }
+				}
+				modifier = {
+					factor = 0.5
+					FROMFROM = { religion = candomble }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_hindus = {
+				value = 100
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							religion = hindu
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = hindu }
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { religion = cetic }
+				}
+			}
+			likes_mesoamerican_gods = {
+				value = 5
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_mesoamerican_gods = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { likes_mesoamerican_gods = yes }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+			likes_oldworld = {
+				value = 10
+				modifier = {
+					factor = 0
+					NOT = {
+						any_province = {
+							likes_oldworld = yes
+							is_within_diplo_range = offmap_china
+						}
+					}
+				}
+				modifier = {
+					factor = 0
+					FROMFROM = { likes_oldworld = yes }
+				}
+				modifier = {
+					factor = 2
+					FROMFROM = { religion = charismatic }
+				}
+			}
+		}
+	}
+	
+	diplomatic_range = { #Already includes the western governor's "normal" diplo range
+		OR = {
+			has_game_rule = {
+				name = chinese_interactions
+				value = all
+			}
+			top_liege = {
+				suzerain = {
+					has_landed_title = e_china_west_governor
+				}
+			}
+			any_neighbor_independent_ruler = {
+				OR = {
+					has_landed_title = e_china_west_governor
+					suzerain = {
+						has_landed_title = e_china_west_governor
+					}
+				}
+			}
+			any_realm_province = { #Is within reach of the Coffee Current
+				OR = {
+					trade_route = coffee_current
+					region = world_south_america
+					region = custom_central_america
+					region = world_caribbean
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,3041 @@
+### Event chain for Brazilian journey ###
+
+namespace = plscometobr
+
+character_event = { #The Journey Begins
+	id = plscometobr.1
+	desc = EVTDESC_plscometobr_1
+	has_dlc = "Jade Dragon" #I mean, yeah
+	
+	title = EVTTITLE_plscometobr_1
+	
+	picture = GFX_br_placeholder
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_plscometobr_1
+		add_trait = kow_tow_travels
+		
+		hidden_tooltip = {
+			character_event = { id = plscometobr.2 }
+		}
+	}
+}
+
+character_event = { #Determine whether journey will be overland or overseas
+	id = plscometobr.2
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		capital_scope = {
+			if = { #Coastal
+				limit = {
+					port = yes
+				}
+				set_character_flag = overseas_leg #Will remain on this leg of the journey for the entire trip
+				character_event = { id = plscometobr.3 } #Notification event telling player that trip will be overseas
+			}
+			if = { #Overland
+				limit = {
+					port = no
+				}
+				set_character_flag = boa_vista_leg #Split into 3 legs - to Boa Vista, then to Amazon, then overseas as final leg.
+				character_event = { id = plscometobr.4 } #Notification event telling player that trip will be overseas
+			}
+		}
+	}
+}
+
+character_event = { #Sea Route notification event
+	id = plscometobr.3
+	desc = EVTDESC_plscometobr_3
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_plscometobr_3
+	
+	picture = GFX_br_placeholder
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	trigger = {
+		has_character_flag = overseas_leg
+	}
+	
+	immediate = { #Event Tombola
+		# Take distance into account for delay
+		# 672 = Boa Vista on the Southern border (treated as if it is Rio for this event in particular)
+		capital_scope = {
+			if = { # Near Rio
+				limit = {
+					distance = {
+						where = 672 
+						value < 500
+					}
+				}
+				ROOT = {
+					set_variable = {
+						which = overseas_travel_events
+						value = 1
+					}
+				}
+			}
+			else_if = { # Still on the southern side of the map
+				limit = {
+					distance = {
+						where = 672 
+						value < 900
+					}
+				}
+				ROOT = {
+					set_variable = {
+						which = overseas_travel_events
+						value = 2
+					}
+				}
+			}
+			else_if = { # Approaching Central America
+				limit = {
+					distance = {
+						where = 672
+						value < 1500
+					}
+				}
+				ROOT = {
+					set_variable = {
+						which = overseas_travel_events
+						value = 3
+					}
+				}
+			}
+			else = { # In or around Central America and beyond
+				ROOT = {
+					set_variable = {
+						which = overseas_travel_events
+						value = 4
+					}
+				}
+			}
+		}
+	}	
+
+	option = {
+		name = EVTOPTA_plscometobr_3
+		hidden_tooltip = {
+			character_event = {
+				id = plscometobr. # random overseas travel event tombola
+				days = 110
+				random = 30
+			}
+		}
+	}
+}
+
+character_event = { #Land Route notification event
+	id = plscometobr.4
+	desc = EVTDESC_plscometobr_4
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_plscometobr_4
+	
+	picture = GFX_br_placeholder
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	trigger = {
+		has_character_flag = boa_vista_leg
+	}
+	
+	immediate = {
+		# Take distance into account for delay
+		# 672 = Boa Vista on the Southern border
+		capital_scope = {
+			if = { # Near the southern edge
+				limit = {
+					distance = {
+						where = 672
+						value < 500
+					}
+				}
+				ROOT = {
+					set_variable = {
+						which = boa_vista_travel_events
+						value = 1
+					}
+				}
+			}
+			else_if = { # Still on the southern side of the map
+				limit = {
+					distance = {
+						where = 672
+						value < 900
+					}
+				}
+				ROOT = {
+					set_variable = {
+						which = boa_vista_travel_events
+						value = 2
+					}
+				}
+			}
+			else = { # Anywhere else
+				ROOT = {
+					set_variable = {
+						which = boa_vista_travel_events
+						value = 3
+					}
+				}
+			}
+		}
+	}	
+
+	option = {
+		name = EVTOPTA_plscometobr_4
+		hidden_tooltip = {
+			character_event = {
+				id = plscometobr.5 # random boa vista travel event tombola
+				days = 110
+				random = 30
+			}
+		}
+	}
+}
+
+character_event = { #Boa Vista leg event tombola
+	id = plscometobr.5
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+	}
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				NOT = {
+					check_variable = {
+						which = boa_vista_travel_events
+						value = 1
+					}
+				}
+			} 
+			### No more travel events - Move on to the Amazonian leg
+			character_event = { id = plscometobr.16 days = 50 random = 30 }
+			break = yes
+		}
+		
+		# Fire a random travel event 
+		random_list = {
+			50 = { # Unusually heavy rain, think of late parents.
+				trigger = {
+					NOT = { has_character_flag = brazil_heavy_rain }
+					OR = {
+						father_even_if_dead = {
+							NOT = { is_alive = yes }
+							death_in_china_trigger = no
+						}
+						mother_even_if_dead = {
+							NOT = { is_alive = yes }
+							death_in_china_trigger = no
+						}
+						any_sibling_even_if_dead = {
+							NOT = { is_alive = yes }
+							death_in_china_trigger = no
+						}
+					}
+				}
+				character_event = {
+					id = plscometobr.6
+				}
+				break = yes
+			}
+			50 = { # Heavy Rain forces you to stop journey, find a way to spend time
+				trigger = {
+					has_character_flag = brazil_heavy_rain
+				}
+				character_event = {
+					id = plscometobr.7
+				}
+				break = yes
+			}
+			25 = { # Heavy Rain gives you pneumonia
+				trigger = {
+					has_character_flag = brazil_heavy_rain
+					NOT = { has_trait = pneumonic }
+				}
+				character_event = {
+					id = plscometobr.8
+				}
+				break = yes
+			}
+			25 = { #Good weather raises spirits
+				trigger = {
+					NOT = { has_character_flag = brazil_heavy_rain }
+				}
+				character_event = {
+					id = plscometobr.9
+				}
+				break = yes
+			}	
+			50 = {
+				character_event = { id = plscometobr.10 }  # Meet traveling merchant
+				trigger = {
+					NOT = { has_character_flag = met_traveling_merchant }
+					NOT = {
+						any_artifact = {
+							count = 15
+							has_artifact_flag = brazilian
+						}
+					}
+				}
+				break = yes
+			}
+			50 = { # Messenger invites you to the Lords keep, travel time > 1
+				trigger = {
+					NOT = { has_character_flag = brazil_travel_invited_by_local_lord }
+					OR = {
+						AND = {
+							NOT = {
+								check_variable = {
+									which = boa_vista_travel_events
+									value = 2
+								}
+							}
+							capital_scope = {
+								distance = {
+									where = 672
+									value >= 900
+								}
+							}
+						}
+						AND = {
+							NOT = {
+								check_variable = {
+									which = boa_vista_travel_events
+									value = 3
+								}
+							}
+							capital_scope = {
+								distance = {
+									where = 672
+									value >= 1500
+								}
+							}
+						}
+					}
+					any_playable_ruler = {
+						ai = yes
+						OR = {
+							tier = COUNT
+							tier = DUKE
+						}
+						capital_scope = {
+							region = custom_southern_access
+						}
+						NOT = {
+							num_of_friends = 3
+						}
+						NOT = { block_general_event_trigger = yes }
+					}
+				}
+				character_event = {
+					id = plscometobr.11
+				}
+				break = yes
+			}
+			50 = { # Encounter starving beggar ( not an option if there is heavy rain )
+				trigger = {
+					NOT = { has_character_flag = brazil_heavy_rain }
+				}
+				character_event = {
+					id = plscometobr.15
+				}
+				break = yes
+			}
+		}
+	}
+	
+	### No more possible travel events - Continue to Boa Vista anyway with extra delay
+	character_event = { id = plscometobr.16 days = 150 random = 60 }
+}
+
+character_event = {  # Unusually heavy rain, think of late parents.
+	id = plscometobr.6
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+	
+	desc = EVTDESC_plscometobr_6
+	picture = GFX_evt_carriage_default
+    border = GFX_event_normal_frame_diplomacy
+
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+	}
+	
+	hide_from = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		hidden_effect = {
+			set_character_flag = brazil_heavy_rain
+			random_list = {
+				50 = {
+					trigger = {
+						father_even_if_dead = {
+							NOT = { is_alive = yes }
+							death_in_china_trigger = no
+						}
+					}
+					father_even_if_dead = {
+						save_event_target_as = target_relative
+					}
+				}
+				50 = {
+					trigger = {
+						mother_even_if_dead = {
+							NOT = { is_alive = yes }
+							death_in_china_trigger = no
+						}
+					}
+					mother_even_if_dead = {
+						save_event_target_as = target_relative
+					}
+				}
+				50 = {
+					trigger = {
+						any_sibling_even_if_dead = {
+							NOT = { is_alive = yes }
+							death_in_china_trigger = no
+						}
+					}
+					random_sibling_even_if_dead = {
+						limit = {
+							NOT = { is_alive = yes }
+							death_in_china_trigger = no
+						}
+						save_event_target_as = target_relative
+					}
+				}
+			}
+		}
+	}
+	
+	option = {
+		# <Name> was such a X person
+		name = {
+			text = EVTOPTA_JD_32100_young
+			trigger = {
+				event_target:target_relative = {	
+					NOT = { is_adult = yes }
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_pious
+			trigger = {
+				event_target:target_relative = {
+					is_pious_trigger = yes
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_genius
+			trigger = {
+				event_target:target_relative = {
+					trait = genius
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_mystic
+			trigger = {
+				event_target:target_relative = {
+					trait = mystic
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_brave
+			trigger = {
+				event_target:target_relative = {
+					OR = {
+						trait = brave
+						AND = {
+							NOT = { trait = craven }
+							OR = {
+								trait = holy_warrior
+								trait = unyielding_leader
+								trait = inspiring_leader
+								trait = experimenter
+							}
+						}
+					}
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_charming
+			trigger = {
+				event_target:target_relative = {
+					is_attractive_trigger = yes
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_just
+			trigger = {
+				event_target:target_relative = {
+					trait = just
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_kind
+			trigger = {
+				event_target:target_relative = {
+					has_benevolent_trait_trigger = yes
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_cruel
+			trigger = {
+				event_target:target_relative = {
+					OR = {
+						trait = cruel
+						trait = impaler
+						trait = greedy
+						trait = wroth
+						trait = deceitful
+						trait = lunatic
+						trait = possessed
+					}
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_learned
+			trigger = {
+				event_target:target_relative = {
+					is_learned_trigger = yes
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_JD_32100_good ### Fallback
+			trigger = {
+				always = yes
+			}
+		}
+		event_target:target_relative = {
+			show_portrait = yes
+		}
+		#show_portrait = event_target:target_relative
+		###
+		custom_tooltip = {
+			text = EVTTOOLTIPA_JD_32100
+		}
+		add_character_modifier = {
+			name = honoring_the_dead
+			years = 5
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_JD_32100 # I need to focus on the journey
+		
+		add_character_modifier = {
+			name = carrying_on
+			years = 2
+		}
+	}
+	
+	after = {
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+}
+
+character_event = {  # Unusually heavy rain stops travel (WIP)
+	id = plscometobr.7
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+	
+	desc = EVTDESC_plscometobr_7
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+		has_character_flag = brazil_heavy_rain
+	}
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_plscometobr_7 # Playing cards
+		clr_character_flag = brazil_heavy_rain
+	}
+	option = {
+		name = EVTOPTB_plscometobr_7 # Tell stories
+		clr_character_flag = brazil_heavy_rain
+	}
+	option = {
+		name = EVTOPTC_plscometobr_7 # Read a book
+		clr_character_flag = brazil_heavy_rain
+	}
+	option = {
+		name = EVTOPTD_plscometobr_7 # Help to get journey going again
+		clr_character_flag = brazil_heavy_rain
+	}
+	
+	after = {
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+}
+
+character_event = {  # Unusually heavy rain gives you pneumonia (WIP)
+	id = plscometobr.8
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+	
+	desc = EVTDESC_plscometobr_8
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+		has_character_flag = brazil_heavy_rain
+	}
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_plscometobr_8 # You get pneumonia
+		trigger = {
+			NOR = {
+				trait = strong
+				trait = robust
+			}
+		}
+		clr_character_flag = brazil_heavy_rain
+		give_pneumonic_effect = yes
+	}
+	
+	option = {
+		name = EVTOPTB_plscometobr_8 # Too strong to get sick
+		trigger = {
+			OR = {
+				trait = strong
+				trait = robust
+			}
+		}
+		clr_character_flag = brazil_heavy_rain
+	}
+	
+	after = {
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+}
+
+character_event = {  # Good weather raises spirits (WIP)
+	id = plscometobr.9
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+	
+	desc = EVTDESC_plscometobr_9
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+		NOT = { has_character_flag = brazil_heavy_rain }
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_9 # Spirits raised
+	}
+	
+	after = {
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+}
+
+character_event = { #Encounter a merchant..!
+    id = plscometobr.10
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+    desc = EVTDESC_plscometobr_10
+    picture = GFX_br_placeholder
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+   	portrait = event_target:brazilian_trader
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+	}
+    
+    immediate = {
+    	set_character_flag = met_traveling_merchant
+		hidden_effect = {
+	    	offmap_china = {
+				governor = {
+					create_random_intriguer  = {
+						age = 25
+						random_traits = yes
+						female = 50
+						dynasty = none
+						attributes = {
+							intrigue = 4
+						}
+					}
+					new_character = {
+						upgrade_education_effect = yes
+						save_event_target_as = brazilian_trader
+	    				add_chinese_artifact_effect = yes
+					}
+				}
+			}
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_plscometobr_10 #I'd love to take it off your hands!
+        custom_tooltip = { text = EVTOPTA_plscometobr_10_TT }
+
+		scaled_wealth = { value = -0.4 min = -150 }
+
+        hidden_effect = {
+	        event_target:brazilian_trader = {
+	        	event_target:brazilian_artifact = {
+		        	transfer_artifact = {
+						from = PREV
+						to = PREVPREV
+					}
+	        	}
+	        	death = { death_reason =  death_missing }
+	        }
+        }
+    }
+    option = { #I could use a smooth-talker like you...
+        name = EVTOPTB_plscometobr_10
+        custom_tooltip = { text = EVTOPTB_plscometobr_10_TT }
+        hidden_effect = {
+	        event_target:brazilian_trader = {
+	        	show_scope_change = no
+	        	move_character = ROOT
+	        }
+        }
+
+        tooltip_info = kind
+        trigger = { trait = kind }
+    }
+    option = {
+        name = EVTOPTC_plscometobr_10 #Guards! Cut this man/woman down.
+        custom_tooltip = { text = EVTOPTC_plscometobr_10_TT } #You steal the artifact.
+
+        event_target:brazilian_trader = {
+        	show_scope_change = no
+        	death = { death_reason = death_murder }
+        }
+        custom_tooltip = { text = EVTOPTA_plscometobr_10_TT } #it's transfered to you.
+		hidden_effect = { #Steal the artifact
+	        event_target:brazilian_trader = {
+	        	event_target:brazilian_artifact = {
+		        	transfer_artifact = {
+						from = PREV
+						to = PREVPREV
+					}
+	        	}
+	        }
+        }
+
+        tooltip_info = deceitful
+        trigger = { trait = deceitful }
+    }
+    option = {      
+        name = EVTOPTD_plscometobr_10 #I have no use of whatever that is.
+        custom_tooltip = { text = EVTOPTD_plscometobr_10_TT }
+        hidden_effect = {
+	        event_target:brazilian_trader = { #removes the trader from the game, along with their artifact (if you didn't trade)...
+	        	any_artifact = { destroy_artifact = yes }
+	        	death = { death_reason =  death_missing }
+	        }
+        }
+    }
+    after = {
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+}
+
+character_event = { # Messenger invites you to the Lords keep, travel time > 2
+	id = plscometobr.11
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+	
+	desc = EVTDESC_plscometobr_11
+	picture = GFX_evt_courier
+    border = GFX_event_normal_frame_diplomacy
+
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+	}
+	
+	is_triggered_only = yes
+	
+	portrait = event_target:target_host
+	
+	immediate = {
+		set_character_flag = kow_tow_invited_by_local_lord
+		random_playable_ruler = {
+			limit = {
+				ai = yes
+				OR = {
+					tier = COUNT
+					tier = DUKE
+				}
+				capital_scope = {
+					region = custom_southern_access
+				}
+				NOT = {
+					num_of_friends = 3
+				}
+				NOT = { block_general_event_trigger = yes }
+			}
+			save_event_target_as = target_host
+		}
+		
+		# Bias towards rivals
+		random_playable_ruler = {
+			limit = {
+				ai = yes
+				OR = {
+					tier = COUNT
+					tier = DUKE
+				}
+				capital_scope = {
+					region = custom_southern_access
+				}
+				NOT = { block_general_event_trigger = yes }
+				is_rival = ROOT
+			}
+			save_event_target_as = target_host
+		}
+	}
+	
+	option = { # An opportunity to get even
+		name = EVTOPTA_plscometobr_11
+		tooltip_info = schemer
+		
+		trigger = {
+			trait = schemer
+			event_target:target_host = {
+				is_rival = ROOT
+			}
+		}
+		custom_tooltip = {
+			text = EVTTTOOLTIPA_plscomtobr_11
+		}
+		
+		character_event = {
+			id = plscometobr.14
+			days = 7
+			random = 4
+		}
+	}
+	
+	option = { # I'll accept the invitation
+		name = {
+			text = EVTOPTB_plscometobr_11
+			trigger = {
+				NOT = {
+					event_target:target_host = {
+						is_rival = ROOT
+					}
+				}
+			}
+		}
+		name = {
+			text = EVTOPTB_plscometobr_11_RIVAL
+			trigger = {
+				event_target:target_host = {
+					is_rival = ROOT
+				}
+			}
+		}
+		
+		custom_tooltip = {
+			text = EVTTTOOLTIPB_plscometobr_11
+		}
+		character_event = {
+			id = plscometobr.12
+			days = 7
+			random = 4
+		}
+	}
+	
+	option = { # My tent does fine
+		name = EVTOPTC_plscometobr_11
+		
+		random_list = {
+			25 = {
+				add_trait = content
+			}
+			25 = {
+				add_trait = shy
+			}
+			50 = {
+				# Nothing happens
+			}
+		}
+		
+		hidden_effect = { # End of path
+			return_to_travel_boa_vista_leg_effect = yes
+		}
+	}
+}
+
+character_event = { #Follow up from accepting the invitation
+	id = plscometobr.12
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_JD_KOWTOW
+	
+	desc = { # Normal outcome
+		text = EVTDESCA_plscometobr_12
+		trigger = {
+			NOR = {
+				has_character_flag = possible_friendship
+				has_character_flag = possible_murder
+			}
+		}
+	}
+	desc = { # Friendship outcome
+		text = EVTDESCB_plscometobr_12
+		trigger = {
+			has_character_flag = possible_friendship
+		}
+	}
+	desc = { # Murder attempt outcome
+		text = EVTDESCC_plscometobr_12
+		trigger = {
+			has_character_flag = possible_murder
+		}
+	}
+	picture = GFX_evt_feast
+    border = GFX_event_normal_frame_diplomacy
+	
+	portrait = event_target:target_host
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	immediate = {
+		hidden_effect = {
+			random_list = {
+				50 = { # Friendship outcome
+					trigger = {
+						NOT = {
+							event_target:target_host = {
+								OR = {
+									is_rival = ROOT
+									is_friend = ROOT
+								}
+							}
+						}
+					}
+					set_character_flag = possible_friendship
+				}
+				25 = { # Murder attempt outcome
+					trigger = {
+						event_target:target_host = {
+							is_rival = ROOT
+						}						
+					}
+					modifier = {
+						factor = 8
+						event_target:target_host = {
+							trait = deceitful
+						}
+					}
+					set_character_flag = possible_murder
+				}
+				50 = {} # Normal outcome
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_12 # Normal outcome
+		
+		trigger = {
+			NOR = {
+				has_character_flag = possible_friendship
+				has_character_flag = possible_murder
+			}
+		}
+		
+		add_character_modifier = {
+			modifier = good_nights_sleep
+			months = 12
+		}
+		if = {
+			limit = {
+				is_rival = event_target:target_host
+			}
+			remove_rival = event_target:target_host
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_plscometobr_12 # Friendship outcome
+		
+		trigger = {
+			has_character_flag = possible_friendship
+		}
+		
+		add_character_modifier = {
+			modifier = good_nights_sleep
+			months = 5
+		}
+		add_friend = event_target:target_host
+	}
+	
+	option = {
+		name = EVTOPTC_plscometobr_12 # Friendship deny
+		
+		trigger = {
+			has_character_flag = possible_friendship
+		}
+		
+		add_character_modifier = {
+			modifier = good_nights_sleep
+			months = 5
+		}
+	}
+	
+	option = {
+		name = EVTOPTD_plscometobr_12
+		
+		trigger = {
+			has_character_flag = possible_murder
+		}
+		
+		random_list = {
+			50 = {
+				death = {
+					death_reason = death_murder_poison
+					killer = event_target:target_host
+				}
+			}
+			50 = {
+				custom_tooltip = {
+					text = EVTTOOLTIPD_plscometobr_12
+				}
+				character_event = { id = plscometobr.13 }
+			}
+		}
+	}
+	
+	after = {
+		clr_character_flag = possible_murder
+		clr_character_flag = possible_friendship
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+}
+
+character_event = { #Follow up from option D
+	id = plscometobr.13
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+	
+	desc = EVTDESC_plscometobr_13
+	picture = GFX_evt_drunk
+    border = GFX_event_normal_frame_diplomacy
+	
+	portrait = event_target:target_host
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_13
+		if = {
+			limit = {
+				has_dlc = "Reapers"
+			}
+			give_food_poisoning_effect = yes
+			custom_tooltip = { text = EVTTTOOLTIPA_JD_32112 }
+		}
+		else = {
+			add_character_modifier = {
+				modifier = poisoned
+				months = 6
+			}
+		}
+	}
+}
+
+narrative_event = { #Follow up from option A
+	id = plscometobr.14
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_plscometobr_14
+	desc = {
+		text = EVTDESCA_plscometobr_14
+		trigger = {
+			has_character_flag = successful_murder
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_14
+		trigger = {
+			has_character_flag = successful_murder_but_caught
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_14
+		trigger = {
+			NOR = { 
+				has_character_flag = successful_murder
+				has_character_flag = successful_murder_but_caught
+			}
+		}
+	}
+	#picture = GFX_evt_feast
+    border = GFX_event_narrative_frame_intrigue
+	
+	portrait = event_target:target_host
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			15 = { # Target dies while you slip away in the shadows
+				modifier = {
+					factor = 3
+					intrigue = 18
+				}
+				modifier = {
+					factor = 2
+					trait = elusive_shadow
+				}
+				
+				set_character_flag = successful_murder
+			}
+			30 = { # Target dies, guards kill you
+				set_character_flag = successful_murder_but_caught
+			}
+			30 = { # Target survives, guards kill you
+				modifier = {
+					factor = 0.6
+					intrigue = 16
+				}
+				modifier = {
+					factor = 0.5
+					event_target:target_host = {
+						trait = trusting
+					}
+				}
+				modifier = {
+					factor = 3
+					event_target:target_host = {
+						intrigue = 14
+					}
+				}
+				modifier = {
+					factor = 1.5
+					event_target:target_host = {
+						trait = paranoid
+					}
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_14
+		trigger = {
+			has_character_flag = successful_murder
+		}
+		event_target:target_host = {
+			death = {
+				death_reason = death_murder_poison
+				killer = ROOT
+			}
+		}
+		change_intrigue = 1
+		
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+	option = {
+		name = EVTOPTB_plscometobr_14
+		trigger = {
+			has_character_flag = successful_murder_but_caught
+		}
+		
+		event_target:target_host = {
+			death = {
+				death_reason = death_murder_poison
+				killer = ROOT
+			}
+		}
+		death = {
+			death_reason = death_murder
+			killer = event_target:target_host
+		}
+	}
+	option = {
+		name = EVTOPTC_plscometobr_14
+		trigger = {
+			NOR = {
+				has_character_flag = successful_murder
+				has_character_flag = successful_murder_but_caught
+			}
+		}
+		
+		death = {
+			death_reason = death_murder
+			killer = event_target:target_host
+		}
+	}
+	
+	after = {
+		clr_character_flag = successful_murder
+		clr_character_flag = successful_murder_but_caught
+	}
+}
+
+character_event = { #Starving beggar (WIP)
+	id = plscometobr.15
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
+	
+	desc = EVTDESC_plscometobr_15
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+		NOT = { has_character_flag = brazil_heavy_rain }
+	}
+	
+	hide_from = yes
+	
+	is_triggered_only = yes
+
+	option = { #Give beggar some of your gold
+		name = EVTOPTA_plscometobr_15
+		trigger = {
+			NOR = {
+				trait = greedy
+				trait = cruel
+			}
+		}
+	}
+	
+	option = { #Refuse beggar
+		name = EVTOPTA_plscometobr_15
+		trigger = {
+			NOR = {
+				trait = charitable
+				trait = kind
+			}
+		}
+	}
+	
+	option = { #Give beggar more gold 
+		name = EVTOPTB_plscometobr_15
+		tooltip_info = charitable
+		trigger = {
+			trait = charitable
+		}
+	}
+	
+	option = { #Take beggar into your entourage
+		name = EVTOPTB_plscometobr_15
+		trigger = {
+			NOR = {
+				trait = paranoid
+				trait = cruel
+			}
+		}
+	}
+	
+	after = {
+		return_to_travel_boa_vista_leg_effect = yes
+	}
+}
+
+character_event = { #Arrival at Boa Vista, start of Amazon leg
+	id = plscometobr.16
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BOA_VISTA_ARRIVAL
+	
+	desc = EVTDESC_plscometobr_16
+	picture = GFX_br_placeholder #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = boa_vista_leg
+	}
+	
+	immediate = {
+		clr_character_flag = boa_vista_leg
+		set_character_flag = amazon_leg
+		
+		random_list = {
+			75 = {
+				set_variable = {
+					which = amazon_travel_events
+					value = 2
+				}
+			}
+			25 = {
+				set_variable = {
+					which = amazon_travel_events
+					value = 3
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_16
+		hidden_tooltip = {
+				character_event = {
+				id = plscometobr.17 # random amazon travel event tombola
+				days = 70
+				random = 15
+			}
+		}
+	}
+}
+
+character_event = { #Amazon leg event tombola
+	id = plscometobr.17
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				NOT = {
+					check_variable = {
+						which = amazon_travel_events
+						value = 1
+					}
+				}
+			} 
+			### No more travel events - Move on to the overseas leg
+			character_event = { id = plscometobr.42 days = 50 random = 30 }
+			break = yes
+		}
+		
+		# Fire a random travel event 
+		random_list = {
+			50 = {
+				character_event = { id = plscometobr.18 }  # Mercenary encounter (1/3). Hiring mercenaries will dramatically impact the rest of the journey.
+				trigger = {
+					NOT = { has_character_flag = met_mercenaries }
+					 any_independent_ruler = {
+		                ai = yes
+		                mercenary = yes
+		                OR = {
+		                	culture = brazilian
+							#Add option for Baiano mercenary if Brazil is ruled by Baianos
+		                	AND = {
+		                		offmap_china = { has_status = china_jurchen_invasion }
+		                		culture = gaucho
+		                	}
+		                	AND = {
+		                		offmap_china = { has_status = china_mongol_invasion }
+		                		culture = amazonense
+		                	}
+		                }
+						primary_title = {
+							NOT = { has_raised_standing_troops = yes }
+						}
+		            }
+				}
+				break = yes
+			}
+			50 = { # Encounter with a jaguar (Apocalypse Now reference)
+				trigger = {
+					NOT = { has_character_flag = met_jaguar }
+					has_injury_trigger = no
+					check_variable = {
+						which = amazon_travel_events
+						value > 1
+					}
+				}
+				character_event = {
+					id = plscometobr.23
+				}
+				break = yes
+			}
+			50 = { # Attacked by hostile natives while sailing (Apocalypse Now reference)
+				trigger = {
+					NOT = { has_character_flag = met_natives }
+					has_injury_trigger = no
+					check_variable = {
+						which = amazon_travel_events
+						value > 1
+					}
+				}
+				character_event = {
+					id = plscometobr.24
+				}
+				break = yes
+			}
+			50 = { # Francophone plantation (Apocalypse Now reference)
+				trigger = {
+					NOT = { has_character_flag = met_cajuns }
+					check_variable = {
+						which = amazon_travel_events
+						value > 1
+					}
+				}
+				character_event = {
+					id = plscometobr.25
+				}
+				break = yes
+			}
+			50 = { # Catch jungle illness
+				trigger = {
+					has_disease_trigger = no
+				}
+				character_event = {
+					id = plscometobr.28
+				}
+				break = yes
+			}
+			50 = { # Find trading station commanded by insane warlord (Heart of Darkness/Apocalypse Now reference, only available towards end of journey)
+				trigger = {
+					NOT = { has_character_flag = met_kurtz }
+					check_variable = { #Can only happen at the end of your journey
+						which = amazon_travel_events
+						value == 1
+					}
+				}
+				character_event = {
+					id = plscometobr.29
+				}
+				break = yes
+			}
+		}
+	}
+	
+	### No more possible travel events - Continue to the coast anyway with extra delay
+	character_event = { id = plscometobr.42 days = 75 random = 30 }
+}
+
+#Kow-Tow traveling event: You encounter Mercenaries (how? Depends on the status of Brazil)
+character_event = {
+    id = plscometobr.18
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+    hide_window = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+
+    immediate = {
+    	set_character_flag = met_mercenaries
+        random_independent_ruler = {
+            limit = {
+                ai = yes
+                #is_adult = yes
+                #is_landed = yes
+                mercenary = yes
+                OR = {
+                	culture = brazilian
+					#Add option for Baiano mercenary if Brazil is ruled by Baianos
+                	AND = {
+                		offmap_china = { has_status = china_jurchen_invasion }
+                		culture = gaucho
+                	}
+                	AND = {
+                		offmap_china = { has_status = china_mongol_invasion }
+                		culture = amazonense
+                	}
+                }
+				primary_title = {
+					NOT = { has_raised_standing_troops = yes }
+				}
+            }
+            save_event_target_as = other_ruler
+        }
+        
+        offmap_china = { #Adjust statuses as necessary
+            trigger_switch = {
+                on_trigger = has_status
+                china_stable = { ROOT = { set_character_flag = china_stable } }
+                china_unrest = { ROOT = { set_character_flag = china_unrest } }
+                china_civil_war = { ROOT = { set_character_flag = china_civil_war } }
+                china_mongol_invasion = { ROOT = { set_character_flag = china_mongol_invasion } }
+                china_jurchen_invasion = { ROOT = { set_character_flag = china_jurchen_invasion } }
+                china_famine = { ROOT = { set_character_flag = china_famine } }
+                china_plague = { ROOT = { set_character_flag = china_plague } }
+                china_golden_age = { ROOT = { set_character_flag = china_golden_age } }
+            }
+        }
+
+        event_target:other_ruler = {
+            character_event = { id = plscometobr.19 }
+        }
+    }
+}
+
+character_event = { #PING EVENT for the Mercenary leader...
+    id = plscometobr.19
+	has_dlc = "Jade Dragon"
+    hide_window = yes
+    is_triggered_only = yes
+
+    immediate = {
+    	FROM = {
+    		random_list = { #Adjust accordingly
+    			10 = {
+    				character_event = { id = plscometobr.20 } #Mercenaries wants root to pay a "bridge fee"...
+    				trigger = {
+						OR = {
+				    		has_character_flag = china_unrest
+				    		has_character_flag = china_civil_war
+				    		has_character_flag = china_mongol_invasion
+				    		has_character_flag = china_jurchen_invasion
+			    		}
+    				}
+    			}
+    			10 = {
+    				character_event = { id = plscometobr.21 } #Mercenaries are here to escort root...
+    				trigger = {
+						OR = {
+				    		has_character_flag = china_stable
+				    		has_character_flag = china_golden_age
+				    		has_character_flag = china_unrest
+			    		}
+    				}
+    			}
+    			10 = {
+    				character_event = { id = plscometobr.22 } #Meet a starving mercenary band...
+    				trigger = {
+						OR = {
+				    		has_character_flag = china_famine
+				    		has_character_flag = china_plague
+			    		}
+    				}
+    			}
+    		}
+    	}
+    }
+}
+
+character_event = { #Mercenaries wants root to pay a "river toll"...
+    id = plscometobr.20
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+    desc = EVTDESC_plscometobr_20
+    picture = GFX_evt_china_diplomatic_success
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+
+    option = { # Pay the fee to the bridge guards...
+    	name = EVTOPTA_plscometobr_20
+
+    	transfer_scaled_wealth = {
+			to = FROM
+			value = 0.25
+			min = 50
+		}
+		
+		prestige = -100
+
+    	custom_tooltip = {
+    		text = EVTOPTA_plscometobr_20_tt
+    	}
+    }
+    option = { # Kill him (IMPALER ONLY)
+    	name = EVTOPTC_plscometobr_20
+    	tooltip_info = impaler
+       	custom_tooltip = {
+    		text = EVTOPTC_plscometobr_20_tt
+    	}
+
+    	FROM = { death = { death_reason = death_murder_butchered killer = FROM } }
+    	trigger = {
+    		trait = impaler
+    	}
+    }
+
+    option = {
+    	name = EVTOPTB_plscometobr_20
+
+    	random_list = {
+    		50 = {
+		    	modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { FROM = { is_weak_trigger = yes } factor = 2 }
+				modifier = { combat_rating_diff = { who = FROM value = 1 } factor = 2 } 
+				modifier = { attribute_diff = { character = FROM attribute = martial value = 3 } factor = 2 }
+
+				#You get away
+				custom_tooltip = { text = you_get_away_tt }
+    		}
+    		10 = {
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+    			hidden_effect = { add_maimed_trait_effect = yes }
+
+    			#You get injured
+    			custom_tooltip = { text = you_dont_get_away_tt }
+    		}
+    		5 = {
+    			modifier = { is_weak_trigger = yes factor = 2 }
+    			hidden_effect = { death = { death_reason = death_duel killer = FROM } }
+
+    			#You are slain in personal combat!
+    			custom_tooltip = { text = you_will_be_killed_in_a_duel_tt }
+    		}
+    	}
+   	}
+
+    after = {
+        clr_character_flag = china_stable
+        clr_character_flag = china_unrest
+        clr_character_flag = china_civil_war
+        clr_character_flag = china_mongol_invasion
+        clr_character_flag = china_jurchen_invasion
+        clr_character_flag = china_famine
+        clr_character_flag = china_plague
+        clr_character_flag = china_golden_age
+        return_to_travel_amazon_leg_effect = yes
+    }
+}
+
+character_event = { #Mercenaries: "We're here to escort you!"
+    id = plscometobr.21
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+    desc = EVTDESC_plscometobr_21
+    picture = GFX_evt_china_rebel_general
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+    
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+
+    option = { # Er, change of plans! (Hire bodyguards)
+    	name = EVTOPTA_plscometobr_21
+    	custom_tooltip = {
+    		text = EVTOPTA_plscometobr_21_tt
+    	}
+    	transfer_scaled_wealth = {
+			to = FROM
+			value = 0.5
+			min = 10
+		}
+    	add_character_modifier = {
+			name = hired_body_guards
+			years = 3
+		}
+    }
+    option = { #I think you have me confused with someone else...
+    	name = EVTOPTB_plscometobr_21
+    	custom_tooltip = {
+    		text = EVTOPTB_plscometobr_21_tt
+    	}    	
+    }
+
+    after = {
+        clr_character_flag = china_stable
+        clr_character_flag = china_unrest
+        clr_character_flag = china_civil_war
+        clr_character_flag = china_mongol_invasion
+        clr_character_flag = china_jurchen_invasion
+        clr_character_flag = china_famine
+        clr_character_flag = china_plague
+        clr_character_flag = china_golden_age
+		return_to_travel_amazon_leg_effect = yes
+    }
+}
+
+character_event = { #We see starving people...
+    id = plscometobr.22
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+    desc = EVTDESC_plscometobr_22
+    picture = GFX_evt_china_famine
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+
+    immediate = {
+	    hidden_effect = {
+	    	#event_target:other_ruler = { trait = stressed }
+	    }
+    }
+    
+    option = { #Let's eat together, yes.
+    	name = EVTOPTA_plscometobr_22
+    	custom_tooltip = { text = EVTOPTA_plscometobr_22_tt }
+		
+		scaled_wealth = { value = -0.2 min = -25 }
+
+		add_friend = event_target:other_ruler
+		
+		add_character_modifier = {
+			name = the_kind
+			years = 10
+		}
+		
+		if = {
+			limit = {
+				trait = greedy
+			}
+			remove_trait = greedy
+		}
+		else_if = {
+			limit = {
+				NOT = {
+					trait = charitable
+				}
+			}
+			add_trait = charitable
+		}
+    }
+    option = {
+        name = EVTOPTB_plscometobr_22 #Come work for me! (Hires mercs)
+        custom_tooltip = { text = EVTOPTB_plscometobr_22_tt }
+		transfer_scaled_wealth = {
+			to = FROM
+			value = 0.5
+			min = 10
+		}
+    	add_character_modifier = {
+			name = hired_body_guards
+			years = 3
+		}
+    }
+    option = { #We can't afford to take pity on strangers...!
+        name = EVTOPTC_plscometobr_22
+        custom_tooltip = { text = EVTOPTC_plscometobr_22_tt }
+    }
+	
+	after = {
+        clr_character_flag = china_stable
+        clr_character_flag = china_unrest
+        clr_character_flag = china_civil_war
+        clr_character_flag = china_mongol_invasion
+        clr_character_flag = china_jurchen_invasion
+        clr_character_flag = china_famine
+        clr_character_flag = china_plague
+        clr_character_flag = china_golden_age
+        return_to_travel_amazon_leg_effect = yes
+    }
+}
+
+character_event = {
+	id = plscometobr.23
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_23
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_jaguar
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_23
+		if = {
+			limit = {
+				has_character_flag = hired_body_guards
+			}
+			custom_tooltip = { text = jaguar_bodyguard_help_tt }
+		}
+		else = {
+			custom_tooltip = { text = jaguar_encounter_tt }
+		}
+		random_list = {
+			20 = {
+				#Uninjured
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = { combat_rating = 2 factor = 2  }
+				modifier = { combat_rating < 0 factor = 0.5  } 
+				modifier = { has_character_modifier = hired_body_guards factor = 3 }
+				
+			}
+			50 = {
+				#You get injured
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = { combat_rating < 0 factor = 1.5  } 
+				modifier = { has_character_modifier = hired_body_guards factor = 0.5 }
+    			hidden_effect = { add_trait = wounded }
+    		}
+			20 = {
+				#You get severely injured
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = { combat_rating < 0 factor = 1.5  }
+				modifier = { has_character_modifier = hired_body_guards factor = 0.5 }
+    			hidden_effect = { add_maimed_trait_effect = yes }
+			}
+			10 = {
+				#You are slain in personal combat!
+    			modifier = { is_weak_trigger = yes factor = 2 }
+				modifier = { combat_rating < 0 factor = 2  }
+				modifier = { has_character_modifier = hired_body_guards factor = 0 }
+    			hidden_effect = { death = { death_reason = death_accident } }
+    		}
+		}
+		return_to_travel_amazon_leg_effect = yes
+	}
+}
+
+character_event = {
+	id = plscometobr.24
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_24
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_natives
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_24
+		random_list = {
+			30 = {
+				#Uninjured
+				modifier = { has_character_modifier = hired_body_guards factor = 2 }
+				custom_tooltip = { text = natives_uninjured_tt }
+			}
+			50 = {
+				#You get injured
+				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
+				custom_tooltip = { text = natives_wounded_tt }
+    		}
+			15 = {
+				#You get severely injured
+				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
+				custom_tooltip = { text = natives_severely_injured_tt }
+			}
+			5 = {
+				#You are slain in personal combat!
+				modifier = { has_character_modifier = hired_body_guards factor = 0.25 }
+    			hidden_effect = { death = { death_reason = death_accident } }
+				custom_tooltip = { text = natives_death_tt }
+    		}
+		}
+		return_to_travel_amazon_leg_effect = yes
+	}
+}
+
+character_event = { #Cajun Plantation
+	id = plscometobr.25
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_25
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_cajuns
+	}
+	
+	option = { # Accept offer
+		name = EVTOPTA_plscometobr_25
+		character_event = { id = plscometobr.26 days = 1 }
+	}
+}
+
+character_event = { #Dinner
+	id = plscometobr.26
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_26 # Default (stable)
+		trigger = {
+			offmap_china = { has_status = china_stable }
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_26 #Discuss unrest
+		trigger = {
+			offmap_china = { has_status = china_unrest }
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_26 #Discuss civil war
+		trigger = {
+			offmap_china = { has_status = china_civil_war }
+		}
+	}
+	desc = {
+		text = EVTDESCD_plscometobr_26 #Discuss Amazonian invasion
+		trigger = {
+			offmap_china = { has_status = china_mongol_invasion }
+		}
+	}
+	desc = {
+		text = EVTDESCE_plscometobr_26 #Discuss Gaucho invasion
+		trigger = {
+			offmap_china = { has_status = china_jurchen_invasion }
+		}
+	}
+	desc = {
+		text = EVTDESCF_plscometobr_26 #Discuss famine
+		trigger = {
+			offmap_china = { has_status = china_famine }
+		}
+	}
+	desc = {
+		text = EVTDESCG_plscometobr_26 #Discuss plague
+		trigger = {
+			offmap_china = { has_status = china_plague }
+		}
+	}
+	desc = {
+		text = EVTDESCH_plscometobr_26 #Discuss golden age
+		trigger = {
+			offmap_china = { has_status = china_golden_age }
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		character_event = { id = plscometobr.27 days = 1 }
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_26 # Agree
+		if = {
+			limit = {
+				has_trait = humble
+			}
+			prestige = 10
+			tooltip_info = humble
+        }
+	}
+	option = {
+		name = EVTOPTB_plscometobr_26 # Dismiss
+		if = {
+			limit = {
+				has_trait = proud
+			}
+			prestige = 10
+			tooltip_info = proud
+        }
+	}
+}
+
+character_event = { #Meet charming young Cajun
+	id = plscometobr.27
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_27
+		trigger = {
+			has_character_flag = cajun_female_lover
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_27
+		trigger = {
+			has_character_flag = cajun_male_lover
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						is_female = no
+						NOT = { trait = homosexual }
+					}
+					AND = {
+						is_female = yes
+						trait = homosexual
+					}
+				}
+			}
+			set_character_flag = cajun_female_lover
+		}
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						is_female = yes
+						NOT = { trait = homosexual }
+					}
+					AND = {
+						is_female = no
+						trait = homosexual
+					}
+				}
+			}
+			set_character_flag = cajun_male_lover
+		}
+	}
+	
+	option = { #Bring lover with you
+		name = EVTOPTA_plscometobr_27
+		if = {
+			has_character_flag = cajun_female_lover
+			create_character = {
+				random_traits = no
+				dynasty = NONE
+				religion = ursuline
+				culture = cajun
+				female = yes
+				age = 19
+				trait = grey_eminence
+				trait = fair
+				trait = kind
+				trait = lustful
+				attributes = {
+					diplomacy = 8
+				}
+			}
+			new_character = {
+				character_event = { id = misc.3 } # Diversity
+				if = {
+					limit = { ROOT = { trait = homosexual } }
+					add_trait = homosexual
+				}
+				add_lover = ROOT
+				add_sympathy_for_prevs_open_religion_effect = yes
+			}
+		}
+		if = {
+			has_character_flag = cajun_male_lover
+			create_character = {
+				random_traits = no
+				dynasty = NONE
+				religion = ursuline
+				culture = cajun
+				female = no
+				age = 19
+				trait = grey_eminence
+				trait = fair
+				trait = kind
+				trait = lustful
+				attributes = {
+					diplomacy = 8
+				}
+			}
+			new_character = {
+				character_event = { id = misc.3 } # Diversity
+				if = {
+					limit = { ROOT = { trait = homosexual } }
+					add_trait = homosexual
+				}
+				add_lover = ROOT
+				add_sympathy_for_prevs_open_religion_effect = yes
+			}
+		}
+		custom_tooltip = { text = bring_cajun_lover_tt }
+		return_to_travel_amazon_leg_effect = yes
+	}
+	
+	option = { #Don't bring lover with you
+		name = EVTOPTB_plscometobr_27
+		custom_tooltip = { text = dont_bring_cajun_lover_tt }
+		return_to_travel_amazon_leg_effect = yes
+	}
+}
+
+character_event = { #Catch Jungle Illness
+	id = plscometobr.28
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_28
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_28
+		random_list = {
+			25 = {
+				give_pneumonic_effect = yes
+				custom_tooltip = { text = jungle_illness_tt }
+			}
+			25 = {
+				give_has_tuberculosis_effect = yes
+				custom_tooltip = { text = jungle_illness_tt }
+			}
+			25 = {
+				give_has_typhoid_fever_effect = yes
+				custom_tooltip = { text = jungle_illness_tt }
+			}
+			25 = {
+				give_has_small_pox_effect = yes
+				custom_tooltip = { text = jungle_illness_tt }
+			}
+		}
+		return_to_travel_amazon_leg_effect = yes
+	}
+}
+
+character_event = { #Kurtz Event Start (Meet Russian follower of Kurtz)
+	id = plscometobr.29
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_29
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_kurtz
+	}
+	
+	option = { # Go to Kurtz
+		name = EVTOPTA_plscometobr_29
+		character_event = { id = plscometobr.30 }
+		custom_tooltip = { text = kurtz_curiosity_killed_cat_tt }
+	}
+
+	option = { # Keep sailing
+		name = EVTOPTB_plscometobr_29
+		custom_tooltip = { text = kurtz_better_left_alone_tt }
+	}
+}
+
+character_event = { #Encounter with Russian photojournalist
+	id = plscometobr.30
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_30
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = { # Meet Kurtz
+		name = EVTOPTA_plscometobr_30
+		character_event = { id = plscometobr.34 }
+		custom_tooltip = { text = kurtz_go_quietly_tt }
+	}
+
+	option = { # Try to leave
+		name = EVTOPTB_plscometobr_30
+		character_event = { id = plscometobr.31 }
+		custom_tooltip = { text = kurtz_try_to_leave_tt }
+	}
+}
+
+character_event = { #Confronted by natives
+	id = plscometobr.31
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_31
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = { # Surrender to Kurtz
+		name = EVTOPTA_plscometobr_31
+		character_event = { id = plscometobr.34 }
+		custom_tooltip = { text = kurtz_surrender_tt }
+	}
+
+	option = { # Make a run for it!
+		name = EVTOPTB_plscometobr_30
+		custom_tooltip = { text = kurtz_escape_attempt_tt }
+		trigger = {
+			NOT = { has_character_modifier = hired_body_guards }
+		}
+		random_list = {
+			10 = {
+				#Uninjured, escape
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = {
+					OR = { 
+						martial = 8
+						intrigue = 8
+					}
+					factor = 1.5 
+				}
+				modifier = {
+					OR = {
+						martial = 10
+						intrigue = 10
+					}
+					factor = 2 
+				}
+				set_character_flag = kurtz_escape_uninjured
+				character_event = { id = plscometobr.32 } # Notification event for escape
+			}
+			40 = {
+				#You get injured, escape
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_escape_injured
+    			hidden_effect = { add_trait = wounded }
+				character_event = { id = plscometobr.32 } # Notification event for escape
+    		}
+			50 = {
+				#Failure, captured
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 4
+						intrigue = 4
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_captured
+    			character_event = { id = plscometobr.33 } # Notification event for capture
+			}
+		}
+	}
+	
+	option = { # Order your bodyguards to engage the natives!
+		name = EVTOPTC_plscometobr_30
+		custom_tooltip = { text = kurtz_bodyguard_fight_tt }
+		trigger = {
+			has_character_modifier = hired_body_guards
+		}
+		random_list = {
+			30 = {
+				#Uninjured, bodyguards are fine
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = {
+					OR = { 
+						martial = 8
+						intrigue = 8
+					}
+					factor = 1.5 
+				}
+				modifier = {
+					OR = {
+						martial = 10
+						intrigue = 10
+					}
+					factor = 2 
+				}
+				set_character_flag = kurtz_escape_uninjured
+				character_event = { id = plscometobr.32 } # Notification event for escape
+			}
+			50 = {
+				#You get injured, bodyguards are fine
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_escape_injured
+    			hidden_effect = { add_trait = wounded }
+				character_event = { id = plscometobr.32 } # Notification event for escape
+    		}
+			20 = {
+				#You get severely injured, bodyguards sacrifice themselves
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 4
+						intrigue = 4
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_escape_bodyguard_death
+    			hidden_effect = { add_maimed_trait_effect = yes }
+				hidden_effect = { remove_character_modifier = hired_body_guards }
+				character_event = { id = plscometobr.32 } # Notification event for bodyguard death
+			}
+		}
+	}
+}
+
+character_event = { #Notification event for escape
+	id = plscometobr.32
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_32
+		trigger = {
+			has_character_flag = kurtz_escape_uninjured
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_32
+		trigger = {
+			has_character_flag = kurtz_escape_injured
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_32
+		trigger = {
+			has_character_flag = kurtz_escape_bodyguard_death
+		}
+	}
+
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		clr_character_flag = kurtz_escape_uninjured
+		clr_character_flag = kurtz_escape_injured
+		clr_character_flag = kurtz_escape_bodyguard_death
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_32
+		custom_tooltip = { text = kurtz_escape_successful_tt }
+		return_to_travel_amazon_leg_effect = yes
+	}
+}
+
+character_event = { #Notification event for capture by natives
+	id = plscometobr.33
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_33
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_33
+		custom_tooltip = { text = captured_by_kurtz_tt }
+	}
+}
+
+character_event = { #Meet Kurtz
+	id = plscometobr.34
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_34
+		trigger = {
+			NOT = { has_character_flag = kurtz_captured }
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_34
+		trigger = {
+			has_character_flag = kurtz_captured
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_34
+		custom_tooltip = { text = kurtz_prisoner_tt }
+		character_event = { id = plscometobr.35 days = 2 }
+	}
+}
+
+character_event = { #Kurtz Rant 1
+	id = plscometobr.35
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_35
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_35
+		custom_tooltip = { text = continued_kurtz_prisoner_tt }
+		character_event = { id = plscometobr.36 days = 2 }
+	}
+}
+
+character_event = { #Kurtz Rant 2
+	id = plscometobr.36
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_36
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_36
+		custom_tooltip = { text = continued_kurtz_prisoner_tt }
+		character_event = { id = plscometobr.37 days = 2 }
+	}
+}
+
+character_event = { #Chance to escape
+	id = plscometobr.37
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_37
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_37 #Sneak out quietly
+		custom_tooltip = { text = kurtz_sneak_out_tt }
+		character_event = { id = plscometobr.37 }
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_37 #Kill Kurtz
+		custom_tooltip = { text = kurtz_confront_tt }
+		character_event = { id = plscometobr.40 }
+	}
+}
+
+character_event = { #Determine whether you are caught or not was successful
+	id = plscometobr.37
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		random_list = {
+			50 = { #Escape successfully
+				modifier = {
+					OR = {
+						has_trait = amateurish_plotter
+						has_trait = flamboyant_schemer
+					}
+					factor = 1.5
+				}
+				modifier = {
+					OR = {
+						has_trait = intricate_webweaver
+						has_trait = elusive_shadow
+					}
+					factor = 3
+				}
+				modifier = {
+					intrigue = 10
+					factor = 3
+				}
+				modifier = {
+					intrigue = 8
+					factor = 2
+				}
+				modifier = {
+					intrigue = 4
+					factor = 0.5
+				}
+				modifier = {
+					intrigue = 2
+					factor = 0.25
+				}
+				character_event = { id = plscometobr.38 } #Sneak out successfully
+			}
+			50 = { #Caught trying to escape
+				modifier = {
+					OR = {
+						has_trait = amateurish_plotter
+						has_trait = flamboyant_schemer
+					}
+					factor = 0.5
+				}
+				modifier = {
+					OR = {
+						has_trait = intricate_webweaver
+						has_trait = elusive_shadow
+					}
+					factor = 0.25
+				}
+				modifier = {
+					intrigue = 10
+					factor = 0.25
+				}
+				modifier = {
+					intrigue = 8
+					factor = 0.5
+				}
+				modifier = {
+					intrigue = 4
+					factor = 1.5
+				}
+				modifier = {
+					intrigue = 2
+					factor = 3
+				}
+				character_event = { id = plscometobr.39 } # Caught
+			}
+		}
+	}
+}
+
+character_event = { #Notification event for escape
+	id = plscometobr.38
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = {
+		text = EVTDESCA_plscometobr_38
+		trigger = {
+			NOR = {
+				has_character_flag = kurtz_caught_escaping
+				has_character_flag = kurtz_caught_escaping_injured
+				has_character_flag = kurtz_caught_escaping_severely_injured
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_38
+		trigger = {
+			has_character_flag = kurtz_caught_escaping
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_38
+		trigger = {
+			has_character_flag = kurtz_caught_escaping_injured
+		}
+	}
+	desc = {
+		text = EVTDESCD_plscometobr_38
+		trigger = {
+			has_character_flag = kurtz_caught_escaping_severely_injured
+		}
+	}
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_38
+		custom_tooltip = { text = kurtz_escape_successful_tt }
+		return_to_travel_amazon_leg_effect = yes
+	}
+}
+
+character_event = { #Notification event for getting caught
+	id = plscometobr.39
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_39
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_39
+		custom_tooltip = { text = kurtz_oh_shit_tt }
+		random_list = {
+			20 = {
+				#Uninjured, escape
+				modifier = { is_strong_trigger = yes factor = 2 }
+				modifier = { is_weak_trigger = yes factor = 0.5 }
+				modifier = {
+					OR = { 
+						martial = 8
+						intrigue = 8
+					}
+					factor = 1.5 
+				}
+				modifier = {
+					OR = {
+						martial = 10
+						intrigue = 10
+					}
+					factor = 2 
+				}
+				set_character_flag = kurtz_caught_escaping
+				character_event = { id = plscometobr.38 } # Notification event for escape
+			}
+			35 = {
+				#You get injured, escape
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_caught_escaping_injured
+    			hidden_effect = { add_trait = wounded }
+				character_event = { id = plscometobr.38 } # Notification event for escape
+    		}
+			35 = {
+				#You get severely injured, escape
+    			modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 6
+						intrigue = 6
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_caught_escaping_severely_injured
+    			hidden_effect = { add_maimed_trait_effect = yes }
+				character_event = { id = plscometobr.38 } # Notification event for escape
+    		}
+			10 = {
+				#Failure, killed
+				modifier = { is_weak_trigger = yes factor = 1.5 }
+				modifier = {
+					OR = { 
+						martial = 4
+						intrigue = 4
+					}
+					factor = 1.5 
+				}
+				set_character_flag = kurtz_captured
+    			hidden_effect = { death = { death_reason = death_accident } }
+			}
+		}
+	}
+}
+
+character_event = { #Kurtz lets you kill him
+	id = plscometobr.40
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_40
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_40
+		custom_tooltip = { text = mister_kurtz_dead_tt }
+		character_event = { id = plscometobr.41 }
+	}
+}
+
+character_event = { #Return to ship, reflect on experience
+	id = plscometobr.41
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_AMAZON
+	
+	desc = EVTDESC_plscometobr_41
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_41
+		custom_tooltip = { text = the_horror_tt }
+		add_artifact = jungle_knife
+		add_artifact = kurtz_writings
+		random_list = {
+			50 = {
+				modifier = { has_trait = cynical factor = 0 }
+				add_trait = cynical
+			}
+			50 = {
+				modifier = { has_trait = cruel factor = 0 }
+				add_trait = cruel
+			}
+			50 = {
+				modifier = { has_trait = possessed factor = 0 }
+				add_trait = possessed
+			}
+			10 = {
+				#Nothing
+			}
+		}
+		return_to_travel_amazon_leg_effect = yes
+	}
+}
+
+character_event = { #Arrival at Belem, start of overseas leg
+	id = plscometobr.42
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BELEM_ARRIVAL
+	
+	desc = EVTDESC_plscometobr_42
+	picture = GFX_br_placeholder #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = amazon_leg
+	}
+	
+	immediate = {
+		clr_character_flag = amazon_leg
+		set_character_flag = overseas_leg
+		
+		random_list = {
+			75 = {
+				set_variable = {
+					which = overseas_travel_events
+					value = 2
+				}
+			}
+			25 = {
+				set_variable = {
+					which = overseas_travel_events
+					value = 3
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_42
+		hidden_tooltip = {
+				character_event = {
+				id = plscometobr.43 # random amazon travel event tombola
+				days = 70
+				random = 15
+			}
+		}
+	}
+}
+
+character_event = { #Overseas leg event tombola
+	id = plscometobr.43
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = overseas_leg
+	}
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				NOT = {
+					check_variable = {
+						which = overseas_travel_events
+						value = 1
+					}
+				}
+			} 
+			### No more travel events - Come to Brazil
+			character_event = { id = plscometobr. days = 50 random = 30 }
+			break = yes
+		}
+		
+		# Fire a random travel event 
+		random_list = {
+			50 = {
+				character_event = { id = plscometobr. }  # Homesick (I really miss <person>)
+				trigger = {
+					NOT = { has_character_flag = missed_loved_one }
+					any_courtier_or_vassal = {
+						OR = {
+							is_lover = ROOT
+							any_spouse = { character = ROOT }
+							AND = {
+								OR = {
+									is_mother = ROOT
+									is_father = ROOT
+								}
+								NOR = {
+									is_lover = ROOT
+									any_spouse = { character = ROOT }
+								}
+							}
+							AND = {
+								is_child_of = ROOT
+								NOR = {
+									is_lover = ROOT
+									any_spouse = { character = ROOT }
+								}
+							}
+							AND = {
+								is_friend = ROOT
+								NOR = {
+									is_lover = ROOT
+									any_spouse = { character = ROOT }
+									is_mother = ROOT
+									is_father = ROOT
+									is_child_of = ROOT
+								}
+							}
+						}
+					}
+				}
+				break = yes
+			}
+			50 = { # Attacked by pirates
+				trigger = {
+					NOT = { has_character_flag = pirates_attacked }
+					has_injury_trigger = no
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Chance of getting scurvy
+				trigger = {
+					NOT = { has_character_flag = brazil_scurvy }
+					has_injury_trigger = no
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Shark Attack
+				trigger = {
+					NOT = { has_character_flag = shark_attack }
+					has_injury_trigger = no
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Find shipwreck survivor
+				trigger = {
+					NOT = { has_character_flag = shipwreck_survivor }
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+			50 = { # Encounter storm (chance of death!)
+				trigger = {
+					NOT = { has_character_flag = storm_encountered }
+				}
+				character_event = {
+					id = plscometobr.
+				}
+				break = yes
+			}
+		}
+	}
+	
+	### No more possible travel events - Continue to Brazil anyway with extra delay
+	character_event = { id = plscometobr. days = 75 random = 30 }
+}

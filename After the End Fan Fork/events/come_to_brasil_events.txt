@@ -2946,7 +2946,7 @@ character_event = { #Overseas leg event tombola
 		# Fire a random travel event 
 		random_list = {
 			50 = {
-				character_event = { id = plscometobr. }  # Homesick (I really miss <person>)
+				character_event = { id = plscometobr.44 }  # Homesick (I really miss <person>)
 				trigger = {
 					NOT = { has_character_flag = missed_loved_one }
 					any_courtier_or_vassal = {
@@ -2991,7 +2991,7 @@ character_event = { #Overseas leg event tombola
 					has_injury_trigger = no
 				}
 				character_event = {
-					id = plscometobr.
+					id = plscometobr.46
 				}
 				break = yes
 			}
@@ -3039,3 +3039,276 @@ character_event = { #Overseas leg event tombola
 	### No more possible travel events - Continue to Brazil anyway with extra delay
 	character_event = { id = plscometobr. days = 75 random = 30 }
 }
+
+#You feel homesick...
+character_event = {
+    id = plscometobr.44
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_ATLANTIC
+    desc = EVTDESC_plscometobr_44
+    picture = GFX_evt_carriage_default
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+
+    immediate = {
+    	set_character_flag = missed_loved_one
+        random_courtier_or_vassal = { #Select someone you sort of care about at least...!
+    		limit = {
+    			OR = {
+					is_lover = ROOT
+					any_spouse = { character = ROOT }
+					AND = {
+						OR = {
+							is_mother = ROOT
+							is_father = ROOT
+						}
+						NOR = {
+							is_lover = ROOT
+							any_spouse = { character = ROOT }
+						}
+					}
+					AND = {
+						is_child_of = ROOT
+						NOR = {
+							is_lover = ROOT
+							any_spouse = { character = ROOT }
+						}
+					}
+					AND = {
+						is_friend = ROOT
+						NOR = {
+							is_lover = ROOT
+							any_spouse = { character = ROOT }
+							is_mother = ROOT
+							is_father = ROOT
+							is_child_of = ROOT
+						}
+					}
+				}
+    		}
+    		save_event_target_as = person_missed
+    	}
+    }
+
+    option = { #I will write a letter to my lover...
+        name = EVTOPTA_plscometobr_44      
+        custom_tooltip = { text = will_receive_a_letter }
+        event_target:person_missed = { set_character_flag = is_lover } #for follow up event
+
+		scaled_wealth = { value = -0.1 min = -5 }
+
+        tooltip = {
+	        reverse_opinion = {
+				who = event_target:person_missed
+				modifier = opinion_love_letters
+				years = 15
+			}
+		}
+
+		trigger = {
+			event_target:person_missed = {
+				is_lover = ROOT
+			}
+		}
+    }
+    option = { #I will write a letter to my friend...
+        name = EVTOPTB_plscometobr_44
+		custom_tooltip = { text = will_receive_a_letter }
+		event_target:person_missed = { set_character_flag = is_friend } #for follow up event
+
+		scaled_wealth = { value = -0.1 min = -5 }
+
+		tooltip = {
+	        reverse_opinion = {
+				who = event_target:person_missed
+				modifier = opinion_pen_pal
+				years = 15
+			}
+		}
+
+		trigger = {
+			event_target:person_missed = {
+				is_friend = ROOT
+				NOR = {
+					is_lover = ROOT
+					any_spouse = { character = ROOT }
+					is_mother = ROOT
+					is_father = ROOT
+					is_child_of = ROOT
+				}
+			}
+		}
+    }
+    option = { #I will write a letter to my spouse...!
+        name = EVTOPTC_plscometobr_44
+        custom_tooltip = { text = will_receive_a_letter }
+        event_target:person_missed = { set_character_flag = is_spouse } #for follow up event
+
+        scaled_wealth = { value = -0.1 min = -5 }
+        
+        tooltip = {
+	        reverse_opinion = {
+				who = event_target:person_missed
+				modifier = opinion_love_letters
+				years = 15
+			}	
+		}
+
+		trigger = {
+			event_target:person_missed = {
+				any_spouse = { character = ROOT }
+				NOT = { is_lover = ROOT }
+			}
+		}
+    }
+    option = { #I will write a letter to my parent...
+        name = EVTOPTD_plscometobr_44
+        custom_tooltip = { text = will_receive_a_letter }
+        event_target:person_missed = { set_character_flag = is_parent } #for follow up event
+
+        scaled_wealth = { value = -0.1 min = -5 }
+
+        tooltip = {
+        	reverse_opinion = {
+				who = event_target:person_missed
+				modifier = opinion_delighted_parent
+				years = 15
+			}
+		}
+		trigger = {
+			event_target:person_missed = {
+				OR = {
+					is_mother = ROOT
+					is_father = ROOT
+				}
+				NOR = {
+					is_lover = ROOT
+					any_spouse = { character = ROOT }
+				}
+			}
+		}
+    }
+    option = { #I will write a letter to my child...
+        name = EVTOPTE_plscometobr_44
+        custom_tooltip = { text = will_receive_a_letter }
+        event_target:person_missed = { set_character_flag = is_child } #for follow up event
+
+        scaled_wealth = { value = -0.1 min = -5 }
+        
+        tooltip = {
+	        reverse_opinion = {
+				who = event_target:person_missed
+				modifier = opinion_pen_pal
+				years = 15
+			}
+        }
+
+		trigger = {
+			OR = {
+				is_mother = event_target:person_missed
+				is_father = event_target:person_missed
+			}
+			event_target:person_missed = {
+				NOR = {
+					is_lover = ROOT
+					any_spouse = { character = ROOT }
+				}
+			}
+		}
+    }
+    option = { #No! Time is of the essence...!
+        name = EVTOPTF_plscometobr_44
+        hidden_effect = { set_character_flag = do_nothing }
+    }
+
+    after = {
+    	if = { limit = { NOT = { has_character_flag = do_nothing } }
+    		event_target:person_missed = { character_event = { id = plscometobr.45 } }
+    	}
+    	else = {
+    		clr_character_flag = do_nothing
+    	}
+    	return_to_travel_tombola_effect = yes
+    }
+}
+
+character_event = { # Selected target receives letter from you...!
+    id = plscometobr.45
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_ATLANTIC
+    picture = GFX_evt_recieve_letter
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+    desc = {
+    	text = EVTDESC_plscometobr_45_A
+    	trigger = {
+    		NOT = { is_child_of = FROM }
+    	}
+    }
+    desc = {
+    	text = EVTDESC_plscometobr_45_B
+    	trigger = {
+    		is_child_of = FROM
+    	}
+    }
+
+    option = {
+        name = {
+        	text = EVTOPTA_plscometobr_45_A
+        	trigger = { NOT = { is_child_of = FROM } }
+        }
+        name = {
+        	text = EVTOPTA_plscometobr_45_B
+        	trigger = { is_child_of = FROM }
+        }
+
+        if = {
+        	limit = {
+        		OR = {
+        			has_character_flag = is_child
+        			has_character_flag = is_friend
+        		}
+
+        	}
+	        opinion = {
+				who = FROM
+				modifier = opinion_pen_pal
+				years = 15
+			}
+        }
+        if = {
+			limit = {
+				OR = {
+					has_character_flag = is_lover
+					has_character_flag = is_spouse
+				}
+			}
+	        opinion = {
+				who = FROM
+				modifier = opinion_love_letters
+				years = 15
+			}
+        }
+        if = {
+			limit = { has_character_flag = is_parent }
+	        opinion = {
+				who = FROM
+				modifier = opinion_delighted_parent
+				years = 15
+			}
+        }
+    }
+}
+
+#Pirate attack: pirates appear and demand gold. Can either give them the gold or refuse, in which case they attack. If they attack, they board your ship and your are forced to fight, with a chance of dying.
+#Getting scurvy: pretty self-explanatory, event will just give you scurvy assuming you aren't Strong or Gaian (more veggies = less scurvy)
+#Shark attack: ship is attacked by giant shark. Chance of you dying or ship being damaged, which will increase travel time by 1. However, if skilled hunter, can kill shark before he ever poses a threat.
+#Find shipwreck survivor: survivor will join your court, and can be of any South American culture, including Patagonian Welsh
+#Encounter storm: similar mechanically to shark attack, except no chance to end encounter early via skills.

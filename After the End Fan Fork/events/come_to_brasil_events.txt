@@ -243,6 +243,7 @@ character_event = { #Boa Vista leg event tombola
 			50 = { # Unusually heavy rain, think of late parents.
 				trigger = {
 					NOT = { has_character_flag = brazil_heavy_rain }
+					NOT = { has_character_flag = thought_of_parents } #don't want same chain to happen twice
 					OR = {
 						father_even_if_dead = {
 							NOT = { is_alive = yes }
@@ -266,19 +267,10 @@ character_event = { #Boa Vista leg event tombola
 			50 = { # Heavy Rain forces you to stop journey, find a way to spend time
 				trigger = {
 					has_character_flag = brazil_heavy_rain
+					NOT = { has_character_flag = pneumonia_risk }
 				}
 				character_event = {
 					id = plscometobr.7
-				}
-				break = yes
-			}
-			25 = { # Heavy Rain gives you pneumonia
-				trigger = {
-					has_character_flag = brazil_heavy_rain
-					NOT = { has_trait = pneumonic }
-				}
-				character_event = {
-					id = plscometobr.8
 				}
 				break = yes
 			}
@@ -557,11 +549,12 @@ character_event = {  # Unusually heavy rain, think of late parents.
 			name = honoring_the_dead
 			years = 5
 		}
+		set_character_flag = thought_of_parents
 	}
 	
 	option = {
 		name = EVTOPTB_JD_32100 # I need to focus on the journey
-		
+		set_character_flag = thought_of_parents
 		add_character_modifier = {
 			name = carrying_on
 			years = 2
@@ -573,7 +566,7 @@ character_event = {  # Unusually heavy rain, think of late parents.
 	}
 }
 
-character_event = {  # Unusually heavy rain stops travel (WIP)
+character_event = {  # Unusually heavy rain stops travel
 	id = plscometobr.7
 	has_dlc = "Jade Dragon"
 	
@@ -592,20 +585,271 @@ character_event = {  # Unusually heavy rain stops travel (WIP)
 	is_triggered_only = yes
 
 	option = {
-		name = EVTOPTA_plscometobr_7 # Playing cards
+		name = EVTOPTA_plscometobr_7 # Playing cards (Available always, may gain or lose money depending on traits/stats)
+		custom_tooltip = { text = EVTOPTA_plscometobr_7_TT } #tells player that results may be influenced by intrigue stat or traits
+		clr_character_flag = brazil_heavy_rain
+		random_list = {
+			35 = {
+				scaled_wealth = 0.1 #Win moderate amount of gold
+				modifier = {
+					factor = 0.5
+					OR = {
+						trait = dull
+						trait = slow
+						trait = imbecile
+					}
+				}
+				modifier = {
+					factor = 0.75
+					intrigue = 4
+				}
+				modifier = {
+					factor = 0.75
+					trait = trusting
+				}
+				modifier = {
+					factor = 1.5
+					intrigue = 8
+				}
+				modifier = {
+					factor = 2
+					intrigue = 12
+				}
+				modifier = {
+					factor = 2.5
+					intrigue = 16
+				}
+				modifier = {
+					factor = 3
+					intrigue = 20
+				}
+				modifier = {
+					factor = 2
+					trait = gamer
+				}
+			}
+			35 = {
+				scaled_wealth = -0.1 #Lose moderate amount of gold
+				modifier = {
+					factor = 2
+					OR = {
+						trait = dull
+						trait = slow
+						trait = imbecile
+					}
+				}
+				modifier = {
+					factor = 1.5
+					intrigue = 4
+				}
+				modifier = {
+					factor = 1.5
+					trait = trusting
+				}
+				modifier = {
+					factor = 0.75
+					intrigue = 8
+				}
+				modifier = {
+					factor = 0.5
+					intrigue = 12
+				}
+				modifier = {
+					factor = 0.15
+					intrigue = 16
+				}
+				modifier = {
+					factor = 0.25
+					intrigue = 20
+				}
+				modifier = {
+					factor = 0.5
+					trait = gamer
+				}
+			}
+			15 = {
+				scaled_wealth = 0.2 #Win large amount of gold
+				modifier = {
+					factor = 0.25
+					OR = {
+						trait = dull
+						trait = slow
+						trait = imbecile
+					}
+				}
+				modifier = {
+					factor = 0.5
+					intrigue = 4
+				}
+				modifier = {
+					factor = 0.5
+					trait = trusting
+				}
+				modifier = {
+					factor = 1.25
+					intrigue = 8
+				}
+				modifier = {
+					factor = 1.5
+					intrigue = 12
+				}
+				modifier = {
+					factor = 2
+					intrigue = 16
+				}
+				modifier = {
+					factor = 2.5
+					intrigue = 20
+				}
+				modifier = {
+					factor = 1.25
+					trait = gamer
+				}
+			}
+			15 = {
+				scaled_wealth = -0.2 #Lose large amount of gold
+				modifier = {
+					factor = 3
+					OR = {
+						trait = dull
+						trait = slow
+						trait = imbecile
+					}
+				}
+				modifier = {
+					factor = 2
+					intrigue = 4
+				}
+				modifier = {
+					factor = 2
+					trait = trusting
+				}
+				modifier = {
+					factor = 0.75
+					intrigue = 8
+				}
+				modifier = {
+					factor = 0.5
+					intrigue = 12
+				}
+				modifier = {
+					factor = 0.25
+					intrigue = 16
+				}
+				modifier = {
+					factor = 0.15
+					intrigue = 20
+				}
+				modifier = {
+					factor = 0.75
+					trait = gamer
+				}
+			}
+		}
+	}
+	option = {
+		name = EVTOPTB_plscometobr_7 # Tell stories (May lose shy and gain Gregarious, only available with relatively high diplomacy)
+		custom_tooltip = { text = EVTOPTB_plscometobr_7_TT } #tells player that this may greatly increase diplomacy stat
+		trigger = {
+			OR = {
+				diplomacy = 8
+				trait = socializer
+			}
+		}
+		random_list = {
+			50 = {
+				#nothing really happens
+			}
+			20 = {
+				remove_trait = shy
+				add_trait = gregarious
+				modifier = {
+					factor = 0
+					trait = gregarious
+				}
+			}
+			15 = {
+				change_diplomacy = 1
+			}
+			10 = {
+				change_diplomacy = 2
+			}
+			5 = {
+				change_diplomacy = 3
+			}
+		}
 		clr_character_flag = brazil_heavy_rain
 	}
 	option = {
-		name = EVTOPTB_plscometobr_7 # Tell stories
+		name = EVTOPTC_plscometobr_7 # Read a book (May improve a stat by one point, only available with relatively high learning)
+		custom_tooltip = { text = EVTOPTC_plscometobr_7_TT } #tells player that this may increase any stat by one
+		trigger = {
+			OR = {
+				learning = 8
+				trait = scholar
+			}
+			NOT = {
+				trait = dull
+				trait = slow
+				trait = imbecile
+			}
+		}
+		random_list = {
+			25 = {
+				#nothing happens
+			}
+			15 = {
+				change_diplomacy = 1
+			}
+			15 = {
+				change_intrigue = 1
+			}
+			15 = {
+				change_stewardship = 1
+			}
+			15 = {
+				change_martial = 1
+			}
+			15 = {
+				change_learning = 1
+			}
+		}
 		clr_character_flag = brazil_heavy_rain
 	}
 	option = {
-		name = EVTOPTC_plscometobr_7 # Read a book
-		clr_character_flag = brazil_heavy_rain
-	}
-	option = {
-		name = EVTOPTD_plscometobr_7 # Help to get journey going again
-		clr_character_flag = brazil_heavy_rain
+		name = EVTOPTD_plscometobr_7 # Help to get journey going again (Generic option, may result in getting pneumonia later on if not Strong or Robust)
+		custom_tooltip = { text = EVTOPTD_plscometobr_7_TT } #tells player that this may have negative consequences if weak or frail
+		trigger = {
+			has_symptom_trigger = no
+			has_disease_trigger = no #Can't participate if sick, for obvious reasons
+		}
+		random_list = {
+			50 = {
+				clr_character_flag = brazil_heavy_rain #rain stops
+			}
+			50 = {
+				set_character_flag = pneumonia_risk #rain continues and you might get sick from working in it
+				modifier = {
+					factor = 0
+					OR = {
+						trait = strong
+						trait = robust
+					}
+				}
+				modifier = {
+					factor = 2
+					OR = {
+						trait = weak
+						trait = feeble
+					}
+				}
+			}
+		}
+		character_event = {
+			id = plscometobr.8
+			days = 3
+			random = 1
+		}
 	}
 	
 	after = {
@@ -613,7 +857,7 @@ character_event = {  # Unusually heavy rain stops travel (WIP)
 	}
 }
 
-character_event = {  # Unusually heavy rain gives you pneumonia (WIP)
+character_event = {  # Unusually heavy rain gives you pneumonia
 	id = plscometobr.8
 	has_dlc = "Jade Dragon"
 	
@@ -627,39 +871,24 @@ character_event = {  # Unusually heavy rain gives you pneumonia (WIP)
 		trait = kow_tow_travels
 		has_character_flag = boa_vista_leg
 		has_character_flag = brazil_heavy_rain
+		has_character_flag = pneumonia_risk
 	}
 	
 	is_triggered_only = yes
 
 	option = {
 		name = EVTOPTA_plscometobr_8 # You get pneumonia
-		trigger = {
-			NOR = {
-				trait = strong
-				trait = robust
-			}
-		}
 		clr_character_flag = brazil_heavy_rain
+		clr_character_flag = pneumonia_risk
 		give_pneumonic_effect = yes
 	}
 	
-	option = {
-		name = EVTOPTB_plscometobr_8 # Too strong to get sick
-		trigger = {
-			OR = {
-				trait = strong
-				trait = robust
-			}
-		}
-		clr_character_flag = brazil_heavy_rain
-	}
-	
-	after = {
-		return_to_travel_boa_vista_leg_effect = yes
-	}
+	#after = {
+	#	return_to_travel_boa_vista_leg_effect = yes
+	#}
 }
 
-character_event = {  # Good weather raises spirits (WIP)
+character_event = {  # Good weather raises spirits (removes stressed trait, but has no effect on depressed)
 	id = plscometobr.9
 	has_dlc = "Jade Dragon"
 	
@@ -678,6 +907,19 @@ character_event = {  # Good weather raises spirits (WIP)
 	
 	option = {
 		name = EVTOPTA_plscometobr_9 # Spirits raised
+		trigger = {
+			NOT = { trait = depressed }
+		}
+		remove_trait = stressed
+	}
+	
+	option = {
+		name = EVTOPTB_plscometobr_9 # Spirits not raised
+		tooltip_info = depressed
+		trigger = {
+			trait = depressed
+		}
+		prestige = -10
 	}
 	
 	after = {
@@ -928,7 +1170,7 @@ character_event = { #Follow up from accepting the invitation
 	id = plscometobr.12
 	has_dlc = "Jade Dragon"
 	
-	title = EVTTITLE_JD_KOWTOW
+	title = EVTTITLE_BR_TRIP_BOA_VISTA
 	
 	desc = { # Normal outcome
 		text = EVTDESCA_plscometobr_12
@@ -1249,7 +1491,7 @@ narrative_event = { #Follow up from option A
 	}
 }
 
-character_event = { #Starving beggar (WIP)
+character_event = { #Starving beggar (from your country)
 	id = plscometobr.15
 	has_dlc = "Jade Dragon"
 	
@@ -1277,6 +1519,8 @@ character_event = { #Starving beggar (WIP)
 				trait = cruel
 			}
 		}
+		scaled_wealth = -0.05
+		scaled_piety = 0.1
 	}
 	
 	option = { #Refuse beggar
@@ -1287,6 +1531,7 @@ character_event = { #Starving beggar (WIP)
 				trait = kind
 			}
 		}
+		scaled_piety = -0.1
 	}
 	
 	option = { #Give beggar more gold 
@@ -1295,6 +1540,8 @@ character_event = { #Starving beggar (WIP)
 		trigger = {
 			trait = charitable
 		}
+		scaled_wealth = -0.1
+		scaled_piety = 0.2
 	}
 	
 	option = { #Take beggar into your entourage
@@ -1304,6 +1551,24 @@ character_event = { #Starving beggar (WIP)
 				trait = paranoid
 				trait = cruel
 			}
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = NONE
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 46
+			trait = humble
+			trait = honest
+			attributes = {
+				diplomacy = 8
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			hidden_tooltip = { add_random_education_trait = diplomacy }
+			give_nickname = nick_the_beggar
 		}
 	}
 	
@@ -1319,7 +1584,7 @@ character_event = { #Arrival at Boa Vista, start of Amazon leg
 	title = EVTTITLE_BOA_VISTA_ARRIVAL
 	
 	desc = EVTDESC_plscometobr_16
-	picture = GFX_br_placeholder #placeholder
+	picture = GFX_roraima
     border = GFX_event_normal_frame_diplomacy
 	
 	trigger = {
@@ -1814,7 +2079,7 @@ character_event = {
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_23
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 
@@ -1881,7 +2146,7 @@ character_event = {
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_24
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -1904,11 +2169,17 @@ character_event = {
 			}
 			50 = {
 				#You get injured
+				hidden_effect = {
+					add_trait = wounded
+				}
 				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
 				custom_tooltip = { text = natives_wounded_tt }
     		}
 			15 = {
 				#You get severely injured
+				hidden_effect = {
+					add_maimed_trait_effect = yes
+				}
 				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
 				custom_tooltip = { text = natives_severely_injured_tt }
 			}
@@ -1930,7 +2201,7 @@ character_event = { #Cajun Plantation
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_25
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 
@@ -2003,7 +2274,7 @@ character_event = { #Dinner
 			offmap_china = { has_status = china_golden_age }
 		}
 	}
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2056,7 +2327,7 @@ character_event = { #Meet charming young Cajun
 			has_character_flag = cajun_male_lover
 		}
 	}
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2172,7 +2443,7 @@ character_event = { #Catch Jungle Illness
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_28
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2212,7 +2483,7 @@ character_event = { #Kurtz Event Start (Meet Russian follower of Kurtz)
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_29
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2244,7 +2515,7 @@ character_event = { #Encounter with Russian photojournalist
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_30
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2273,7 +2544,7 @@ character_event = { #Confronted by natives
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_31
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2289,7 +2560,7 @@ character_event = { #Confronted by natives
 	}
 
 	option = { # Make a run for it!
-		name = EVTOPTB_plscometobr_30
+		name = EVTOPTB_plscometobr_31
 		custom_tooltip = { text = kurtz_escape_attempt_tt }
 		trigger = {
 			NOT = { has_character_modifier = hired_body_guards }
@@ -2347,7 +2618,7 @@ character_event = { #Confronted by natives
 	}
 	
 	option = { # Order your bodyguards to engage the natives!
-		name = EVTOPTC_plscometobr_30
+		name = EVTOPTC_plscometobr_31
 		custom_tooltip = { text = kurtz_bodyguard_fight_tt }
 		trigger = {
 			has_character_modifier = hired_body_guards
@@ -2461,7 +2732,7 @@ character_event = { #Notification event for capture by natives
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_33
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2517,7 +2788,7 @@ character_event = { #Kurtz Rant 1
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_35
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2529,7 +2800,7 @@ character_event = { #Kurtz Rant 1
 	option = {
 		name = EVTOPTA_plscometobr_35
 		custom_tooltip = { text = continued_kurtz_prisoner_tt }
-		character_event = { id = plscometobr.36 days = 2 }
+		character_event = { id = plscometobr.36 days = 3 }
 	}
 }
 
@@ -2552,7 +2823,7 @@ character_event = { #Kurtz Rant 2
 	option = {
 		name = EVTOPTA_plscometobr_36
 		custom_tooltip = { text = continued_kurtz_prisoner_tt }
-		character_event = { id = plscometobr.37 days = 2 }
+		character_event = { id = plscometobr.37 days = 3 }
 	}
 }
 
@@ -2563,7 +2834,7 @@ character_event = { #Chance to escape
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_37
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2579,7 +2850,7 @@ character_event = { #Chance to escape
 	}
 	
 	option = {
-		name = EVTOPTA_plscometobr_37 #Kill Kurtz
+		name = EVTOPTB_plscometobr_37 #Kill Kurtz
 		custom_tooltip = { text = kurtz_confront_tt }
 		character_event = { id = plscometobr.40 }
 	}
@@ -2725,7 +2996,7 @@ character_event = { #Notification event for getting caught
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_39
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2811,7 +3082,7 @@ character_event = { #Kurtz lets you kill him
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_40
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2834,7 +3105,7 @@ character_event = { #Return to ship, reflect on experience
 	title = EVTTITLE_BR_TRIP_AMAZON
 	
 	desc = EVTDESC_plscometobr_41
-	picture = GFX_evt_carriage_default #placeholder
+	picture = GFX_amazon_river
     border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
 	
@@ -2849,17 +3120,17 @@ character_event = { #Return to ship, reflect on experience
 		add_artifact = jungle_knife
 		add_artifact = kurtz_writings
 		random_list = {
-			50 = {
+			30 = {
 				modifier = { has_trait = cynical factor = 0 }
-				add_trait = cynical
+				hidden_effect = { add_trait = cynical }
 			}
-			50 = {
+			30 = {
 				modifier = { has_trait = cruel factor = 0 }
-				add_trait = cruel
+				hidden_effect = { add_trait = cynical }
 			}
-			50 = {
+			30 = {
 				modifier = { has_trait = possessed factor = 0 }
-				add_trait = possessed
+				hidden_effect = { add_trait = cynical }
 			}
 			10 = {
 				#Nothing
@@ -2876,7 +3147,7 @@ character_event = { #Arrival at Belem, start of overseas leg
 	title = EVTTITLE_BELEM_ARRIVAL
 	
 	desc = EVTDESC_plscometobr_42
-	picture = GFX_br_placeholder #placeholder
+	picture = GFX_evt_busy_trading_dock_republic
     border = GFX_event_normal_frame_diplomacy
 	
 	trigger = {
@@ -2985,9 +3256,9 @@ character_event = { #Overseas leg event tombola
 				}
 				break = yes
 			}
-			50 = { # Attacked by pirates
+			50 = { # Attacked by pirates (results in prestige gain if pirate)
 				trigger = {
-					NOT = { has_character_flag = pirates_attacked }
+					NOT = { has_character_flag = met_pirates }
 					has_injury_trigger = no
 				}
 				character_event = {
@@ -2997,11 +3268,14 @@ character_event = { #Overseas leg event tombola
 			}
 			50 = { # Chance of getting scurvy
 				trigger = {
+					has_dlc = "Reapers" #can't happen if you don't have the right DLC for it
 					NOT = { has_character_flag = brazil_scurvy }
+					has_disease_trigger = no
+					has_symptom_trigger = no
 					has_injury_trigger = no
 				}
 				character_event = {
-					id = plscometobr.
+					id = plscometobr.47
 				}
 				break = yes
 			}
@@ -3011,7 +3285,7 @@ character_event = { #Overseas leg event tombola
 					has_injury_trigger = no
 				}
 				character_event = {
-					id = plscometobr.
+					id = plscometobr.48
 				}
 				break = yes
 			}
@@ -3047,7 +3321,7 @@ character_event = {
 	
 	title = EVTTITLE_BR_TRIP_ATLANTIC
     desc = EVTDESC_plscometobr_44
-    picture = GFX_evt_carriage_default
+    picture = GFX_evt_merchant_ship_at_sea_republic
     border = GFX_event_normal_frame_diplomacy
     is_triggered_only = yes
 
@@ -3233,7 +3507,7 @@ character_event = {
     	else = {
     		clr_character_flag = do_nothing
     	}
-    	return_to_travel_tombola_effect = yes
+    	return_to_travel_overseas_leg_effect = yes
     }
 }
 
@@ -3307,8 +3581,211 @@ character_event = { # Selected target receives letter from you...!
     }
 }
 
-#Pirate attack: pirates appear and demand gold. Can either give them the gold or refuse, in which case they attack. If they attack, they board your ship and your are forced to fight, with a chance of dying.
-#Getting scurvy: pretty self-explanatory, event will just give you scurvy assuming you aren't Strong or Gaian (more veggies = less scurvy)
-#Shark attack: ship is attacked by giant shark. Chance of you dying or ship being damaged, which will increase travel time by 1. However, if skilled hunter, can kill shark before he ever poses a threat.
+character_event = { #Pirate attack
+	id = plscometobr.46
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_ATLANTIC
+	
+	desc = EVTDESC_plscometobr_46
+	picture = GFX_evt_merchant_ship_at_sea_republic #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = overseas_leg
+	}
+	
+	immediate = {
+		set_character_flag = met_pirates
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_46
+		trigger = {
+			NOT = { religion_group = pirate }
+		}
+		random_list = {
+			30 = {
+				#Uninjured
+				modifier = { has_character_modifier = hired_body_guards factor = 2 }
+				custom_tooltip = { text = pirates_uninjured_tt }
+			}
+			50 = {
+				#You get injured, money is stolen
+				hidden_effect = {
+					add_trait = wounded
+					scaled_wealth = -0.25
+				}
+				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
+				custom_tooltip = { text = pirates_wounded_tt }
+    		}
+			15 = {
+				#You get severely injured, more money is stolen
+				hidden_effect = {
+					add_maimed_trait_effect = yes
+					scaled_wealth = -0.5
+				}
+				modifier = { has_character_modifier = hired_body_guards factor = 0.75 }
+				custom_tooltip = { text = pirates_severely_injured_tt }
+			}
+			5 = {
+				#You are slain in personal combat!
+				modifier = { has_character_modifier = hired_body_guards factor = 0.25 }
+    			hidden_effect = { death = { death_reason = death_accident } }
+				custom_tooltip = { text = pirates_death_tt }
+    		}
+		}
+		return_to_travel_overseas_leg_effect = yes
+	}
+	option = {
+		name = EVTOPTB_plscometobr_46
+		trigger = {
+			religion_group = pirate
+		}
+		prestige = 50
+		return_to_travel_overseas_leg_effect = yes
+	}
+}
+
+character_event = { #Getting Scurvy
+	id = plscometobr.47
+	has_dlc = "Jade Dragon"
+	has_dlc = "Reapers" #failsafe
+	
+	title = EVTTITLE_BR_TRIP_ATLANTIC
+	
+	desc = EVTDESC_plscometobr_47
+	picture = GFX_evt_merchant_ship_at_sea_republic #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = overseas_leg
+	}
+	
+	immediate = {
+		set_character_flag = brazil_scurvy
+	}
+	
+	option = { #Lifted from RD Scruvy event
+		name = EVTOPTA_plscometobr_46
+		random_list = {
+			10 = { # Scurvy
+				modifier = {
+					factor = 500
+					capital_scope = {
+						location = { has_disease = yes }
+					}
+				}
+				modifier = {
+					factor = 3
+					trait = gluttonous
+				}
+				modifier = { #The longer you've spent on the journey, the more likely you are to contract scurvy
+					factor = 2
+					check_variable = {
+						which = overseas_travel_events
+						value = >3
+					}
+				}
+				modifier = {
+					factor = 3
+					check_variable = {
+						which = overseas_travel_events
+						value = 2
+					}
+				}
+				modifier = {
+					factor = 4
+					check_variable = {
+						which = overseas_travel_events
+						value = 1
+					}
+				}
+				
+				character_event = { id = RIP.5051 }
+			}
+			90 = { # Still healthy
+				character_event = { id = RIP.5056 days = 100 }
+			}
+		}
+		return_to_travel_overseas_leg_effect = yes
+	}
+}
+
+character_event = { #Shark attack
+	id = plscometobr.48
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_ATLANTIC
+	
+	desc = EVTDESC_plscometobr_48
+	picture = GFX_evt_merchant_ship_at_sea_republic
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = overseas_leg
+	}
+	
+	immediate = {
+		set_character_flag = shark_attack
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_48
+		trigger = {
+			NOT = { trait = hunter }
+		}
+		random_list = {
+			30 = {
+				#No major injuries, ship is fine
+				custom_tooltip = { text = shark_unscathed_tt }
+			}
+			50 = {
+				#You get injured, ship is damaged
+				hidden_effect = {
+					add_trait = wounded
+					change_variable = {
+						which = overseas_travel_events
+						value = 1
+					}
+				}
+				custom_tooltip = { text = shark_wounded_tt }
+    		}
+			15 = {
+				#You get severely injured, ship is severely damaged
+				hidden_effect = {
+					add_maimed_trait_effect = yes
+					change_variable = {
+						which = overseas_travel_events
+						value = 2
+					}
+				}
+				custom_tooltip = { text = shark_severely_injured_tt }
+			}
+			5 = {
+				#You are killed!
+    			hidden_effect = { death = { death_reason = death_accident } }
+				custom_tooltip = { text = shark_death_tt }
+    		}
+		}
+		return_to_travel_overseas_leg_effect = yes
+	}
+	option = {
+		name = EVTOPTB_plscometobr_46
+		tooltip_info = hunter
+		trigger = {
+			trait = hunter
+		}
+		prestige = 100
+		return_to_travel_overseas_leg_effect = yes
+	}
+}
+
 #Find shipwreck survivor: survivor will join your court, and can be of any South American culture, including Patagonian Welsh
 #Encounter storm: similar mechanically to shark attack, except no chance to end encounter early via skills.

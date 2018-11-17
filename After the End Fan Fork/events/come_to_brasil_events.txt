@@ -3289,18 +3289,18 @@ character_event = { #Overseas leg event tombola
 				}
 				break = yes
 			}
-			50 = { # Find shipwreck survivor
-				trigger = {
-					NOT = { has_character_flag = shipwreck_survivor }
-				}
-				character_event = {
-					id = plscometobr.
-				}
-				break = yes
-			}
 			50 = { # Encounter storm (chance of death!)
 				trigger = {
 					NOT = { has_character_flag = storm_encountered }
+				}
+				character_event = {
+					id = plscometobr.49
+				}
+				break = yes
+			}
+			50 = { # Find shipwreck survivor
+				trigger = {
+					NOT = { has_character_flag = shipwreck_survivor }
 				}
 				character_event = {
 					id = plscometobr.
@@ -3777,7 +3777,7 @@ character_event = { #Shark attack
 		return_to_travel_overseas_leg_effect = yes
 	}
 	option = {
-		name = EVTOPTB_plscometobr_46
+		name = EVTOPTB_plscometobr_48
 		tooltip_info = hunter
 		trigger = {
 			trait = hunter
@@ -3787,5 +3787,204 @@ character_event = { #Shark attack
 	}
 }
 
-#Find shipwreck survivor: survivor will join your court, and can be of any South American culture, including Patagonian Welsh
-#Encounter storm: similar mechanically to shark attack, except no chance to end encounter early via skills.
+character_event = { #Storm hits
+	id = plscometobr.49
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_ATLANTIC
+	
+	desc = EVTDESC_plscometobr_49
+	picture = GFX_evt_merchant_ship_at_sea_republic
+    border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = overseas_leg
+	}
+	
+	immediate = {
+		set_character_flag = storm_encountered
+	}
+	
+	option = { #All hands on deck!
+		name = EVTOPTA_plscometobr_49
+		trigger = {
+			NOT = { trait = craven }
+		}
+		random_list = {
+			25 = {
+				#No major injuries, ship is fine
+				custom_tooltip = { text = storm_unscathed_tt }
+			}
+			40 = {
+				#You get injured, ship is damaged
+				hidden_effect = {
+					add_trait = wounded
+					change_variable = {
+						which = overseas_travel_events
+						value = 1
+					}
+				}
+				custom_tooltip = { text = storm_wounded_tt }
+    		}
+			20 = {
+				#You get severely injured, ship is severely damaged
+				hidden_effect = {
+					add_maimed_trait_effect = yes
+					change_variable = {
+						which = overseas_travel_events
+						value = 2
+					}
+				}
+				custom_tooltip = { text = storm_severely_injured_tt }
+			}
+			10 = {
+				#You are killed!
+    			hidden_effect = { death = { death_reason = death_accident } }
+				custom_tooltip = { text = storm_death_tt }
+    		}
+		}
+		return_to_travel_overseas_leg_effect = yes
+	}
+	option = { #Every man for himself!
+		name = EVTOPTB_plscometobr_49
+		trigger = {
+			NOT = { trait = brave }
+		}
+		prestige = -50
+				random_list = {
+			20 = {
+				#No major injuries, ship is fine
+				custom_tooltip = { text = storm_unscathed_tt }
+			}
+			60 = {
+				#You get injured, ship is damaged
+				hidden_effect = {
+					add_trait = wounded
+					change_variable = {
+						which = overseas_travel_events
+						value = 1
+					}
+				}
+				custom_tooltip = { text = storm_wounded_tt }
+    		}
+			15 = {
+				#You get severely injured, ship is severely damaged
+				hidden_effect = {
+					add_maimed_trait_effect = yes
+					change_variable = {
+						which = overseas_travel_events
+						value = 2
+					}
+				}
+				custom_tooltip = { text = storm_severely_injured_tt }
+			}
+			5 = {
+				#You are killed!
+    			hidden_effect = { death = { death_reason = death_accident } }
+				custom_tooltip = { text = storm_death_tt }
+    		}
+		}
+		return_to_travel_overseas_leg_effect = yes
+	}
+}
+
+character_event = { #Find shipwreck survivor
+	id = plscometobr.50
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BR_TRIP_ATLANTIC
+	
+	desc = EVTDESC_plscometobr_50
+	picture = GFX_evt_carriage_default #placeholder
+    border = GFX_event_normal_frame_diplomacy
+
+	trigger = {
+		trait = kow_tow_travels
+		has_character_flag = overseas_leg
+		NOT = { has_character_flag = shipwreck_survivor }
+	}
+	
+	hide_from = yes
+	
+	is_triggered_only = yes
+
+	option = { #Do not allow survivor onto your ship
+		name = EVTOPTA_plscometobr_15
+		trigger = {
+			NOR = {
+				trait = charitable
+				trait = kind
+			}
+		}
+		scaled_piety = -0.1
+	}
+	
+	option = { #Allow beggar onto your ship
+		name = EVTOPTB_plscometobr_15
+		scaled_piety = 0.1
+	}
+	
+	option = { #Invite survivor into your court
+		name = EVTOPTB_plscometobr_15
+		trigger = {
+			NOR = {
+				trait = paranoid
+				trait = cruel
+			}
+		}
+		create_character = {
+			religion = apostolic
+			culture = brazilian
+			dynasty = none
+			age = 25
+			random_traits = yes
+			female = no
+			health = 6
+			flag = ai_flag_refuse_conversion
+			add_random_education_trait = 4
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			random_list = { # Random chance to be any South American culture
+				20 = {
+					culture = brazilian
+				}
+				20 = {
+					culture = amazonense
+				}
+				20 = {
+					culture = baiano
+				}
+				20 = {
+					culture = gaucho
+				}
+				20 = {
+					culture = wladfaeg
+				}
+			}
+			random_list = { # Random chance to have any South American religion
+				20 = {
+					culture = brazilian
+				}
+				20 = {
+					culture = amazonense
+				}
+				20 = {
+					culture = baiano
+				}
+				20 = {
+					culture = gaucho
+				}
+				20 = {
+					culture = wladfaeg
+				}
+			}
+		}
+	}
+	
+	after = {
+		return_to_travel_overseas_leg_effect = yes
+	}
+}

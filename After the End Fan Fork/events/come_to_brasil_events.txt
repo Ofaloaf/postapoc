@@ -132,7 +132,7 @@ character_event = { #Sea Route notification event
 		name = EVTOPTA_plscometobr_3
 		hidden_tooltip = {
 			character_event = {
-				id = plscometobr. # random overseas travel event tombola
+				id = plscometobr.43 # random overseas travel event tombola
 				days = 110
 				random = 30
 			}
@@ -3303,7 +3303,7 @@ character_event = { #Overseas leg event tombola
 					NOT = { has_character_flag = shipwreck_survivor }
 				}
 				character_event = {
-					id = plscometobr.
+					id = plscometobr.50
 				}
 				break = yes
 			}
@@ -3311,7 +3311,7 @@ character_event = { #Overseas leg event tombola
 	}
 	
 	### No more possible travel events - Continue to Brazil anyway with extra delay
-	character_event = { id = plscometobr. days = 75 random = 30 }
+	character_event = { id = plscometobr.51 days = 75 random = 30 }
 }
 
 #You feel homesick...
@@ -3986,5 +3986,1083 @@ character_event = { #Find shipwreck survivor
 	
 	after = {
 		return_to_travel_overseas_leg_effect = yes
+	}
+}
+
+character_event = { # Enter Brazil, choose path
+	id = plscometobr.51
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_ARRIVAL
+	desc = EVTDESC_plscometobr_51
+	
+	picture = GFX_evt_china_open #placeholder
+    border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	immediate = {
+		
+	}
+	
+	option = { # Kow Tow before the Emperor
+		name = EVTOPTA_plscometobr_51
+		# Actually Kow Tow
+		custom_tooltip = {
+			text = EVTTOOLTIPA_plscometobr_51
+			#set_character_flag = kow_tow_actually
+		}
+	}
+	
+	after = {
+		hidden_tooltip = {
+			set_variable = {
+				which = brazil_travel_events
+				value = 2
+			}
+			character_event = {
+				id = plscometobr.52
+				days = 40
+				random = 25
+			}
+		}
+	}
+}
+
+character_event = { # Within Brasil Tombola
+	id = plscometobr.52
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	immediate = {
+		if = {
+			limit = {
+				NOT = {
+					check_variable = {
+						which = brasil_travel_events
+						value = 1
+					}
+				}
+			} 
+			### No more travel events - Move on to Brasil conclusion
+			character_event = { id = plscometobr.58 days = 50 random = 30 }
+			break = yes
+		}
+		
+		# Fire a random travel event
+		random_list = {
+			50 = { # Visit Temple (depending on religion)
+				trigger = {
+					offmap_ruler = {
+						religion_group = afro_syncretic
+					}
+					NOT = { has_character_flag = brasil_visited_temple }
+				}
+				character_event = {
+					id = plscometobr.53
+				}
+				break = yes
+			}
+			50 = { # Visit Church (depending on religion)
+				trigger = {
+					offmap_ruler = {
+						religion_group = christian
+					}
+					NOT = { has_character_flag = brasil_visited_temple }
+				}
+				character_event = {
+					id = plscometobr.54
+				}
+				break = yes
+			}
+			50 = { # Play Futebol
+				trigger = {
+					NOT = { has_character_flag = brasil_played_futebol }
+				}
+				modifier = {
+					factor = 2
+					trait = strategist
+				}
+				character_event = {
+					id = plscometobr.55
+				}
+				break = yes
+			}
+			50 = { # Discuss the Writings of Bonifacio
+				character_event = { id = plscometobr.56 }
+				trigger = {
+					#has_character_flag = kow_tow_actually
+					NOT = { has_character_flag = read_bonifacio }
+				}
+			}
+			50 = {  # Visit the markets
+				trigger = { NOT = { has_character_flag = visited_market } }
+				character_event = { id = plscometobr.57 }
+			}
+		}
+	}
+}
+
+# You visit a local temple (Afro-Syncretic)
+character_event = {
+	id = plscometobr.53
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_ARRIVAL
+	desc = {
+		text = EVTDESC_plscometobr_53
+	}
+	
+	picture = GFX_evt_china_diplomatic_incident
+    border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	immediate = {
+		set_character_flag = brasil_visited_temple
+	}
+	
+	option = { # Study their rituals 
+		name = EVTOPTA_plscometobr_53
+		trigger = {
+			NOR = {
+				trait = zealous
+				religion_group = afro_syncretic # Afro-Syncretic religion group
+			}
+		}
+		add_trait = sympathy_afro_syncretic # Sympathy for Afro-Syncretic religions
+	}
+	
+	option = { # Join in the ceremony
+		name = EVTOPTB_plscometobr_53
+		
+		if = {
+			limit = {
+				trait = zealous
+				NOT = { religion_group = afro_syncretic } # Afro-Syncretic religion group 
+			}
+			remove_trait = zealous
+		}
+		random = {
+			chance = 30
+			add_trait = content
+		}
+		custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+	}
+	
+	option = { # Loudly criticize their heathen ways
+		name = EVTOPTC_plscometobr_53
+		trigger = {
+			trait = zealous
+			NOT = { religion_group = afro_syncretic } # Afro-Syncretic religion group 
+		}
+		
+		piety = 30
+		custom_tooltip = {
+			text = EVTTOOLTIP_JD_BAD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				subtract_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 5
+				}
+			}
+		}
+	}
+	
+	option = { # Study the symbolism used in their texts.
+		name = EVTOPTD_plscometobr_53
+		random = {
+			chance = 15
+			change_learning = 1
+		}
+	}
+	
+	after = {
+		return_to_brasil_tombola_effect = yes
+	}
+}
+
+# You visit a local church (Christian)
+character_event = {
+	id = plscometobr.54
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_ARRIVAL
+	desc = {
+		text = EVTDESC_plscometobr_54
+	}
+	
+	picture = GFX_evt_china_diplomatic_incident
+    border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	immediate = {
+		set_character_flag = brasil_visited_temple
+	}
+	
+	option = { # Study their rituals 
+		name = EVTOPTA_plscometobr_54
+		trigger = {
+			NOR = {
+				trait = zealous
+				religion_group = christian # Christian religion group
+			}
+		}
+		add_trait = sympathy_christendom # Sympathy for Christian religions
+	}
+	
+	option = { # Join in the ceremony
+		name = EVTOPTB_plscometobr_54
+		
+		if = {
+			limit = {
+				trait = zealous
+				NOT = { religion_group = christian } # Christian religion group 
+			}
+			remove_trait = zealous
+		}
+		random = {
+			chance = 30
+			add_trait = content
+		}
+		custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+	}
+	
+	option = { # Loudly criticize their heathen ways
+		name = EVTOPTC_plscometobr_54
+		trigger = {
+			trait = zealous
+			NOT = { religion_group = christian } # Afro-Syncretic religion group 
+		}
+		
+		piety = 30
+		custom_tooltip = {
+			text = EVTTOOLTIP_JD_BAD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				subtract_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 5
+				}
+			}
+		}
+	}
+	
+	option = { # Study the symbolism used in their texts.
+		name = EVTOPTD_plscometobr_54
+		random = {
+			chance = 15
+			change_learning = 1
+		}
+	}
+	
+	after = {
+		return_to_brasil_tombola_effect = yes
+	}
+}
+
+# You spot a group of people playing Futebol in the park
+character_event = {
+	id = plscometobr.55
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_ARRIVAL
+	desc = EVTDESC_plscometobr_55
+	
+	picture = GFX_evt_garden
+    border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	immediate = {
+		set_character_flag = brasil_played_futebol
+	}
+	
+	option = { # Let me show you how it's done
+		name = EVTOPTA_plscometobr_55
+		trigger = {
+			trait = strategist
+		}
+		tooltip_info = strategist
+		
+		wealth = 50
+		if = {
+			limit = {
+				NOT = { trait = proud }
+			}
+			add_trait = proud
+		}
+		custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 2
+				}
+			}
+		}
+	}
+	
+	option = { # Let me try that
+		name = EVTOPTB_plscometobr_55
+		trigger = {
+			NOT = {
+				trait = strategist
+			}
+		}
+		
+		random_list = {
+			65 = {
+				wealth = 25
+			}
+			35 = {
+				wealth = -10
+			}
+		}
+		custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 2
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_plscometobr_55 # I'll just enjoy the park instead
+		
+		random_list = {
+			50 = {
+				add_trait = patient
+			}
+			50 = {
+				add_trait = humble
+			}
+		}
+	}
+	
+	after = {
+		return_to_brasil_tombola_effect = yes
+	}
+}
+
+character_event = { #Learn about political philosophy or attempt to impress pretty [man/woman]
+    id = plscometobr.56
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_ARRIVAL
+    desc = EVTDESC_plscometobr_56
+    picture = GFX_evt_chinese_bureaucrat
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+
+    immediate = {
+    	set_character_flag = read_bonifacio
+    }
+
+    option = { #I would love to hear more about political philosophy!
+        name = EVTOPTA_plscometobr_56
+        custom_tooltip = { text = EVTOPTA_plscometobr_56_TT } #They like your enthusiasm!
+        custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+    }
+    option = { #Actually, I'm already well familiar with Bonifacio, my lords (poet)
+        name = EVTOPTB_plscometobr_56
+        custom_tooltip = { text = EVTOPTB_plscometobr_56_TT } #They are impressed...!
+        prestige = 50
+        custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+        tooltip_info = poet
+		trigger = { 
+			trait = poet
+			NOT = { trait = scholar }
+		}
+    }
+    option = { #Actually, I'm already well familiar with Bonifacio, my lords. (scholar)
+        name = EVTOPTB_plscometobr_56
+        custom_tooltip = { text = EVTOPTB_plscometobr_56_TT } #They are impressed..!
+        prestige = 100
+        
+        custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+        tooltip_info = scholar
+		trigger = { trait = scholar }
+    }
+    option = { #I'd rather see the palace...
+        name = EVTOPTC_plscometobr_56
+        custom_tooltip = { text = EVTOPTC_plscometobr_56_TT } #They make sure you are accompanied...
+
+        random = {
+        	chance = 30
+        	change_stewardship = 1
+        }
+
+        custom_tooltip = {
+			text = EVTTOOLTIP_JD_BAD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				subtract_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 5
+				}
+			}
+		}
+    }
+    after = {
+    	return_to_brasil_tombola_effect = yes
+    }
+}
+
+character_event = { #Visit the market
+    id = plscometobr.57
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_ARRIVAL
+    desc = EVTDESC_plscometobr_57
+    picture = GFX_evt_china_stable
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+
+    hide_from = yes
+    immediate = {
+    	set_character_flag = visited_market
+    	hidden_effect = {
+	    	offmap_china = {
+				governor = {
+					create_random_steward  = {
+						age = 45
+						random_traits = yes
+						female = 50
+						dynasty = none
+						attributes = {
+							stewardship = 3
+						}
+						health = 10
+					}
+					new_character = {
+						save_event_target_as = chinese_trader
+						give_nickname = nick_the_trader
+	    				add_brazilian_artifact_effect = yes
+					}
+				}
+			}
+    	}
+    }
+
+    option = { #What is that scent...? Mmhm!
+        name = EVTOPTA_plscometobr_57
+        custom_tooltip = { text = EVTOPTA_plscometobr_57_TT } #you partake in the local cuisine!
+
+        random = {
+        	chance = 50
+        	add_trait_gluttonous_effect = yes
+        }
+        custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+    }
+    option = { #Let's trade, you there!
+        name = EVTOPTB_JD_15016
+        custom_tooltip = { text = EVTOPTB_plscometobr_57_TT }
+		
+		scaled_wealth = { value = -0.6 min = -200 }
+
+        hidden_effect = {
+	        event_target:chinese_trader = {
+	        	event_target:brazilian_artifact = {
+		        	transfer_artifact = {
+						from = PREV
+						to = PREVPREV
+					}
+	        	}
+	        	death = { death_reason =  death_missing }
+	        }
+        }
+
+        custom_tooltip = {
+			text = EVTTOOLTIP_JD_GOOD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				change_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+		trigger = { #only if you don't already have a ton of Brazilian artifacts
+			NOT = {
+				any_artifact = {
+					count = 13
+					has_artifact_flag = brazilian
+				}			
+			}
+		}
+    }
+
+    option = { #Steal a Brazilian artifact in the market!
+        name = EVTOPTC_plscometobr_57
+        custom_tooltip = { text = EVTOPTC_plscometobr_57_TT }
+        tooltip_info = intrigue
+
+		custom_tooltip = {
+			text = EVTTOOLTIP_JD_BAD_INFLUENCE_ON_EMPEROR_EVALUATION
+			hidden_effect = {
+				subtract_variable = {
+					which = kow_tow_emperor_impression_evaluation
+					value = 3
+				}
+			}
+		}
+
+        hidden_effect = {
+	        event_target:chinese_trader = {
+	        	event_target:brazilian_artifact = {
+		        	transfer_artifact = {
+						from = PREV
+						to = PREVPREV
+					}
+	        	}
+	        }
+        }
+        trigger = {
+        	OR = {
+        		trait = elusive_shadow
+        		intrigue = 15
+        	}
+        }
+    }
+
+    option = { #I just wanna go home.
+        name = EVTOPTD_plscometobr_57
+    }
+
+    after = {
+    	return_to_brazil_tombola_effect = yes
+    	hidden_effect = {
+	        event_target:chinese_trader = { #removes the trader from the game, along with their artifact (if you didn't trade)...
+	        	any_artifact = { destroy_artifact = yes }
+	        	death = { death_reason =  death_missing }
+	        }
+        }
+    }
+}
+
+character_event = { # audience w/ the Emperor
+	id = plscometobr.58
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_EMPEROR
+	desc = {
+		text = EVTDESCA_plscometobr_58 # Bad outcome
+		picture = GFX_evt_chinese_bureaucrat
+		trigger = {
+			has_character_flag = kow_tow_bad_outcome
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_58 # Okay outcome
+		picture = GFX_evt_china_golden_age
+		trigger = {
+			has_character_flag = kow_tow_okay_outcome
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_58 # Great outcome
+		picture = GFX_evt_china_golden_age
+		trigger = {
+			has_character_flag = kow_tow_great_outcome
+		}
+	}
+	picture = GFX_evt_china_golden_age
+	
+    border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+
+	trigger = {
+		trait = kow_tow_travels
+	}
+	
+	immediate = {
+		export_to_variable = {
+			which = kow_tow_temp_calc
+			value = diplomacy
+		}
+		divide_variable = {
+			which = kow_tow_temp_calc
+			value = 2
+		}
+		change_variable = {
+			which = kow_tow_emperor_impression_evaluation
+			which = kow_tow_temp_calc
+		}
+		set_variable = { # Clearing it for save game memory optimization
+			which = kow_tow_temp_calc
+			value = 0
+		}
+		if = {
+			limit = {
+				real_tier = KING
+			}
+			change_variable = {
+				which = kow_tow_emperor_impression_evaluation
+				value = 7
+			}
+		}
+		else_if = {
+			limit = {
+				real_tier = EMPEROR
+			}
+			change_variable = {
+				which = kow_tow_emperor_impression_evaluation
+				value = 14
+			}
+		}
+		
+		if = {
+			limit = {
+				disliked_by_offmap = {
+					type = offmap_china
+				}
+			}
+			subtract_variable = {
+				which = kow_tow_emperor_impression_evaluation
+				value = 5
+			}
+		}
+		else_if = {
+			limit = {
+				liked_by_offmap = {
+					type = offmap_china
+				}
+			}
+			change_variable = {
+				which = kow_tow_emperor_impression_evaluation
+				value = 5
+			}
+		}
+		
+		random_list = {
+			45 = { # Bad outcome
+				set_character_flag = kow_tow_bad_outcome
+				trigger = {
+					NOT = {
+						check_variable = {	
+							which = kow_tow_emperor_impression_evaluation
+							value = 23
+						}
+					}
+				}
+				modifier = {
+					factor = 0.85
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 12
+					}
+				}
+				modifier = {
+					factor = 0.85
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 13
+					}
+				}
+				modifier = {
+					factor = 0.85
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 14
+					}
+				}
+				modifier = {
+					factor = 0.85
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 15
+					}
+				}
+				modifier = {
+					factor = 0.85
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 17
+					}
+				}
+				modifier = {
+					factor = 0.85
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 19
+					}
+				}
+				modifier = {
+					factor = 0.85
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 21
+					}
+				}
+			}
+			45 = { # Okay outcome
+				set_character_flag = kow_tow_okay_outcome
+			}
+			10 = { # Great outcome
+				set_character_flag = kow_tow_great_outcome
+				trigger = {
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 10
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 12
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 12
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 13
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 14
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 15
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 17
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 19
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 21
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 23
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 25
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 27
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 29
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 31
+					}
+				}
+				modifier = {
+					factor = 1.1
+					check_variable = {	
+						which = kow_tow_emperor_impression_evaluation
+						value = 33
+					}
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_58 # Perform kow-tow before the Emperor
+		trigger = {
+			has_character_flag = kow_tow_bad_outcome
+		}
+		add_trait = kow_tow_completed_tier_1
+		add_offmap_currency = {
+			offmap = offmap_china
+			value = 100
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			prestige = -250
+		}
+		else = {
+			trigger_switch = {
+				on_trigger = real_tier
+				DUKE = { prestige = -250 }
+				KING = { prestige = -500 }
+				EMPEROR = { prestige = -1000 }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_plscometobr_58 # Refuse the humiliation
+		trigger = {
+			has_character_flag = kow_tow_bad_outcome
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_plscometobr_58 # Perform kow-tow before the Emperor
+		trigger = {
+			has_character_flag = kow_tow_okay_outcome
+		}
+		add_trait = kow_tow_completed_tier_2
+		add_offmap_currency = {
+			offmap = offmap_china
+			value = 100
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			prestige = -250
+		}
+		else = {
+			trigger_switch = {
+				on_trigger = real_tier
+				DUKE = { prestige = -250 }
+				KING = { prestige = -500 }
+				EMPEROR = { prestige = -1000 }
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTD_plscometobr_58 # Perform kow-tow before the Emperor
+		trigger = {
+			has_character_flag = kow_tow_great_outcome
+		}
+		add_trait = kow_tow_completed_tier_3
+		add_offmap_currency = {
+			offmap = offmap_china
+			value = 100
+		}
+		if = {
+			limit = {
+				is_nomadic = yes
+			}
+			prestige = -250
+		}
+		else = {
+			trigger_switch = {
+				on_trigger = real_tier
+				DUKE = { prestige = -250 }
+				KING = { prestige = -500 }
+				EMPEROR = { prestige = -1000 }
+			}
+		}
+	}
+	
+	after = {
+		clr_character_flag = kow_tow_bad_outcome
+		clr_character_flag = kow_tow_okay_outcome
+		clr_character_flag = kow_tow_great_outcome
+		clean_up_after_kow_tow_effect = yes
+	}
+}
+
+# Fired from on_policy_change
+character_event = {
+	id = plscometobr.59
+	has_dlc = "Jade Dragon"
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		FROM = {
+			has_policy = china_isolationist
+		}
+	}
+	
+	immediate = {
+		any_playable_ruler = {
+			limit = {
+				trait = kow_tow_travels
+			}
+			set_character_flag = kow_tow_abort_isolationist
+			character_event = {
+				id = plscometobr.60
+			}
+		}
+	}
+}
+
+### Kowtow was aborted for some reason
+character_event = {
+	id = plscometobr.60
+	has_dlc = "Jade Dragon"
+	
+	title = EVTTITLE_BRASIL_ABORTED
+    
+	desc = {
+		text = EVTDESCA_plscometobr_60
+		trigger = {
+			has_character_flag = kow_tow_abort_war
+		}
+	}
+	desc = {
+		text = EVTDESCB_plscometobr_60
+		trigger = {
+			has_character_flag = kow_tow_abort_isolationist
+		}
+	}
+	desc = {
+		text = EVTDESCC_plscometobr_60
+		trigger = {
+			NOR = {
+				has_character_flag = kow_tow_abort_war
+				has_character_flag = kow_tow_abort_isolationist
+			}
+		}
+	}
+    picture = GFX_evt_china_isolationist
+    border = GFX_event_normal_frame_diplomacy
+	
+	hide_from = yes
+    
+	is_triggered_only = yes
+
+	immediate = {
+		remove_trait = kow_tow_travels
+	}
+	
+	option = {
+		name = EVTOPTA_plscometobr_60
+	}
+	
+	after = {
+		clr_character_flag = kow_tow_abort_war
+		clr_character_flag = kow_tow_abort_isolationist
+		tooltip = {
+			clean_up_after_kow_tow_effect = yes
+		}
 	}
 }

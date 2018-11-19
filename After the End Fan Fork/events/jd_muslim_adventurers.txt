@@ -1,1 +1,548 @@
-#Disabled for now
+namespace = JD
+#Repurposed for pirate adventurers
+#An ambitious Pirate begins to plan an adventure for a Kingdom in the South Atlantic
+character_event = {
+	id = JD.1000
+	
+	hide_window = yes # Only fires for unplayable landless characters
+	
+	is_triggered_only = yes
+	
+	min_age = 16
+	max_age = 50
+	capable_only = yes
+	prisoner = no
+	religion_group = pirate
+	
+	trigger = {
+		is_ruler = no
+		is_ill = no
+		trait = ambitious
+		prestige = 250
+		religion_authority = 0.4
+		
+		OR = {
+			diplomacy = 10
+			martial = 10
+		}
+		
+		NOR = {
+			trait = craven
+			trait = inbred
+			trait = imbecile
+			trait = decadent
+			trait = eunuch
+			trait = celibate
+			has_minor_title = title_court_physician
+			is_ascetic_trigger = yes
+			has_character_flag = was_pirate_invader
+		}
+		
+		OR = { # Pacing mechanic, we don't want too many adventurers to spawn at once
+			had_global_flag = { flag = pirate_invader_spawned years = 50 }
+			NOT = {
+				has_global_flag = pirate_invader_spawned
+			}
+		}
+		
+		NOT = {
+			has_game_rule = {
+				name = adventurers
+				value = none
+			}
+		}
+		
+		liege = {
+			religion_group = pirate
+		}
+		
+		NOT = { any_spouse = { is_ruler = yes } }
+
+		OR = {
+			is_female = no
+			liege = {
+				AND = {
+					has_law = status_of_women_4
+					religion_group = pirate
+				}
+			}
+			has_game_rule = {
+				name = gender
+				value = all
+			}
+		}
+		
+		
+		location = { # only the Caribbean can launch adventurers
+			region = world_caribbean
+		}
+		
+		NOT = { # Somewhat clunky way of checking that the character does not stand to inherit any titles
+			any_heir_title = {
+				always = yes
+			}
+		}
+		
+		NOT = { has_character_modifier = planning_duchy_adventure }
+		
+		any_independent_ruler = { # There must be a valid target
+			ai = yes
+			is_tributary = no
+			NOT = { culture = ROOT }
+			NOT = { religion_group = ROOT }
+			is_landed = yes
+			independent = yes
+			NOT = { is_vassal_or_below = ROOT }
+			any_realm_province = {
+				region = custom_pirate_invasion_target_region
+			}
+			realm_size = 25
+			ROOT = {
+				NOR = {
+					obedient = PREV
+					non_interference = PREV
+				}
+			}
+		}
+		
+		NOT = { # There can't already be a large realm of the same religion in South America
+			any_independent_ruler = {
+				religion = ROOT
+				realm_size = 80
+				capital_scope = {
+					region = custom_pirate_invasion_target_region
+				}
+			}
+		}
+		
+		NOT = { # There can't already be a massive realm of the same religious group in South America
+			any_independent_ruler = {
+				religion_group = ROOT
+				realm_size = 250
+				capital_scope = {
+					region = custom_pirate_invasion_target_region
+				}
+			}
+		}
+		
+	}
+	
+	immediate = {
+		random_list = {
+			50 = {
+				modifier = { # Less random invasions of South America happen when there's already a powerful pirate kingdom there
+					factor = 8
+					any_independent_ruler = {
+						religion = ROOT
+						realm_size = 50
+						capital_scope = {
+							region = custom_pirate_invasion_target_region
+						}
+					}
+				}
+				modifier = {
+					factor = 1.25
+					NOT = { religion_authority = 0.8 }
+				}
+				modifier = {
+					factor = 1.25
+					NOT = { religion_authority = 0.6 }
+				}
+				modifier = {
+					factor = 3.0
+					trait = slothful
+				}
+				modifier = {
+					factor = 3.0
+					trait = humble
+				}
+				modifier = {
+					factor = 3.0
+					trait = kind
+				}
+				modifier = {
+					factor = 3.0
+					is_weak_trigger = yes
+				}
+				modifier = {
+					factor = 3.0
+					is_dumb_trigger = yes
+				}
+				modifier = {
+					factor = 50
+					has_game_rule = {
+						name = adventurers
+						value = rare
+					}
+				}
+			}
+			50 = {
+				modifier = {
+					factor = 2
+					culture = papiamen
+				}
+				modifier = {
+					factor = 2
+					has_character_flag = flag_denied_title
+				}
+				modifier = {
+					factor = 1.25
+					prestige = 1000
+				}
+				modifier = {
+					factor = 1.25
+					prestige = 1500
+				}
+				modifier = {
+					factor = 1.25
+					prestige = 2000
+				}
+				modifier = {
+					factor = 1.25
+					diplomacy = 12
+				}
+				modifier = {
+					factor = 1.25
+					diplomacy = 16
+				}
+				modifier = {
+					factor = 1.25
+					diplomacy = 20
+				}
+				modifier = {
+					factor = 1.25
+					martial = 12
+				}
+				modifier = {
+					factor = 1.25
+					martial = 16
+				}
+				modifier = {
+					factor = 1.25
+					martial = 20
+				}
+				modifier = {
+					factor = 1.25
+					trait = brave
+				}
+				modifier = {
+					factor = 1.25
+					trait = proud
+				}
+				modifier = {
+					factor = 1.25
+					trait = diligent
+				}
+				modifier = {
+					factor = 1.5
+					is_smart_trigger = yes
+				}
+				modifier = {
+					factor = 1.5
+					is_strong_trigger = yes
+				}
+				random_independent_ruler = {
+					limit = {
+						ai = yes
+						is_tributary = no
+						NOT = { culture = ROOT }
+						NOT = { religion_group = ROOT }
+						is_landed = yes
+						independent = yes
+						NOT = { is_vassal_or_below = ROOT }
+						any_realm_province = {
+							region = custom_pirate_invasion_target_region
+						}
+						realm_size = 25
+						ROOT = {
+							NOR = {
+								obedient = PREV
+								non_interference = PREV
+							}
+						}
+					}
+					
+					random_realm_province = {
+						limit = {
+							region = custom_pirate_invasion_target_region
+						}
+						
+						ROOT = {
+							opinion = {
+								who = PREVPREV
+								years = 3
+								modifier = opinion_duchy_adventure_target
+							}
+							add_character_modifier = {
+								name = planning_duchy_adventure
+								hidden = yes
+								days = 731
+							}
+							character_event = {
+								id = JD.1002 # Fire the attack
+								days = 730
+							}
+						}
+						PREV = {
+							character_event = {
+								id = JD.1001 # Warn the target
+							}
+						}
+					}
+				}
+				end_inaccessibility_effect = yes #removes in hiding or in_seclusion
+				
+				set_character_flag = was_pirate_invader
+				set_character_flag = do_not_disturb
+				set_global_flag = pirate_invader_spawned
+				character_event = { id = JD.1005 days = 730 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = JD.1001
+	desc = EVTDESC_TOG_1211
+	picture = GFX_evt_crusaders
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		opinion = {
+			who = FROM
+			modifier = opinion_targeted_by_adventurer
+			months = 24
+		}
+	}
+	
+	option = {
+		name = "EVTOPTA_TOG_1211"
+	}
+}
+
+# An ambitious character with no inheritance starts an adventure for a foreign title
+# (Temporary title created and a war declared)
+character_event = {
+	id = JD.1002
+	
+	hide_window = yes # Only fires for unplayable landless characters
+	
+	is_triggered_only = yes
+
+	prisoner = no
+	only_capable = yes
+	
+	trigger = {
+		
+		is_ruler = no
+		NOT = { any_spouse = { is_ruler = yes } }
+		
+		NOT = {
+			any_heir_title = {
+				always = yes
+			}
+		}
+		
+		any_independent_ruler = {
+			ai = yes
+			NOT = { culture = ROOT }
+			NOT = { religion_group = ROOT }
+			is_landed = yes
+			independent = yes
+			NOT = { is_vassal_or_below = ROOT }
+			any_realm_province = {
+				region = custom_pirate_invasion_target_region
+			}
+			ROOT = {
+				NOR = {
+					obedient = PREV
+					non_interference = PREV
+				}
+			}
+			reverse_has_opinion_modifier = {
+				who = ROOT
+				modifier = opinion_duchy_adventure_target
+			}
+		}
+	}
+	
+	immediate = {
+		wealth = 500
+		clr_character_flag = do_not_disturb
+		
+		liege = {
+			character_event = {
+				id = JD.1003
+				days = 1
+			}
+		}
+		
+		liege = {
+			capital_scope = {
+				random_independent_ruler = {
+					limit = {
+						ai = yes
+						is_tributary = no
+						NOT = { culture = ROOT }
+						NOT = { religion_group = ROOT }
+						is_landed = yes
+						independent = yes
+						NOT = { is_vassal_or_below = ROOT }
+						any_realm_province = {
+							region = custom_pirate_invasion_target_region
+						}
+						ROOT = {
+							NOR = {
+								obedient = PREV
+								non_interference = PREV
+							}
+						}
+						reverse_has_opinion_modifier = {
+							who = ROOT
+							modifier = opinion_duchy_adventure_target
+						}
+					}
+					random_realm_province = {
+						limit = {
+							region = custom_pirate_invasion_target_region
+						}
+						
+						ROOT = {
+							set_defacto_liege = ROOT
+							create_title = {
+								tier = DUKE
+								landless = yes
+								temporary = yes
+								adventurer = yes
+								culture = ROOT
+								name = "CLAIMANT_ADVENTURE"
+								holder = ROOT
+							}
+							
+							set_character_flag = duchy_adventurer
+						
+							spawn_unit = {
+								province = PREVPREVPREV
+								home = PREVPREVPREV
+								owner = THIS
+								match_character = PREVPREV
+								match_mult = 0.50
+								match_min = 1000
+								match_max = 10000
+								reinforces = yes
+								reinforce_rate_multiplier = 0.25
+								merge = yes
+								attrition = 0.25
+							}
+							spawn_unit = {
+								province = PREVPREVPREV
+								home = PREVPREVPREV
+								owner = THIS
+								match_character = PREVPREV
+								match_mult = 0.50
+								match_min = 1000
+								match_max = 10000
+								reinforces = yes
+								reinforce_rate_multiplier = 0.25
+								merge = yes
+								attrition = 0.25
+								cannot_inherit = yes
+							}
+							spawn_unit = {
+								province = PREVPREVPREV
+								home = PREVPREVPREV
+								owner = THIS
+								match_character = PREVPREV
+								match_mult = 0.50
+								match_min = 1000
+								match_max = 10000
+								reinforces = yes
+								reinforce_rate_multiplier = 0.25
+								merge = yes
+								attrition = 0.25
+								cannot_inherit = yes
+							}
+							war = {
+								target = PREVPREV
+								casus_belli = kingdom_adventure
+								thirdparty_title = PREV
+								tier = KING
+							}
+							remove_opinion = {
+								who = PREVPREV
+								modifier = opinion_duchy_adventure_target
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		# Create some decent commander characters
+		spawn_good_commander_effect = yes
+		spawn_good_commander_effect = yes
+		spawn_good_commander_effect = yes
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+character_event = {
+	id = JD.1003
+	desc = EVTDESC_TOG_1213
+	picture = GFX_evt_crusaders
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		FROM = { is_ruler = yes } # The DoW worked and the adventurer has a temporary title
+	}
+	
+	immediate = {
+		FROM = {
+			add_trait = adventurer
+		}
+		any_liege = {
+			character_event = {
+				id = JD.1004
+			}
+		}
+	}
+	
+	option = {
+		name = "EVTOPTA_TOG_1203"
+	}
+}
+
+character_event = {
+	id = JD.1004
+	desc = EVTDESC_TOG_1214
+	picture = GFX_evt_crusaders
+	border = GFX_event_normal_frame_war
+	
+	show_from_from = yes
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = "EVTOPTA_TOG_1203"
+	}
+}
+
+#safety clear of DND
+character_event = {
+	id = JD.1005
+	
+	is_triggered_only = yes
+	
+	hide_window = yes
+	
+	immediate = {
+		clr_character_flag = do_not_disturb
+	}
+}

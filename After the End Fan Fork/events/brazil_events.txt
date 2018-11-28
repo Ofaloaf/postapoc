@@ -18,3 +18,874 @@ character_event = {
 		dynasty = mother_bastard	
 	}
 }
+
+##Candomble Civil War events##
+
+# Status changes to 'Candomble Civil War'
+# Hidden. Fired from on_offmap_yearly_pulse.
+# Root = Governor
+# From = Offmap
+character_event = {
+	id = NC.2000
+
+	has_dlc = "Jade Dragon"
+
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		FROM = {
+			is_offmap_tag = offmap_china
+			NOT = {
+				religion = candomble #not much point in the war then
+			}
+			NOR = {
+				has_status = brasil_religious_civil_war_candomble # Resolution handled by (NOT YET)
+				has_status = brasil_religious_civil_war_charismatic # Resolution handled by (NOT YET)
+				has_status = china_mongol_invasion # Resolution handled by JD.50160
+				has_status = china_jurchen_invasion # Resolution handled by JD.50200
+				has_status = china_civil_war # Resolution handled by JD.50300
+			}
+			OR = {
+				NOT = { has_offmap_flag = china_invaded_player_dynasty }
+				had_offmap_tmp_flag = { flag = china_invaded_player_dynasty years = 200 }
+			}
+		}
+	}
+	
+	weight_multiplier = {
+		factor = 1
+		modifier = { # Unrest last for at least 2 years before becoming Stable/Civil War
+			factor = 0
+			FROM = {
+				has_status = brasil_religious_civil_war_candomble
+				has_offmap_flag = china_had_unrest
+				NOT = {
+					had_offmap_tmp_flag = { flag = china_had_unrest years = 2 }
+				}
+			}
+		}
+		modifier = {
+			factor = 0.01
+			FROM = { has_status = china_golden_age }
+		}
+		modifier = {
+			factor = 0.1
+			FROM = { has_status = china_stable }
+		}
+		modifier = {
+			factor = 0.1
+			FROM = { NOT = { has_status = brasil_religious_civil_war_candomble } }
+		}
+	}
+	
+	immediate = {
+		FROM = {
+			set_offmap_flag = no_status_news
+			set_status = brasil_religious_civil_war_candomble
+			set_offmap_flag = brasil_religious_civil_war_candomble
+			clr_offmap_flag = no_status_news
+		}
+		any_player = {
+			limit = {
+				has_offmap_news_enabled = FROM
+				is_within_diplo_range = ROOT
+			}
+			narrative_event = { id = JD.50281 }
+		}
+	}
+}
+
+# News from Brazil: Candomble Civil War
+narrative_event = {
+	id = NC.2001
+	title = NEWS_FROM_CHINA
+	picture = GFX_brazil_civil_war
+	portrait = offmap_china
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+
+	desc = {
+		trigger = {
+			FROMFROM = {
+				prev_status = china_unrest
+			}
+		}
+		text = EVTDESC_NC_2001_UNREST
+	}
+	desc = {
+		trigger = {
+			FROMFROM = {
+				NOT = { prev_status = china_unrest }
+			}
+		}
+		text = EVTDESC_NC_2001_CW # Can use the default description
+	}
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		offmap_china = {
+			ruler = {
+				save_event_target_as = portrait_target
+			}
+		}
+	}
+	
+	portrait = event_target:portrait_target
+	
+	option = {
+		name = EVTOPT_JD_50281
+	}
+}
+
+# Chance for an end to the 'Candomble Civil War' Status
+# Hidden. Fired from on_offmap_yearly_pulse
+# Root = Governor
+# From = Offmap
+character_event = {
+	id = NC.2002
+
+	has_dlc = "Jade Dragon"
+
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		FROM = {
+			is_offmap_tag = offmap_china
+			has_status = brasil_religious_civil_war_candomble
+		}
+	}
+	
+	weight_multiplier = {
+		factor = 1
+		modifier = {
+			factor = 0
+			FROM = {
+				NOT = {
+					had_offmap_tmp_flag = { flag = brasil_religious_civil_war_candomble years = 2 }
+				}
+			}
+		}
+		modifier = {
+			factor = 2
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_candomble years = 3 } }
+		}
+		modifier = {
+			factor = 2
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_candomble years = 5 } }
+		}
+		modifier = {
+			factor = 2
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_candomble years = 8 } }
+		}
+		modifier = {
+			factor = 5
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_candomble years = 10 } }
+		}
+	}
+	
+	immediate = {
+		clr_offmap_flag = brasil_religious_civil_war_candomble
+		random_list = {
+			70 = { # The loyalists won!
+				FROM = {
+					set_offmap_flag = no_status_news
+					set_status = china_stable
+					clr_offmap_flag = no_status_news
+				}
+				
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = FROM
+						is_within_diplo_range = ROOT
+					}
+					narrative_event = { id = NC.2003 }
+				}
+				random_list = {
+					50 = {
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id =  JD.10109 days = 15 } #Spawns a Jurchen tribe leader...
+						set_character_flag = spawning_a_jurchen_invader
+						log = "China Logging:"
+						log = "Attempting to spawn a Jurchen Invader, as aftermath to event JD.50300 (end of Civil War - the loyalists won). Character should spawn in 15 days."
+					}
+					50 = {
+						trigger = {
+							OR = {
+								NOT = { has_global_flag = rebel_general_invasion_success }
+								had_global_flag = { flag = rebel_general_invasion_success days = 54750 }
+							}
+						}
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id = JD.60200 days = 15 } #Spawns a Rebel General
+						set_character_flag = spawning_a_rebel_general
+						log = "China Logging:"
+						log = "Attempting to spawn a Rebel General, as aftermath to event JD.50300 (end of Civil War - the loyalists won). Character should spawn in 15 days."
+					}
+				}
+			}
+			100 = { # The rebels won - new Dynasty!
+				modifier = {
+					factor = 2.5
+					FROM = {
+						holder_scope = {
+							NOT = { culture_group = portuguese } # A foreign dynasty is more likely to be ousted
+						}
+					}
+				}
+				
+				FROM = {
+					set_offmap_flag = no_status_news
+					random_list = {
+						50 = { set_status = china_stable }
+						50 = { set_status = china_unrest set_offmap_flag = china_had_unrest }
+					}
+					clr_offmap_flag = no_status_news
+					
+					set_offmap_flag = no_succession_news
+					
+					if = {
+						limit = {
+							holder_scope = {
+								NOT = { culture_group = portuguese }
+							}
+						}
+						set_offmap_flag = foreign_dynasty_ousted
+					}
+				}
+				
+				# A new ruler ascends to the Dragon Throne. The fallout is handled by JD.10005 and JD.50000 (from 'on_offmap_ruler_changed')
+				random_list = {
+					0 = {
+						additive_modifier = {
+							value = 50
+							has_game_rule = {
+								name = gender
+								value = all
+							}
+						}
+						create_character = {
+							age = 30
+							random_traits = yes
+							female = yes
+							religion = candomble
+							culture = baiano
+							dynasty = actually_culture
+							trait = brilliant_strategist
+							martial = 10
+						}
+					}
+					50 = {
+						create_character = {
+							age = 30
+							random_traits = yes
+							female = no
+							religion = candomble
+							culture = baiano
+							dynasty = actually_culture
+							trait = brilliant_strategist
+							martial = 10
+						}
+					}
+				}
+				new_character = {
+					create_character = {
+						age = 60
+						random_traits = yes
+						female = no
+						religion = THIS
+						culture = THIS
+						dynasty = THIS
+					}
+					new_character = {
+						death = { death_reason = death_in_china_historic }
+						save_event_target_as = new_china_ruler_father
+					}
+					set_father = event_target:new_china_ruler_father
+					FROM = {
+						set_offmap_holder = PREV
+					}
+				}
+  			
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = FROM
+						is_within_diplo_range = ROOT
+					}
+					narrative_event = { id = JD.50302 }
+				}
+				
+				FROM = { clr_offmap_flag = foreign_dynasty_ousted }
+
+				random_list = {
+					50 = {
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id = JD.10113 days = 15 } #Spawns a Displaced Prince adventurer...
+						set_character_flag = spawning_a_displaced_royal
+						log = "China Logging:"
+						log = "Attempting to spawn a Displaced Prince, as aftermath to event JD.50300 (end of Civil War - the rebels won). Character should spawn in 15 days."
+					}
+					50 = {
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id = JD.10109 days = 15 } #Spawns a Jurchen tribe leader...
+						set_character_flag = spawning_a_jurchen_invader
+						log = "China Logging:"
+						log = "Attempting to spawn a Jurchen Invader, as aftermath to event JD.50300 (end of Civil War - the rebels won). Character should spawn in 15 days."
+					}
+				}
+			}
+			#No Pretenders
+		}
+	}
+}
+
+# News from Brazil: Civil War Ends - Loyalists Win!
+narrative_event = {
+	id = NC.2003
+	title = NEWS_FROM_CHINA
+	picture = GFX_brazil_civil_war
+	portrait = offmap_china
+	desc = EVTDESC_NC_2003
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		offmap_china = {
+			ruler = {
+				save_event_target_as = portrait_target
+			}
+		}
+	}
+	
+	portrait = event_target:portrait_target
+	
+	option = {
+		name = EVTOPT_JD_50301
+	}
+}
+
+# News from Brazil: Civil War Ends - Rebels Win, New Candomble Dynasty!
+narrative_event = {
+	id = NC.2004
+	title = NEWS_FROM_CHINA
+	picture = GFX_brazil_civil_war
+	portrait = offmap_china
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+
+	desc = {
+		trigger = {
+			FROMFROM = {
+				has_offmap_flag = foreign_dynasty_ousted
+			}
+		}
+		text = EVTDESC_NC_2004_PORTUGUESE_DYNASTY
+	}
+	desc = {
+		trigger = {
+			FROMFROM = {
+				NOT = { has_offmap_flag = foreign_dynasty_ousted }
+			}
+		}
+		text = EVTDESC_NC_2004_NEW_DYNASTY
+	}
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	hide_new = yes
+	
+	immediate = {
+		offmap_china = {
+			ruler = {
+				save_event_target_as = portrait_target
+			}
+		}
+	}
+	
+	portrait = event_target:portrait_target
+	
+	option = {
+		trigger = {
+			NOT = { has_character_modifier = peace_deal_with_china }
+		}
+		name = EVTOPT_JD_50301
+	}
+	
+	option = {
+		trigger = {
+			has_character_modifier = peace_deal_with_china
+		}
+		name = EVTOPT_JD_50302_BROKEN_PEACE_DEAL
+		
+		remove_character_modifier = peace_deal_with_china
+	}
+}
+
+##Charismatic Civil War events##
+
+# Status changes to 'Charismatic Civil War'
+ Civil War'
+# Hidden. Fired from on_offmap_yearly_pulse.
+# Root = Governor
+# From = Offmap
+character_event = {
+	id = NC.3000
+
+	has_dlc = "Jade Dragon"
+
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		FROM = {
+			is_offmap_tag = offmap_china
+			NOT = {
+				religion = charismatic #not much point in the war then
+			}
+			NOR = {
+				has_status = brasil_religious_civil_war_candomble # Resolution handled by (NOT YET)
+				has_status = brasil_religious_civil_war_charismatic # Resolution handled by (NOT YET)
+				has_status = china_mongol_invasion # Resolution handled by JD.50160
+				has_status = china_jurchen_invasion # Resolution handled by JD.50200
+				has_status = china_civil_war # Resolution handled by JD.50300
+			}
+			OR = {
+				NOT = { has_offmap_flag = china_invaded_player_dynasty }
+				had_offmap_tmp_flag = { flag = china_invaded_player_dynasty years = 200 }
+			}
+		}
+	}
+	
+	weight_multiplier = {
+		factor = 1
+		modifier = { # Unrest last for at least 2 years before becoming Stable/Civil War
+			factor = 0
+			FROM = {
+				has_status = brasil_religious_civil_war_charismatic
+				has_offmap_flag = china_had_unrest
+				NOT = {
+					had_offmap_tmp_flag = { flag = china_had_unrest years = 2 }
+				}
+			}
+		}
+		modifier = {
+			factor = 0.01
+			FROM = { has_status = china_golden_age }
+		}
+		modifier = {
+			factor = 0.1
+			FROM = { has_status = china_stable }
+		}
+		modifier = {
+			factor = 0.1
+			FROM = { NOT = { has_status = brasil_religious_civil_war_charismatic } }
+		}
+	}
+	
+	immediate = {
+		FROM = {
+			set_offmap_flag = no_status_news
+			set_status = brasil_religious_civil_war_charismatic
+			set_offmap_flag = brasil_religious_civil_war_charismatic
+			clr_offmap_flag = no_status_news
+		}
+		any_player = {
+			limit = {
+				has_offmap_news_enabled = FROM
+				is_within_diplo_range = ROOT
+			}
+			narrative_event = { id = JD.50281 }
+		}
+	}
+
+
+# News from Brazil: Charismatic Civil War
+narrative_event = {
+	id = NC.3001
+	title = NEWS_FROM_CHINA
+	picture = GFX_brazil_civil_war
+	portrait = offmap_china
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+
+	desc = {
+		trigger = {
+			FROMFROM = {
+				prev_status = china_unrest
+			}
+		}
+		text = EVTDESC_NC_3000_UNREST
+	}
+	desc = {
+		trigger = {
+			FROMFROM = {
+				NOT = { prev_status = china_unrest }
+			}
+		}
+		text = EVTDESC_NC_3000_CW
+	}
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		offmap_china = {
+			ruler = {
+				save_event_target_as = portrait_target
+			}
+		}
+	}
+	
+	portrait = event_target:portrait_target
+	
+	option = {
+		name = EVTOPT_JD_50281
+	}
+}
+
+# Chance for an end to the 'Charismatic Civil War' Status
+# Hidden. Fired from on_offmap_yearly_pulse
+# Root = Governor
+# From = Offmap
+character_event = {
+	id = NC.3002
+
+	has_dlc = "Jade Dragon"
+
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		FROM = {
+			is_offmap_tag = offmap_china
+			has_status = brasil_religious_civil_war_charismatic
+		}
+	}
+	
+	weight_multiplier = {
+		factor = 1
+		modifier = {
+			factor = 0
+			FROM = {
+				NOT = {
+					had_offmap_tmp_flag = { flag = brasil_religious_civil_war_charismatic years = 2 }
+				}
+			}
+		}
+		modifier = {
+			factor = 2
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_charismatic years = 3 } }
+		}
+		modifier = {
+			factor = 2
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_charismatic years = 5 } }
+		}
+		modifier = {
+			factor = 2
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_charismatic years = 8 } }
+		}
+		modifier = {
+			factor = 5
+			FROM = { had_offmap_tmp_flag = { flag = brasil_religious_civil_war_charismatic years = 10 } }
+		}
+	}
+	
+	immediate = {
+		clr_offmap_flag = brasil_religious_civil_war_charismatic
+		random_list = {
+			70 = { # The loyalists won!
+				FROM = {
+					set_offmap_flag = no_status_news
+					set_status = china_stable
+					clr_offmap_flag = no_status_news
+				}
+				
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = FROM
+						is_within_diplo_range = ROOT
+					}
+					narrative_event = { id = NC.3003 }
+				}
+				random_list = {
+					50 = {
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id =  JD.10109 days = 15 } #Spawns a Jurchen tribe leader...
+						set_character_flag = spawning_a_jurchen_invader
+						log = "China Logging:"
+						log = "Attempting to spawn a Jurchen Invader, as aftermath to event JD.50300 (end of Civil War - the loyalists won). Character should spawn in 15 days."
+					}
+					50 = {
+						trigger = {
+							OR = {
+								NOT = { has_global_flag = rebel_general_invasion_success }
+								had_global_flag = { flag = rebel_general_invasion_success days = 54750 }
+							}
+						}
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id = JD.60200 days = 15 } #Spawns a Rebel General
+						set_character_flag = spawning_a_rebel_general
+						log = "China Logging:"
+						log = "Attempting to spawn a Rebel General, as aftermath to event JD.50300 (end of Civil War - the loyalists won). Character should spawn in 15 days."
+					}
+				}
+			}
+			100 = { # The rebels won - new Dynasty!
+				modifier = {
+					factor = 2.5
+					FROM = {
+						holder_scope = {
+							NOT = { culture_group = portuguese } # A foreign dynasty is more likely to be ousted
+						}
+					}
+				}
+				
+				FROM = {
+					set_offmap_flag = no_status_news
+					random_list = {
+						50 = { set_status = china_stable }
+						50 = { set_status = china_unrest set_offmap_flag = china_had_unrest }
+					}
+					clr_offmap_flag = no_status_news
+					
+					set_offmap_flag = no_succession_news
+					
+					if = {
+						limit = {
+							holder_scope = {
+								NOT = { culture_group = portuguese }
+							}
+						}
+						set_offmap_flag = foreign_dynasty_ousted
+					}
+				}
+				
+				# A new ruler ascends to the Dragon Throne. The fallout is handled by JD.10005 and JD.50000 (from 'on_offmap_ruler_changed')
+				random_list = {
+					0 = {
+						additive_modifier = {
+							value = 50
+							has_game_rule = {
+								name = gender
+								value = all
+							}
+						}
+						create_character = {
+							age = 30
+							random_traits = yes
+							female = yes
+							religion = charismatic # A bit strange, but necessary
+							culture = brazilian
+							dynasty = actually_culture
+							trait = brilliant_strategist
+							martial = 10
+						}
+					}
+					50 = {
+						create_character = {
+							age = 30
+							random_traits = yes
+							female = no
+							religion = charismatic # A bit strange, but necessary
+							culture = brazilian
+							dynasty = actually_culture
+							trait = brilliant_strategist
+							martial = 10
+						}
+					}
+				}
+				new_character = {
+					create_character = {
+						age = 60
+						random_traits = yes
+						female = no
+						religion = THIS
+						culture = THIS
+						dynasty = THIS
+					}
+					new_character = {
+						death = { death_reason = death_in_china_historic }
+						save_event_target_as = new_china_ruler_father
+					}
+					set_father = event_target:new_china_ruler_father
+					FROM = {
+						set_offmap_holder = PREV
+					}
+				}
+  			
+				any_player = {
+					limit = {
+						has_offmap_news_enabled = FROM
+						is_within_diplo_range = ROOT
+					}
+					narrative_event = { id = NC.3004 }
+				}
+				
+				FROM = { clr_offmap_flag = foreign_dynasty_ousted }
+
+				random_list = {
+					50 = {
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id = JD.10113 days = 15 } #Spawns a Displaced Prince adventurer...
+						set_character_flag = spawning_a_displaced_royal
+						log = "China Logging:"
+						log = "Attempting to spawn a Displaced Prince, as aftermath to event JD.50300 (end of Civil War - the rebels won). Character should spawn in 15 days."
+					}
+					50 = {
+						# modifier = {
+							# factor = 0
+							# has_game_rule = {
+								# name = chinese_invasions
+								# value = none
+							# }
+						# }
+						character_event = { id = JD.10109 days = 15 } #Spawns a Jurchen tribe leader...
+						set_character_flag = spawning_a_jurchen_invader
+						log = "China Logging:"
+						log = "Attempting to spawn a Jurchen Invader, as aftermath to event JD.50300 (end of Civil War - the rebels won). Character should spawn in 15 days."
+					}
+				}
+			}
+			#No Pretenders
+		}
+	}
+}
+
+# News from China: Civil War Ends - Loyalists Win!
+narrative_event = {
+	id = NC.3003
+	title = NEWS_FROM_CHINA
+	picture = GFX_brazil_civil_war
+	portrait = offmap_china
+	desc = EVTDESC_NC_3003
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		offmap_china = {
+			ruler = {
+				save_event_target_as = portrait_target
+			}
+		}
+	}
+	
+	portrait = event_target:portrait_target
+	
+	option = {
+		name = EVTOPT_JD_50301
+	}
+}
+
+# News from China: Civil War Ends - Rebels Win, New Dynasty!
+narrative_event = {
+	id = NC.3004
+	title = NEWS_FROM_CHINA
+	picture = GFX_brazil_civil_war
+	portrait = offmap_china
+	window = EventWindowOffmap
+	background = GFX_event_window_news_from_china
+
+	desc = {
+		trigger = {
+			FROMFROM = {
+				has_offmap_flag = foreign_dynasty_ousted
+			}
+		}
+		text = EVTDESC_NC_3004_PORTUGUESE_DYNASTY
+	}
+	desc = {
+		trigger = {
+			FROMFROM = {
+				NOT = { has_offmap_flag = foreign_dynasty_ousted }
+			}
+		}
+		text = EVTDESC_NC_3004_NEW_DYNASTY
+	}
+
+	has_dlc = "Jade Dragon"
+	
+	is_triggered_only = yes
+	hide_new = yes
+	
+	immediate = {
+		offmap_china = {
+			ruler = {
+				save_event_target_as = portrait_target
+			}
+		}
+	}
+	
+	portrait = event_target:portrait_target
+	
+	option = {
+		trigger = {
+			NOT = { has_character_modifier = peace_deal_with_china }
+		}
+		name = EVTOPT_JD_50301
+	}
+	
+	option = {
+		trigger = {
+			has_character_modifier = peace_deal_with_china
+		}
+		name = EVTOPT_JD_50302_BROKEN_PEACE_DEAL
+		
+		remove_character_modifier = peace_deal_with_china
+	}
+}

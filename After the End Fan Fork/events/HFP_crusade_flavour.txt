@@ -1,0 +1,5024 @@
+namespace = HFP
+
+#Written by Joachim
+#HFP.42000-HFP.42999
+
+
+## Crusader State Event
+# A Wild Crusader State Appears
+character_event = {
+    id = HFP.42000
+    desc = EVTDESC_HFP_42000
+    picture = GFX_evt_mountaintop_castle_hf
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    trigger = {
+    	NOR = {
+    		has_character_modifier = settled_crusader_state
+    		has_character_flag = settled_crusader
+    		has_game_rule = {
+    			name = dynamic_crusader_states
+    			value = off
+    		}
+    	}
+		OR = {
+			AND = {
+				OR = {
+					OR = {
+						AND = {
+							random = 80
+							NOT = {
+								any_owned_bloodline = {
+									has_bloodline_flag = crusade_lord_bloodline
+								}
+							}
+						}
+						AND = {
+							random = 60
+							any_owned_bloodline = {
+								has_bloodline_flag = crusade_lord_bloodline
+							}
+						}
+					}
+					has_global_flag = qa_crusader_states_event
+				}
+
+				# The event can only trigger after the siege of a County tier holding, and not for every single Barony
+				FROM = {
+					is_capital = yes
+				}
+
+				# There is a dynasty member who can take the role of independent ruler
+				OR = {
+					crusade_beneficiary = {
+						always = yes
+					}
+					any_dynasty_member = {
+						is_lowborn = no
+						NOT = {
+							any_heir_title = { 
+								always = yes
+							}
+						}	
+						NAND = {
+							is_female = yes
+							age = 40
+						}
+						mercenary = no
+						is_landed = no
+						mercenary = no
+						OR = {
+							age = 16
+							AND = {
+								age = 12
+								is_female = no
+							}
+						}
+						NOR = {
+							trait = incapable
+							trait = monk
+							trait = nun
+						}
+						NAND = {
+							is_married = yes
+							spouse = {
+								OR = {
+									is_landed = yes
+									any_heir_title = { 
+										always = yes
+									}
+								}
+							}
+						}
+						NAND = {
+							is_betrothed = yes
+							betrothed = {
+								OR = {
+									is_landed = yes
+									any_heir_title = { 
+										always = yes
+									}
+								}
+							}
+						}
+						NAND = {
+							player_heir = {
+								OR = {
+									is_landed = yes
+									any_heir_title = { 
+										always = yes
+									}
+								}
+							}
+						}
+						NAND = {
+							is_female = yes
+							any_child = {
+								is_landed = yes
+							}
+						}
+					}
+				}
+
+				# ROOT is a Crusader
+				OR = {
+					any_war = {
+						using_cb = new_crusade
+						any_attacker = {
+							character = ROOT
+						}
+					}
+					any_liege = {
+						any_war = {
+							using_cb = new_crusade
+							any_attacker = {
+								character = PREVPREV
+							}
+						}
+					}
+				}
+
+				FROM = {
+					location = {
+						duchy = {
+							OR = {
+								# The Duchy is not in the Kingdom targeted by the Crusade
+								NOT = {
+									kingdom = {
+										ROOT = {
+											crusade_target_title = {
+												title = PREVPREV
+											}
+										}
+									}
+								}
+								# The Duchy is in the Kingdom targeted by the Crusade, but not under the control of the targeted character
+								#NOT = {
+									#any_direct_de_jure_vassal_title = {
+										#OR = {
+											#owner = {
+												#crusade_target_char = {
+													#character = PREV
+												#}
+											#}
+											#owner = {
+												#any_liege = {
+													#crusade_target_char = {
+														#character = PREV
+													#}
+												#}
+											#}
+										#}	
+									#}
+								#}
+							}
+							# Every county of the Duchy is under the control of Root (the sieger)
+							NOT = {
+								any_direct_de_jure_vassal_title = {
+									NOT = {
+										FROM = {
+											county = {
+												title = PREVPREV
+											}
+										}
+									}
+									location = {
+										NOT = {
+											controlled_by = ROOT
+										}
+									}
+								}
+							}
+							# No provinces are owned by a player
+							NOT = {
+								any_direct_de_jure_vassal_title = {
+									owner = {
+										ai = no
+									}
+								}
+							}
+							# Either the owner or the liege is fighting against the Crusade
+							NOT = {
+								any_direct_de_jure_vassal_title = {
+									NOR = {
+										owner = {
+											any_war = {
+												using_cb = new_crusade
+												any_defender = {
+													character = PREVPREV
+												}
+											}
+										}
+										owner = {
+											any_liege = {
+												any_war = {
+													using_cb = new_crusade
+													any_defender = {
+														character = PREVPREV
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+							# The Duchy either has a port, or is adjacent to another Christian province (that isn't a Heresy of Root's Religion nor the parent religion of Root's religion)
+							any_direct_de_jure_vassal_title = {
+								OR = {
+									is_coastal = yes
+									location = {
+										any_neighbor_province = {
+											OR = {
+												AND = {
+													religion_group = ROOT
+													NOR = { 
+														is_heresy_of = ROOT
+														is_parent_religion = ROOT
+													}
+												}
+												owner = {
+													religion_group = ROOT
+													NOR = {
+														is_heresy_of = ROOT
+														is_parent_religion = ROOT
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			AND = {
+				ai = no
+				has_character_flag = ai_crusader_state_flag
+			}
+		}
+    }
+
+    immediate = {
+    	# Saves the Duchy as an event target
+    	FROM = {
+    		location = {
+    			duchy = {
+    				save_event_target_as = duchy_region
+    			}
+    		}
+    	}
+
+    	# Saves the capital of the new Crusader state as an event target
+    	event_target:duchy_region = {
+			capital_scope = {
+				county = {
+					save_event_target_as = crusade_state_capital
+				}
+			}
+		}
+
+    	# Check if you have a Beneficiary
+    	if = {
+    		limit = {
+    			crusade_beneficiary = {
+    				always = yes
+    			}
+    		}
+	    	crusade_beneficiary = {
+    			save_event_target_as = current_crusade_beneficiary
+    		}	
+    	}
+    	# Set up a backup Beneficiary like character if you don't have one
+    	else = {
+    		random_dynasty_member = {
+    			limit = {
+    				is_lowborn = no
+                    NOT = {
+                        any_heir_title = { 
+                            always = yes
+                        }
+                    }	
+					NAND = {
+						is_female = yes
+						age = 40
+					}
+    				mercenary = no
+    				is_landed = no
+    				mercenary = no
+					OR = {
+						age = 16
+						AND = {
+							age = 12
+							is_female = no
+						}
+					}
+                    NOR = {
+                        trait = incapable
+                        trait = monk
+                        trait = nun
+                    }
+					NAND = {
+						is_married = yes
+						spouse = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						is_betrothed = yes
+						betrothed = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						player_heir = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						is_female = yes
+						any_child = {
+							is_landed = yes
+						}
+					}
+    			}
+    			save_event_target_as = current_crusade_beneficiary
+    		}
+    	}
+    }
+
+    # I will find an appropriate ruler
+    option = {
+    	name = EVTOPTB_HFP_42000
+
+    	add_character_modifier = {
+    		name = settled_crusader_state
+    		years = 15
+    	}
+
+    	piety = 100
+    	if = {
+    		limit = {
+    			NOT = {
+    				trait = crusader_king
+    				trait = crusader_queen
+    			}
+    		}
+    		add_trait = crusader
+    	}
+
+    	custom_tooltip = {
+    		text = EVTOPTB_HFP_42000_TT
+
+    		set_crusade_beneficiary = none
+
+	    	event_target:duchy_region = {
+				# Grant all the provinces to the new Crusader Lord/Lady
+				any_direct_de_jure_vassal_title = {
+					owner = {
+						save_event_target_as = previous_owner
+					}
+					event_target:current_crusade_beneficiary = {
+						grant_title_no_opinion = PREV
+						set_defacto_liege = THIS
+					}
+					event_target:previous_owner = {
+						add_claim = PREV
+					}
+					if = {
+						limit = {
+							event_target:previous_owner = {
+								top_liege = {
+									ai = no
+								}
+							}
+						}
+						add_claim = PREV
+					}
+				}
+				# Check if the Duchy has an owner, receive the Duchy if nobody owns it
+				if = {
+					limit = {
+						NOT = {
+							owner = {
+								always = yes
+							}
+						}
+					}
+  					event_target:current_crusade_beneficiary = {
+						grant_title_no_opinion = PREV
+						
+					}
+				}
+				# Make a titular Duchy if there already is a Duke/Duchess for the title, and get a claim on the real Duchy title
+				else = {
+					create_title = {
+						tier = DUKE
+						name = "crusade_state_duchy_name"
+						landless = no
+						culture = event_target:current_crusade_beneficiary
+						holder = event_target:current_crusade_beneficiary
+						custom_created = yes
+						base_title = event_target:crusade_state_capital
+					}
+
+					new_title = {
+						set_title_flag = temporary_crusade_title_flag
+						adjective = "crusade_state_duchy_adjective"
+					}
+
+					add_claim = THIS
+				}
+			}
+
+			event_target:current_crusade_beneficiary = {
+				# Grab all remaining vassal titles held by characters of the wrong Religion
+				any_vassal = {
+					limit = {
+						NOT = {
+							religion = PREV
+						}
+					}
+					any_demesne_title = {
+						event_target:current_crusade_beneficiary = {
+							grant_title = PREV
+						}
+					}
+				}
+
+				# Make Stewards for the cities, and grant them a city each
+				any_demesne_title = {
+					limit = {
+						TIER = BARON
+						holding_type = CITY
+					}
+					event_target:current_crusade_beneficiary = {
+						create_random_steward = {
+							random_traits = yes
+						}
+						new_character = {
+							grant_title_no_opinion = PREVPREV
+						}
+					}
+				}
+
+				# Make Bishops for the temples, and grant them a temple each
+				any_demesne_title = {
+					limit = {
+						TIER = BARON
+						holding_type = TEMPLE
+					}
+					event_target:current_crusade_beneficiary = {
+						create_random_priest = {
+							random_traits = yes
+						}
+						new_character = {
+							grant_title_no_opinion = PREVPREV
+						}
+					}
+				}
+
+				# Refill your holding
+				character_event = { id = HFP.41090 days = 1 }
+
+				# Set the Crusader State to have Primogeniture and be highly centralized
+				primary_title = {
+					add_law = {
+						law = succ_primogeniture
+						cooldown = no
+						opinion_effect = no
+					}
+					add_law = {
+						law = centralization_3
+						cooldown = no
+						opinion_effect = no
+					}
+				}
+
+				# Set up the realm to be Late Feudal, if using Conclave
+				if = {
+					limit = {
+						has_dlc = "Zeus"
+					}
+					primary_title = {
+						add_law = {
+							law = ze_administration_laws_1
+							cooldown = no
+							opinion_effect = no
+						}
+					}
+				}
+
+				# Change the capital to be of the same religion as the Crusader Lord/Lady
+				capital_scope = {
+					religion = PREV
+				}
+
+				# Apply nickname, if they don't have one
+				if = {
+					limit = {
+						can_apply_average_nickname_trigger = yes
+					}
+					give_nickname = nick_the_crusader
+				}
+
+				# Apply the Crusader trait
+				add_trait = crusader
+
+				# Have the Crusader Lord/Lady join the Crusade
+				pledge_crusade_participation = yes
+
+				# Make sure the Crusader Lord/Lady have some cash
+				if = {
+					limit = {
+						NOT = {
+							wealth = 150
+						}
+					}
+					clear_wealth = yes
+					wealth = 150
+				}
+
+				# Set character flag
+				set_character_flag = settled_crusader
+			}
+
+			any_playable_ruler = {
+				narrative_event = { id = HFP.42001 }
+			}
+			ROOT = {
+				narrative_event = { id = HFP.42001 }
+			}
+
+			event_target:current_crusade_beneficiary = {
+				opinion = {
+					modifier = in_non_aggression_pact
+					years = 20
+					who = ROOT
+				}
+			}
+		}
+
+		ROOT = {
+			show_scope_change = no
+			make_tributary = {
+				who = event_target:current_crusade_beneficiary
+			}
+		}
+
+		ai_chance = {
+			factor = 1
+		}
+    }
+
+    # I will take the land for myself
+    option = {
+    	name = EVTOPTA_HFP_42000
+
+		add_character_modifier = {
+    		name = settled_crusader_state
+    		years = 15
+    	}
+
+    	custom_tooltip = {
+    		text = EVTOPTA_HFP_42000_TT_1
+
+	    	event_target:duchy_region = {
+	    		any_direct_de_jure_vassal_title = {
+					owner = {
+						save_event_target_as = previous_owner
+					}
+	    			ROOT = {
+	    				grant_title_no_opinion = PREV
+	    			}
+					event_target:previous_owner = {
+						add_claim = PREV
+					}
+					if = {
+						limit = {
+							event_target:previous_owner = {
+								top_liege = {
+									ai = no
+								}
+							}
+						}
+						event_target:previous_owner = {
+							top_liege = {
+								add_claim = PREVPREV
+							}
+						}
+					}
+	    		}
+	    		if = {
+	    			limit = {
+	    				NOT = {
+	    					owner = {
+	    						always = yes
+	    					}
+	    				}
+	    			}
+	    			ROOT = {
+	    				grant_title_no_opinion = PREV
+	    			}
+	    		}
+	    	}
+    	}
+
+    	custom_tooltip = {
+    		text = EVTOPTA_HFP_42000_TT_2
+
+    		any_crusade_participant = {
+    			opinion = {
+    				who = ROOT
+    				modifier = opinion_selfish_crusader
+    				years = 10
+    			}
+    		}
+    	}
+
+    	any_playable_ruler = {
+    		narrative_event = { id = HFP.42003 }
+    	}
+    	ROOT = {
+    		narrative_event = { id = HFP.42003 }
+    	}
+
+    	piety = -100
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+
+    option = {
+    	name = EVTOPTC_HFP_42000
+    }
+}
+
+# Narrative Event for new Crusader State
+narrative_event = {
+    id = HFP.42001
+    title = EVTTITLE_HFP_42001
+    desc = EVTDESC_HFP_42001
+    picture = GFX_evt_mounted_knights_hf
+    portrait = event_target:current_crusade_beneficiary
+    border = GFX_event_narrative_frame_religion
+    is_triggered_only = yes
+
+    immediate = {
+    	FROM = {
+    		crusade_target_title = {
+    			save_event_target_as = crusade_title
+    		}
+    		crusade_target_char = {
+    			save_event_target_as = crusade_target_ruler
+    		}
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42001
+        trigger = {
+        	religion = FROM
+        }
+    }
+    option = {      
+        name = EVTOPTX_HFP_42001
+        trigger = {
+        	NOT = {
+        		religion = FROM
+        	}
+        	religion_group = FROM
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42001
+        trigger = {
+        	NOT = {
+        		religion_group = FROM
+        	}
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42001
+    	trigger = {
+    		character = FROM
+    		event_target:current_crusade_beneficiary = {
+    			dynasty = ROOT
+    		}
+    	}
+
+    	tooltip_info = yes
+
+    	custom_tooltip = {
+    		text = player_character_dynamic_crusader_state_TT
+    		if = {
+    			limit = {
+    				event_target:current_crusade_beneficiary = {
+    					is_alive = yes
+    					ai = yes
+    					any_demesne_title = {
+    						tier = COUNT
+    					}
+    				}
+    			}
+    			set_player_character = event_target:current_crusade_beneficiary
+    		}
+    	}
+    }
+}
+
+# Remove the Crusader Titular Title
+character_event = {
+    id = HFP.42002
+    desc = EVTDESC_HFP_42002
+    picture = GFX_evt_throne_room
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+    trigger = {
+    	any_realm_title = {
+    		has_title_flag = temporary_crusade_title_flag
+    		tier = DUKE
+    	}
+    	any_realm_title = {
+    		NOT = {
+    			has_title_flag = temporary_crusade_title_flag
+    		}
+    		higher_tier_than = COUNT
+    	}
+    	FROM = {
+    		higher_tier_than = COUNT
+    	}
+    	NOT = {
+    		has_character_flag = crusader_state_titular_removal_event_fired
+    	}
+    }
+
+    immediate = {
+    	primary_title = {
+    		save_event_target_as = current_primary_title
+    	}
+    	capital_scope = {
+    		location = {
+    			duchy = {
+    				save_event_target_as = duchy_title
+    			}
+    		}
+    	}
+    	random_realm_title = {
+    		limit = {
+    			has_title_flag = temporary_crusade_title_flag
+    		}
+    		save_event_target_as = old_crusade_title
+    	}
+
+    	event_target:old_crusade_title = {
+    		clr_title_flag = temporary_crusade_title_flag
+    	}
+    	set_character_flag = crusader_state_titular_removal_event_fired
+    }
+
+    # Legitimize the beloved Crusader title
+    option = {      
+        name = EVTOPTA_HFP_42002
+        trigger = {
+        	tier = DUKE
+    		primary_title = {
+    			title = event_target:old_crusade_title
+    		}
+			capital_scope = {
+				duchy = {
+					OR = {
+						NOT = {
+							owner = {
+								always = yes
+							}
+						}
+						owner = {
+							character = ROOT
+						}
+					}
+				}
+			}
+        }
+        custom_tooltip = {
+        	text = EVTOPTA_HFP_42002_TT
+        	event_target:duchy_title = {
+        		kingdom = {
+        			event_target:current_primary_title = {
+        				de_jure_liege = PREV
+        			}
+        		}
+        	}
+	    	event_target:duchy_title = {
+	    		grant_title_no_opinion = ROOT
+	    		set_name = event_target:old_crusade_title
+	    		set_coa = event_target:old_crusade_title
+	    		copy_title_history = event_target:old_crusade_title
+	    		copy_title_laws = event_target:old_crusade_title
+			}
+			destroy_landed_title = event_target:old_crusade_title
+    	}
+    	hidden_tooltip = {
+    		activate_title = {
+    			title = event_target:duchy_title
+    			status = no
+    		}
+    	}
+    	prestige = 100
+    	scaled_wealth = { value = 0.5 min = 100 max = 300 }
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+
+    # Let go of the old Crusader title
+    option = {   
+        name = EVTOPTB_HFP_42002
+        
+        if = {
+        	limit = {
+        		primary_title = {
+        			title = event_target:old_crusade_title
+        		}
+        	}
+        	FROM = {
+        		copy_title_laws = event_target:current_primary_title
+        	}
+        }
+        event_target:old_crusade_title = {
+    		show_scope_change = no
+        	destroy_landed_title = THIS
+        }
+    	event_target:old_duchy = {
+    		show_scope_change = no
+    		add_claim = THIS
+    	}
+    	prestige = 250
+
+    	ai_chance = {
+    		factor = 1
+    	}
+    }
+
+    # I will keep the title no matter what
+    option = {
+    	name = EVTOPTC_HFP_42002
+
+	    prestige = -100
+
+	    ai_chance = {
+	    	factor = 0
+	    }
+    }
+
+    after = {
+    	clr_character_flag = crusader_state_titular_removal_event_fired
+    }
+}
+
+# Narrative Event if ruler takes Crusader State lands for himself/herself
+narrative_event = {
+    id = HFP.42003
+    title = EVTTITLE_HFP_42003
+    desc = EVTDESC_HFP_42003
+    picture = GFX_evt_mounted_knights_hf
+    portrait = FROM
+    border = GFX_event_narrative_frame_religion
+    is_triggered_only = yes
+
+    option = {      
+        name = EVTOPTA_HFP_42003
+        trigger = {
+        	religion = FROM
+        	NOT = {
+        		character = FROM
+        	}
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42001
+        trigger = {
+        	NOT = {
+        		religion = FROM
+        	}
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42003
+    	trigger = {
+    		character = FROM
+    	}
+    }
+}
+
+# Helping the AI create Crusader States - AI only
+character_event = {
+    id = HFP.42004
+    hide_window = yes
+    ai = yes
+    is_triggered_only = yes
+    trigger = {
+    	NOR = {
+    		has_character_modifier = settled_crusader_state
+    		has_character_flag = settled_crusader
+    	}
+    	has_game_rule = {
+    		name = dynamic_crusader_states
+    		value = default
+    	}
+    	333 = {
+    		NOT = {
+    			has_province_modifier = crusader_state_ai_cd
+    		}
+    	}
+    	ROOT = {
+    		OR = {
+    			higher_tier_than = COUNT
+    			any_liege = {
+    				higher_tier_than = COUNT
+    			}
+    		}
+    	}
+    	OR = {
+    		AND = {
+    			random = 99
+    			NOT = {
+    				any_owned_bloodline = {
+    					has_bloodline_flag = crusade_lord_bloodline
+    				}
+    			}
+    		}
+    		AND = {
+    			random = 97
+    			any_owned_bloodline = {
+    				has_bloodline_flag = crusade_lord_bloodline
+    			}
+    		}
+    		AND = {
+    			location = {
+    				OR = {
+    					de_jure_liege = d_tidewater
+    					de_jure_liege = d_long_island
+    					de_jure_liege = d_east_susquehanna
+    					de_jure_liege = d_connecticut
+    				}
+    			}
+    			OR = {
+    				AND = {
+    					random = 90
+    					NOT = {
+    						any_owned_bloodline = {
+    							has_bloodline_flag = crusade_lord_bloodline
+    						}
+    					}
+    				}
+    				AND = {
+    					random = 85
+    					any_owned_bloodline = {
+    						has_bloodline_flag = crusade_lord_bloodline
+    					}
+    				}
+    			}
+    		}
+    	}
+    	religion = catholic
+    	location = {
+    		duchy = {
+    			NOT = {
+    				any_direct_de_jure_vassal_title = {
+    					owner = {
+    						OR = {
+	    						NOT = {
+	    							any_war = {
+		    							using_cb = new_crusade
+		    							any_defender = {
+		    								character = PREVPREV
+		    							}
+		    						}
+		    					}
+	    						NOT = {
+	    							any_liege = {
+	    								any_war = {
+	    									using_cb = new_crusade
+	    									any_defender = {
+	    										character = PREVPREV
+	    									}
+	    								}
+	    							}
+	    						}
+	    					}
+	    					religion = ROOT
+    					}
+    				}
+    			}
+    		}
+			duchy = {
+				NOT = {
+					any_direct_de_jure_vassal_title = {
+						owner = {
+							ai = no
+						}
+					}
+				}
+				any_direct_de_jure_vassal_title = {
+					OR = {
+						is_coastal = yes
+						any_neighbor_province = {
+							OR = {
+								owner = {
+									religion = ROOT
+								}
+								religion = ROOT
+							}
+						}
+					}
+				}
+			}
+    	}
+    	OR = {
+    		any_war = {
+    			using_cb = new_crusade
+    			any_attacker = {
+    				character = ROOT
+    			}
+    		}
+    		any_liege = {
+    			any_war = {
+    				using_cb = new_crusade
+    				any_attacker = {
+    					character = PREVPREV
+    				}
+    			}
+    		}
+    	}
+    	location = {
+    		duchy = {
+    			OR = {
+    				NOT = {
+    					kingdom = {
+    						ROOT = {
+    							crusade_target_title = {
+    								title = PREVPREV
+    							}
+    						}
+    					}
+    				}
+    				#NOT = {
+    					#any_direct_de_jure_vassal_title = {
+    						#owner = {
+	    						#OR = {
+	    							#ROOT = {
+	    								#crusade_target_char = {
+	    									#character = PREVPREV
+	    								#}
+	    							#}
+	    							#any_liege = {
+	    								#ROOT = {
+	    									#crusade_target_char = {
+	    										#character = PREVPREV
+	    									#}
+	    								#}
+	    							#}
+	    						#}
+    						#}
+    					#}
+    				#}
+    			}
+    		}
+    	}
+  		holy_order = no
+  		mercenary = no
+  		NOR = {
+  			#has_landed_title = d_fraticelli
+  			has_landed_title = k_papal_state
+  			any_liege = {
+  				OR = {
+  					#has_landed_title = d_fraticelli
+  					has_landed_title = k_papal_state
+  				}
+  			}
+  		}
+    }
+
+    immediate = {
+    	
+    	location = {
+    		duchy = {
+		    	save_event_target_as = duchy_region
+    		}
+    	}
+
+   		event_target:duchy_region = {
+			capital_scope = {
+				county = {
+					save_event_target_as = crusade_state_capital
+				}
+			}
+		}
+
+		location = {
+			owner = {
+				save_event_target_as = province_holder
+			}
+		}
+
+		if = {
+			limit = {
+				any_war = {
+					using_cb = new_crusade
+				}
+				higher_tier_than = COUNT
+			}
+			character_event = { id = HFP.42005 }
+		}
+		else_if = {
+			limit = {
+				top_liege = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					higher_tier_than = COUNT
+				}
+			}
+			top_liege = {
+				character_event = { id = HFP.42005 }
+			}
+		}
+		else_if = {
+			limit = {
+				liege = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					higher_tier_than = COUNT
+				}
+			}
+			liege = {
+				character_event = { id = HFP.42005 }
+			}
+		}
+    }
+}
+
+# Helping the AI create Crusader States Part 2 - AI only
+character_event = {
+    id = HFP.42005
+    hide_window = yes
+    is_triggered_only = yes
+    ai = yes
+    trigger = {
+    	OR = {
+    		crusade_beneficiary = {
+    			always = yes
+    		}
+    		any_dynasty_member = {
+    			is_lowborn = no
+                NOT = {
+                    any_heir_title = { 
+                        always = yes
+                    }
+                }	
+				NAND = {
+					is_female = yes
+					age = 40
+				}
+    			mercenary = no
+    			is_landed = no
+    			mercenary = no
+				OR = {
+					age = 16
+					AND = {
+						age = 12
+						is_female = no
+					}
+				}
+                NOR = {
+                    trait = incapable
+                    trait = monk
+                    trait = nun
+                }
+				NAND = {
+					is_married = yes
+					spouse = {
+						OR = {
+							is_landed = yes
+							any_heir_title = { 
+								always = yes
+							}
+						}
+					}
+				}
+				NAND = {
+					is_betrothed = yes
+					betrothed = {
+						OR = {
+							is_landed = yes
+							any_heir_title = { 
+								always = yes
+							}
+						}
+					}
+				}
+				NAND = {
+					player_heir = {
+						OR = {
+							is_landed = yes
+							any_heir_title = { 
+								always = yes
+							}
+						}
+					}
+				}
+				NAND = {
+					is_female = yes
+					any_child = {
+						is_landed = yes
+					}
+				}
+    			religion = ROOT
+    		}
+    	}
+    	crusade_target_char = {
+    		event_target:province_holder = {
+    			religion = PREV
+    		}
+    	}
+    }
+
+    immediate = {
+   		# Check if you have a Beneficiary
+    	if = {
+    		limit = {
+    			crusade_beneficiary = {
+    				is_alive = yes
+    				religion = ROOT
+    				is_lowborn = no
+                    NOT = {
+                        any_heir_title = { 
+                            always = yes
+                        }
+                    }	
+					NAND = {
+						is_female = yes
+						age = 40
+					}
+    				mercenary = no
+    				is_landed = no
+    				mercenary = no
+					OR = {
+						age = 16
+						AND = {
+							age = 12
+							is_female = no
+						}
+					}
+                    NOR = {
+                        trait = incapable
+                        trait = monk
+                        trait = nun
+                    }
+					NAND = {
+						is_married = yes
+						spouse = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						is_betrothed = yes
+						betrothed = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						player_heir = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						is_female = yes
+						any_child = {
+							is_landed = yes
+						}
+					}
+    			}
+    		}
+	    	crusade_beneficiary = {
+    			save_event_target_as = current_crusade_beneficiary
+    		}	
+    	}
+    	# Set up a backup Beneficiary like character if you don't have one
+    	else = {
+    		random_dynasty_member = {
+    			limit = {
+    				is_lowborn = no
+                    NOT = {
+                        any_heir_title = { 
+                            always = yes
+                        }
+                    }	
+					NAND = {
+						is_female = yes
+						age = 40
+					}
+    				mercenary = no
+    				is_landed = no
+    				mercenary = no
+					OR = {
+						age = 16
+						AND = {
+							age = 12
+							is_female = no
+						}
+					}
+                    NOR = {
+                        trait = incapable
+                        trait = monk
+                        trait = nun
+                    }
+					NAND = {
+						is_married = yes
+						spouse = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						is_betrothed = yes
+						betrothed = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						player_heir = {
+							OR = {
+								is_landed = yes
+								any_heir_title = { 
+									always = yes
+								}
+							}
+						}
+					}
+					NAND = {
+						is_female = yes
+						any_child = {
+							is_landed = yes
+						}
+					}
+    				religion = ROOT
+    			}
+    			save_event_target_as = current_crusade_beneficiary
+    		}
+    	}
+
+    	event_target:duchy_region = {
+			# Grant all the provinces to the new Crusader Lord/Lady
+			any_direct_de_jure_vassal_title = {
+				owner = {
+					save_event_target_as = previous_owner
+				}
+				event_target:current_crusade_beneficiary = {
+					grant_title_no_opinion = PREV
+					set_defacto_liege = THIS
+				}
+				event_target:previous_owner = {
+					add_claim = PREV
+				}
+				if = {
+					limit = {
+						event_target:previous_owner = {
+							top_liege = {
+								ai = no
+							}
+						}
+					}
+					add_claim = PREV
+				}
+			}
+			# Check if the Duchy has an owner, receive the Duchy if nobody owns it
+			if = {
+				limit = {
+					NOT = {
+						owner = {
+							always = yes
+						}
+					}
+				}
+					event_target:current_crusade_beneficiary = {
+					grant_title_no_opinion = PREV
+					
+				}
+			}
+			# Make a titular Duchy if there already is a Duke/Duchess for the title, and get a claim on the real Duchy title
+			else = {
+				create_title = {
+					tier = DUKE
+					name = "crusade_state_duchy_name"
+					landless = no
+					culture = event_target:current_crusade_beneficiary
+					holder = event_target:current_crusade_beneficiary
+					custom_created = yes
+					base_title = event_target:crusade_state_capital
+				}
+
+				new_title = {
+					set_title_flag = temporary_crusade_title_flag
+					adjective = "crusade_state_duchy_adjective"
+				}
+
+				add_claim = THIS
+			}
+		}
+
+		event_target:current_crusade_beneficiary = {
+			# Grab all remaining vassal titles held by characters of the wrong Religion
+			any_vassal = {
+				limit = {
+					NOT = {
+						religion = PREV
+					}
+				}
+				any_demesne_title = {
+					event_target:current_crusade_beneficiary = {
+						grant_title = PREV
+					}
+				}
+			}
+
+			# Make Stewards for the cities, and grant them a city each
+			any_demesne_title = {
+				limit = {
+					TIER = BARON
+					holding_type = CITY
+				}
+				event_target:current_crusade_beneficiary = {
+					create_random_steward = {
+						random_traits = yes
+					}
+					new_character = {
+						grant_title_no_opinion = PREVPREV
+					}
+				}
+			}
+
+			# Make Bishops for the temples, and grant them a temple each
+			any_demesne_title = {
+				limit = {
+					TIER = BARON
+					holding_type = TEMPLE
+				}
+				event_target:current_crusade_beneficiary = {
+					create_random_priest = {
+						random_traits = yes
+					}
+					new_character = {
+						grant_title_no_opinion = PREVPREV
+					}
+				}
+			}
+
+			# Refill your holding
+			character_event = { id = HFP.41090 days = 1 }
+
+			# Set the Crusader State to have Primogeniture and be highly centralized
+			primary_title = {
+				add_law = {
+					law = succ_primogeniture
+					cooldown = no
+					opinion_effect = no
+				}
+				add_law = {
+					law = centralization_3
+					cooldown = no
+					opinion_effect = no
+				}
+			}
+
+			# Set up the realm to be Late Feudal, if using Conclave
+			if = {
+				limit = {
+					has_dlc = "Zeus"
+				}
+				primary_title = {
+					add_law = {
+						law = ze_administration_laws_1
+						cooldown = no
+						opinion_effect = no
+					}
+				}
+			}
+
+			# Change the capital to be of the same religion and culture as the Crusader Lord/Lady
+			capital_scope = {
+				religion = PREV
+			}
+
+			# Apply nickname, if they don't have one
+			if = {
+				limit = {
+					can_apply_average_nickname_trigger = yes
+				}
+				give_nickname = nick_the_crusader
+			}
+
+			# Apply the Crusader trait
+			add_trait = crusader
+
+			# Make sure the Crusader Lord/Lady have some cash
+			if = {
+				limit = {
+					NOT = {
+						wealth = 150
+					}
+				}
+				clear_wealth = yes
+				wealth = 150
+			}
+		}
+
+		ROOT = {
+			make_tributary = {
+				who = event_target:current_crusade_beneficiary
+			}
+		}
+
+    	character_event = { id = HFP.41007 }
+
+		any_playable_ruler = {
+			narrative_event = { id = HFP.42001 }
+		}
+
+		if = {
+			limit = {
+				event_target:current_crusade_beneficiary = {
+					is_alive = yes
+				}
+			}
+			# Have the Crusader Lord/Lady join the Crusade
+			event_target:current_crusade_beneficiary = {
+				pledge_crusade_participation = yes
+			}
+		}
+
+		333 = {
+			add_province_modifier = {
+				name = crusader_state_ai_cd
+				hidden = yes
+				duration = 548
+			}
+		}
+    }
+}
+
+## Monthly Pulse Crusade Events
+# Tombola
+character_event = {
+    id = HFP.42200
+    hide_window = yes
+    is_triggered_only = yes
+    trigger = {
+    	any_war = {
+    		using_cb = new_crusade
+    	}
+    }
+
+    immediate = {
+    	crusade_target_title = {
+    		save_event_target_as = new_crusade_title
+    	}
+    	crusade_target_char = {
+    		save_event_target_as = new_crusade_target
+    	}
+
+    	any_crusade_participant = {
+    		limit = {
+    			location = {
+    				owner = {
+    					OR = {
+    						character = event_target:new_crusade_target
+    						any_liege = {
+    							character = event_target:new_crusade_target
+    						}
+							any_war = {
+								any_defender = {
+									character = PREVPREV
+								}
+								using_cb = new_crusade
+							}
+							any_liege = {
+								any_war = {
+									any_defender = {
+										character = PREVPREV
+									}
+									using_cb = new_crusade
+								}
+							}
+    					}
+    				}
+    			}
+    			in_command = yes
+    			prisoner = no
+    		}
+    		crusade_flavor_event_tombola_effect = yes
+    	}
+    }
+}
+
+## Generic Events
+# Meeting other Crusaders
+character_event = {
+    id = HFP.42201
+    desc = EVTDESC_HFP_42201
+    picture = GFX_evt_group_hf
+    portrait = event_target:other_crusader
+    is_triggered_only = yes
+    ai = no
+    trigger = {
+    	any_crusade_participant = {
+    		ai = yes
+    		NOT = {
+    			is_foe = ROOT
+    		}
+    		NOT = {
+    			is_friend = ROOT
+    		}
+    	}
+    }
+
+    immediate = {
+    	random_crusade_participant = {
+    		limit = {
+    			ai = yes
+    			NOT = {
+    				is_foe = ROOT
+    			}
+    		}
+    		save_event_target_as = other_crusader
+    	}
+
+    	location = {
+    		save_event_target_as = current_location
+    	}
+
+    	crusade_target_title = {
+    		save_event_target_as = crusade_title
+    	}
+    }
+    # Sounds like a pleasant experience
+    option = {      
+        name = EVTOPTA_HFP_42201
+        random_list = {
+        	50 = {
+        		add_friend = event_target:other_crusader
+        	}
+        	50 = {
+        		event_target:other_crusader = {
+        			show_scope_change = no
+        			opinion = {
+        				who = ROOT
+        				modifier = opinion_budding_friendship
+        				years = 10
+        			}
+        		}
+        	}
+        }
+    }
+    # God calls upon me to fight, not mingle!
+    option = {      
+        name = EVTOPTB_HFP_42201
+        piety = 25
+        if = {
+        	limit = {
+        		trait = cynical
+        	}
+        	remove_trait = cynical
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = zealous
+        		}
+        	}
+        	add_trait = zealous
+        }
+    }
+}
+
+# Seeing the local culture
+character_event = {
+    id = HFP.42202
+    desc = EVTDESC_HFP_42202
+    picture = GFX_evt_market_hf
+    portrait = none
+    is_triggered_only = yes
+
+    hide_new = yes
+
+    trigger = {
+    	event_target:current_location = {
+    		NOT = {
+    			culture = ROOT
+    		}
+    	}
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    	hidden_effect = {
+    		create_character = {
+	        	random_traits = yes
+	        	religion = event_target:current_location
+	        	culture = event_target:current_location
+	        	age = 20
+	        	dynasty = NONE
+	        }
+	        new_character = {
+	        	save_event_target_as = new_friend
+	        }
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42202
+        trigger = {
+        	OR = {
+        		NOT = {
+        			has_character_modifier = well_versed_in_local_culture
+        		}
+        		AND = {
+        			NOT = {
+        				trait = zealous
+        			}
+        			OR = {
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = oldworld
+	        				}
+	        				NOT = {
+	        					trait = sympathy_oldworld
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = afro_syncretic
+	        				}
+	        				NOT = {
+	        					trait = sympathy_afro_syncretic
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = pagan_group
+	        				}
+	        				NOT = {
+	        					trait = sympathy_pagans
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = jewish_group
+	        				}
+	        				NOT = {
+	        					trait = sympathy_judaism
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = indian_group
+	        				}
+	        				NOT = {
+	        					trait = sympathy_indian
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = american_native
+	        				}
+	        				NOT = {
+	        					trait = sympathy_american_native
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = cult_of_saints
+	        				}
+	        				NOT = {
+	        					trait = sympathy_cult_of_saints 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = pacific 
+	        				}
+	        				NOT = {
+	        					trait = sympathy_pacific 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = latter_day_saints 
+	        				}
+	        				NOT = {
+	        					trait = sympathy_latter_day_saints 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = mesoamerican_gods 
+	        				}
+	        				NOT = {
+	        					trait = sympathy_mesoamerican_gods 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = pirate
+	        				}
+	        				NOT = {
+	        					trait = sympathy_pirate
+	        				}
+	        			}
+	        		}
+        		}
+        	}
+        }
+        random_list = {
+        	1 = {
+        		trigger = {
+        			NOT = {
+        				has_character_modifier = exploring_local_culture
+        			}
+        		}
+        		add_character_modifier = {
+        			name = exploring_local_culture
+        			years = 3
+        		}
+        	}
+        	1 = {
+        		trigger = {
+        			has_character_modifier = exploring_local_culture
+        		}
+        		add_character_modifier = {
+        			name = well_versed_in_local_culture
+        			years = 3
+        		}
+        		hidden_tooltip = {
+        			remove_character_modifier = exploring_local_culture
+        		}
+        	}
+        	1 = {
+        		trigger = {
+        			NOT = {
+        				trait = zealous
+        			}
+        			NOT = {
+        				event_target:current_location = {
+        					religion_group = ROOT
+        				}
+        			}
+	        		AND = {
+	        			NOT = {
+	        				trait = zealous
+	        			}
+	        			OR = {
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = oldworld
+	        				}
+	        				NOT = {
+	        					trait = sympathy_oldworld
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = afro_syncretic
+	        				}
+	        				NOT = {
+	        					trait = sympathy_afro_syncretic
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = pagan_group
+	        				}
+	        				NOT = {
+	        					trait = sympathy_pagans
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = jewish_group
+	        				}
+	        				NOT = {
+	        					trait = sympathy_judaism
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = indian_group
+	        				}
+	        				NOT = {
+	        					trait = sympathy_indian
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = american_native
+	        				}
+	        				NOT = {
+	        					trait = sympathy_american_native
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = cult_of_saints
+	        				}
+	        				NOT = {
+	        					trait = sympathy_cult_of_saints 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = pacific 
+	        				}
+	        				NOT = {
+	        					trait = sympathy_pacific 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = latter_day_saints 
+	        				}
+	        				NOT = {
+	        					trait = sympathy_latter_day_saints 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = mesoamerican_gods 
+	        				}
+	        				NOT = {
+	        					trait = sympathy_mesoamerican_gods 
+	        				}
+	        			}
+	        			AND = {
+	        				event_target:current_location = {
+	        					religion_group = pirate
+	        				}
+	        				NOT = {
+	        					trait = sympathy_pirate
+	        				}
+	        			}
+		        		}
+	        		}
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = oldworld
+        				}
+        				NOT = {
+        					trait = sympathy_oldworld
+        				}
+        			}
+        			add_trait = sympathy_oldworld
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = afro_syncretic
+        				}
+        				NOT = {
+        					trait = sympathy_afro_syncretic
+        				}
+        			}
+        			add_trait = sympathy_afro_syncretic
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = pagan_group
+        				}
+        				NOT = {
+        					trait = sympathy_pagans
+        				}
+        			}
+        			add_trait = sympathy_pagans
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = jewish_group
+        				}
+        				NOT = {
+        					trait = sympathy_judaism
+        				}
+        			}
+        			add_trait = sympathy_judaism
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = indian_group
+        				}
+        				NOT = {
+        					trait = sympathy_indian
+        				}
+        			}
+        			add_trait = sympathy_indian
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = cult_of_saints
+        				}
+        				NOT = {
+        					trait = sympathy_cult_of_saints
+        				}
+        			}
+        			add_trait = sympathy_cult_of_saints
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = pacific
+        				}
+        				NOT = {
+        					trait = sympathy_pacific
+        				}
+        			}
+        			add_trait = sympathy_pacific
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = mesoamerican_gods
+        				}
+        				NOT = {
+        					trait = sympathy_mesoamerican_gods
+        				}
+        			}
+        			add_trait = sympathy_mesoamerican_gods
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = latter_day_saints
+        				}
+        				NOT = {
+        					trait = sympathy_latter_day_saints
+        				}
+        			}
+        			add_trait = sympathy_latter_day_saints
+        		}
+        		if = {
+        			limit = {
+        				event_target:current_location = {
+        					religion_group = pirate
+        				}
+        				NOT = {
+        					trait = sympathy_pirate
+        				}
+        			}
+        			add_trait = sympathy_pirate
+        		}
+        	}
+        }
+    }
+    option = {
+    	name = EVTOPTD_HFP_42202
+    	trigger = {
+    		has_character_modifier = well_versed_in_local_culture
+    		NOT = {
+    			culture = event_target:current_location
+    		}
+    	}
+    	culture = event_target:current_location
+    }
+    option = {      
+        name = EVTOPTB_HFP_42202
+        set_character_flag = chose_a_friend
+    	event_target:new_friend = {
+    		show_scope_change = no
+    		opinion = {
+    			who = ROOT
+    			modifier = opinion_loyal_servant
+    		}
+    		add_friend = ROOT
+    	}
+    }
+    option = {
+    	name = EVTOPTC_HFP_42202
+    	piety = 10
+    	if = {
+    		limit = {
+    			trait = cynical 
+    		}
+    		random = {
+    			chance = 20
+    			remove_trait = cynical
+    		}
+    	}
+    	else_if = {
+    		limit = {
+    			NOT = {
+    				trait = zealous
+    			}
+    		}
+    		random = {
+    			chance = 20 
+    			add_trait = zealous
+    		}
+    	}
+    }
+    after = {
+    	hidden_effect = {
+	    	if = {
+	    		limit = {
+	    			NOT = { has_character_flag = chose_a_friend }
+	    		}
+    			event_target:new_friend = {
+    				leave_court_and_die_effect = yes
+    			}
+	    	}
+	    	else = {
+	    		#clr_character_flag = chose_a_friend
+	    	}
+    	}
+    }
+}
+
+# Dead Crusaders
+character_event = {
+    id = HFP.42203
+    desc = EVTDESC_HFP_42203
+    picture = GFX_evt_died_battle
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42203
+        piety = 15
+        scaled_wealth = { value = -0.2 min = -50 max = -150 }
+        if = {
+        	limit = {
+        		trait = greedy
+        	}
+        	remove_trait = greedy
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = charitable
+        		}
+        	}
+        	add_trait = charitable
+        }
+        random = {
+        	chance = 30 
+        	if = {
+        		limit = {
+        			NOT = {
+        				trait = zealous
+        			}
+        		}
+        		add_trait = zealous
+        	}
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42203
+        trigger = {
+        	NOT = {
+        		trait = zealous
+        	}
+        }
+        piety = 30
+        scaled_wealth = { value = -0.5 min = -100 max = -300 }
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = charitable
+        		}
+        	}
+        	add_trait = charitable
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42203
+    	piety = -20
+    	scaled_wealth = { value = 0.3 min = 125 max = 500 }
+    	if = {
+    		limit = {
+    			NOT = {
+    				trait = greedy
+    			}
+    		}
+    		add_trait = greedy
+    	}
+    	if = {
+    		limit = {
+    			trait = zealous
+    		}
+    		remove_trait = zealous
+    	}
+    }
+}
+
+# Meeting caravan
+character_event = {
+    id = HFP.42204
+    desc = EVTDESC_HFP_42204
+    picture = GFX_evt_merchant_caravan
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    	
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+
+    	# Crusade against Christians or Jews
+    	if = {
+    		limit = {
+    			event_target:current_location = {
+    				OR = {
+    					religion_group = christian
+    					religion_group = jewish_group
+    					religion_group = latter_day_saints
+						religion_group = cult_of_saints
+    				}
+    			}	
+    		}
+    		random_list = {
+    			1 = {
+    				set_character_flag = crown_of_majesty
+    			}
+    			1 = {
+    				set_character_flag = emerald_scepter
+    			}
+    			1 = {
+    				set_character_flag = sword_of_heroes
+    			}
+    			1 = {
+    				set_character_flag = crown_of_pearls
+    			}
+    			1 = {
+    				set_character_flag = ruby_scepter
+    			}
+    			1 = {
+    				set_character_flag = golden_sword
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = the_lily_crown
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = noble_scepter
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = engraved_sword
+    			}
+    		}
+    	}
+    	# Afro-Syncretic, was Muslim or West African
+    	if = {
+    		limit = {
+    			event_target:current_location = {
+    				religion_group = afro_syncretic
+    			}
+    		}
+    		random_list = {
+    			1 = {
+    				set_character_flag = dagger_of_glory
+    			}
+    			1 = {
+    				set_character_flag = ruby_bracelets
+    			}
+    			1 = {
+    				set_character_flag = bejeweled_dagger
+    			}
+    			1 = {
+    				set_character_flag = golden_bracelets
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = engraved_dagger
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = silver_bracelets
+    			}
+    		}
+    	}
+    	# Eastern
+    	if = {
+    		limit = {
+    			event_target:current_location = {
+					OR = {
+						religion_group = indian_group
+						religion_group = pacific
+					}
+    			}
+    		}
+    		random_list = {
+    			1 = {
+    				set_character_flag = celestial_necklace
+    			}
+    			1 = {
+    				set_character_flag = necklace_of_radiance
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = collar_of_pearls 
+    			}
+    		}
+    	}
+    	# Was Zoroastrian or Zun, using it as a miscellaneous category for now
+    	if = {
+    		limit = {
+    			event_target:current_location = {
+    				OR = {
+    					religion_group = oldworld
+    					religion_group = american_native
+    					religion_group = mesoamerican_gods
+    				}
+    			}
+    		}
+    		random_list = {
+    			1 = {
+    				set_character_flag = circlet_of_the_heavens
+    			}
+    			1 = {
+    				set_character_flag = staff_of_majesty
+    			}
+    			1 = {
+    				set_character_flag = circlet_of_the_sun
+    			}
+    			1 = {
+    				set_character_flag = golden_staff
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = circlet_of_twilight
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = silver_staff
+    			}
+    		}
+    	}
+    	# Germanics
+    	if = {
+    		limit = {
+    			event_target:current_location = {
+    				OR = {
+    					religion = norse_pagan
+    					religion = norse_pagan_reformed
+    				}
+    			}
+    		}
+    		random_list = {
+    			1 = {
+    				set_character_flag = crown_of_crows
+    			}
+    			1 = {
+    				set_character_flag = sword_of_heroes
+    			}
+    			1 = {
+    				set_character_flag = crown_of_the_sea
+    			}
+    			1 = {
+    				set_character_flag = golden_sword
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = iron_crown
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = engraved_sword
+    			}
+    		}
+    	}
+    	# Other Pagan (revisit)
+    	if = {
+    		limit = {
+    			event_target:current_location = {
+    				OR = {
+    					religion = revelationist
+    					religion = revelationist_reformed
+    					religion = rust_cultist
+    					religion = rust_cultist_reformed
+    					religion = occultist
+    					religion = occultist_reformed
+    					religion = celtic_pagan
+    					religion = celtic_pagan_reformed
+						religion = thelemic
+						religion = thelemic_reformed
+    				}
+    			}
+    		}
+    		random_list = {
+    			1 = {
+    				set_character_flag = heros_crown
+    			}
+    			1 = {
+    				set_character_flag = axe_of_the_ancestors
+    			}
+    			1 = {
+    				set_character_flag = amber_crown
+    			}
+    			1 = {
+    				set_character_flag = obsidian_axe
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = engraved_crown
+    			}
+    			1 = {
+    				trigger = { 
+    					NOT = {
+    						higher_tier_than = DUKE
+    					}
+    				}
+    				set_character_flag = ceremonial_axe
+    			}
+    		}
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42204
+        scaled_wealth = { value = -0.7 min = -100 max = -300 }
+        trigger_switch = {
+        	on_trigger = has_character_flag
+        	crown_of_majesty = { add_artifact = crown_of_majesty }
+        	emerald_scepter = { add_artifact = emerald_scepter }
+        	sword_of_heroes = { add_artifact = sword_of_heroes }
+        	crown_of_pearls = { add_artifact = crown_of_pearls }
+        	ruby_scepter = { add_artifact = ruby_scepter }
+        	golden_sword = { add_artifact = golden_sword }
+        	the_lily_crown = { add_artifact = the_lily_crown }
+        	noble_scepter = { add_artifact = noble_scepter }
+        	engraved_sword = { add_artifact = engraved_sword }
+        	dagger_of_glory = { add_artifact = dagger_of_glory }
+        	ruby_bracelets = { add_artifact = ruby_bracelets }
+        	bejeweled_dagger = { add_artifact = bejeweled_dagger }
+        	golden_bracelets = { add_artifact = golden_bracelets }
+        	engraved_dagger = { add_artifact = engraved_dagger }
+        	celestial_necklace = { add_artifact = celestial_necklace }
+        	necklace_of_radiance = { add_artifact = necklace_of_radiance }
+        	collar_of_pearls = { add_artifact = collar_of_pearls }
+        	circlet_of_the_heavens = { add_artifact = circlet_of_the_heavens }
+        	staff_of_majesty = { add_artifact = staff_of_majesty }
+        	circlet_of_the_sun = { add_artifact = circlet_of_the_sun }
+        	golden_staff = { add_artifact = golden_staff }
+        	circlet_of_twilight = { add_artifact = circlet_of_twilight }
+        	silver_staff = { add_artifact = silver_staff }
+        	crown_of_crows = { add_artifact = crown_of_crows }
+        	crown_of_the_sea = { add_artifact = crown_of_the_sea }
+        	iron_crown = { add_artifact = iron_crown }
+        	heros_crown = { add_artifact = heros_crown }
+        	axe_of_the_ancestors = { add_artifact = axe_of_the_ancestors}
+        	amber_crown = { add_artifact = amber_crown }
+        	obsidian_axe = { add_artifact = obsidian_axe }
+        	engraved_crown = { add_artifact = engraved_crown }
+        	ceremonial_axe = { add_artifact = ceremonial_axe }
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42204
+        trigger = {
+        	OR = {
+        		trait = zealous
+        		trait = cruel
+        	}
+        }
+        piety = -50 
+        scaled_wealth = { value = 1 min = 50 max = 1000 }
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = cruel
+        		}
+        	}
+        	add_trait = cruel
+        }
+        trigger_switch = {
+        	on_trigger = has_character_flag
+        	crown_of_majesty = { add_artifact = crown_of_majesty }
+        	emerald_scepter = { add_artifact = emerald_scepter }
+        	sword_of_heroes = { add_artifact = sword_of_heroes }
+        	crown_of_pearls = { add_artifact = crown_of_pearls }
+        	ruby_scepter = { add_artifact = ruby_scepter }
+        	golden_sword = { add_artifact = golden_sword }
+        	the_lily_crown = { add_artifact = the_lily_crown }
+        	noble_scepter = { add_artifact = noble_scepter }
+        	engraved_sword = { add_artifact = engraved_sword }
+        	dagger_of_glory = { add_artifact = dagger_of_glory }
+        	ruby_bracelets = { add_artifact = ruby_bracelets }
+        	bejeweled_dagger = { add_artifact = bejeweled_dagger }
+        	golden_bracelets = { add_artifact = golden_bracelets }
+        	engraved_dagger = { add_artifact = engraved_dagger }
+        	celestial_necklace = { add_artifact = celestial_necklace }
+        	necklace_of_radiance = { add_artifact = necklace_of_radiance }
+        	collar_of_pearls = { add_artifact = collar_of_pearls }
+        	circlet_of_the_heavens = { add_artifact = circlet_of_the_heavens }
+        	staff_of_majesty = { add_artifact = staff_of_majesty }
+        	circlet_of_the_sun = { add_artifact = circlet_of_the_sun }
+        	golden_staff = { add_artifact = golden_staff }
+        	circlet_of_twilight = { add_artifact = circlet_of_twilight }
+        	silver_staff = { add_artifact = silver_staff }
+        	crown_of_crows = { add_artifact = crown_of_crows }
+        	crown_of_the_sea = { add_artifact = crown_of_the_sea }
+        	iron_crown = { add_artifact = iron_crown }
+        	heros_crown = { add_artifact = heros_crown }
+        	axe_of_the_ancestors = { add_artifact = axe_of_the_ancestors}
+        	amber_crown = { add_artifact = amber_crown }
+        	obsidian_axe = { add_artifact = obsidian_axe }
+        	engraved_crown = { add_artifact = engraved_crown }
+        	ceremonial_axe = { add_artifact = ceremonial_axe }
+        }
+    }
+    option = {
+    	name = EVTOPTD_HFP_42204
+
+    	trigger = {
+    		NOR = {
+    			trait = zealous
+    			trait = cruel
+    		}
+    	}
+
+    	piety = -25
+    	scaled_wealth = { value = 0.5 min = 25 max = 500 }
+    	if = {
+    		limit = {
+    			trait = kind
+    		}
+    		remove_trait = kind
+    	}
+    	else_if = {
+    		limit = {
+    			NOT = {
+    				trait = cruel
+    			}
+    		}
+    		add_trait = cruel
+    	}
+    }
+    option = {
+    	name = EVTOPTC_HFP_42204
+    }
+    after = {
+    	clr_character_flag = crown_of_majesty
+    	clr_character_flag = emerald_scepter
+    	clr_character_flag = sword_of_heroes
+    	clr_character_flag = crown_of_pearls
+    	clr_character_flag = ruby_scepter
+    	clr_character_flag = golden_sword
+    	clr_character_flag = the_lily_crown
+    	clr_character_flag = noble_scepter
+    	clr_character_flag = engraved_sword
+    	clr_character_flag = dagger_of_glory
+    	clr_character_flag = ruby_bracelets
+    	clr_character_flag = bejeweled_dagger
+    	clr_character_flag = golden_bracelets
+    	clr_character_flag = engraved_dagger
+    	clr_character_flag = celestial_necklace
+    	clr_character_flag = necklace_of_radiance
+    	clr_character_flag = collar_of_pearls
+    	clr_character_flag = circlet_of_the_heavens
+    	clr_character_flag = staff_of_majesty
+    	clr_character_flag = circlet_of_the_sun
+    	clr_character_flag = golden_staff
+    	clr_character_flag = circlet_of_twilight
+    	clr_character_flag = silver_staff
+    	clr_character_flag = crown_of_crows
+    	clr_character_flag = crown_of_the_sea
+    	clr_character_flag = iron_crown
+    	clr_character_flag = heros_crown
+    	clr_character_flag = axe_of_the_ancestors
+    	clr_character_flag = amber_crown
+    	clr_character_flag = obsidian_axe
+    	clr_character_flag = engraved_crown
+    	clr_character_flag = ceremonial_axe
+
+    	add_character_modifier = {
+    		name = crusade_event_meeting_caravan_cooldown
+    		hidden = yes
+    		years = 1
+    	}
+    }
+}
+
+# Reminiscing about home
+character_event = {
+    id = HFP.42205
+    desc = EVTDESC_HFP_42205
+    picture = GFX_evt_riders_night_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	add_character_modifier = {
+    		name = crusade_event_reminiscing_about_home_cooldown
+    		hidden = yes
+    		years = 1
+    	}
+    }
+
+    # I will just have to deal
+    option = {      
+        name = EVTOPTA_HFP_42205
+        prestige = 50
+        if = {
+        	limit = {
+        		trait = slothful
+        	}
+        	remove_trait = slothful
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = diligent
+        		}
+        	}
+        	add_trait = diligent
+        }
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = stressed
+        		}
+        	}
+        	random = {
+        		chance = 50
+        		add_trait = stressed
+        		character_event = { id = 38282 }
+        	}
+        }
+        else_if = {
+        	limit = {
+        		trait = stressed
+        	}
+        	random = {
+        		chance = 50
+        		remove_trait = stressed
+        		add_trait = depressed
+        		character_event = { id = 38288 }
+        	}
+        }
+    }
+    # I will take it a bit easier from now on
+    option = {      
+        name = EVTOPTB_HFP_42205
+        prestige = -25
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = slothful
+        		}
+        	}
+        	add_trait = slothful
+        }
+        else_if = {
+        	limit = {
+        		trait = diligent
+        	}
+        	remove_trait = diligent
+        }
+    }
+    # The Lord will guide me through these hardships!
+    option = {
+    	name = EVTOPTC_HFP_42205
+    	piety = 25
+    	if = {
+    		limit = {
+    			NOT = {
+    				trait = zealous
+    			}
+    		}
+    		add_trait = zealous
+    	}
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = stressed
+        		}
+        	}
+        	random = {
+        		chance = 50
+        		add_trait = stressed
+        		character_event = { id = 38282 }
+        	}
+        }
+        else_if = {
+        	limit = {
+        		trait = stressed
+        	}
+        	random = {
+        		chance = 50
+        		remove_trait = stressed
+        		add_trait = depressed
+        		character_event = { id = 38288 }
+        	}
+        }
+    }
+}
+
+# The Holy Comet 
+character_event = {
+    id = HFP.42206
+    desc = EVTDESC_HFP_42206
+    picture = GFX_evt_comet
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42206
+        trigger = {
+        	NOT = {
+        		has_character_modifier = very_inspirational_comet
+        	}
+        }
+        piety = 10
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = zealous
+        		}
+        	}
+        	add_trait = zealous
+        }
+        if = {
+        	limit = {
+        		NOT = {
+        			has_character_modifier = inspirational_comet 
+        		}
+        	}
+        	add_character_modifier = {
+        		name = inspirational_comet
+        		years = 2
+        	}
+        }
+        else_if = {
+        	limit = {
+        		has_character_modifier = inspirational_comet
+        	}
+        	add_character_modifier = {
+        		name = very_inspirational_comet 
+        		years = 3
+        	}
+        	hidden_tooltip = {
+        		remove_character_modifier = inspirational_comet
+        	}
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42206
+        trigger = {
+        	NOT = {
+        		has_character_modifier = tough_taskmaster
+        	}
+        }
+        prestige = 25
+        if = {
+        	limit = {
+        		NOT = {
+        			has_character_modifier = taskmaster
+        		}
+        	}
+        	add_character_modifier = {
+	        	name = taskmaster
+	        	years = 2
+	        }
+        }
+        else_if = {
+        	limit = {
+        		has_character_modifier = taskmaster
+        	}
+        	add_character_modifier = {
+        		name = tough_taskmaster
+        		years = 3
+        	}
+        	hidden_tooltip = {
+        		remove_character_modifier = taskmaster
+        	}
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42206
+    	piety = 25
+    	trigger = {
+    		has_character_modifier = very_inspirational_comet
+    		has_character_modifier = tough_taskmaster
+    	}
+    	if = {
+    		limit = {
+    			NOT = {
+    				trait = possessed
+    			}
+    		}
+    		add_trait = possessed
+    	}
+    	add_character_modifier = {
+    		name = military_jesus
+    		duration = -1
+    	}
+    }
+    option = {
+    	name = EVTOPTD_HFP_42206
+    	piety = 25
+    	if = {
+    		limit = {
+    			trait = proud
+    		}
+    		remove_trait = proud
+    	}
+    	else_if = {
+    		limit = {
+    			NOT = {
+    				trait = humble
+    			}
+    		}
+    		add_trait = humble
+    	}
+    }
+}
+
+# Questioning the faith
+character_event = {
+    id = HFP.42207
+    desc = EVTDESC_HFP_42207
+    picture = GFX_evt_beheading
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    	add_character_modifier = {
+    		name = crusade_event_questioning_the_faith_cooldown
+    		hidden = yes
+    		years = 1
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42207
+        prestige = 10
+        piety = -20
+        if = {
+        	limit = {
+        		trait = kind
+        	}
+        	remove_trait = kind
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = cruel
+        		}
+        	}
+        	add_trait = cruel
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42207
+        piety = 30
+        if = {
+        	limit = {
+        		trait = cruel
+        	}
+        	remove_trait = cruel
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = kind
+        		}
+        	}
+        	add_trait = kind
+        }
+        else_if = {
+        	limit = {
+        		trait = kind
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = oldworld
+        			}
+        			NOT = {
+        				trait = sympathy_oldworld
+        			}
+        		}
+        		add_trait = sympathy_oldworld
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = afro_syncretic
+        			}
+        			NOT = {
+        				trait = sympathy_afro_syncretic
+        			}
+        		}
+        		add_trait = sympathy_afro_syncretic
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = pagan_group
+        			}
+        			NOT = {
+        				trait = sympathy_pagans
+        			}
+        		}
+        		add_trait = sympathy_pagans
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = jewish_group
+        			}
+        			NOT = {
+        				trait = sympathy_judaism
+        			}
+        		}
+        		add_trait = sympathy_judaism
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = indian_group
+        			}
+        			NOT = {
+        				trait = sympathy_indian
+        			}
+        		}
+        		add_trait = sympathy_indian
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = cult_of_saints
+        			}
+        			NOT = {
+        				trait = sympathy_cult_of_saints
+        			}
+        		}
+        		add_trait = sympathy_cult_of_saints
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = pacific
+        			}
+        			NOT = {
+        				trait = sympathy_pacific
+        			}
+        		}
+        		add_trait = sympathy_pacific
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = mesoamerican_gods
+        			}
+        			NOT = {
+        				trait = sympathy_mesoamerican_gods
+        			}
+        		}
+        		add_trait = sympathy_mesoamerican_gods
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = latter_day_saints
+        			}
+        			NOT = {
+        				trait = sympathy_latter_day_saints
+        			}
+        		}
+        		add_trait = sympathy_latter_day_saints
+        	}
+        	if = {
+        		limit = {
+        			event_target:current_location = {
+        				religion_group = pirate
+        			}
+        			NOT = {
+        				trait = sympathy_pirate
+        			}
+        		}
+        		add_trait = sympathy_pirate
+        	}
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42207
+    	piety = 10
+    	if = {
+    		limit = {
+    			NOT = {
+    				trait = zealous
+    			}
+    		}
+    		add_trait = zealous
+    	}
+    }
+}
+
+# The little group of faithful
+character_event = {
+    id = HFP.42208
+    desc = EVTDESC_HFP_42208
+    picture = GFX_evt_woman_praying_hf
+    portrait = none
+    is_triggered_only = yes
+    ai = no
+    trigger = {
+    	is_alternate_start = no
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    	if = {
+    		limit = {
+    			event_target:current_location = {
+    				region = world_rustlands
+    			}
+    		}
+    		set_character_flag = anabaptist_group
+    	}
+    	else_if = {
+    		limit = {
+    			event_target:current_location = {
+    				region = world_northeast
+    			}
+    		}
+    		set_character_flag = anglican_group
+    	}
+    	else = {
+    		set_character_flag = root_group
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42208
+        trigger = {
+        	OR = {
+        		AND = {
+        			has_character_flag = anabaptist_group
+        			NOT = {
+        				event_target:current_location = {
+        					religion = anabaptist
+        				}
+        			}
+        		}
+        		AND = {
+        			has_character_flag = anglican_group
+        			NOT = {
+        				event_target:current_location = {
+        					religion = high_church
+        				}
+        			}
+        		}
+        		AND = {
+        			has_character_flag = root_group
+        			NOT = {
+        				event_target:current_location = {
+        					religion = ROOT
+        				}
+        			}
+        		}
+        	}
+        }
+        piety = 50
+        scaled_wealth = { value = -1.5 min = -150 max = -800 }
+        if = {
+        	limit = {
+        		trait = greedy
+        	}
+        	remove_trait = greedy
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = charitable
+        		}
+        	}
+        	add_trait = charitable
+        }
+        trigger_switch = {
+        	on_trigger = has_character_flag
+        	anabaptist_group = { event_target:current_location = { show_scope_change = no religion = anabaptist } }
+        	anglican_group = { event_target:current_location = { show_scope_change = no religion = high_church } }
+        	root_group = { event_target:current_location = { show_scope_change = no religion = ROOT } }
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42208
+        if = {
+        	limit = {
+        		has_character_flag = anabaptist_group
+        	}
+        	create_character = {
+        		random_traits = yes
+        		dynasty = random
+        		religion = anabaptist
+        		culture = event_target:current_location
+        	}
+        }
+        if = {
+        	limit = {
+        		has_character_flag = anglican_group
+        	}
+        	create_character = {
+        		random_traits = yes
+        		dynasty = random
+        		religion = high_church
+        		culture = event_target:current_location
+        	}
+        }
+        if = {
+        	limit = {
+        		has_character_flag = root_group
+        	}
+        	create_character = {
+        		random_traits = yes
+        		dynasty = random
+        		religion = ROOT
+        		culture = event_target:current_location
+        	}
+        }
+        new_character = {
+        	add_friend = ROOT
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42208
+    	piety = 10 
+    }
+
+    after = {
+    	clr_character_flag = anabaptist_group
+    	clr_character_flag = anglican_group
+    	clr_character_flag = root_group
+    }
+}
+
+# The little thief
+character_event = {
+    id = HFP.42209
+    desc = EVTDESC_HFP_42209
+    picture = GFX_evt_market_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    # Laugh it off
+    option = {      
+        name = EVTOPTA_HFP_42209
+        prestige = -15
+        scaled_wealth = { value = -0.1 min = -20 max = -100 }
+        if = {
+        	limit = {
+        		OR = {
+        			trait = cruel
+        			trait = envious
+        		}
+        	}
+        	remove_trait = cruel
+        	remove_trait = envious
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = kind
+        		}
+        	}
+        	add_trait = kind
+        }
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = content
+        		}
+        	}
+        	random = {
+        		chance = 50
+        		add_trait = content
+        	}
+        }
+
+        ai_chance = {
+        	factor = 1
+        }
+    }
+    # That little thief!
+    option = {      
+        name = EVTOPTB_HFP_42209
+        prestige = 30
+        if = {
+        	limit = {
+        		trait = kind
+        	}
+        	remove_trait = kind
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = cruel
+        		}
+        	}
+        	add_trait = cruel
+        }
+        if = {
+        	limit = {
+        		trait = content
+        	}
+        	remove_trait = content
+        }
+
+        ai_chance = {
+        	factor = 1
+        }
+    }
+    # Recruit him
+    option = {
+    	name = EVTOPTC_HFP_42209
+    	create_character = {
+        	random_traits = yes
+        	religion = event_target:current_location
+        	culture = event_target:current_location
+        	age = 6
+        	dynasty = NONE
+        	attributes = {
+        		diplomacy = 0
+        		martial = 3
+        		stewardship = 2
+        		intrigue = 5
+        		learning = 0
+        	}
+        }
+    	new_character = {
+    		opinion = {
+    			who = ROOT
+    			modifier = opinion_loyal_servant
+    		}
+    		add_friend = ROOT
+    		random = {
+    			chance = 50
+    			add_trait = cynical
+    		}
+    		random = {
+    			chance = 50
+    			add_trait = diligent
+    		}
+    		random = {
+    			chance = 50
+    			add_trait = greedy
+    		}
+    		random = {
+    			chance = 50
+    			add_trait = ambitious
+    		}
+    		random = {
+    			chance = 50
+    			add_trait = paranoid
+    		}
+    		random = {
+    			chance = 50
+    			add_trait = shrewd
+    		}
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+}
+
+# Meeting the wise man
+character_event = {
+    id = HFP.42210
+    desc = EVTDESC_HFP_42210
+    picture = GFX_evt_meeting_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    # Learn something from the man
+    option = {      
+        name = EVTOPTA_HFP_42210
+        if = {
+        	limit = {
+        		NOT = {
+        			has_character_modifier = ephemeral_knowledge
+        		}
+        	}
+        	add_character_modifier = {
+        		name = ephemeral_knowledge
+        		years = 10
+        	}
+        }
+        else = {
+        	change_learning = 1
+        }
+        culture_techpoints = 20
+    }
+    # Kill him and take his things
+    option = {      
+        name = EVTOPTB_HFP_42210
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = zealous
+        		}
+        	}
+        	add_trait = zealous
+        }
+        if = {
+        	limit = {
+        		trait = kind
+        	}
+        	remove_trait = kind
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = cruel
+        		}
+        	}
+        	add_trait = cruel
+        }
+        culture_techpoints = 50
+    }
+    # Maybe <religion> has more to offer me?
+    option = {
+    	name = EVTOPTC_HFP_42210
+    	piety = -100
+    	trigger = {
+    		event_target:current_location = {
+    			NOT = {
+    				religion = ROOT
+    			}
+    		}
+    	}
+    	custom_tooltip = {
+    		text = EVTOPTC_HFP_42210_TT
+
+    		set_secret_religion = {
+	    		target_type = public
+	    		target = event_target:current_location
+	    	}
+    	}
+    }
+}
+
+# Coming across a local festival
+character_event = {
+    id = HFP.42211
+    desc = EVTDESC_HFP_42211
+    picture = GFX_evt_jugglers
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42211
+        piety = -25
+        scaled_wealth = { value = -0.1 min = -20 max = -200 }
+        if = {
+        	limit = {
+        		trait = zealous
+        	}
+        	remove_trait = zealous
+        }
+        add_character_modifier = {
+        	name = joyous_festivities
+        	years = 3
+        }
+        if = {
+        	limit = {
+        		trait = stressed
+        	}
+        	random = {
+        		chance = 50
+        		remove_trait = stressed
+        		character_event = { id = 38313 }
+        	}
+        }
+        else_if = {
+        	limit = {
+        		trait = depressed
+        	}
+        	random = {
+        		chance = 50
+        		remove_trait = depressed
+        		character_event = { id = 38314 }
+        	}
+        }
+
+        ai_chance = {
+        	trigger = {
+        		NOR = {
+        			trait = possessed
+        			trait = lunatic
+        		}
+        	}
+        	factor = 1
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42211
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = zealous
+        		}
+        	}
+        	add_trait = zealous
+        }
+        if = {
+        	limit = {
+        		trait = gregarious
+        	}
+        	random = {
+        		chance = 50
+        		remove_trait = gregarious
+        		character_event = { id = 38297 }
+        	}
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = shy
+        		}
+        	}
+        	random = {
+        		chance = 50
+        		add_trait = shy
+        		character_event = { id = 38263 }
+        	}
+        }
+        piety = 25
+
+        ai_chance = {
+        	trigger = {
+        		NOR = {
+        			trait = possessed
+        			trait = lunatic
+        		}
+        	}
+        	factor = 1
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42211
+    	if = {
+    		limit = {
+    			NOT = {
+    				trait = possessed
+    			}
+    		}
+    		add_trait = possessed
+    	}
+    	else_if = {
+    		limit = {
+    			trait = possessed
+    			NOT = {
+    				trait = lunatic
+    			}
+    		}
+    		remove_trait = possessed
+    		add_trait = lunatic
+    	}
+    	if = {
+    		limit = {
+    			trait = stressed
+    		}
+    		remove_trait = stressed
+    	}
+    	if = {
+    		limit = {
+    			trait = depressed
+    		}
+    		remove_trait = depressed
+    	}
+    	add_character_modifier = {
+    		name = harvest_festival_believer
+    		years = 20
+    	}
+    	piety = -50
+
+    	ai_chance = {
+    		trigger = {
+    			trait = possessed
+    			trait = lunatic
+    		}
+    		factor = 1
+    	}
+    }
+}
+
+# Guided by God or Alcohol
+character_event = {
+    id = HFP.42212
+    desc = EVTDESC_HFP_42212
+    picture = GFX_evt_religious_exultation
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	hidden_tooltip = {
+	    	random_list = {
+	    		10 = {
+	    			trigger = {
+	    				is_title_active = d_knights_of_columbus
+	    			}
+	    			d_knights_of_columbus = {
+	    				owner = {
+	    					save_event_target_as = decided_holy_order
+	    				}
+	    			}
+	    		}
+	    		10 = {
+	    			trigger = {
+	    				is_title_active = d_knights_of_peter_claver
+	    			}
+	    			d_knights_of_peter_claver = {
+	    				owner = {
+	    					save_event_target_as = decided_holy_order
+	    				}
+	    			}
+	    		}
+	    	}
+	    }
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42212
+        piety = 50
+        scaled_wealth = { value = -0.2 min = -30 max = -300 } 
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = zealous
+        		}
+        	}
+        	add_trait = zealous
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42212
+        piety = -50
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = cynical
+        		}
+        	}
+        	add_trait = cynical
+        }
+        if = {
+        	limit = {
+        		trait = drunkard
+        	}
+        	remove_trait = drunkard
+        }
+        if = {
+        	limit = {
+        		trait = gluttonous
+        	}
+        	remove_trait = gluttonous
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = temperate
+        		}
+        	}
+        	add_trait = temperate
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42212
+    	trigger = {
+    		trait = zealous
+    		is_heretic = no
+    		piety = 500
+    	}
+    	tooltip_info = yes
+    	piety = 150
+    	abdicate = yes
+    	add_trait = celibate
+    	ROOT = {
+    		show_scope_change = no
+    		move_character = event_target:decided_holy_order
+    	}
+    }
+}
+
+# Meeting a Holy Order
+character_event = {
+    id = HFP.42213
+    desc = EVTDESC_HFP_42213
+    picture = GFX_evt_riders_night_hf
+    portrait = none
+    is_triggered_only = yes
+    ai = no
+    trigger = {
+    	any_character = {
+    		holy_order = yes
+    		religion = ROOT
+    		NOT = {
+    			has_opinion_modifier = {
+    				who = ROOT
+    				modifier = opinion_insulted
+    			}
+    		}
+    	}
+    }
+
+    immediate = {
+    	if = {
+    		limit = {
+    			any_crusade_participant = {
+	    			holy_order = yes
+	    			religion = ROOT
+	    			NOT = {
+		    			has_opinion_modifier = {
+		    				who = ROOT
+		    				modifier = opinion_insulted
+		    			}
+		    		}
+	    		}
+	    		any_war = {
+	    			using_cb = new_crusade
+	    		}
+    		}
+    		random_crusade_participant = {
+    			limit = {
+    				holy_order = yes
+    				religion = ROOT
+    				NOT = {
+		    			has_opinion_modifier = {
+		    				who = ROOT
+		    				modifier = opinion_insulted
+		    			}
+		    		}
+    			}
+    			save_event_target_as = holy_order_meeting
+    		}
+    	}
+    	else = {
+    		random_character = {
+    			limit = {
+    				holy_order = yes
+    				religion = ROOT
+    				NOT = {
+		    			has_opinion_modifier = {
+		    				who = ROOT
+		    				modifier = opinion_insulted
+		    			}
+		    		}
+    			}
+    			save_event_target_as = holy_order_meeting
+    		}
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42213
+        piety = 20
+        
+        random = {
+        	chance = 20
+        	custom_tooltip = { 
+        		text = you_get_a_cold_of_some_sort_tt 
+	        	if = {
+	        		limit = {
+	        			has_dlc = "Reapers"
+	        		}
+	        		give_flu_effect = yes
+	        	}
+	        	else = {
+	        		give_ill_effect = yes
+	        	}
+        	}
+        }
+        ROOT = {
+        	show_scope_change = no
+        	add_friend = event_target:holy_order_meeting
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42213
+        piety = -20
+        event_target:holy_order_meeting = {
+        	show_scope_change = no
+        	opinion = {
+        		modifier = opinion_insulted
+        		who = ROOT
+        		years = 5
+        	}
+        }
+    }
+}
+
+# Crusader Brothels
+character_event = {
+    id = HFP.42214
+    desc = {
+    	trigger = {
+    		OR = {
+    			AND = {
+    				is_female = yes
+    				trait = homosexual
+    			}
+    			AND = {
+    				is_female = no
+    				NOT = {
+    					trait = homosexual
+    				}
+    			}
+    		}
+    	}
+    	text = EVTDESC_HFP_42214_A
+    }
+    desc = {
+    	trigger = {
+    		OR = {
+    			AND = {
+    				is_female = yes
+    				NOT = {
+    					trait = homosexual
+    				}
+    			}
+    			AND = {
+    				is_female = no
+    				trait = homosexual
+    			}
+    		}
+    	}
+    	text = EVTDESC_HFP_42214_B
+    }
+    picture = GFX_evt_outside_tavern_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    	hidden_tooltip = {
+    		if = {
+    			limit = {
+	    			OR = {
+		    			AND = {
+		    				is_female = yes
+		    				trait = homosexual
+		    			}
+		    			AND = {
+		    				is_female = no
+		    				NOT = {
+		    					trait = homosexual
+		    				}
+		    			}
+		    		}
+		    	}
+    			create_random_intriguer = {
+	    			culture = event_target:current_location
+	    			religion = event_target:current_location
+	    			female = yes
+	    			dynasty = none
+	    		}
+    		}
+    		else_if = {
+    			limit = {
+	    			OR = {
+		    			AND = {
+		    				is_female = no
+		    				trait = homosexual
+		    			}
+		    			AND = {
+		    				is_female = yes
+		    				NOT = {
+		    					trait = homosexual
+		    				}
+		    			}
+		    		}
+		    	}
+    			create_random_intriguer = {
+	    			culture = event_target:current_location
+	    			religion = event_target:current_location
+	    			female = no
+	    			dynasty = none
+	    		}
+    		}
+    		new_character = {
+    			save_event_target_as = brothel_employee
+    			# One type of Smart
+    			random_list = {
+    				10 = {
+    					add_trait = shrewd
+    				}
+    				10 = {
+    					add_trait = quick
+    				}
+    			}
+    			# A negative attribute
+    			random_list = {
+    				10 = {
+    					add_trait = greedy
+    				}
+    				10 = {
+    					add_trait = envious
+    				}
+    				10 = {
+    					add_trait = deceitful
+    				}
+    			}
+    			# A postive attribute
+    			random_list = {
+    				10 = {
+    					add_trait = diligent
+    				}
+    				10 = {
+    					add_trait = patient
+    				}
+    			}
+    			add_trait = fair
+    			add_trait = lustful
+    			add_trait = ambitious
+    			add_trait = cynical
+    		}
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42214
+       	prestige = -25
+       	piety = 25
+        if = {
+        	limit = {
+        		trait = lustful
+        	}
+        	remove_trait = lustful
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = chaste
+        		}
+        	}
+        	add_trait = chaste
+        }
+
+        hidden_tooltip = {
+        	event_target:brothel_employee = {
+        		leave_court_and_die_effect = yes
+        	}
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42214
+        prestige = 25
+        piety = -25
+        if = {
+        	limit = {
+        		trait = chaste
+        	}
+        	remove_trait = chaste
+        }
+        else_if = {
+        	limit = {
+        		NOT = {
+        			trait = lustful
+        		}
+        	}
+        	add_trait = lustful
+        }
+        hidden_tooltip = {
+        	event_target:brothel_employee = {
+        		leave_court_and_die_effect = yes
+        	}
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42214
+    	prestige = -25
+    	piety = -25
+    	ROOT = {
+    		show_scope_change = no
+    		add_lover = event_target:brothel_employee
+    	}
+    	hidden_tooltip = {
+    		event_target:brothel_employee = {
+    			opinion = {
+    				modifier = opinion_loyal_servant
+    				who = ROOT
+    				years = 20
+    			}
+    		}
+    	}
+    }
+}
+
+# The men are restless
+character_event = {
+    id = HFP.42215
+    desc = EVTDESC_HFP_42215
+    picture = GFX_evt_large_army
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    	NOT = {
+    		has_character_modifier = crusade_great_general
+    	}
+    }
+
+    immediate = {
+    	location = {
+    		save_event_target_as = current_location 
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42215
+        trigger = {
+        	NAND = {
+        		has_character_modifier = crusade_very_inspired_army
+        		has_character_modifier = crusade_very_organized_army
+        	}
+        }
+
+    	if = {
+    		limit = {
+    			NOT = {
+    				trait = organizer
+    			}
+    			can_have_more_leadership_traits = yes
+    		}
+    		add_trait = organizer
+    	}
+    	else_if = {
+    		limit = {
+    			NOR = {
+    				has_character_modifier = crusade_organized_army
+    				has_character_modifier = crusade_very_organized_army
+    			}
+    		}
+    		add_character_modifier = {
+    			name = crusade_organized_army
+    			years = 5
+    		}
+    	}
+    	else_if = {
+    		limit = {
+    			has_character_modifier = crusade_organized_army
+    			NOT = {
+    				has_character_modifier = crusade_very_organized_army
+    			}
+    		}
+    		add_character_modifier = {
+    			name = crusade_very_organized_army
+    			years = 10
+    		}
+    		hidden_tooltip = {
+    			remove_character_modifier = crusade_organized_army
+    		}
+    	}
+    	else = {
+    		change_martial = 1
+    	}
+    }
+    option = {      
+        name = EVTOPTB_HFP_42215
+        trigger = {
+        	NAND = {
+        		has_character_modifier = crusade_very_inspired_army
+        		has_character_modifier = crusade_very_organized_army
+        	}
+        }
+
+        if = {
+        	limit = {
+        		NOT = {
+        			trait = inspiring_leader
+        		}
+        		can_have_more_leadership_traits = yes
+        	}
+        	add_trait = inspiring_leader
+        }
+        else_if = {
+        	limit = {
+        		NOR = {
+        			has_character_modifier = crusade_inspired_army
+        			has_character_modifier = crusade_very_inspired_army
+        		}
+        	}
+        	add_character_modifier = {
+        		name = crusade_inspired_army
+        		years = 5
+        	}
+        }
+        else_if = {
+        	limit = {
+        		has_character_modifier = crusade_inspired_army
+        		NOT = {
+        			has_character_modifier = crusade_very_inspired_army
+        		}
+        	}
+        	add_character_modifier = {
+        		name = crusade_very_inspired_army
+        		years = 10
+        	}
+        	hidden_tooltip = {
+        		remove_character_modifier = crusade_inspired_army
+        	}
+        }
+        else = {
+        	change_martial = 1
+        }
+    }
+    option = {
+    	name = EVTOPTC_HFP_42215
+    	trigger = {
+    		has_character_modifier = crusade_very_inspired_army
+    		has_character_modifier = crusade_very_organized_army
+    	}
+    	add_character_modifier = {
+    		name = crusade_great_general
+    		years = 50
+    	}
+    	hidden_tooltip = {
+    		remove_character_modifier = crusade_very_inspired_army
+    		remove_character_modifier = crusade_very_organized_army
+    	}
+    }
+}
+
+## Specific Events
+# Crusader in Rome
+character_event = {
+    id = HFP.42220
+    desc = EVTDESC_HFP_42220
+    picture = GFX_evt_market_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	set_character_flag = crusader_in_rome
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42220
+        trigger = {
+        	NAND = {
+				332 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    		}
+	    		333 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    			kingdom = {
+	    				NOT = {
+	    					title = event_target:new_crusade_title 
+	    				}
+	    			}
+	    		}
+	    		243 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    		}
+        	}
+        }
+        piety = 50
+
+        ai_chance = {
+        	factor = 1
+        }
+    }
+    option = {
+    	name = EVTOPTB_HFP_42220
+    	trigger = {
+    		332 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    		}
+    		333 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    			kingdom = {
+    				NOT = {
+    					title = event_target:new_crusade_title 
+    				}
+    			}
+    		}
+    		243 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    		}
+    	}
+    	piety = 100 
+    	333 = {
+    		province_event = { id = HFP.42224 }
+    	}
+
+    	ai_chance = {
+    		factor = 1
+    	}
+    }
+    option = {
+    	name = EVTOPTC_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    	}
+
+    	custom_tooltip = {
+    		text = EVTOPTC_HFP_42210_TT
+
+    		set_secret_religion = {
+	    		target_type = public
+	    		target = event_target:current_location
+	    	}
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+    option = {
+    	name = EVTOPTD_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    		OR = {
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = muslim
+    				}
+    				NOT = {
+    					trait = sympathy_islam
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = zoroastrian_group
+    				}
+    				NOT = {
+    					trait = sympathy_zoroastrianism
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = pagan_group
+    				}
+    				NOT = {
+    					trait = sympathy_pagans
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = jewish_group
+    				}
+    				NOT = {
+    					trait = sympathy_judaism
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = indian_group
+    				}
+    				NOT = {
+    					trait = sympathy_indian
+    				}
+    			}
+    		}
+    	}
+    	event_target:current_location = {
+    		add_sympathy_for_religion_effect = yes
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+}
+
+# Crusader in Antioch
+character_event = {
+    id = HFP.42221
+    desc = EVTDESC_HFP_42221
+    picture = GFX_evt_market_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	set_character_flag = crusader_in_antioch
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42221
+        trigger = {
+        	NAND = {
+        		763 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    		}
+	    		764 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    			kingdom = {
+	    				NOT = {
+	    					title = event_target:new_crusade_title 
+	    				}
+	    			}
+	    		}
+	    		765 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    		}
+        	}
+        }
+        piety = 50
+
+        ai_chance = {
+        	factor = 1
+        }
+    }
+    option = {
+    	name = EVTOPTB_HFP_42221
+    	trigger = {
+    		763 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    		}
+    		764 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    			kingdom = {
+    				NOT = {
+    					title = event_target:new_crusade_title 
+    				}
+    			}
+    		}
+    		765 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    		}
+    	}
+    	piety = 100 
+    	764 = {
+    		province_event = { id = HFP.42224 }
+    	}
+
+    	ai_chance = {
+    		factor = 1
+    	}
+    }
+    option = {
+    	name = EVTOPTC_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    	}
+
+    	custom_tooltip = {
+    		text = EVTOPTC_HFP_42210_TT
+
+    		set_secret_religion = {
+	    		target_type = public
+	    		target = event_target:current_location
+	    	}
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+    option = {
+    	name = EVTOPTD_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    		OR = {
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = muslim
+    				}
+    				NOT = {
+    					trait = sympathy_islam
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = zoroastrian_group
+    				}
+    				NOT = {
+    					trait = sympathy_zoroastrianism
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = pagan_group
+    				}
+    				NOT = {
+    					trait = sympathy_pagans
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = jewish_group
+    				}
+    				NOT = {
+    					trait = sympathy_judaism
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = indian_group
+    				}
+    				NOT = {
+    					trait = sympathy_indian
+    				}
+    			}
+    		}
+    	}
+    	event_target:current_location = {
+    		add_sympathy_for_religion_effect = yes
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+}
+
+# Crusader in Cyprus
+character_event = {
+    id = HFP.42222
+    desc = EVTDESC_HFP_42222
+    picture = GFX_evt_market_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	set_character_flag = crusader_in_cyprus
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42222
+        trigger = {
+        	NAND = {
+        		756 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    		}
+	    		757 = {
+	    			owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+		   			kingdom = {
+	    				NOT = {
+	    					title = event_target:new_crusade_title 
+	    				}
+	    			}
+	    		}
+        	}
+        }
+        piety = 50
+
+        ai_chance = {
+        	factor = 1
+        }
+    }
+    option = {
+    	name = EVTOPTB_HFP_42222
+    	trigger = {
+    		756 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    		}
+    		757 = {
+    			owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+	   			kingdom = {
+    				NOT = {
+    					title = event_target:new_crusade_title 
+    				}
+    			}
+    		}
+    	}
+    	piety = 100 
+    	757 = {
+    		province_event = { id = HFP.42224 }
+    	}
+
+    	ai_chance = {
+    		factor = 1
+    	}
+    }
+    option = {
+    	name = EVTOPTC_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    	}
+
+    	custom_tooltip = {
+    		text = EVTOPTC_HFP_42210_TT
+
+    		set_secret_religion = {
+	    		target_type = public
+	    		target = event_target:current_location
+	    	}
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+    option = {
+    	name = EVTOPTD_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    		OR = {
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = muslim
+    				}
+    				NOT = {
+    					trait = sympathy_islam
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = zoroastrian_group
+    				}
+    				NOT = {
+    					trait = sympathy_zoroastrianism
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = pagan_group
+    				}
+    				NOT = {
+    					trait = sympathy_pagans
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = jewish_group
+    				}
+    				NOT = {
+    					trait = sympathy_judaism
+    				}
+    			}
+    			AND = {
+    				event_target:current_location = {
+    					religion_group = indian_group
+    				}
+    				NOT = {
+    					trait = sympathy_indian
+    				}
+    			}
+    		}
+    	}
+    	event_target:current_location = {
+    		add_sympathy_for_religion_effect = yes
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+}
+
+# Crusader in Jerusalem
+character_event = {
+    id = HFP.42223
+    desc = EVTDESC_HFP_42223
+    picture = GFX_evt_market_hf
+    portrait = none
+    is_triggered_only = yes
+    trigger = {
+    
+    }
+
+    immediate = {
+    	set_character_flag = crusader_in_jerusalem
+    	location = {
+    		save_event_target_as = current_location
+    	}
+    }
+
+    option = {      
+        name = EVTOPTA_HFP_42223
+        trigger = {
+        	NAND = {
+	        	772 = {
+	        		owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	        	}
+	        	774 = {
+	        		owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    			kingdom = {
+	    				NOT = {
+	    					title = event_target:new_crusade_title 
+	    				}
+	    			}
+	        	}
+	        	776 = {
+	        		owner = {
+	    				ai = yes
+	    				religion_group = event_target:new_crusade_target
+	    				NOT = {
+	    					religion = ROOT
+	    				}
+	    			}
+	    		}
+        	}
+        }
+        piety = 50
+
+        ai_chance = {
+        	factor = 1
+        }
+    }
+    option = {      
+        name = EVTOPTB_HFP_42223
+        custom_tooltip = { text = EVTOPTB_HFP_42223_TT }
+        trigger = {
+        	772 = {
+        		owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+        	}
+        	774 = {
+        		owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+    			kingdom = {
+    				NOT = {
+    					title = event_target:new_crusade_title 
+    				}
+    			}
+        	}
+        	776 = {
+        		owner = {
+    				ai = yes
+    				religion_group = event_target:new_crusade_target
+    				NOT = {
+    					religion = ROOT
+    				}
+    			}
+        	}
+        }
+        piety = 100
+    	774 = {
+    		province_event = { id = HFP.42224 }
+    	}
+
+    	ai_chance = {
+    		factor = 1
+    	}
+    }
+    option = {
+    	name = EVTOPTC_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    	}
+
+    	custom_tooltip = {
+    		text = EVTOPTC_HFP_42210_TT
+
+    		set_secret_religion = {
+	    		target_type = public
+	    		target = event_target:current_location
+	    	}
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+    option = {
+    	name = EVTOPTD_HFP_42220
+    	trigger = {
+    		NOT = {
+    			event_target:current_location = {
+    				religion = ROOT
+    			}
+    		}
+    		OR = {
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = oldworld
+	        			}
+	        			NOT = {
+	        				trait = sympathy_oldworld
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = afro_syncretic
+	        			}
+	        			NOT = {
+	        				trait = sympathy_afro_syncretic
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = pagan_group
+	        			}
+	        			NOT = {
+	        				trait = sympathy_pagans
+						}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = jewish_group
+	        			}
+	        			NOT = {
+	        				trait = sympathy_judaism
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = indian_group
+	        			}
+	        			NOT = {
+	        				trait = sympathy_indian
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = american_native
+	        			}
+	        			NOT = {
+	        				trait = sympathy_american_native
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = cult_of_saints
+	        			}
+	        			NOT = {
+	        				trait = sympathy_cult_of_saints 
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = pacific 
+	        			}
+	        			NOT = {
+	        				trait = sympathy_pacific 
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = latter_day_saints 
+	        			}
+	        			NOT = {
+	        				trait = sympathy_latter_day_saints 
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = mesoamerican_gods 
+	        			}
+	        			NOT = {
+	        				trait = sympathy_mesoamerican_gods 
+	        			}
+	        		}
+	        		AND = {
+	        			event_target:current_location = {
+	        				religion_group = pirate
+	        			}
+	        			NOT = {
+	        				trait = sympathy_pirate
+	        			}
+	        		}
+    		}
+    	}
+    	event_target:current_location = {
+    		add_sympathy_for_religion_effect = yes
+    	}
+
+    	ai_chance = {
+    		factor = 0
+    	}
+    }
+}
+
+# Province event to trigger Crusader state
+province_event = {
+	id = HFP.42224 
+	hide_window = yes
+	is_triggered_only = yes
+
+	immediate = {
+		FROM = {
+			set_character_flag = ai_crusader_state_flag
+			character_event = { id = HFP.42000 }
+			clr_character_flag = ai_crusader_state_flag
+		}
+	}
+}

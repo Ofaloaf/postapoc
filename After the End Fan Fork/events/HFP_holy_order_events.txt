@@ -1,0 +1,136 @@
+namespace = HFP
+
+# Written by Joachim
+# HFP.44000 - HFP.44999 
+
+# Holy Order decides their liege is unfit to rule over them
+character_event = {
+    id = HFP.44002
+    hide_window = yes
+    is_triggered_only = yes
+    ai = yes
+
+    trigger = {
+    	holy_order = yes
+    	independent = no
+    }
+
+    immediate = {
+    	liege = {
+    		save_event_target_as = liege_character
+    	}
+
+    	if = {
+    		limit = {
+    			OR = {
+    				NOT = {
+    					opinion = {
+    						who = liege
+    						value = -20
+    					}
+    				}
+    				liege = {
+    					excommunicated_for = ROOT
+    				}
+    				liege = {
+    					NOT = {
+    						religion = ROOT
+    					}
+    				}
+    			}
+    		}
+    		opinion = {
+	    		who = event_target:liege_character
+	    		modifier = opinion_unfit_ruler
+	    		years = 30
+	    	}
+	    	liege = {
+	    		letter_event = { id = HFP.44003 }
+	    	}
+	    	any_demesne_title = {
+	    		limit = {
+	    			holy_order = no
+	    			OR = {
+	    				county = {
+	    					owner = {
+	    						OR = {
+		    						character = event_target:liege_character
+		    						event_target:liege_character = {
+		    							any_vassal = {
+	    									NOT = {
+	    										character = ROOT
+	    									}
+		    								character = PREVPREV
+		    							}
+		    						}
+		    					}
+	    					}
+	    				}
+		    			duchy = {
+		    				owner = {
+		    					OR = {
+		    						character = event_target:liege_character
+		    						event_target:liege_character = {
+		    							any_vassal = {
+	    									NOT = {
+	    										character = ROOT
+	    									}
+		    								character = PREVPREV
+		    							}
+		    						}
+		    					}
+		    				}
+		    			}
+		    			kingdom = {
+		    				owner = {
+		    					OR = {
+		    						character = event_target:liege_character
+		    						event_target:liege_character = {
+		    							any_vassal = {
+	    									NOT = {
+	    										character = ROOT
+	    									}
+		    								character = PREVPREV
+		    							}
+		    						}
+		    					}
+		    				}
+		    			}
+		    			empire = {
+		    				owner = {
+		    					OR = {
+		    						character = event_target:liege_character
+		    						event_target:liege_character = {
+		    							any_vassal = {
+	    									not = {
+	    										character = ROOT
+	    									}
+		    								character = PREVPREV
+		    							}
+		    						}
+		    					}
+		    				}
+		    			}
+		    		}
+	    		}
+	    		event_target:liege_character = {
+	    			grant_title_no_opinion = PREV
+	    		}
+	    	}
+	    	set_defacto_liege = ROOT
+    	}
+    }
+}
+
+# Letter informing the previous liege of a Holy Order that the Holy Order has left his / her service
+letter_event = {
+	id = HFP.44003
+	desc = EVTDESC_HFP_44003 
+	border = GFX_event_letter_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_HFP_44003
+		piety = -50
+	}
+}

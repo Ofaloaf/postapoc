@@ -1,0 +1,2886 @@
+# Written by Flavio
+
+namespace = HFP
+# Grumpy Eldership Events
+
+#########################################
+
+#Landless realm Elder wishes to move into your capital, unlocking chance for additional personal events. (only if Pleased)
+#Landless realm Elder leaves your capital, making you lose prestige. (only if Displeased)
+
+#Give county request while pleased (to good person). (only if Pleased)
+#Give county request while upset (to poor candidate). (only if Displeased)
+#Fabricating claim for liked person. (only if Displeased)
+
+#Elder feels lonely. (temporary stewardship malus) (only if Pleased)
+
+#Elder is pleased, tells vassals to behave and listen to ruler (result based on learning and age) (only if Ecstatic) 
+#Elder offers help by sharing wisdom of old (increase culture tech, or learning, or stewardship) (only if Ecstatic)
+
+
+#########################################
+
+#On_biyearly_pulse: Elder gains Too Much to Live For modifier due to being an Elder.
+character_event = {
+	id = HFP.24001
+	desc = EVTDESCHFP24001
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	min_age = 30
+	
+	trigger = {
+		NOR = { 
+			trait = incapable
+			prisoner = yes
+		}
+		any_eldership_title = {
+			ROOT = {
+				OR = {
+					has_elector_stance = { stance = elder_displeased title = PREV }
+					has_elector_stance = { stance = elder_pleased title = PREV } 
+					has_elector_stance = { stance = elder_ecstatic title = PREV }
+				}
+			}
+		}
+		NOT = { has_character_modifier = elder_long_life_modifier }
+	}
+
+	option = {
+		name = EVTOPTAHFP24001
+		add_character_modifier = { name = elder_long_life_modifier years = 100 }
+		if = { 
+			limit = { is_ruler = no }
+			give_nickname = nick_the_elder 
+		}
+	}
+}
+
+#on_decade_pulse: Elder wishes to move to the court of a ruler he is the elder of.
+character_event = {
+	id = HFP.24002
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	min_age = 40
+	
+	trigger = {
+		NOT = { has_character_flag = flag_elder_moved_court } 
+		is_ruler = no
+		is_married = no
+		is_consort = no 
+		NOR = { 
+			trait = incapable
+			prisoner = yes
+		}
+		any_eldership_title = {
+			ROOT = {
+				OR = {
+					has_elector_stance = { stance = elder_pleased title = PREV } 
+					has_elector_stance = { stance = elder_ecstatic title = PREV }
+				}
+			}
+			holder_scope = { 
+				NOT = { is_liege_of = ROOT } 
+				NOT = { has_character_modifier = elder_demand_cooldown } 
+			}
+		}
+		NOT = { 
+			any_eldership_title = {
+				ROOT = {
+					OR = {
+						has_elector_stance = { stance = elder_pleased title = PREV } 
+						has_elector_stance = { stance = elder_ecstatic title = PREV }
+					}
+				}
+				holder_scope = { #Should not want to move if he already has a nice liege he likes.
+					is_liege_of = ROOT
+				}
+			}
+		}
+	}
+
+	immediate = {
+		random_eldership_title = {
+			limit = {
+				ROOT = {
+					OR = {
+						has_elector_stance = { stance = elder_pleased title = PREV } 
+						has_elector_stance = { stance = elder_ecstatic title = PREV }
+					}
+				}
+				holder_scope = { 
+					NOT = { is_liege_of = ROOT } 
+					NOT = { has_character_modifier = elder_demand_cooldown } 
+				}
+			}
+			holder_scope = { save_event_target_as = scoped_host }
+		}
+		set_character_flag = flag_elder_moved_court
+		event_target:scoped_host = { 
+			character_event = { id = HFP.24003 }
+		}
+	}
+}
+
+#Ruler informed.
+character_event = {
+	id = HFP.24003
+	desc = EVTDESCHFP24003
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHFP24003
+		FROM = { 
+			move_character = ROOT
+		}
+		reverse_opinion = {
+			modifier = opinion_elder_fulfilled_demand
+			who = FROM
+			years = 10
+		}
+		custom_tooltip = { text = tooltip_other_elders_pleased }
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_pleased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 85
+		}
+	}
+	option = {
+		name = EVTOPTBHFP24003
+		reverse_opinion = {
+			modifier = opinion_elder_refused_demand
+			who = FROM
+			years = 10
+		}
+		custom_tooltip = { text = tooltip_other_elders_displeased }
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_displeased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 15
+		}
+	}
+	after = {
+		hidden_tooltip = { add_character_modifier = { name = elder_demand_cooldown hidden = yes years = 5 } }
+	}
+}
+
+#on_decade_pulse: Elder moves away from court of ruler he does not like.
+character_event = {
+	id = HFP.24004
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	min_age = 40
+	
+	trigger = {
+		NOR = { 
+			trait = incapable
+			prisoner = yes
+		}
+		is_ruler = no
+		is_married = no
+		is_consort = no 	
+		any_eldership_title = {
+			ROOT = { has_elector_stance = { stance = elder_displeased title = PREV } }
+			holder_scope = { 
+				is_liege_of = ROOT 
+				NOT = { has_character_modifier = elder_demand_cooldown } 
+			}
+		}
+		any_realm_character = { 
+			is_ruler = yes 
+			is_landed = yes
+			NOR = { 
+				is_liege_of = ROOT 
+				is_rival = ROOT
+			}
+		}
+	}
+
+	immediate = {
+		random_eldership_title = {
+			limit = {
+				ROOT = { has_elector_stance = { stance = elder_displeased title = PREV } }
+				holder_scope = { 
+					is_liege_of = ROOT
+					ROOT = { host = { character = PREVPREV } }
+				}
+			}
+			holder_scope = { character_event = { id = HFP.24005 } }
+		}
+		random_realm_character = { 
+			limit = { 
+				is_ruler = yes 
+				is_landed = yes
+				NOR = { 
+					is_liege_of = ROOT 
+					is_rival = ROOT
+				}
+			}
+			preferred_limit = { 
+				OR = { 
+					is_friend = ROOT
+					is_lover = ROOT
+				}
+			}
+			preferred_limit = { 
+				reverse_opinion = { 
+					who = ROOT
+					value = 60
+				}
+			}
+			preferred_limit = { 
+				reverse_opinion = { 
+					who = ROOT
+					value = 40
+				}
+			}
+			preferred_limit = { 
+				reverse_opinion = { 
+					who = ROOT
+					value = 20
+				}
+			}
+			ROOT = { 
+				move_character = PREV
+			}
+		}
+	}
+}
+
+#Ruler informed.
+character_event = {
+	id = HFP.24005
+	desc = EVTDESCHFP24005
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = { #He was always impossible to deal with!
+		name = EVTOPTAHFP24005
+		trigger = { diplomacy = 12 }
+		tooltip_info = diplomacy
+		custom_tooltip = { text = tooltip_EVTOPTAHFP24005 }
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_pleased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 85
+		}
+	}
+	option = {
+		name = EVTOPTBHFP24005
+		custom_tooltip = { text = tooltip_other_elders_displeased }
+		tiered_prestige_negative_effect = yes
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_displeased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 15
+		}
+	}
+	after = {
+		hidden_tooltip = { add_character_modifier = { name = elder_demand_cooldown hidden = yes years = 5 } }
+	}
+}
+
+#on_decade_pulse: Elder is pleased, wants ruler to give County to competent person he likes.
+character_event = {
+	id = HFP.24006
+	desc = EVTDESCHFP24006
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	hide_new = yes
+	portrait = event_target:scoped_ruler
+	
+	is_triggered_only = yes
+
+	min_age = 30
+	
+	trigger = {
+		any_eldership_title = {
+			ROOT = {
+				OR = {
+					has_elector_stance = { stance = elder_pleased title = PREV }
+					has_elector_stance = { stance = elder_ecstatic title = PREV }	
+				}
+			}
+			holder_scope = { 
+				NOT = { has_character_modifier = elder_demand_cooldown } 
+				any_demesne_title = {
+					can_be_given_away = yes
+					tier = count
+					location = {
+						is_capital = no
+					}
+				}
+				any_dynasty_member = { #Adult dynasty member must exist.
+					is_alive = yes 
+					is_adult = yes
+					is_ruler = no
+					NOT = { is_primary_heir = PREV }
+					OR = { 
+						AND = { 
+							is_female = no 
+							NOT = { PREVPREV = { has_law = enatic_succession } } 
+						}
+						AND = { 
+							is_female = yes
+							NOT = { PREVPREV = { has_law = agnatic_succession } } 
+						}
+					}
+				} 
+			}
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			random_eldership_title = {
+				limit = {
+					ROOT = {
+						OR = {
+							has_elector_stance = { stance = elder_pleased title = PREV } 	
+							has_elector_stance = { stance = elder_ecstatic title = PREV }
+						}
+					}
+					holder_scope = { 
+						NOT = { has_character_modifier = elder_demand_cooldown } 
+						any_demesne_title = {
+							can_be_given_away = yes
+							tier = count
+							location = {
+								is_capital = no
+							}
+						}
+						any_dynasty_member = { #Adult dynasty member must exist.
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							}
+						} 
+					}
+				}
+				holder_scope = { 
+					save_event_target_as = scoped_ruler
+					random_dynasty_member = { 
+						limit = {
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							}
+						}
+						preferred_limit = {
+							NOR = { 
+								is_rival = ROOT 
+								is_dumb_trigger = yes
+								is_weak_trigger = yes
+								is_evil_trigger = yes
+							}
+							OR = { 
+								is_smart_trigger = yes
+								is_attractive_trigger = yes
+							}
+						}
+						preferred_limit = {
+							NOR = { 
+								is_rival = ROOT 
+								is_dumb_trigger = yes
+								is_weak_trigger = yes
+								is_evil_trigger = yes
+							}
+						}
+						preferred_limit = {
+							NOT = { 
+								is_rival = ROOT
+							}
+						}
+						save_event_target_as = scoped_recipient_first
+					}
+					random_dynasty_member = { 
+						limit = {
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							NOT = { character = event_target:scoped_recipient_first }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							} 
+						}
+						preferred_limit = { 
+							OR = { 
+								is_lover = ROOT
+								is_friend = ROOT
+								is_married = ROOT
+							}
+						}
+						preferred_limit = { 
+							reverse_opinion = { 
+								who = ROOT
+								value = 80
+							}
+						}
+						preferred_limit = { 
+							reverse_opinion = { 
+								who = ROOT
+								value = 60
+							}
+						}
+						preferred_limit = { 
+							reverse_opinion = { 
+								who = ROOT
+								value = 40
+							}
+						}
+						preferred_limit = { 
+							reverse_opinion = { 
+								who = ROOT
+								value = 20
+							}
+						}
+						save_event_target_as = scoped_recipient_second
+					}
+					random_dynasty_member = { 
+						limit = {
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							NOT = { character = event_target:scoped_recipient_first }
+							NOT = { character = event_target:scoped_recipient_second }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							}
+						}
+						preferred_limit = { 
+							OR = { 
+								diplomacy = 18
+								intrigue = 18
+								stewardship = 18
+								learning = 18
+							}
+						}
+						preferred_limit = { 
+							OR = { 
+								diplomacy = 16
+								intrigue = 16
+								stewardship = 16
+								learning = 16
+							}
+						}
+						preferred_limit = { 
+							OR = { 
+								diplomacy = 14
+								intrigue = 14
+								stewardship = 14
+								learning = 14
+							}
+						}
+						preferred_limit = { 
+							OR = { 
+								diplomacy = 12
+								intrigue = 12
+								stewardship = 12
+								learning = 12
+							}
+						}
+						preferred_limit = { 
+							OR = { 
+								diplomacy = 10
+								intrigue = 10
+								stewardship = 10
+								learning = 10
+							}
+						}
+						preferred_limit = { 
+							OR = { 
+								diplomacy = 8
+								intrigue = 8
+								stewardship = 8
+								learning = 8
+							}
+						}
+						save_event_target_as = scoped_recipient_third
+					}
+				}
+			}
+		}
+	}
+
+	option = { #Grumpy option
+		name = EVTOPTZHFP24006
+		trigger = { trait = stubborn }
+		tooltip_info = stubborn
+		show_portrait = ROOT
+		custom_tooltip = { text = tooltip_EVTOPTZHFP24006 }
+		if = { 
+			limit = { trait = humble }
+			remove_trait = humble
+		}
+		hidden_tooltip = {  
+			save_event_target_as = scoped_potential_count
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24007 }
+			}
+		}
+		ai_chance = {
+			factor = 5
+			modifier = {
+				factor = 1.75
+				trait = proud
+			}
+			modifier = {
+				factor = 0.25
+				trait = humble
+			}
+		}
+	}
+	option = { #Smart pick.
+		name = EVTOPTAHFP24006
+		trigger = { 
+			event_target:scoped_recipient_first = { is_alive = yes } 
+		}
+		show_portrait = event_target:scoped_recipient_first
+		custom_tooltip = { text = tooltip_EVTOPTAHFP24006 }
+		hidden_tooltip = {  
+			event_target:scoped_recipient_first = {  
+				save_event_target_as = scoped_potential_count
+			}
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24007 }
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				factor = 1.75
+				trait = kind
+			}
+			modifier = {
+				factor = 0.5
+				trait = envious
+			}
+		}
+	}
+	option = { #Beloved pick.
+		name = EVTOPTBHFP24006
+		trigger = { 
+			event_target:scoped_recipient_second = { is_alive = yes } 
+		}
+		show_portrait = event_target:scoped_recipient_second
+		custom_tooltip = { text = tooltip_EVTOPTBHFP24006 }
+		hidden_tooltip = {  
+			event_target:scoped_recipient_second = {  
+				save_event_target_as = scoped_potential_count
+			}
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24007 }
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				factor = 1.75
+				trait = gregarious
+			}
+			modifier = {
+				factor = 0.5
+				trait = shy
+			}
+		}
+	}
+	option = { #Competent pick.
+		name = EVTOPTCHFP24006
+		trigger = { 
+			event_target:scoped_recipient_third = { is_alive = yes } 
+		}
+		show_portrait = event_target:scoped_recipient_third
+		custom_tooltip = { text = tooltip_EVTOPTCHFP24006 }
+		hidden_tooltip = {  
+			event_target:scoped_recipient_third = {  
+				save_event_target_as = scoped_potential_count
+			}
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24007 }
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				factor = 1.75
+				trait = diligent
+			}
+			modifier = {
+				factor = 0.5
+				trait = slothful
+			}
+		}
+	}
+	option = { #Nobody.
+		name = EVTOPTDHFP24006
+		trigger = { 
+			NOT = { 
+				trait = stubborn
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+#Ruler informed.
+character_event = {
+	id = HFP.24007
+	desc = { 
+		trigger = { 
+			event_target:scoped_potential_count = { 
+				NOT = { character = FROM } 
+			} 
+		} 
+		text = EVTDESCAHFP24007
+	}
+	desc = { #Elder is asking for himself.
+		trigger = { 
+			event_target:scoped_potential_count = { 
+				character = FROM
+			} 
+		} 
+		text = EVTDESCBHFP24007
+	}
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	hide_new = yes
+	portrait = FROM
+	
+	is_triggered_only = yes
+
+	option = { #Give title.
+		name = EVTOPTAHFP24007
+		random_demesne_title = {
+			limit = {
+				can_be_given_away = yes
+				tier = count
+				location = {
+					is_capital = no
+				}
+			}
+			grant_title = event_target:scoped_potential_count
+		}
+		show_portrait = event_target:scoped_potential_count
+		reverse_opinion = {
+			modifier = opinion_elder_fulfilled_demand
+			who = FROM
+			years = 30
+		}
+		custom_tooltip = { text = tooltip_other_elders_pleased }
+		hidden_tooltip = {
+			FROM = { character_event = { id = HFP.24008 } }
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_pleased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 85
+		}
+	}
+	option = { #Refuse.
+		name = EVTOPTBHFP24007
+		reverse_opinion = {
+			modifier = opinion_elder_refused_demand
+			who = FROM
+			years = 30
+		}
+		show_portrait = FROM
+		custom_tooltip = { text = tooltip_other_elders_displeased }
+		hidden_tooltip = {
+			FROM = { character_event = { id = HFP.24009 } }
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_displeased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 15
+		}
+	}
+	after = {
+		hidden_tooltip = { add_character_modifier = { name = elder_demand_cooldown hidden = yes years = 20 } }
+	}
+}
+
+#Elder notified of title given.
+character_event = {
+	id = HFP.24008
+	desc = { 
+		trigger = { 
+			event_target:scoped_potential_count = { 
+				NOT = { character = ROOT } 
+			} 
+		} 
+		text = EVTDESCAHFP24008
+	}
+	desc = { #Elder is asking for himself.
+		trigger = { 
+			event_target:scoped_potential_count = { 
+				character = ROOT
+			} 
+		} 
+		text = EVTDESCBHFP24008
+	}
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHFP24008
+		tooltip = {
+			opinion = {
+				modifier = opinion_elder_fulfilled_demand
+				who = FROM
+				years = 30
+			}
+		}
+		ai_chance = {
+			factor = 85
+		}
+	}
+}
+
+#Elder notified of title refused.
+character_event = {
+	id = HFP.24009
+	desc = EVTDESCAHFP24009
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHFP24009
+		tooltip = {
+			opinion = {
+				modifier = opinion_elder_refused_demand
+				who = FROM
+				years = 30
+			}
+		}
+		ai_chance = {
+			factor = 85
+		}
+	}
+}
+
+#on_decade_pulse: Elder is displeased, wants ruler to give County to incompetent person he likes.
+character_event = {
+	id = HFP.24010
+	desc = EVTDESCHFP24010
+	hide_new = yes
+	portrait = event_target:scoped_ruler
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	min_age = 30
+	
+	trigger = {
+		any_eldership_title = {
+			ROOT = { has_elector_stance = { stance = elder_displeased title = PREV } }
+			holder_scope = { 
+				NOT = { has_character_modifier = elder_demand_cooldown } 
+				any_demesne_title = {
+					can_be_given_away = yes
+					tier = count
+					location = {
+						is_capital = no
+					}
+				}
+				any_dynasty_member = { #Adult dynasty member must exist.
+					is_alive = yes 
+					is_adult = yes
+					is_ruler = no
+					NOT = { is_primary_heir = PREV }
+					OR = { 
+						AND = { 
+							is_female = no 
+							NOT = { PREVPREV = { has_law = enatic_succession } } 
+						}
+						AND = { 
+							is_female = yes
+							NOT = { PREVPREV = { has_law = agnatic_succession } } 
+						}
+					}
+				} 
+			}
+		}
+	}
+	immediate = {
+		hidden_effect = {
+			random_eldership_title = {
+				limit = {
+					ROOT = { has_elector_stance = { stance = elder_displeased title = PREV } }
+					holder_scope = { 
+						NOT = { has_character_modifier = elder_demand_cooldown } 
+						any_demesne_title = {
+							can_be_given_away = yes
+							tier = count
+							location = {
+								is_capital = no
+							}
+						}
+						any_dynasty_member = { #Adult dynasty member must exist.
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							}
+						} 
+					}
+				}
+				holder_scope = { 
+					save_event_target_as = scoped_ruler
+					random_dynasty_member = { 
+						limit = {
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							}
+						}
+						preferred_limit = {
+							NOT = { 
+								is_rival = ROOT 
+							}
+							OR = { 
+								is_dumb_trigger = yes
+								is_weak_trigger = yes
+								is_evil_trigger = yes
+								trait = inbred
+								trait = maimed
+								trait = mangled
+								trait = hunchback
+								trait = ugly
+								trait = clubfooted
+								trait = harelip
+								trait = dwarf
+								trait = giant
+								trait = stutter
+								trait = lisp
+							}
+						}
+						preferred_limit = {
+							OR = { 
+								is_dumb_trigger = yes
+								is_weak_trigger = yes
+								is_evil_trigger = yes
+								trait = inbred
+								trait = maimed
+								trait = mangled
+								trait = hunchback
+								trait = ugly
+								trait = clubfooted
+								trait = harelip
+								trait = dwarf
+								trait = giant
+								trait = stutter
+								trait = lisp
+							}
+						}
+						save_event_target_as = scoped_recipient_first
+					}
+					random_dynasty_member = { 
+						limit = {
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							NOT = { character = event_target:scoped_recipient_first }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							} 
+						}
+						preferred_limit = { 
+							OR = { 
+								is_rival = event_target:scoped_ruler
+								NOT = { 
+									opinion = { 
+										who = event_target:scoped_ruler
+										value = -99
+									}
+								}
+							}
+						}
+						preferred_limit = { 
+							NOT = { 
+								opinion = { 
+									who = event_target:scoped_ruler
+									value = -80
+								}
+							}
+						}
+						preferred_limit = { 
+							NOT = { 
+								opinion = { 
+									who = event_target:scoped_ruler
+									value = -60
+								}
+							}
+						}
+						preferred_limit = { 
+							NOT = { 
+								opinion = { 
+									who = event_target:scoped_ruler
+									value = -40
+								}
+							}
+						}
+						preferred_limit = { 
+							NOT = { 
+								opinion = { 
+									who = event_target:scoped_ruler
+									value = -20
+								}
+							}
+						}
+						preferred_limit = { 
+							NOT = { 
+								opinion = { 
+									who = event_target:scoped_ruler
+									value = 0
+								}
+							}
+						}
+						save_event_target_as = scoped_recipient_second
+					}
+					random_dynasty_member = { 
+						limit = {
+							is_alive = yes 
+							is_adult = yes
+							is_ruler = no
+							NOT = { is_primary_heir = PREV }
+							NOT = { character = event_target:scoped_recipient_first }
+							NOT = { character = event_target:scoped_recipient_second }
+							OR = { 
+								AND = { 
+									is_female = no 
+									NOT = { PREVPREV = { has_law = enatic_succession } } 
+								}
+								AND = { 
+									is_female = yes
+									NOT = { PREVPREV = { has_law = agnatic_succession } } 
+								}
+							}
+						}
+						preferred_limit = { 
+							NOR = { 
+								diplomacy = 6
+								intrigue = 6
+								stewardship = 6
+								learning = 6
+								martial = 6
+								combat_rating = 10
+								trait = diligent
+							}
+						}
+						preferred_limit = { 
+							NOR = { 
+								diplomacy = 8
+								intrigue = 8
+								stewardship = 8
+								learning = 8
+								martial = 8
+								combat_rating = 20
+							}
+						}
+						preferred_limit = { 
+							NOR = { 
+								diplomacy = 10
+								intrigue = 10
+								stewardship = 10
+								learning = 10
+								martial = 10
+								combat_rating = 30
+							}
+						}
+						save_event_target_as = scoped_recipient_third
+					}
+				}
+			}
+		}
+	}
+
+	option = { #Grumpy option
+		name = EVTOPTZHFP24010
+		trigger = { trait = stubborn }
+		tooltip_info = stubborn
+		custom_tooltip = { text = tooltip_EVTOPTZHFP24006 }
+		show_portrait = ROOT
+		if = { 
+			limit = { trait = humble }
+			remove_trait = humble
+		}
+		hidden_tooltip = {  
+			save_event_target_as = scoped_potential_count
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24011 }
+			}
+		}
+		ai_chance = {
+			factor = 5
+			modifier = {
+				factor = 1.75
+				trait = proud
+			}
+			modifier = {
+				factor = 0.25
+				trait = humble
+			}
+		}
+	}
+	option = { #Dumb pick.
+		name = EVTOPTAHFP24010
+		trigger = { 
+			event_target:scoped_recipient_first = { is_alive = yes } 
+		}
+		show_portrait = event_target:scoped_recipient_first
+		custom_tooltip = { text = tooltip_EVTOPTAHFP24006 }
+		hidden_tooltip = {  
+			event_target:scoped_recipient_first = {  
+				save_event_target_as = scoped_potential_count
+			}
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24011 }
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				factor = 1.75
+				trait = cruel
+			}
+			modifier = {
+				factor = 0.5
+				trait = kind
+			}
+		}
+	}
+	option = { #Hated pick.
+		name = EVTOPTBHFP24010
+		trigger = { 
+			event_target:scoped_recipient_second = { is_alive = yes } 
+		}
+		show_portrait = event_target:scoped_recipient_second
+		custom_tooltip = { text = tooltip_EVTOPTBHFP24006 }
+		hidden_tooltip = {  
+			event_target:scoped_recipient_second = {  
+				save_event_target_as = scoped_potential_count
+			}
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24011 }
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				factor = 1.75
+				trait = deceitful
+			}
+			modifier = {
+				factor = 0.5
+				trait = honest
+			}
+		}
+	}
+	option = { #Incompetent pick.
+		name = EVTOPTCHFP24010
+		trigger = { 
+			event_target:scoped_recipient_third = { is_alive = yes } 
+		}
+		show_portrait = event_target:scoped_recipient_third
+		custom_tooltip = { text = tooltip_EVTOPTCHFP24006 }
+		hidden_tooltip = {  
+			event_target:scoped_recipient_third = {  
+				save_event_target_as = scoped_potential_count
+			}
+			event_target:scoped_ruler = {  
+				character_event = { id = HFP.24011 }
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				factor = 1.75
+				trait = slothful
+			}
+			modifier = {
+				factor = 0.5
+				trait = diligent
+			}
+		}
+	}
+	option = { #Nobody.
+		name = EVTOPTDHFP24010
+		trigger = { 
+			NOT = { 
+				trait = stubborn
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+
+
+#Ruler informed.
+character_event = {
+	id = HFP.24011
+	desc = { 
+		trigger = { 
+			event_target:scoped_potential_count = { 
+				NOT = { character = FROM } 
+			} 
+		} 
+		text = EVTDESCAHFP24011
+	}
+	desc = { #Elder is asking for himself.
+		trigger = { 
+			event_target:scoped_potential_count = { 
+				character = FROM
+			} 
+		} 
+		text = EVTDESCBHFP24011
+	}
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = { #Give title.
+		name = EVTOPTAHFP24011
+		random_demesne_title = {
+			limit = {
+				can_be_given_away = yes
+				tier = count
+				location = {
+					is_capital = no
+				}
+			}
+			grant_title = event_target:scoped_potential_count
+		}
+		show_portrait = event_target:scoped_potential_count
+		reverse_opinion = {
+			modifier = opinion_elder_fulfilled_demand
+			who = FROM
+			years = 30
+		}
+		custom_tooltip = { text = tooltip_other_elders_pleased }
+		hidden_tooltip = {
+			FROM = { character_event = { id = HFP.24012 } }
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_pleased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 65
+		}
+	}
+	option = { #Refuse.
+		name = EVTOPTBHFP24011
+		show_portrait = FROM
+		reverse_opinion = {
+			modifier = opinion_elder_refused_demand
+			who = FROM
+			years = 30
+		}
+		custom_tooltip = { text = tooltip_other_elders_displeased }
+		hidden_tooltip = {
+			FROM = { character_event = { id = HFP.24013 } }
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_displeased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 45
+			modifier = {
+				factor = 0.5
+				trait = trusting
+			}
+		}
+	}
+	after = {
+		hidden_tooltip = { add_character_modifier = { name = elder_demand_cooldown hidden = yes years = 20 } }
+	}
+}
+
+#Elder notified of title given.
+character_event = {
+	id = HFP.24012
+	desc = EVTDESCAHFP24012
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHFP24012
+		tooltip = {
+			opinion = {
+				modifier = opinion_elder_fulfilled_demand
+				who = FROM
+				years = 30
+			}
+		}
+		ai_chance = {
+			factor = 85
+		}
+	}
+}
+
+#Elder notified of title refused.
+character_event = {
+	id = HFP.24013
+	desc = EVTDESCAHFP24013
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHFP24013
+		tooltip = {
+			opinion = {
+				modifier = opinion_elder_refused_demand
+				who = FROM
+				years = 30
+			}
+		}
+		ai_chance = {
+			factor = 85
+		}
+	}
+}
+
+#on_decade_pulse: Elder feels lonely.
+character_event = {
+	id = HFP.24014
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	min_age = 40
+	
+	trigger = {
+		NOR = { 
+			trait = incapable
+			prisoner = yes
+		}
+		is_ruler = no
+		is_married = no
+		has_lover = no
+		any_eldership_title = {
+			ROOT = {
+				has_elector_stance = { stance = elder_pleased title = PREV } 
+			}
+			holder_scope = { 
+				is_liege_of = ROOT
+				NOT = { has_character_modifier = elder_demand_cooldown } 
+			}
+		}
+	}
+
+	immediate = {
+		random_eldership_title = {
+			limit = {
+				ROOT = {
+					has_elector_stance = { stance = elder_pleased title = PREV }
+				}
+				holder_scope = { 
+					is_liege_of = ROOT
+					NOT = { has_character_modifier = elder_demand_cooldown } 
+				}
+			}
+			holder_scope = { character_event = { id = HFP.24015 } }
+		}
+	}
+}
+
+#Ruler informed that Elder feels lonely.
+character_event = {
+	id = HFP.24015
+	desc = EVTDESCAHFP24015
+	hide_new = yes
+	portrait = FROM
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	immediate = {
+		random_courtier = {
+			limit = {
+				is_ruler = no
+				is_married = no
+				is_betrothed = no
+				is_consort = no
+				is_adult = yes
+				is_incapable = no
+				is_ill = no
+				NOR = {
+					is_lover = ROOT
+					character = ROOT
+					character = FROM
+					is_heir = ROOT
+					is_close_relative = FROM
+				}
+				OR = {
+					AND = { 
+						is_female = yes 
+						FROM = { is_female = no }
+					}
+					AND = { 
+						is_female = no
+						FROM = { is_female = yes }
+					}
+				}
+			}
+			preferred_limit = {
+				NOT = { age = 35 }
+				is_attractive_trigger = yes
+			}
+			preferred_limit = {
+				NOT = { age = 35 }
+			}
+			save_event_target_as = scoped_suitor
+		}
+	}
+
+	#Spend time with him. (malus to Stewardship).
+	#Give companion.
+	#Send a present (money).
+	#Refuse.
+
+	option = { #Give attention.
+		name = EVTOPTAHFP24015
+		add_character_modifier = {
+			name = elder_care_modifier
+			years = 5
+		}
+		reverse_opinion = {
+			modifier = opinion_elder_fulfilled_demand
+			who = FROM
+			years = 10
+		}
+		custom_tooltip = { text = tooltip_other_elders_pleased }
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_pleased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 35
+		}
+	}
+	option = { #Give spouse.
+		name = EVTOPTBHFP24015
+		trigger = {
+			event_target:scoped_suitor = { is_alive = yes is_married = no }
+			FROM = { is_married = no }
+		}
+		show_portrait = event_target:scoped_suitor
+		event_target:scoped_suitor = { add_spouse = FROM }
+		reverse_opinion = {
+			modifier = opinion_elder_fulfilled_demand
+			who = FROM
+			years = 10
+		}
+		custom_tooltip = { text = tooltip_other_elders_pleased }
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_pleased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 35
+		}
+	}
+	option = { #Give money.
+		name = EVTOPTCHFP24015
+		transfer_scaled_wealth = { to = FROM value = 0.5 min = 10 max = 100 } 
+		reverse_opinion = {
+			modifier = opinion_elder_fulfilled_demand
+			who = FROM
+			years = 10
+		}
+		custom_tooltip = { text = tooltip_other_elders_pleased }
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_pleased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 35
+		}
+	}
+	option = { #Refuse.
+		name = EVTOPTDHFP24015
+		reverse_opinion = {
+			modifier = opinion_elder_refused_demand
+			who = FROM
+			years = 10
+		}
+		custom_tooltip = { text = tooltip_other_elders_displeased }
+		hidden_tooltip = {
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					limit = {
+						NOT = { character = FROM }
+						NOT = { character = ROOT }
+					}
+					opinion = {
+						modifier = opinion_elders_displeased
+						who = PREVPREV
+						years = 10
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 45
+			modifier = {
+				factor = 0.5
+				trait = trusting
+			}
+		}
+	}
+	after = {
+		hidden_tooltip = { add_character_modifier = { name = elder_demand_cooldown hidden = yes years = 5 } }
+	}
+}
+
+#on_decade_pulse: Displeased Elder fabricates a claim on the title he is displeased about.
+character_event = {
+	id = HFP.24016
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	min_age = 30
+	
+	trigger = {	
+		NOR = { 
+			trait = incapable
+			prisoner = yes
+		}
+		any_eldership_title = {
+			ROOT = {
+				has_elector_stance = { stance = elder_displeased title = PREV }
+			}
+			holder_scope = { 
+				any_realm_character = { #Potential recipient for claim must exist.
+					is_adult = yes
+					is_incapable = no
+					is_ill = no
+					NOR = { 
+						has_claim = PREVPREV
+						is_heir = PREV
+						character = ROOT
+						is_rival = ROOT
+						character = PREV
+					}
+				} 
+			}
+		}
+	}
+
+	weight_multiplier = {
+		days = 1
+		modifier = {
+			factor = 0.5
+			ai = no
+		}
+		modifier = {
+			factor = 2
+			age = 40
+		}
+		modifier = {
+			factor = 2
+			age = 50
+		}
+		modifier = {
+			factor = 2
+			age = 60
+		}
+		modifier = {
+			factor = 2
+			learning = 8
+		}
+		modifier = {
+			factor = 2
+			learning = 10
+		}
+		modifier = {
+			factor = 2
+			learning = 12
+		}
+		modifier = {
+			factor = 2
+			learning = 14
+		}
+		modifier = {
+			factor = 2
+			learning = 16
+		}
+		modifier = {
+			factor = 2
+			learning = 18
+		}
+		modifier = {
+			factor = 2
+			learning = 20
+		}
+		modifier = {
+			factor = 2
+			intrigue = 8
+		}
+		modifier = {
+			factor = 2
+			intrigue = 10
+		}
+		modifier = {
+			factor = 2
+			intrigue = 12
+		}
+		modifier = {
+			factor = 2
+			intrigue = 14
+		}
+		modifier = {
+			factor = 2
+			intrigue = 16
+		}
+		modifier = {
+			factor = 2
+			intrigue = 18
+		}
+		modifier = {
+			factor = 2
+			intrigue = 20
+		}
+		modifier = {
+			factor = 2
+			prestige = 100
+		}
+		modifier = {
+			factor = 2
+			prestige = 250
+		}
+		modifier = {
+			factor = 3
+			prestige = 500
+		}
+		modifier = {
+			factor = 5
+			prestige = 750
+		}
+		modifier = {
+			factor = 10
+			prestige = 1000
+		}
+		modifier = {
+			factor = 0.5
+			trait = content
+		}
+		modifier = {
+			factor = 2
+			trait = stubborn
+		}
+	}
+
+	immediate = {
+		random_eldership_title = {
+			limit = {
+				ROOT = {
+					has_elector_stance = { stance = elder_displeased title = PREV }
+				}
+				holder_scope = { 
+					any_realm_character = { #Potential recipient for claim must exist.
+						is_adult = yes
+						is_incapable = no
+						is_ill = no
+						NOR = { 
+							has_claim = PREVPREV
+							is_heir = PREV
+							character = ROOT
+							is_rival = ROOT
+							character = PREV
+						}
+					} 
+				}
+			}
+			save_event_target_as = scoped_claim_title
+			holder_scope = { 
+				save_event_target_as = scoped_ruler
+				random_realm_character = {
+					limit = {
+						is_adult = yes
+						is_incapable = no
+						is_ill = no
+						NOR = { 
+							has_claim = PREVPREV
+							is_heir = event_target:scoped_ruler
+							character = ROOT
+							is_rival = ROOT
+							character = event_target:scoped_ruler
+						}
+					}
+					preferred_limit = {
+						trait = ambitious
+						is_rival = event_target:scoped_ruler
+						is_landed = yes
+						higher_real_tier_than = COUNT
+						is_republic = no
+						reverse_opinion = {
+							who = ROOT
+							value = 20
+						}
+					}
+					preferred_limit = {
+						trait = ambitious
+						is_rival = event_target:scoped_ruler
+						is_landed = yes
+						higher_real_tier_than = COUNT
+						is_republic = no
+					}
+					preferred_limit = {
+						trait = ambitious
+						is_rival = event_target:scoped_ruler
+						is_landed = yes
+						higher_real_tier_than = BARON
+						is_republic = no
+						reverse_opinion = {
+							who = ROOT
+							value = 20
+						}
+					}
+					preferred_limit = {
+						trait = ambitious
+						is_rival = event_target:scoped_ruler
+						is_landed = yes
+						higher_real_tier_than = BARON
+						is_republic = no
+					}
+					preferred_limit = { 
+						trait = ambitious
+						trait = adventurer
+						is_rival = event_target:scoped_ruler
+					}
+					preferred_limit = { 
+						trait = ambitious
+						is_ruler = no
+						is_rival = event_target:scoped_ruler
+					}
+					preferred_limit = {
+						OR = {
+							trait = ambitious
+							is_rival = event_target:scoped_ruler
+						}
+						is_landed = yes
+						is_republic = no
+						reverse_opinion = {
+							who = ROOT
+							value = 20
+						}
+					}
+					preferred_limit = {
+						OR = {
+							trait = ambitious
+							is_rival = event_target:scoped_ruler
+						}
+						is_landed = yes
+						is_republic = no
+					}
+					preferred_limit = {
+						OR = {
+							trait = ambitious
+							is_rival = event_target:scoped_ruler
+							is_landed = yes
+						}
+					}
+					character_event = { id = HFP.24017 }
+				} 
+			}
+		}
+	}
+}
+
+#Claimant notified.
+character_event = {
+	id = HFP.24017
+	desc = EVTDESCHFP24017
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHFP24017
+		tiered_prestige_reward_effect = yes
+		add_claim = event_target:scoped_claim_title
+		hidden_tooltip = { event_target:scoped_ruler = { character_event = { id = HFP.24018 } } }
+	}
+}
+
+#Ruler notified.
+character_event = {
+	id = HFP.24018
+	desc = EVTDESCHFP24018
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHFP24018
+		opinion = {
+			name = opinion_elder_traitor
+			who = FROMFROM
+			years = 5
+		}
+	}
+}
+
+#on_death: if one Elder is killed by a ruler without a reason will upset all other elders.
+character_event = {
+	id = HFP.24019
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	trigger = {
+		OR = { 
+			death_execution_trigger = yes
+			death_murder_known_trigger = yes
+		}
+		killer = { 
+			root_has_execution_reason_opinion_trigger = no
+			ROOT = { 
+				any_eldership_title = {
+					holder_scope = { 
+						character = PREVPREVPREV # Ruler is the killer.
+					}
+				}
+			}
+		}
+	}
+
+	immediate = {
+		killer = { 
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					opinion = { 
+						who = PREVPREV
+						modifier = elder_murderer 
+						years = 20
+					}
+				}
+			}
+		}
+	}
+}
+
+#on_decade_pulse: Ecstatic Elder praises ruler.
+character_event = {
+	id = HFP.24020
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	min_age = 40
+	
+	trigger = {	
+		NOR = { 
+			trait = incapable
+			prisoner = yes
+		}
+		any_eldership_title = {
+			ROOT = {
+				has_elector_stance = { stance = elder_ecstatic title = PREV }
+			}
+		}
+	}
+
+	weight_multiplier = {
+		days = 1
+		modifier = {
+			factor = 0.5
+			ai = no
+		}
+		modifier = {
+			factor = 2
+			age = 50
+		}
+		modifier = {
+			factor = 2
+			age = 60
+		}
+		modifier = {
+			factor = 2
+			learning = 8
+		}
+		modifier = {
+			factor = 2
+			learning = 10
+		}
+		modifier = {
+			factor = 2
+			learning = 12
+		}
+		modifier = {
+			factor = 2
+			learning = 14
+		}
+		modifier = {
+			factor = 2
+			learning = 16
+		}
+		modifier = {
+			factor = 2
+			learning = 18
+		}
+		modifier = {
+			factor = 2
+			learning = 20
+		}
+		modifier = {
+			factor = 2
+			diplomacy = 8
+		}
+		modifier = {
+			factor = 2
+			diplomacy = 10
+		}
+		modifier = {
+			factor = 2
+			diplomacy = 12
+		}
+		modifier = {
+			factor = 2
+			diplomacy = 14
+		}
+		modifier = {
+			factor = 2
+			diplomacy = 16
+		}
+		modifier = {
+			factor = 2
+			diplomacy = 18
+		}
+		modifier = {
+			factor = 2
+			diplomacy = 20
+		}
+		modifier = {
+			factor = 2
+			prestige = 100
+		}
+		modifier = {
+			factor = 2
+			prestige = 250
+		}
+		modifier = {
+			factor = 3
+			prestige = 500
+		}
+		modifier = {
+			factor = 5
+			prestige = 750
+		}
+		modifier = {
+			factor = 10
+			prestige = 1000
+		}
+		modifier = {
+			factor = 2
+			trait = stubborn
+		}
+	}
+
+	immediate = {
+		random_eldership_title = {
+			limit = {
+				ROOT = {
+					has_elector_stance = { stance = elder_ecstatic title = PREV }
+				}
+			}
+			holder_scope = { 
+				character_event = { id = HFP.24021 }
+			}
+		}
+	}
+}
+
+#Ruler notified.
+character_event = {
+	id = HFP.24021
+	desc = EVTDESCHFP24021
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHFP24021
+		if = {
+			limit = {
+				FROM = { 
+					NOT = {
+						learning = 8
+					}
+				}
+			}
+			prestige = 25
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 1
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					learning = 8
+					NOT = {
+						learning = 10
+					}
+				}
+			}
+			prestige = 50
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 2
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					learning = 10
+					NOT = {
+						learning = 12
+					}
+				}
+			}
+			prestige = 100
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 3
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					learning = 12
+					NOT = {
+						learning = 14
+					}
+				}
+			}
+			prestige = 150
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 4
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					learning = 14
+					NOT = {
+						learning = 16
+					}
+				}
+			}
+			prestige = 200
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 5
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					learning = 16
+					NOT = {
+						learning = 18
+					}
+				}
+			}
+			prestige = 250
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 6
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					learning = 18
+					NOT = {
+						learning = 20
+					}
+				}
+			}
+			prestige = 300
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 7
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					learning = 20
+				}
+			}
+			prestige = 350
+			add_character_modifier = {
+				name = elder_praise_modifier
+				years = 8
+			}
+		}
+	}
+}
+
+
+#on_decade_pulse: Ecstatic Elder mentors ruler.
+character_event = {
+	id = HFP.24022
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	min_age = 40
+	
+	trigger = {
+		NOR = { 
+			trait = incapable
+			prisoner = yes
+		}
+		is_dumb_trigger = no
+		learning = 10
+		stewardship = 10
+		any_eldership_title = {
+			ROOT = {
+				has_elector_stance = { stance = elder_ecstatic title = PREV }
+			}
+		}
+	}
+
+	weight_multiplier = {
+		days = 1
+		modifier = {
+			factor = 0.5
+			ai = no
+		}
+		modifier = {
+			factor = 2
+			age = 50
+		}
+		modifier = {
+			factor = 2
+			age = 60
+		}
+		modifier = {
+			factor = 2
+			learning = 12
+		}
+		modifier = {
+			factor = 2
+			learning = 14
+		}
+		modifier = {
+			factor = 2
+			learning = 16
+		}
+		modifier = {
+			factor = 2
+			learning = 18
+		}
+		modifier = {
+			factor = 2
+			learning = 20
+		}
+		modifier = {
+			factor = 2
+			stewardship = 12
+		}
+		modifier = {
+			factor = 2
+			stewardship = 14
+		}
+		modifier = {
+			factor = 2
+			stewardship = 16
+		}
+		modifier = {
+			factor = 2
+			stewardship = 18
+		}
+		modifier = {
+			factor = 2
+			stewardship = 20
+		}
+		modifier = {
+			factor = 2
+			prestige = 100
+		}
+		modifier = {
+			factor = 2
+			prestige = 250
+		}
+		modifier = {
+			factor = 3
+			prestige = 500
+		}
+		modifier = {
+			factor = 5
+			prestige = 750
+		}
+		modifier = {
+			factor = 10
+			prestige = 1000
+		}
+		modifier = {
+			factor = 2
+			trait = stubborn
+		}
+	}
+
+	immediate = {
+		random_eldership_title = {
+			limit = {
+				ROOT = {
+					has_elector_stance = { stance = elder_ecstatic title = PREV }
+				}
+			}
+			holder_scope = { 
+				character_event = { id = HFP.24023 }
+			}
+		}
+	}
+}
+
+#Ruler receives ancient wisdom.
+character_event = {
+	id = HFP.24023
+	desc = EVTDESCHFP24023
+	
+	picture = { 
+		#trigger = { 
+		#	NOR = {  
+		#		capital_scope = { region = world_africa }
+		#		religion = west_african_pagan
+		#		religion = west_african_pagan_reformed
+		#	}
+		#} 
+		picture = GFX_evt_elder_council
+	}
+	#picture = { 
+	#	trigger = { 
+	#		OR = {  
+	#			capital_scope = { region = world_africa }
+	#			religion = west_african_pagan
+	#			religion = west_african_pagan_reformed
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = { #Tech
+		name = EVTOPTAHFP24023
+		culture_techpoints = 25
+	}
+	option = { #Stewardship
+		name = EVTOPTBHFP24023
+		random = { 
+			chance = 25
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					stewardship = 12
+				}
+			}
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					stewardship = 16
+				}
+			}
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					stewardship = 20
+				}
+			}
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					stewardship = 25
+				}
+			}
+			change_stewardship = 1
+		}
+	}
+	option = { #Learning
+		name = EVTOPTCHFP24023
+		random = { 
+			chance = 40
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					learning = 12
+				}
+			}
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					learning = 16
+				}
+			}
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					learning = 20
+				}
+			}
+			modifier = { 
+				factor = 1.5
+				FROM = {
+					learning = 25
+				}
+			}
+			change_learning = 1
+		}
+	}
+}
+#on_imprisoned: if one Elder is imprisoned by a ruler without a reason it will upset all other elders.
+character_event = {
+	id = HFP.24024
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	trigger = {
+		FROM = { 
+			root_has_imprisonment_reason_opinion_trigger = no
+			ROOT = { 
+				any_eldership_title = {
+					holder_scope = { 
+						character = PREVPREVPREV # Ruler is the jailer.
+					}
+				}
+			}
+		}
+	}
+
+	immediate = {
+		FROM = { 
+			any_demesne_title = { 
+				limit = { has_law = succ_eldership }
+				any_elector_character = { 
+					opinion = { 
+						who = PREVPREV
+						modifier = disrespectful_youngster 
+						years = 20
+					}
+				}
+			}
+		}
+	}
+}
+
+#on_game_started: on new playthrough, set all Baltic and African tribal rulers and custom religions with ancestor worship (and tribalism) to use Eldership.
+character_event = {
+	id = HFP.24025
+	hide_window = yes
+	
+	only_rulers = yes
+
+	is_triggered_only = yes
+
+	trigger = {
+		is_save_game = no
+		is_tribal = yes #Can be used by feudals, but only tribals should start with it.
+		is_landed = yes
+		has_dlc = "Holy Fury"
+		primary_title = {
+			holder_scope = {
+				is_nomadic = no
+				OR = {
+					independent = yes
+					NOT = {
+						any_liege = {
+							holy_order = yes
+						}
+					}
+				}
+				NOR = { 
+					#religion_group = muslim 
+					has_religion_feature = religion_matriarchal
+					has_religion_feature = religion_patriarchal
+				}
+				is_merchant_republic = no
+				is_patrician = no
+				OR = {
+					independent = yes
+					NOT = {
+						any_demesne_title = {
+							is_vice_royalty = yes
+						}
+					}
+				}
+			}
+			rebel = no
+			is_primary_type_title = no
+			#NOT = { holder_scope = { government = confucian_bureaucracy } }
+			#NOT = { holder_scope = { government = chinese_imperial_government } }
+			holder_scope = {
+				OR = {
+					#AND = {
+					#	is_tribal = yes
+					#	religion = baltic_pagan
+					#}
+					#AND = {
+					#	is_tribal = yes
+					#	religion = west_african_pagan
+					#}
+					has_religion_feature = religion_beatification
+					#has_religion_feature = religion_feature_baltic
+					#has_religion_feature = religion_feature_west_african
+				}
+			}
+		}
+	}
+
+	immediate = {
+		ROOT = { 
+			any_demesne_title = { #First apply law.
+				add_law = {
+					law = succ_eldership
+					cooldown = no
+					opinion_effect = no
+				}
+			}
+			#Then create grumpy Elder characters, so you are not without electors on start.
+			spawn_elder_effect = yes
+			spawn_elder_effect = yes
+			spawn_elder_effect = yes
+			spawn_elder_effect = yes
+			spawn_elder_effect = yes
+			spawn_elder_effect = yes
+		}
+	}
+}

@@ -31,7 +31,7 @@ character_event = {
         offmap_china = {
             NOR = {
                 has_status = china_civil_war
-                has_status = brasil_religious_civil_war_candomble
+				has_status = brasil_religious_civil_war_candomble
                 has_status = brasil_religious_civil_war_charismatic
                 has_status = china_plague
             }
@@ -201,7 +201,83 @@ character_event = {
     is_triggered_only = yes
     immediate = { 
     	save_event_target_as = chinese_guest
+        save_persistent_event_target = {
+            name = host_of_chinese_diplomat
+            scope = FROM
+        } 
     	FROM = { letter_event = { id = JD.20002 } } 
+    }
+}
+
+
+character_event = { #Fired from on_death to the character receiving the chinese diplomat
+    id = JD.10022
+    hide_window = yes
+    is_triggered_only = yes
+
+    trigger = {
+        persistent_event_target:host_of_chinese_diplomat = { always = yes }
+    }
+
+    immediate = {
+        persistent_event_target:host_of_chinese_diplomat = {
+            character_event = { id = JD.10023 } #visible event for player
+        }
+    }
+}
+
+character_event = { # Fallback (in case the visitor died/imprisoned)
+    id = JD.10023
+    has_dlc = "Jade Dragon"
+    picture = GFX_evt_chinese_bureaucrat
+    border = GFX_event_normal_frame_diplomacy
+    is_triggered_only = yes
+
+    desc = {
+        text = EVTDESC_JD_10023_death
+        trigger = {
+            NOT = { FROM = { is_alive = yes } }
+            death_no_trace_trigger = no
+        }
+    }
+    desc = {
+        text = EVTDESC_JD_10023_prison
+        trigger = { FROM = { prisoner = yes } }
+    }
+    desc = {
+        text = EVTDESC_JD_10023_missing
+        trigger = {
+            FROM = { death_no_trace_trigger = yes }
+        }
+    }
+
+    trigger = {
+        FROM = { death_in_china_trigger = no }
+    }
+
+    option = {      
+        name = EVTOPTA_JD_10023
+        prestige = -50
+        wealth = -15
+        add_offmap_currency = {
+            offmap = offmap_china
+            value = 15
+        }
+
+        offmap_china = {
+            governor = {
+                show_portrait = yes
+            }
+        }
+    }
+    option = {      
+        name = EVTOPTB_JD_10023
+    }
+
+    after = {
+        #Clean-up event
+        character_event = { id = JD.20020 days = 1 }
+        FROM = { clear_persistent_event_target = host_of_chinese_diplomat }
     }
 }
 
@@ -271,7 +347,8 @@ character_event = {
     hide_window = yes
     is_triggered_only = yes
     trigger = { 
-        is_alive = yes 
+        is_alive = yes
+        prisoner = no
         offmap_china = { governor = { is_liege_of = ROOT } }
     }
     immediate = { 
@@ -326,12 +403,13 @@ character_event = {
                 }
                 10 = { #Greet in chinese? 
                     modifier = { is_learned_trigger = yes factor = 1.3 }
-                    trigger = { offmap_china = { governor = { NOT = { culture = ROOT } } } }
+                    trigger = { event_target:chinese_guest = { NOT = { culture = FROMFROM } } }
                     character_event = { id = JD.20006 } 
                 }
                 10 = { #Wearing the clothes wrong
                     modifier = { is_dumb_trigger = yes factor = 1.3 }
                     modifier = { trait = greedy factor = 1.3 }
+                    trigger = { event_target:chinese_guest = { NOT = { culture = FROMFROM } } }
                     character_event = { id = JD.20011 }
                 }
                 10 = { #What you said (apparently) had a deep hidden meaning
@@ -364,8 +442,9 @@ character_event = {
         add_grace_minor_effect = yes
 		sound_effect = china_grace_gain
         
-        event_target:corresponding_councilor = {
+        event_target:chinese_guest = {
             show_portrait = yes
+            clear_persistent_event_target = host_of_chinese_diplomat
         }
 
         hidden_effect = {
@@ -385,7 +464,18 @@ character_event = {
 character_event = {
     id = JD.20005
 	has_dlc = "Jade Dragon"
-    desc = EVTDESC_JD_20005
+    desc = { 
+        trigger = { 
+            offmap_china = { offmap_ruler = { NOT = { culture = ROOT } } }
+        } 
+        text =EVTDESC_JD_20005 
+    }
+    desc = { 
+        trigger = { 
+            offmap_china = { offmap_ruler = { culture = ROOT } }
+        } 
+        text =EVTDESC_JD_20005_B
+    }
     picture = GFX_evt_comet
     border = GFX_event_normal_frame_religion
 
@@ -395,6 +485,10 @@ character_event = {
         name = EVTOPTA_JD_20005
         custom_tooltip = { text = EVTOPTA_JD_20005_tt }
         detract_grace_minor_effect = yes
+        event_target:chinese_guest = {
+            show_portrait = yes
+            clear_persistent_event_target = host_of_chinese_diplomat
+        }
     }
 }
 
@@ -488,7 +582,7 @@ character_event = {
         }
     }
 
-    #You're multilingual already!
+    #You're multilingual already! - END
     option = {
         trigger = { has_character_modifier = multilingual }
 		sound_effect = china_grace_gain
@@ -498,15 +592,26 @@ character_event = {
         name = EVTOPTC_JD_20006
         custom_tooltip = { text = EVTOPTC_JD_20006_TT }
         add_grace_medium_effect = yes
+        hidden_effect = {
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
+        }
     }
     
-    #Let your translator do the hard work.
+    #Let your translator do the hard work. - END
     option = {
         name = EVTOPTD_JD_20006
 		sound_effect = china_grace_gain
         custom_tooltip = { text = EVTOPTD_JD_20006_TT }
 
         add_grace_minor_effect = yes
+
+        hidden_effect = {
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
+        }
     }
 }
 
@@ -519,6 +624,13 @@ character_event = {
     border = GFX_event_normal_frame_religion
 
     is_triggered_only = yes
+
+    trigger = {
+        event_target:chinese_guest = {
+            is_alive = yes
+            prisoner = no
+        }
+    }
     
     option = { 
         name = EVTOPTA_JD_20007
@@ -562,6 +674,9 @@ character_event = {
                 }
                 character_event = { id = JD.60004 days = 1 }
             }
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
         }
     }
 }
@@ -576,6 +691,13 @@ character_event = {
 
     is_triggered_only = yes
 
+    trigger = {
+        event_target:chinese_guest = {
+            is_alive = yes
+            prisoner = no
+        }
+    }
+
     hide_from = yes
     
     option = { 
@@ -583,6 +705,12 @@ character_event = {
         custom_tooltip = { text = EVTOPTA_JD_20008_TT }
         
         detract_grace_major_effect = yes
+
+        hidden_effect = {
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
+        }
     }
 }
 
@@ -591,10 +719,17 @@ character_event = {
     id = JD.20009
 	has_dlc = "Jade Dragon"
     desc = EVTDESC_JD_20009
-    picture = GFX_evt_brazilian_diplomat
+    picture = GFX_evt_chinese_bureaucrat
     border = GFX_event_normal_frame_religion
 
     is_triggered_only = yes
+
+    trigger = {
+        event_target:chinese_guest = {
+            is_alive = yes
+            prisoner = no
+        }
+    }
     
     option = { 
         name = EVTOPTA_JD_20009
@@ -612,6 +747,9 @@ character_event = {
                 }
                 character_event = { id = JD.60004 days = 1 }
             }
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
         }
     }
 }
@@ -625,12 +763,24 @@ character_event = {
     border = GFX_event_normal_frame_religion
 
     is_triggered_only = yes
+
+    trigger = {
+        event_target:chinese_guest = {
+            is_alive = yes
+            prisoner = no
+        }
+    }
     
     option = { 
         name = EVTOPTA_JD_20010
         custom_tooltip = { text = EVTOPTA_JD_20010_TT }
         
         detract_grace_minor_effect = yes
+        hidden_effect = {
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
+        }
     }
 }
 
@@ -645,11 +795,23 @@ character_event = {
     border = GFX_event_normal_frame_diplomacy
 
     is_triggered_only = yes
+
+    trigger = {
+        event_target:chinese_guest = {
+            is_alive = yes
+            prisoner = no
+        }
+    }
     
     option = { 
         name = EVTOPTA_JD_20011
         custom_tooltip = { text = EVTOPTA_JD_20011_tt }
         detract_grace_minor_effect = yes
+        hidden_effect = {
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
+        }
     }
 }
 
@@ -657,11 +819,29 @@ character_event = {
 character_event = {
     id = JD.20012
 	has_dlc = "Jade Dragon"
-    desc = EVTDESC_JD_20012
+    desc = { 
+        trigger = { 
+            offmap_china = { offmap_ruler = { NOT = { culture = ROOT } } }
+        } 
+        text = EVTDESC_JD_20012 
+    }
+    desc = { 
+        trigger = { 
+            offmap_china = { offmap_ruler = { culture = ROOT } }
+        } 
+        text = EVTDESC_JD_20012_B
+    }
     picture = GFX_evt_garden
     border = GFX_event_normal_frame_diplomacy
 
     is_triggered_only = yes
+
+    trigger = {
+        event_target:chinese_guest = {
+            is_alive = yes
+            prisoner = no
+        }
+    }
     
     option = { 
         name = EVTOPTA_JD_20012
@@ -677,6 +857,9 @@ character_event = {
                     any_artifact = { has_artifact_flag = brazilian }
                 }
                 character_event = { id = JD.60004 days = 1 }
+            }
+            event_target:chinese_guest = {
+                clear_persistent_event_target = host_of_chinese_diplomat
             }
         }
     }
@@ -698,6 +881,27 @@ character_event = {
             clr_character_flag = cg_trade
             clr_character_flag = cg_preaching
             clr_character_flag = cg_study_theology
+            if = {
+                limit = {
+                    persistent_event_target:host_of_chinese_diplomat = { always = yes }
+                }
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
+        }
+        FROMFROM = { #for the fallback if death/prison
+            clr_character_flag = cg_diplomatic_visit
+            clr_character_flag = cg_oversee_troops
+            clr_character_flag = cg_study_military
+            clr_character_flag = cg_oversee_tax_collection
+            clr_character_flag = cg_trade
+            clr_character_flag = cg_preaching
+            clr_character_flag = cg_study_theology
+            if = {
+                limit = {
+                    persistent_event_target:host_of_chinese_diplomat = { always = yes }
+                }
+                clear_persistent_event_target = host_of_chinese_diplomat
+            }
         }
     }
 }
@@ -1456,7 +1660,7 @@ character_event = { # Things went great
                         40 = {
                             add_artifact = soccer_ball
                             new_artifact = {
-								set_name="chinese_artwork_name"
+								#set_name="chinese_artwork_name"
                                 transfer_artifact = {
                                     from = PREV
                                     to = ROOT
@@ -1467,7 +1671,7 @@ character_event = { # Things went great
                         40 = { 
                             add_artifact = oriental_rug
                             new_artifact = {
-								set_name="chinese_calligraphy_name"
+								#set_name="chinese_calligraphy_name"
                                 transfer_artifact = {
                                     from = PREV
                                     to = ROOT
@@ -1478,7 +1682,7 @@ character_event = { # Things went great
                         40 = { 
                             add_artifact = carranca
                             new_artifact = {
-								set_name="chinese_sculpture_name"
+								#set_name="chinese_sculpture_name"
                                 transfer_artifact = {
                                     from = PREV
                                     to = ROOT
@@ -1708,6 +1912,7 @@ character_event = {
             }
         }
         new_character = {
+			character_event = { id = misc.3 } # Diversity
             save_event_target_as = new_found_lover
             add_lover = ROOT
         }
@@ -1954,6 +2159,7 @@ character_event = { # Fallback (in case the traveler died)
         clr_character_flag = is_sending_someone_to_china
     }
 }
+
 
 ###
 # Dishonest traders event
@@ -4118,13 +4324,23 @@ character_event = {
             NOR = {
                 has_status = china_civil_war
 				has_status = brasil_religious_civil_war_candomble
-                has_status = brasil_religious_civil_war_charismatic
+				has_status = brasil_religious_civil_war_charismatic
                 has_status = china_plague
             }
         }
     }
 
 	immediate = {
+        if = { #Quick fix to reduce the amount of time the AI gets the events
+            limit = {
+                ai = yes
+            }
+            random = {
+                chance = 95
+                break = yes
+            }
+        }    
+
     	offmap_china = {
 			offmap_ruler = {
 				save_event_target_as = chinese_emperor
@@ -4137,11 +4353,12 @@ character_event = {
 			random_traits = yes
 			dynasty = actually_culture
 			religion = apostolic
-			culture = han
+			culture = brazilian
             historical = yes
 		}
 	
 		new_character = {
+			character_event = { id = misc.3 } # Diversity
 			set_character_flag = originated_from_chinese_court
             set_character_flag = no_court_invites
 			set_character_flag = ignore_refund
@@ -4325,7 +4542,7 @@ character_event = {			#China does not find out
 					has_artifact = tourmaline_amulet
 				}
 			}
-			add_artifact = chinese_dragon_amulet
+			add_artifact = tourmaline_amulet
 		}
 		else_if = {
 			limit = {
@@ -4338,7 +4555,7 @@ character_event = {			#China does not find out
 		else = {
 			add_artifact = brazilian_prev_emperor_sculpture
 			new_artifact = {
-				set_name="chinese_figurine_name"
+				#set_name="chinese_figurine_name"
 			}
 		}
 		
@@ -4383,7 +4600,6 @@ character_event = {			#You let China know
 		event_target:escaped_chinese_noble = {
 			death = {
 				death_reason = death_executed_by_chinese_emperor
-				killer = event_target:chinese_emperor
 			}
 		}
 	}
@@ -4514,7 +4730,7 @@ character_event = {
                 has_status = china_jurchen_invasion
                 has_status = china_civil_war
 				has_status = brasil_religious_civil_war_candomble
-                has_status = brasil_religious_civil_war_charismatic
+				has_status = brasil_religious_civil_war_charismatic
                 has_status = china_famine
                 has_status = china_plague
             }
@@ -4637,6 +4853,7 @@ character_event = {
                     }
                 }
                 new_character = {
+					character_event = { id = misc.3 } # Diversity
                     #Education & other basic stuff
                     save_event_target_as = chinese_administrator
                     save_event_target_as = chinese_refugee
@@ -4866,6 +5083,7 @@ character_event = {
                     }
                 }
                 new_character = {
+					character_event = { id = misc.3 } # Diversity
                     #Education & other basic stuff
                     save_event_target_as = chinese_master_engineer
                     save_event_target_as = chinese_refugee
@@ -5093,6 +5311,7 @@ character_event = {
                     }
                 }
                 new_character = {
+					character_event = { id = misc.3 } # Diversity
                     #Education & other basic stuff
                     save_event_target_as = chinese_strategist
                     save_event_target_as = chinese_refugee
@@ -5118,7 +5337,7 @@ character_event = {
                     }
                     random_list = {
                         71 = { } #Nothing
-                        20 = { add_trait = scarred }
+                        20 = { add_scarred_tiered_effect = yes }
                         5 = { 
                             trigger = { has_dlc = Reapers }
                             add_trait = one_eyed 
@@ -5375,6 +5594,7 @@ character_event = {
                     }
                 }
                 new_character = {
+					character_event = { id = misc.3 } # Diversity
                     #Education & other basic stuff
                     save_event_target_as = chinese_doctor
                     save_event_target_as = chinese_refugee
@@ -5430,7 +5650,7 @@ character_event = {
                                 50 = { add_trait = duelist }
                                 50 = { add_trait = scholar }
                             }
-                            add_trait = scarred
+                            add_scarred_tiered_effect = yes
                             add_trait = robust
                             random_list = {
                                 60 = { } #Nothing
@@ -5595,6 +5815,7 @@ character_event = {
                             remove_trait = stutter
                             remove_trait = ugly
                             remove_trait = dwarf
+                            remove_trait = giant
                             remove_trait = weak
                         }
                     }
@@ -5889,7 +6110,7 @@ character_event = {
 character_event = { # Traveling Teacher
 	id = JD.7000
 	desc = EVTDESC_JD_7000
-    picture = GFX_brazil_open
+    picture = GFX_brazil_stable
 	
 	only_playable = yes
 	only_capable = yes
@@ -5947,6 +6168,7 @@ character_event = { # Traveling Teacher
 			}
 		}
 		new_character = {
+			character_event = { id = misc.3 } # Diversity
 			remove_trait = slow
 			remove_trait = imbecile
 			remove_trait = dull
@@ -6120,7 +6342,7 @@ character_event = { # Accept Teacher into Court
 	}
 
 	option = {
-		name = EVTOPTB_JD_7001 # Read Classics to the child
+		name = EVTOPTB_JD_7001 # Read Confucian and Taoist Classics to the child
 		trigger = {
 			event_target:child_to_be_taught = {
 				NOT = {
@@ -6236,7 +6458,7 @@ character_event = { # Accept Teacher into Court
 
 }
 
-character_event = { # Sokher visits
+character_event = { # Sokher Merchant
 	id = JD.7010
 	desc = EVTDESC_JD_7010
     picture = GFX_evt_jewish_market
@@ -6252,8 +6474,12 @@ character_event = { # Sokher visits
 	
 	trigger = {
 		NOR = {
-			has_character_flag = sokherim_visit
+			has_character_flag = radhanite_visit
 			has_character_modifier = expelled_jewish
+			has_alternate_start_parameter = {
+				key = religion_names
+				value = random
+			}
 		}
 		any_realm_province = {
 			OR = {
@@ -6275,6 +6501,16 @@ character_event = { # Sokher visits
 			}
 		}
 	}
+
+    weight_multiplier = {
+        days = 1
+        modifier = {
+            factor = 2
+            any_owned_bloodline = {
+                has_bloodline_flag = jewish_saintly_bloodline
+            }
+        }
+    }
 	
 	immediate = {
 		hidden_effect = {
@@ -6346,7 +6582,7 @@ character_event = { # Sokher visits
 			}
 		}
 		
-		set_character_flag = sokherim_visit
+		set_character_flag = radhanite_visit
 	}
 	
 	option = { # Accept offer
@@ -6409,7 +6645,7 @@ character_event = { # Sokher visits
 		}
 	}
 
-	option = { # One-up the Sokher
+	option = { # One-up the radhanite
 		name = EVTOPTC_JD_7010
 		trigger = {
 			event_target:sokherim_location = {
@@ -6431,7 +6667,7 @@ character_event = { # Sokher visits
 			value = 0.5
 			min = 100
 		}
-		event_target:sokherim_merchant = {
+		event_target:radhanite_merchant = {
 			usurp_title = event_target:sokherim_location_barony
 			opinion = {
 				modifier = opinion_loyal_servant

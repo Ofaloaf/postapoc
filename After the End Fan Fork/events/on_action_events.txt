@@ -57,18 +57,17 @@ character_event = {
 			}
 		}
 		
-		if = {
-			limit = {
-				NOT = { trait = kinslayer }
-				#NOT = { religion_group = muslim }
-				event_target:target_victim = {
-					dynasty = ROOT
-				}
-			}
-			add_trait = kinslayer
-		}
+		event_target:target_victim = { save_event_target_as = kinslayer_target }
+		add_kinslayer_trait_effect = yes
 		
 		event_target:target_victim = {
+			any_spouse = { 
+				opinion = {
+					who = ROOT
+					modifier = opinion_spouse_slayer
+					months = 60
+				}
+			} 
 			any_liege = {
 				if = {
 					limit = {
@@ -600,6 +599,8 @@ character_event = {
 			if = {
 				limit = {
 					NOT = { has_character_flag = adultery_discovered }
+					is_alive = yes
+					is_dying = no
 				}
 				ROOT = { save_event_target_as = target_adulterer }
 				character_event = { id = 20 }
@@ -761,36 +762,17 @@ character_event = {
 	is_triggered_only = yes 
 	
 	immediate = {
-		FROM = {
-			if = {
-				limit = { 
-					dynasty = ROOT 
-					#NOT = { religion_group = muslim }
-				}
-				add_trait = kinslayer
-			}
-			if = {
-				limit = { 
-					any_spouse = { character = ROOT }
-				}
-				
-				#set_character_flag = achievement_spouse_killer #Moved to on_death to also cover undiscovered murder plots.
-				
-				spouse = {
-					any_dynasty_member = {
-						limit = {
-							is_alive = yes
-							NOT = { character = FROM }
-						}
-						opinion = {
-							who = FROM
-							modifier = opinion_spouse_slayer
-							months = 60
-						}
-					}
-				}
+		any_spouse = {
+			opinion = {
+				who = FROM
+				modifier = opinion_spouse_slayer
+				months = 60
 			}
 		}
+		FROM = {
+			ROOT = { save_event_target_as = kinslayer_target }
+			add_kinslayer_trait_effect = yes
+		}			
 	}
 
 	option = {
@@ -894,7 +876,7 @@ character_event = {
 	is_triggered_only = yes
 	
 	trigger = {
-		can_be_maimed_trigger = yes
+		NOT = { trait = maimed }
 	}
 	
 	weight_multiplier = {
@@ -1038,7 +1020,7 @@ character_event = {
 	is_triggered_only = yes
 	
 	trigger = {
-		can_be_maimed_trigger = yes
+		NOT = { trait = maimed }
 		NOT = { trait = one_eyed }
 	}
 	
@@ -1065,7 +1047,7 @@ character_event = {
 			limit = {
 				NOT = { has_dlc = "Reapers" }
 			}
-			add_maimed_trait_effect = yes
+			add_trait = maimed
 			character_event = { id = 38281 }
 		}
 		if = {
@@ -4086,6 +4068,29 @@ narrative_event = {
 	
 	is_triggered_only = yes
 	
+	trigger = {
+		FROM = {
+			NOR = {
+				religion = catholic
+				#replace with other religions allowed to crusade
+			}
+		}
+	}
+	
+	immediate = {
+		if = {
+			limit = {
+				religion_group = FROM
+				religion_group = christian
+			}
+			sound_effect = crusade_outcome_positive
+		}
+
+		any_playable_ruler = {
+			clr_character_flag = forced_to_crusade
+		}
+	}
+	
 	option = {
 		name = "EVTOPTA620"
 		trigger = {
@@ -4121,6 +4126,12 @@ narrative_event = {
 	only_rulers = yes
 	
 	is_triggered_only = yes
+	
+	immediate = {
+		any_playable_ruler = {
+			clr_character_flag = forced_to_crusade
+		}
+	}
 	
 	option = {
 		name = "EVTOPTA621"
@@ -4180,7 +4191,18 @@ character_event = {
 # on_forced_consort
 character_event = {
 	id = 660
-	desc = EVTDESC660
+	desc = { 
+		text = EVTDESC660
+		trigger = {
+			is_female = yes
+		}
+	}
+	desc = { 
+		text = EVTDESC660_B
+		trigger = {
+			is_female = no
+		}
+	}
 	picture = GFX_evt_scandal
 	
 	is_triggered_only = yes 
@@ -4206,7 +4228,18 @@ character_event = {
 	}
 	
 	option = {
-		name = "EVTOPTA660"
+		name = { 
+			text = EVTOPTA660
+			trigger = {
+				is_female = yes
+			}
+		}
+		name = { 
+			text = EVTOPTA660
+			trigger = {
+				is_female = no
+			}
+		}
 		opinion = {
 			who = FROM
 			modifier = opinion_forced_consort
@@ -4234,7 +4267,18 @@ character_event = {
 
 character_event = {
 	id = 662
-	desc = "EVTDESC662"
+	desc = { 
+		text = EVTDESC662_B
+		trigger = {
+			is_female = yes
+		}
+	}
+	desc = { 
+		text = EVTDESC662
+		trigger = {
+			is_female = no
+		}
+	}
 	picture = GFX_evt_scandal
 	
 	is_triggered_only = yes 
@@ -4254,13 +4298,89 @@ character_event = {
 			}
 		}
 	}
+	option = {
+		name = "EVTOPTB662"
+		trigger = {
+			NOR = {
+				is_rival = FROMFROM
+				num_of_rivals = 3
+			}
+		}
+		add_rival = FROMFROM
+		hidden_tooltip = {
+			opinion = {	
+				who = FROM
+				modifier = opinion_abducted_spouse
+				months = 1200
+			}
+		}
+	}
 }
 
 narrative_event = {
 	id = 670
 	title = "EVTNAME670"
-	desc = "EVTDESC670"
-	picture = GFX_evt_heretic
+	desc = {
+		trigger = {
+			has_dlc = "Holy Fury" 
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+		text = EVTDESC670_HF
+		sound = pagan_reformation
+	}
+	desc = {
+		trigger = {
+			has_dlc = "Holy Fury" 
+			has_alternate_start_parameter = { key = religion_names value = random }
+		}
+		text = EVTDESC670_HF_B
+		sound = pagan_reformation
+	}
+	desc = {
+		trigger = {
+			NOT = { has_dlc = "Holy Fury" }
+		}
+		text = EVTDESC670
+		sound = pagan_reformation
+	}
+	#picture = { 
+	#	trigger = { 
+	#		ROOT = { 
+	#			OR = { 
+	#				religion = hellenic_pagan
+	#				religion = hellenic_pagan_reformed
+	#			}
+	#		}
+	#	} 
+	#	picture = GFX_evt_hellenic_temple
+	#}
+	#picture = { 
+	#	trigger = { 
+	#		ROOT = { 
+	#			OR = { 
+	#				religion = west_african_pagan
+	#				religion = west_african_pagan_reformed
+	#			}
+	#		}
+	#	} 
+	#	picture = GFX_evt_west_african_ruler
+	#}
+	picture = { 
+		trigger = {
+			always = yes
+			#ROOT = { 
+			#	NOR = { 
+			#		religion = hellenic_pagan
+			#		religion = hellenic_pagan_reformed
+			#		religion = west_african_pagan
+			#		religion = west_african_pagan_reformed
+			#	}
+			#}
+		} 
+		picture = GFX_evt_pagan_reformation
+	}
 	border = "GFX_event_narrative_frame_religion"	
 	
 	is_triggered_only = yes
@@ -4271,10 +4391,418 @@ narrative_event = {
 	only_rulers = yes
 	
 	immediate = {
+		hidden_tooltip = {
+		#if = { #If hellenic reformer owns Rome, Catholic faith loses MA.
+		#	limit = { 
+		#		ROOT = { 
+		#			religion = hellenic_pagan_reformed 
+		#			completely_controls = c_roma
+		#		} 
+		#	}
+		#	random_playable_ruler = { 
+		#		limit = { religion = catholic }		
+		#		religion_authority = {
+		#			modifier = hellenic_resurgence
+		#			years = 100
+		#		}
+		#	}
+		#}
+		#if = { #If hellenic reformer owns Constantinople, Orthodox faith loses MA.
+		#	limit = { 
+		#		ROOT = { 
+		#			religion = hellenic_pagan_reformed 
+		#			completely_controls = c_byzantion
+		#		} 
+		#	}
+		#	random_playable_ruler = { 
+		#		limit = { religion = orthodox }	
+		#		religion_authority = {
+		#			modifier = hellenic_resurgence
+		#			years = 100
+		#		}
+		#	}
+		#}
+		if = {
+			limit = { #If religion being reformed is western paganism, other western pagan are emboldened, facilitating a chain reaction of reformation.
+				ROOT = { 
+					NOR = { 
+						religion = thelemic_reformed
+						religion = espiritista_reformed
+					} 
+				}
+			}
+			if = { 
+				limit = { ROOT = { NOT = { religion = norse_pagan_reformed } } }
+				random_playable_ruler = { 
+					limit = { religion = norse_pagan }	
+					religion_authority = {
+						modifier = pagan_revival
+						years = 20
+					}
+				}
+			}
+			if = { 
+				limit = { ROOT = { NOT = { religion = revelationist_reformed } } }
+				random_playable_ruler = { 
+					limit = { religion = revelationist }	
+					religion_authority = {
+						modifier = pagan_revival
+						years = 20
+					}
+				}
+			}
+			if = { 
+				limit = { ROOT = { NOT = { religion = rust_cultist_reformed } } }
+				random_playable_ruler = { 
+					limit = { religion = rust_cultist }	
+					religion_authority = {
+						modifier = pagan_revival
+						years = 20
+					}
+				}
+			}
+			if = { 
+				limit = { ROOT = { NOT = { religion = occultist_reformed } } }
+				random_playable_ruler = { 
+					limit = { religion = occultist }	
+					religion_authority = {
+						modifier = pagan_revival
+						years = 20
+					}
+				}
+			}
+			if = { 
+				limit = { ROOT = { NOT = { religion = celtic_pagan_reformed } } }
+				random_playable_ruler = { 
+					limit = { religion = celtic_pagan }	
+					religion_authority = {
+						modifier = pagan_revival
+						years = 20
+					}
+				}
+			}
+		}
+		if = {
+			limit = { #Modifier not applied correctly by pagan reformation screen.
+				ROOT = { has_religion_feature = religion_cosmopolitan }
+			}
+			ROOT = { 	
+				religion_authority = {
+					modifier = cosmopolitan_religion
+					years = 1000
+				}
+				any_playable_ruler = { 
+					limit = { NOT = { distance_from_realm = { who = ROOT value = 200 } } }
+					add_intermarry = ROOT
+					ROOT = { add_intermarry = PREV }
+				}
+				any_neighbor_independent_ruler = { 
+					add_intermarry = ROOT
+					ROOT = { add_intermarry = PREV }
+				}
+			} 
+		}
+		if = {
+			limit = { #Modifier not applied correctly by pagan reformation screen.
+				ROOT = { has_religion_feature = religion_dogmatic }
+			}
+			ROOT = { 	
+				religion_authority = {
+					modifier = dogmatic_religion
+					years = 1000
+				}
+				#WHAT THE FUCK PDOX, THIS IS LITERALLY EVERY RELIGION AND RELIGION GROUP IN THE GAME
+				remove_intermarry = rastafarian
+				remove_intermarry = voodoo
+				remove_intermarry = santeria
+				remove_intermarry = candomble
+				remove_intermarry = espiritista_reformed
+				remove_intermarry = espiritista
+				remove_intermarry = ghost_dance
+				remove_intermarry = raven_tales
+				remove_intermarry = catholic
+				remove_intermarry = neognostic
+				remove_intermarry = sedevacantist
+				remove_intermarry = nestorian
+				remove_intermarry = ursuline
+				remove_intermarry = angeline
+				remove_intermarry = confederated
+				remove_intermarry = anabaptist #don't tell me I forgot to merge the new heresies branch oh my lord
+				remove_intermarry = evangelical
+				remove_intermarry = antinomian
+				remove_intermarry = charismatic
+				remove_intermarry = falling_star
+				remove_intermarry = high_church
+				remove_intermarry = anglo_papalist
+				remove_intermarry = united_church
+				remove_intermarry = apostolic
+				remove_intermarry = sacred_heart
+				remove_intermarry = gracia_divina
+				remove_intermarry = cetic
+				remove_intermarry = gaian
+				remove_intermarry = shinto
+				remove_intermarry = nousthreskeia
+				remove_intermarry = mormon
+				remove_intermarry = bickertonite
+				remove_intermarry = woolleyite
+				remove_intermarry = strangite
+				remove_intermarry = sol_invicta
+				remove_intermarry = mictlantec
+				remove_intermarry = uahomche
+				remove_intermarry = neomayan
+				remove_intermarry = americanist
+				remove_intermarry = hamiltonian
+				remove_intermarry = jeffersonian
+				remove_intermarry = libertarian
+				remove_intermarry = consumerist
+				remove_intermarry = atomicist
+				remove_intermarry = pagan
+				remove_intermarry = revelationist_reformed
+				remove_intermarry = revelationist
+				remove_intermarry = rust_cultist_reformed
+				remove_intermarry = rust_cultist
+				remove_intermarry = occultist_reformed
+				remove_intermarry = occultist
+				remove_intermarry = thelemic_reformed
+				remove_intermarry = thelemic
+				remove_intermarry = norse_pagan_reformed
+				remove_intermarry = norse_pagan
+				remove_intermarry = celtic_pagan_reformed
+				remove_intermarry = celtic_pagan
+				remove_intermarry = brethren
+				remove_intermarry = jewish
+				remove_intermarry = reform
+				remove_intermarry = hindu
+				remove_intermarry = afro_syncretic
+				remove_intermarry = american_native
+				remove_intermarry = christian
+				remove_intermarry = cult_of_saints
+				remove_intermarry = pacific
+				remove_intermarry = latter_day_saints
+				remove_intermarry = mesoamerican_gods
+				remove_intermarry = oldworld
+				remove_intermarry = pagan_group
+				remove_intermarry = pirate
+				remove_intermarry = jewish_group
+				remove_intermarry = indian_group
+			} 
+		}
+		if = {
+			limit = { #Switch to matriarchy.
+				ROOT = { 
+					has_religion_feature = religion_matriarchal 
+					NOR = {  
+						is_merchant_republic = yes
+						is_republic = yes
+					}
+				}
+			}
+			ROOT = { 
+				any_demesne_title = { 
+					add_law = {
+						law = enatic_succession
+						cooldown = no
+						opinion_effect = no
+					}
+					add_law = {
+						law = status_of_women_4
+						cooldown = no
+						opinion_effect = no
+					}
+					if = { 
+						limit = { 
+							NOT = { has_law = succ_byzantine_elective } 
+						}
+						add_law = {
+							law = succ_turkish_succession
+							cooldown = no
+							opinion_effect = no
+						}
+					}
+				} 
+				recalc_succession = yes
+			} 
+		}
+		if = {
+			limit = { #Switch to equality.
+				ROOT = { 
+					OR = { 
+						has_religion_feature = religion_equal 
+						has_religion_feature = religion_feature_bon #will have to change
+					}
+					NOR = {  
+						is_merchant_republic = yes
+						is_republic = yes
+					}
+				}
+			}
+			ROOT = { 
+				any_demesne_title = { 
+					add_law = {
+						law = true_cognatic_succession
+						cooldown = no
+						opinion_effect = no
+					}
+					add_law = {
+						law = status_of_women_4
+						cooldown = no
+						opinion_effect = no
+					}
+				}
+			} 
+		}
+		if = {
+			limit = { #Switch to patriarchy.
+				ROOT = { has_religion_feature = religion_patriarchal }
+			}
+			ROOT = { 
+				any_demesne_title = { 
+					add_law = {
+						law = agnatic_succession
+						cooldown = no
+						opinion_effect = no
+					}
+					add_law = {
+						law = status_of_women_0
+						cooldown = no
+						opinion_effect = no
+					}
+					if = { 
+						limit = { 
+							NOT = { has_law = succ_byzantine_elective } 
+						}
+						add_law = {
+							law = succ_turkish_succession
+							cooldown = no
+							opinion_effect = no
+						}
+					}
+				} 
+				recalc_succession = yes
+			}
+		}
+		if = {
+			limit = { #Switch to astrology.
+				ROOT = { has_religion_feature = religion_astrology }
+			}
+			ROOT = { 
+				add_western_zodiac_trait_effect = yes 
+				character_event = { id = HF.23032 days = 5 } 
+			} 
+		}
+		if = {
+			limit = { #Apply default special features if player doesn't have dlc.
+				NOT = { has_dlc = "Holy Fury" } 
+				ROOT = { religion = norse_pagan_reformed } 
+			}
+			ROOT = { 
+				set_allow_rivermovement = yes 
+				enable_prepared_invasion = yes
+				set_seafaring = yes
+				make_reformer_head_of_religion = yes
+				grant_title_no_opinion = d_norse_pagan_reformed
+			} 
+		}
+		if = {
+			limit = { #Apply default special features if player doesn't have dlc. (wait which ones had which features again? fuck it)
+				NOT = { has_dlc = "Holy Fury" } 
+				ROOT = { 
+					OR = { 
+						religion = rust_cultist_reformed 
+						religion = revelationist_reformed 
+						religion = espiritista_reformed
+					}  
+				} 
+			}
+			ROOT = { 
+				set_unit_modifier = {		
+					garrison_size = 0.2
+					levy_size = 0.2
+					
+					key = "DEF_RELIGION"
+				}
+				set_unit_home_modifier = {
+					land_morale = 0.8
+					light_infantry_defensive = 0.8
+					heavy_infantry_defensive = 0.8
+					pikemen_defensive = 0.8
+					light_cavalry_defensive = 0.8
+					knights_defensive = 0.8
+					archers_defensive = 0.8
+					horse_archers_defensive = 0.8
+					camel_cavalry_defensive = 0.8
+					war_elephants_defensive = 0.8
+					
+					garrison_size = 0.4
+					
+					key = "DEF_RELIGION_HOME_TERRITORY"
+				}
+			} 
+		}
+		if = {
+			limit = { #Apply default special features if player doesn't have dlc.
+				NOT = { has_dlc = "Holy Fury" } 
+				ROOT = { 
+					religion = occultist_reformed
+					religion = celtic_pagan_reformed 
+				} 
+			}
+			ROOT = { 
+				set_unit_modifier = {		
+					garrison_size = 0.3
+					levy_size = 0.1
+					
+					key = "DEF_RELIGION"
+				}
+				set_unit_home_modifier = {
+					land_morale = 0.8
+					light_infantry_defensive = 0.8
+					heavy_infantry_defensive = 0.8
+					pikemen_defensive = 0.8
+					light_cavalry_defensive = 0.8
+					knights_defensive = 0.8
+					archers_defensive = 0.8
+					horse_archers_defensive = 0.8
+					camel_cavalry_defensive = 0.8
+					war_elephants_defensive = 0.8
+					
+					garrison_size = 0.4
+					
+					key = "DEF_RELIGION_HOME_TERRITORY"
+				}
+			} 
+		}
+		if = {
+			limit = { #Apply default special features if player doesn't have dlc.
+				NOT = { has_dlc = "Holy Fury" } 
+				ROOT = { 
+					religion = thelemic_reformed 
+				} 
+			}
+			ROOT = { 
+				set_unit_modifier = {
+					levy_size = 0.3
+					
+					heavy_infantry_offensive = 0.2
+					heavy_infantry_defensive = 0.2
+					
+					key = "OFF_RELIGION"
+				}
+			} 
+		}
+
+
 		if = {
 			limit = { ai = no }
 			set_character_flag = achievement_new_ways
 		}
+		#if = {
+		#	limit = {
+		#		ai = no
+		#		religion = hellenic_pagan_reformed
+		#	}
+		#	set_character_flag = achievement_by_jupiter
+		#}
 		any_courtier = {
 			limit = {
 				is_heresy_of = ROOT
@@ -4303,29 +4831,133 @@ narrative_event = {
 			}
 		}
 		if = {
+			limit = { 
+				OR = {
+					NOT = { has_dlc = "Holy Fury" } 
+					has_religion_feature = religion_temporal_head 
+				} 
+				religion = norse_pagan_reformed 
+
+			}
+			add_artifact = crown_fylkir
+		}
+		#if = {
+		#	limit = { 
+		#		has_religion_feature = religion_temporal_head 
+		#		religion = tengri_pagan_reformed 
+#
+#			}
+#			add_artifact = crown_tengri_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = finnish_pagan_reformed 
+#
+#			}
+#			add_artifact = crown_finnish_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = west_african_pagan_reformed 
+#
+#			}
+#			add_artifact = crown_west_african_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = slavic_pagan_reformed 
+#
+#			}
+#			add_artifact = crown_slavic_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = baltic_pagan_reformed 
+#
+#			}
+#			add_artifact = crown_romuva_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = zun_pagan_reformed 
+#
+#			}
+#			add_artifact = crown_zun_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = aztec_reformed 
+#
+#			}
+#			add_artifact = crown_aztec_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = bon_reformed 
+#
+#			}
+#			add_artifact = scepter_bon_fylkir
+#		}
+#		if = {
+#			limit = { 
+#				has_religion_feature = religion_temporal_head 
+#				religion = hellenic_pagan_reformed 
+#
+#			}
+#			add_artifact = scepter_hellenic_fylkir
+#		}
+#		#hidden_effect = { reformation_god_names_changes_effect = yes }
+#		#Opinion boost to new religious head (if any) and Reformer.
+#		if = {
+#			limit = { 
+#				has_dlc = "Holy Fury" 
+#				OR = {
+#					has_religion_feature = religion_theocratic_head
+#					has_religion_feature = religion_autocephaly 
+#				} 
+#
+#			}
+#			religion_head = { opinion = { who = ROOT modifier = opinion_my_reformer years = 50 } }
+#		}
+		if = {
 			limit = { religion = norse_pagan_reformed }
+			#d_jomsvikings = {
+			#	religion = norse_pagan_reformed # This Holy Order now changes religion
+			#}
 			set_global_flag = norse_reformation
-		}
-		if = {
-			limit = { religion = occultist_reformed }
-			set_global_flag = occultist_reformation
-		}
-		if = {
-			limit = { religion = rust_cultist_reformed }
-			set_global_flag = rust_cultist_reformation
-		}
-		if = {
-			limit = { religion = thelemic_reformed }
-			set_global_flag = thelemic_reformation
 		}
 		if = {
 			limit = { religion = revelationist_reformed }
 			set_global_flag = revelationist_reformation
 		}
 		if = {
+			limit = { religion = rust_cultist_reformed }
+			set_global_flag = rust_cultist_reformation
+		}
+		if = {
+			limit = { religion = occultist_reformed }
+			set_global_flag = occultist_reformation
+		}
+		if = {
+			limit = { religion = thelemic_reformed }
+			set_global_flag = thelemic_reformation
+		}
+		if = {
+			limit = { religion = celtic_pagan_reformed }
+			set_global_flag = celtic_reformation
+		}
+		if = {
 			limit = { religion = espiritista_reformed }
 			set_global_flag = espiritista_reformation
 		}
+	}
 	}
 
 	option = {
@@ -4338,11 +4970,199 @@ narrative_event = {
 				portrait = [Root.GetID]
 			}
 		}
+		hidden_tooltip = {
+			if = {
+				limit = { 
+					ROOT = { has_religion_feature = religion_matriarchal }
+				}
+				ROOT = { 
+					any_demesne_title = { 
+						add_law = {
+							law = enatic_succession
+							cooldown = no
+							opinion_effect = no
+						}
+						add_law = {
+							law = status_of_women_4
+							cooldown = no
+							opinion_effect = no
+						}
+					} 
+					recalc_succession = yes
+				} 
+			}
+			if = {
+				limit = { 
+					ROOT = { has_religion_feature = religion_patriarchal }
+				}
+				ROOT = { 
+					any_demesne_title = { 
+						add_law = {
+							law = agnatic_succession
+							cooldown = no
+							opinion_effect = no
+						}
+						add_law = {
+							law = status_of_women_0
+							cooldown = no
+							opinion_effect = no
+						}
+					} 
+					recalc_succession = yes
+				} 
+			}
+			if = {
+				limit = { 
+					ROOT = {
+						OR = { 
+							has_religion_feature = religion_equal 
+							has_religion_feature = religion_feature_bon
+						}
+					}
+				}
+				ROOT = { 
+					any_demesne_title = { 
+						add_law = {
+							law = true_cognatic_succession
+							cooldown = no
+							opinion_effect = no
+						}
+						add_law = {
+							law = status_of_women_4
+							cooldown = no
+							opinion_effect = no
+						}
+					} 
+					recalc_succession = yes
+				} 
+			}
+			ROOT = {
+				if = {
+					limit = { 
+						has_religion_feature = religion_matriarchal 
+					}
+					any_close_relative = { 
+					limit = { is_female = no }
+						opinion = { 
+							who = ROOT 
+							modifier = bad_succ_law_change
+							years = 100
+						}
+					}
+					any_close_relative = { 
+						limit = { is_female = yes }
+						opinion = { 
+							who = ROOT 
+							modifier = good_succ_law_change
+							years = 100
+						}
+					}
+				}
+				if = {
+					limit = { 
+						has_religion_feature = religion_patriarchal 
+					}
+					any_close_relative = { 
+						limit = { is_female = yes }
+						opinion = { 
+							who = ROOT 
+							modifier = bad_succ_law_change
+							years = 100
+						}
+					}
+					any_close_relative = { 
+						limit = { is_female = no }
+						opinion = { 
+							who = ROOT 
+							modifier = good_succ_law_change
+							years = 100
+						}
+					}
+				}
+			}
+		}
 	}
 	option = {
 		name = "EVTOPTB670" # Rulers of the old Faith - Accept
 		trigger = {
 			is_heresy_of = ROOT # The old religion has become a heresy of the Reformed one
+		}
+		if = {
+			limit = { #Offer chance to switch the vassals' succession laws.
+				ROOT = { has_religion_feature = religion_no_leader }
+				ai = yes
+			}		
+			hidden_tooltip = {  
+				character_event = { id = HF.23016 days = 20 random = 20 }
+			}
+		}
+		if = {
+			limit = { #Offer chance to switch the vassals' succession laws.
+				ROOT = { has_religion_feature = religion_matriarchal }
+			}
+			custom_tooltip = { text = tooltip_HF23014_A }
+			hidden_tooltip = { 
+				any_demesne_title = { 
+					add_law = {
+						law = enatic_succession
+						cooldown = no
+						opinion_effect = no
+					}
+					add_law = {
+						law = status_of_women_4
+						cooldown = no
+						opinion_effect = no
+					}
+				} 
+				recalc_succession = yes
+			} 
+		}
+		if = {
+			limit = { #Offer chance to switch the vassals' succession laws.
+				ROOT = { has_religion_feature = religion_patriarchal }
+			}
+			custom_tooltip = { text = tooltip_HF23015_A }
+			hidden_tooltip = { 
+				any_demesne_title = { 
+					add_law = {
+						law = agnatic_succession
+						cooldown = no
+						opinion_effect = no
+					}
+					add_law = {
+						law = status_of_women_0
+						cooldown = no
+						opinion_effect = no
+					}
+				} 
+				recalc_succession = yes
+			} 
+		}
+		if = {
+			limit = { #Offer chance to switch the vassals' succession laws.
+				ROOT = {
+					OR = { 
+						has_religion_feature = religion_equal 
+						has_religion_feature = religion_feature_bon
+					}
+				}
+			}
+			custom_tooltip = { text = tooltip_HF23016_A }
+			hidden_tooltip = { 
+				any_demesne_title = { 
+					add_law = {
+						law = true_cognatic_succession
+						cooldown = no
+						opinion_effect = no
+					}
+					add_law = {
+						law = status_of_women_4
+						cooldown = no
+						opinion_effect = no
+					}
+				} 
+				recalc_succession = yes
+			} 
 		}
 		if = {
 			limit = { ai = no }
@@ -4389,6 +5209,13 @@ narrative_event = {
 				}
 				religion = ROOT
 			}
+			any_dynasty_member = {
+				limit = {
+					is_heresy_of = ROOT
+					is_playable = no
+				}
+				religion = ROOT
+			}
 			any_vassal = {
 				limit = {
 					is_playable = no
@@ -4416,13 +5243,14 @@ narrative_event = {
 				portrait = [Root.GetID]
 			}
 		}
-		#ai_chance = {
-		#	factor = 50
-		#	modifier = {
-		#		factor = 0
-		#		has_landed_title = d_jomsvikings
-		#	}
-		#}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 0
+				has_landed_title = d_jomsvikings
+			}
+			post_reformation_ruler_conversion_score = yes
+		}
 		tooltip = { religion = THIS }
 	}
 	option = {
@@ -4996,14 +5824,14 @@ narrative_event = {
 		picture = GFX_evt_battle
 		text = EVTDESC534_converted
 		trigger = { 
-			new_character = { religion = FROM }
+			new_character = { religion_group = FROM }
 		}
 	}
 	desc = {
 		picture = GFX_evt_battle
 		text = EVTDESC534_coup
 		trigger = { 
-			new_character = { NOT = { religion = FROM } }
+			new_character = { NOT = { religion_group = FROM } }
 		}
 	}
 	
@@ -5012,14 +5840,77 @@ narrative_event = {
 	only_rulers = yes
 	
 	is_triggered_only = yes
+
+	trigger = {
+		OR = {
+			new_character = {
+				NOT = {
+					has_landed_title = ROOT
+				}
+			}
+			#OR = {
+			#	AND = {
+			#		has_global_flag = 4th_crusade_official
+			#		crusade_target_title = {
+			#			title = k_thrace
+			#		}
+			#		new_character = {
+			#			religion = FROM
+			#			has_landed_title = e_byzantium
+			#		}	
+			#	}
+			#	AND = {
+			#		NOR = {
+			#			has_global_flag = 4th_crusade_official
+			#			crusade_target_title = {
+			#				title = k_thrace
+			#			}
+			#			new_character = {
+			#				has_landed_title = e_byzantium
+			#			}
+			#		}
+			#		new_character = {
+			#			religion_group = FROM
+			#		}
+			#	}
+			#}
+		}
+	}
+
+	#immediate = {
+	#	if = {
+	#		limit = {
+	#			FROM = {
+	#				religion_group = christian
+	#			}
+	#			has_global_flag = 4th_crusade_official
+	#		}
+	#		character_event = { id = HFP.41199 }
+	#	}
+	#}
 	
 	option = {
 		name = "EVTOPTA620"
 		trigger = {
+			new_character = {
+				religion_group = FROM
+			}
 			religion_group = FROM
 		}
 	}
 	
+	option = {
+		name = EVTOPTC534
+		trigger = {
+			new_character = {
+				NOT = {
+					religion_group = FROM
+				}
+			}
+			religion_group = FROM
+		}
+	}
+
 	option = {
 		name = "EVTOPTB620"
 		trigger = {
@@ -5098,5 +5989,258 @@ diploresponse_event = {
 
 	option = {
 		name = "OK"
+	}
+}
+
+character_event = { # Fix adventurers turning Tribal land Feudal
+	id = 539
+	hide_window = yes
+	is_triggered_only = yes
+
+	only_rulers = yes
+	
+	trigger = {
+		ai = yes
+		is_feudal = yes
+	}
+
+	immediate = {
+		if = {
+			limit = {
+				NOT = {
+					any_realm_province = {
+						any_province_holding = {
+							holding_type = castle
+						}
+					}
+				}
+				any_realm_province = {
+					any_province_holding = {
+						holding_type = tribal
+					}
+				}
+			}
+			set_government_type = tribal_government
+		}
+	}
+}
+
+#Preserve player religion if heir has DLC locked religion
+character_event = {
+	id = 680
+	hide_window = yes
+	is_triggered_only = yes
+	ai = no
+	trigger = {
+		is_nomadic = no
+		player_heir = {
+			OR = {
+				has_unsafe_secret_religion = yes
+				has_unsafe_religion = yes
+			}
+		}
+	}
+	immediate = {
+		player_heir = {
+			if = {
+				limit = { has_unsafe_secret_religion = yes }
+				clear_secret_religion = yes
+			}
+			if = {
+				limit = { has_unsafe_religion = yes }
+				religion = ROOT
+			}
+		}
+	}
+}
+
+# On-action event: Avoided title revokation, declared independence
+character_event = {
+	id = 681
+	desc = "EVTDESC681"
+	picture = "GFX_evt_burning_house"
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes 
+
+	option = {
+		name = "EVTOPTA150"
+	}
+}
+
+# On-action event: Avoided vassal retraction, declared independence
+character_event = {
+	id = 682
+	desc = "EVTDESC682"
+	picture = "GFX_evt_burning_house"
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes 
+
+	option = {
+		name = "EVTOPTA150"
+	}
+}
+
+# On-action event: Avoided clan absorb, declared independence
+character_event = {
+	id = 683
+	desc = "EVTDESC683"
+	picture = "GFX_evt_burning_house"
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes 
+
+	option = {
+		name = "EVTOPTA150"
+	}
+}
+
+# On-action event: Avoided clan split, declared independence
+character_event = {
+	id = 684
+	desc = "EVTDESC684"
+	picture = "GFX_evt_burning_house"
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes 
+
+	option = {
+		name = "EVTOPTA150"
+	}
+}
+
+# On-action event: Remove in-hiding trait on imprisonment
+character_event = {
+	id = 685
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		trait = in_hiding
+	}
+	
+	immediate = {
+		remove_trait = in_hiding
+	}
+}
+
+###### TODO REMOVE TEST EVENT
+#character_event = {
+#	id = 686
+#	hide_window = yes
+#	is_triggered_only = yes
+#	
+#	trigger = {
+#		is_save_game = no
+#		NOT = { has_global_flag = start_seed_bloodlines }
+#		NOT = { is_shattered_world = yes }
+#	}
+#	
+#	immediate = {
+#		set_global_flag = start_seed_bloodlines
+#		any_independent_ruler = {
+#			count = 5
+#			random_list = {
+#				10 = {
+#					create_bloodline = {
+#						type = bloodline_martial
+#					}
+#				}
+#				10 = {
+#					create_bloodline = {
+#						type = bloodline_steward
+#					}
+#				}
+#				10 = {
+#					create_bloodline = {
+#						type = bloodline_intrigue
+#					}
+#				}
+#				10 = {
+#					create_bloodline = {
+#						type = bloodline_learning
+#					}
+#				}
+#				10 = {
+#					create_bloodline = {
+#						type = bloodline_diplomacy
+#					}
+#				}
+#			}
+#		}
+#	}
+#}
+
+character_event = {
+	id = 687
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	trigger = {
+		FROM = {
+			ai = no
+		}
+		is_shattered_world = yes
+		has_character_flag = great_conqueror
+	}
+	immediate = {
+		FROM = {
+			set_character_flag = achievement_not_so_great
+		}
+	}
+}
+
+character_event = {
+	id = 688
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	trigger = {
+		ai = no
+		is_shattered_world = yes
+		FROM = { 
+			has_character_flag = great_conqueror
+		}
+	}
+	immediate = {
+		set_character_flag = achievement_not_so_great
+	}
+}
+
+
+# Scripted default elective token setup
+character_event = {
+	id = 689
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	only_rulers = yes
+	
+	immediate = {
+		any_demesne_title = {
+			if = {
+				limit = {
+					has_law = succ_elective_gavelkind
+				}
+				elective_voting_rules = elective_gavelkind
+			}
+			else_if = {
+				limit = {
+					has_law = succ_tanistry
+				}
+				elective_voting_rules = tanistry
+			}
+			else_if = {
+				limit = {
+					has_law = succ_feudal_elective
+				}
+				elective_voting_rules = feudal_elective
+			}
+		}
 	}
 }

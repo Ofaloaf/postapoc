@@ -102,7 +102,7 @@ character_event = {
 		}
 		modifier = {
 			factor = 0.5
-			trait = fair
+			has_fair_trait_trigger = yes
 		}
 		modifier = {
 			factor = 2.0
@@ -110,7 +110,7 @@ character_event = {
 		}
 		modifier = {
 			factor = 2.0
-			trait = ugly
+			has_ugly_trait_trigger = yes
 		}
 		modifier = {
 			factor = 10.0
@@ -215,7 +215,10 @@ character_event = {
 	option = {
 		name = EVTOPTA451 # Make a move
 		ai_chance = { factor = 90 }
-		FROM = { character_event = { id = 452 days = 7 tooltip = EVTTOOLTIP452 } }
+		FROM = {
+			show_scope_change = no
+			character_event = { id = 452 days = 7 tooltip = EVTTOOLTIP452 }
+		}
 	}
 
 	option = {
@@ -274,6 +277,11 @@ character_event = {
 	id = 452
 
 	is_triggered_only = yes
+	
+	trigger = {
+		is_alive = yes
+		FROM = { is_alive = yes }
+	}
 
 	desc = EVTDESC452
 	picture = GFX_evt_lovers
@@ -670,7 +678,7 @@ character_event = {
 								trait = inbred
 								trait = imbecile
 								trait = dwarf
-								trait = ugly
+								has_ugly_trait_trigger = yes
 							}
 						}
 						AND = {
@@ -854,14 +862,14 @@ character_event = {
 				factor = 30.0
 				NOT = {
 					OR = {
-						trait = ugly
+						has_ugly_trait_trigger = yes
 						trait = dwarf
 						trait = imbecile
 						trait = inbred
 					}
 				}
 				FROM = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 					NOT = { trait = seducer }
 					NOT = { trait = seductress }
 				}
@@ -871,7 +879,7 @@ character_event = {
 				factor = 30.0
 				NOT = {
 					OR = {
-						trait = ugly
+						has_ugly_trait_trigger = yes
 						trait = dwarf
 						trait = imbecile
 						trait = inbred
@@ -887,7 +895,7 @@ character_event = {
 				factor = 30.0
 				NOT = {
 					OR = {
-						trait = ugly
+						has_ugly_trait_trigger = yes
 						trait = dwarf
 						trait = imbecile
 						trait = inbred
@@ -903,7 +911,7 @@ character_event = {
 				factor = 100.0
 				NOT = {
 					OR = {
-						trait = ugly
+						has_ugly_trait_trigger = yes
 						trait = dwarf
 						trait = imbecile
 						trait = inbred
@@ -958,7 +966,64 @@ character_event = {
 # On-action event: Pregnancy starts showing
 character_event = {
 	id = 400
-	desc = EVTDESC400
+	desc = { 
+		text = EVTDESC400 
+		trigger = { #The father is alive and a spouse
+			is_married = yes			
+			father_of_unborn = {
+				is_alive = yes
+				any_spouse = { character = ROOT }
+			}
+		}
+	}
+	desc = { 
+		text = EVTDESC400_widow
+		trigger = { #The father is dead and a spouse
+			is_married = no
+			father_of_unborn = {
+				is_alive = no
+				ROOT = {
+					any_spouse_even_if_dead = {
+						character = PREVPREV
+					}
+				}
+			}
+		}
+	}
+	desc = { 
+		text = EVTDESC400_CONSORT
+		trigger = { #Not married, but is consort
+			is_married = no
+			NOT = { num_of_consorts = 2 }
+			NOT = {
+				father_of_unborn = {
+					is_alive = no
+					ROOT = {
+						any_spouse_even_if_dead = {
+							character = PREVPREV
+						}
+					}
+				}
+			}
+		}
+	}
+	desc = { 
+		text = EVTDESC400_CONSORTS
+		trigger = { #Not married, and multiple consorts
+			is_married = no
+			num_of_consorts = 2
+			NOT = {
+				father_of_unborn = {
+					is_alive = no
+					ROOT = {
+						any_spouse_even_if_dead = {
+							character = PREVPREV
+						}
+					}
+				}
+			}
+		}
+	}
 	picture = GFX_evt_pregnancy
 	border = GFX_event_normal_frame_religion
 	
@@ -966,9 +1031,25 @@ character_event = {
 	
 	trigger = {
 		NOT = { trait = pregnant }
+		is_consort = no
 		father_of_unborn = {
-			any_spouse = {
-				character = ROOT
+			OR = {
+				AND = { #The father is alive and a spouse
+					is_alive = yes
+					any_spouse = { character = ROOT }
+				}
+				AND = { #The father is dead and a spouse
+					is_alive = no
+					ROOT = {
+						any_spouse_even_if_dead = {
+							character = PREVPREV
+						}
+					}
+				}
+				any_consort = {
+					character = ROOT
+					is_senior_consort_party = yes
+				}
 			}
 		}
 	}
@@ -982,10 +1063,138 @@ character_event = {
 		tooltip = { add_trait = pregnant }
 		prestige = 10
 		
+		hidden_tooltip = { 
+			if = { 
+				limit = {
+					ai = no
+					NOT = { 
+						any_courtier = { has_minor_title = title_appointed_regent } 
+						has_dynasty_flag = pregnancy_regent_warning 
+					} 
+				}
+				character_event = { id = HFP.20400 } 
+			}
+		}
+		hidden_tooltip = { 
+			random_list = { 
+				80 = { 
+					modifier = { 
+						factor = 0.8
+						trait = shy 
+					}
+					modifier = { 
+						factor = 0.8
+						is_ill = yes
+					}
+					modifier = { 
+						factor = 0.9
+						trait = possessed 
+					}
+					modifier = { 
+						factor = 0.9
+						trait = paranoid 
+					}
+					modifier = { 
+						factor = 0.9
+						trait = lunatic 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = weak 
+					}
+					modifier = { 
+						factor = 0.9
+						age = 37 
+					}
+					modifier = { 
+						factor = 0.9
+						NOT = { age = 20 } 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 4 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 5 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 6 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 7 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 8 
+					}
+					modifier = { 
+						factor = 0.8
+						has_character_flag = special_marshal
+					}
+					modifier = { 
+						factor = 1.5
+						is_tribal = yes
+					}
+					modifier = { 
+						factor = 1.5
+						is_nomadic = yes
+					}
+					modifier = { 
+						factor = 0.6
+						trait = feeble
+					}
+					modifier = { 
+						factor = 0.5
+						trait = is_malnourished
+					}
+					modifier = { 
+						factor = 1.75
+						trait = robust
+					}
+					modifier = { 
+						factor = 1.5
+						trait = strong
+					}
+					modifier = { 
+						factor = 1.5
+						trait = sturdy
+					}
+				} 
+				20 = { 
+					modifier = { 
+						factor = 0.5
+						is_ill = no
+					}
+					modifier = { 
+						factor = 0.25
+						age = 18
+						NOT = { age = 40 }
+					}
+					modifier = { 
+						factor = 2
+						trait = drunkard
+					}
+					modifier = { 
+						factor = 2
+						has_character_modifier = hashish_addict
+					}
+					modifier = { 
+						factor = 3
+						has_character_modifier = withdrawal_symptoms
+					}
+					character_event = { id = HFP.20404	days = 10 random = 5 } #Hard pregnancy
+				}
+			}
+		}
+		
 		if = {
 			limit = {
 				father_of_unborn = {
 					is_alive = yes
+					is_consort = no
 				}
 			}
 			
@@ -1017,7 +1226,10 @@ character_event = {
 				}
 			}
 			
-			father_of_unborn = { character_event = { id = 403 tooltip = EVTTOOLTIP403 } }
+			father_of_unborn = {
+				show_scope_change = no
+				character_event = { id = 403 tooltip = EVTTOOLTIP403 }
+			}
 		}
 	}
 }
@@ -1037,10 +1249,14 @@ character_event = {
 		NOT = { trait = pregnant }
 		is_consort = no
 		father_of_unborn = {
-			NOT = {
+			NOR = {
 				any_spouse = {
 					character = ROOT
-				}				
+				}
+				any_consort = {
+					character = ROOT
+					is_senior_consort_party = yes
+				}
 			}
 		}
 	}
@@ -1054,6 +1270,119 @@ character_event = {
 		tooltip = { add_trait = pregnant }
 		piety = -50
 		prestige = -50
+		
+		hidden_tooltip = { 
+			if = { 
+				limit = {
+					ai = no
+					NOT = { any_courtier = { has_minor_title = title_appointed_regent } 
+					has_global_flag = pregnancy_regent_warning } 
+					}
+				character_event = { id = HFP.20400 } 
+			}
+		}
+		hidden_tooltip = { 
+			random_list = { 
+				50 = { 
+					modifier = { 
+						factor = 0.8
+						trait = shy 
+					}
+					modifier = { 
+						factor = 0.8
+						is_ill = yes
+					}
+					modifier = { 
+						factor = 0.8
+						trait = possessed 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = paranoid 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = lunatic 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = weak 
+					}
+					modifier = { 
+						factor = 0.8
+						age = 37 
+					}
+					modifier = { 
+						factor = 0.8
+						NOT = { age = 20 } 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 3 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 4 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 5 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 6 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 7 
+					}
+					modifier = { 
+						factor = 0.8
+						has_character_flag = special_marshal
+					}
+					modifier = { 
+						factor = 0.8
+						trait = shieldmaiden
+					}
+					modifier = { 
+						factor = 0.6
+						trait = feeble
+					}
+					modifier = { 
+						factor = 1.75
+						trait = robust
+					}
+					modifier = { 
+						factor = 1.5
+						trait = strong
+					}
+				} 
+				50 = { 
+					modifier = { 
+						factor = 0.5
+						is_ill = no
+					}
+					modifier = { 
+						factor = 0.25
+						age = 18
+						NOT = { age = 40 }
+					}
+					modifier = { 
+						factor = 2
+						trait = drunkard
+					}
+					modifier = { 
+						factor = 2
+						has_character_modifier = hashish_addict
+					}
+					modifier = { 
+						factor = 3
+						has_character_modifier = withdrawal_symptoms
+					}
+					character_event = { id = HFP.20404	days = 10 random = 5 } #Hard pregnancy
+				}
+			}
+		}
 	}
 }
 
@@ -1089,7 +1418,122 @@ character_event = {
 		
 #		log = "402: [Root.GetTitledName], wife of [Root.Spouse.GetTitledName] in [Root.Employer.PrimaryTitle.GetName] gets pregnant with [Root.FatherOfUnborn.GetTitledName]."
 		
-		spouse = { character_event = { id = 404 tooltip = EVTTOOLTIP404 } }
+		spouse = {
+			show_scope_change = no
+			character_event = { id = 404 tooltip = EVTTOOLTIP404 }
+		}
+		hidden_tooltip = { 
+			if = { 
+				limit = {
+					ai = no
+					NOT = { any_courtier = { has_minor_title = title_appointed_regent } 
+					has_global_flag = pregnancy_regent_warning } 
+					}
+				character_event = { id = HFP.20400 } 
+			}
+		}
+		hidden_tooltip = { 
+			random_list = { 
+				70 = { 
+					modifier = { 
+						factor = 0.8
+						trait = shy 
+					}
+					modifier = { 
+						factor = 0.8
+						is_ill = yes
+					}
+					modifier = { 
+						factor = 0.8
+						trait = possessed 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = paranoid 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = lunatic 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = weak 
+					}
+					modifier = { 
+						factor = 0.8
+						age = 37 
+					}
+					modifier = { 
+						factor = 0.8
+						NOT = { age = 20 } 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 3 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 4 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 5 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 6 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 7 
+					}
+					modifier = { 
+						factor = 0.8
+						has_character_flag = special_marshal
+					}
+					modifier = { 
+						factor = 0.8
+						trait = shieldmaiden
+					}
+					modifier = { 
+						factor = 0.6
+						trait = feeble
+					}
+					modifier = { 
+						factor = 1.75
+						trait = robust
+					}
+					modifier = { 
+						factor = 1.5
+						trait = strong
+					}
+				} 
+				30 = { 
+					modifier = { 
+						factor = 0.5
+						is_ill = no
+					}
+					modifier = { 
+						factor = 0.25
+						age = 18
+						NOT = { age = 40 }
+					}
+					modifier = { 
+						factor = 2
+						trait = drunkard
+					}
+					modifier = { 
+						factor = 2
+						has_character_modifier = hashish_addict
+					}
+					modifier = { 
+						factor = 3
+						has_character_modifier = withdrawal_symptoms
+					}
+					character_event = { id = HFP.20404	days = 10 random = 5 } #Hard pregnancy
+				}
+			}
+		}
 	}
 }
 
@@ -2047,7 +2491,9 @@ character_event = {
 	trigger = {
 		NOT = { trait = pregnant }
 		father_of_unborn = {
-			is_consort = ROOT
+			ROOT = {
+				is_consort = PREV
+			}
 		}
 	}
 	
@@ -2059,6 +2505,108 @@ character_event = {
 		name = ALAS
 		tooltip = { add_trait = pregnant }
 		prestige = 10
+		hidden_tooltip = { 
+			random_list = { 
+				70 = { 
+					modifier = { 
+						factor = 0.8
+						trait = shy 
+					}
+					modifier = { 
+						factor = 0.8
+						is_ill = yes
+					}
+					modifier = { 
+						factor = 0.8
+						trait = possessed 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = paranoid 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = lunatic 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = weak 
+					}
+					modifier = { 
+						factor = 0.8
+						age = 37 
+					}
+					modifier = { 
+						factor = 0.8
+						NOT = { age = 20 } 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 3 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 4 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 5 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 6 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 7 
+					}
+					modifier = { 
+						factor = 0.8
+						has_character_flag = special_marshal
+					}
+					modifier = { 
+						factor = 0.8
+						trait = shieldmaiden
+					}
+					modifier = { 
+						factor = 0.6
+						trait = feeble
+					}
+					modifier = { 
+						factor = 1.75
+						trait = robust
+					}
+					modifier = { 
+						factor = 1.5
+						trait = strong
+					}
+				} 
+				30 = { 
+					modifier = { 
+						factor = 0.5
+						is_ill = no
+					}
+					modifier = { 
+						factor = 0.25
+						age = 18
+						NOT = { age = 40 }
+					}
+					modifier = { 
+						factor = 2
+						trait = drunkard
+					}
+					modifier = { 
+						factor = 2
+						has_character_modifier = hashish_addict
+					}
+					modifier = { 
+						factor = 3
+						has_character_modifier = withdrawal_symptoms
+					}
+					character_event = { id = HFP.20404	days = 10 random = 5 } #Hard pregnancy
+				}
+			}
+		}
 		
 		if = {
 			limit = {
@@ -2112,9 +2660,11 @@ character_event = {
 	trigger = {
 		NOT = { trait = pregnant }
 		is_consort = yes
-		father_of_unborn = {
-			NOT = {
-				is_consort = ROOT		
+		NOT = {
+			father_of_unborn = {
+				ROOT = {
+					is_consort = PREV
+				}
 			}
 		}
 	}
@@ -2127,6 +2677,108 @@ character_event = {
 		name = EVTOPTA412
 		tooltip = { add_trait = pregnant }
 		consort = { character_event = { id = 404 tooltip = EVTTOOLTIP404 } }
+		hidden_tooltip = { 
+			random_list = { 
+				70 = { 
+					modifier = { 
+						factor = 0.8
+						trait = shy 
+					}
+					modifier = { 
+						factor = 0.8
+						is_ill = yes
+					}
+					modifier = { 
+						factor = 0.8
+						trait = possessed 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = paranoid 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = lunatic 
+					}
+					modifier = { 
+						factor = 0.8
+						trait = weak 
+					}
+					modifier = { 
+						factor = 0.8
+						age = 37 
+					}
+					modifier = { 
+						factor = 0.8
+						NOT = { age = 20 } 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 3 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 4 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 5 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 6 
+					}
+					modifier = { 
+						factor = 0.8
+						num_of_children = 7 
+					}
+					modifier = { 
+						factor = 0.8
+						has_character_flag = special_marshal
+					}
+					modifier = { 
+						factor = 0.8
+						trait = shieldmaiden
+					}
+					modifier = { 
+						factor = 0.6
+						trait = feeble
+					}
+					modifier = { 
+						factor = 1.75
+						trait = robust
+					}
+					modifier = { 
+						factor = 1.5
+						trait = strong
+					}
+				} 
+				30 = { 
+					modifier = { 
+						factor = 0.5
+						is_ill = no
+					}
+					modifier = { 
+						factor = 0.25
+						age = 18
+						NOT = { age = 40 }
+					}
+					modifier = { 
+						factor = 2
+						trait = drunkard
+					}
+					modifier = { 
+						factor = 2
+						has_character_modifier = hashish_addict
+					}
+					modifier = { 
+						factor = 3
+						has_character_modifier = withdrawal_symptoms
+					}
+					character_event = { id = HFP.20404	days = 10 random = 5 } #Hard pregnancy
+				}
+			}
+		}
 	}
 }
 
@@ -2160,13 +2812,38 @@ character_event = {
 	
 	trigger = {
 		was_conceived_a_bastard = yes
-		NOT = { real_father = { always = yes } } # There is no 'real_father' set, i.e. this is not a hidden, cuckoo bastard
+		OR = {
+			NOT = { real_father = { always = yes } } # There is no 'real_father' set, i.e. this is not a hidden, cuckoo bastard
+			AND = { 
+				real_father = { is_alive = yes is_ruler = yes } 
+				mother_even_if_dead = {  # The mother is the landless lover of somebody else.
+					is_married = no 
+				}
+			} 
+		}
 	}
 
 	option = {
 		name = OK
-		father = {
-			character_event = { id = 301 days = 1 } # The father's reaction
+		if = { 
+			limit = { 
+				NOT = { real_father = { always = yes } }
+			}
+			father = {
+				character_event = { id = 301 days = 1 } # The father's reaction
+			}
+		}
+		else_if = { 
+			limit = { 
+				real_father = { is_alive = yes is_ruler = yes } 
+				mother_even_if_dead = {  # The mother is the landless lover of somebody else.
+					is_married = no 
+				}
+			}
+			real_father = {
+				ROOT = { set_father = PREV }
+				character_event = { id = 301 days = 1 } # The father's reaction
+			}
 		}
 	}
 }
@@ -2184,6 +2861,19 @@ character_event = {
 		name = EVTOPTA301 # Legitimize the child
 		trigger = {
 			has_polygamy = no
+			OR = {
+				FROM = { 
+					mother = { 
+						tier = ROOT 	# In case mother is same tier as real_father, real_father gets to claim the child provided that agnatic succession is in place.
+						NOR = { 
+							has_law = enatic_succession
+							has_law = enatic_cognatic_succession
+							has_law = true_cognatic_succession
+						} 
+					} 
+				}
+				FROM = { mother = { lower_tier_than = ROOT } } #In case the mother is a higher tier ruler, she gets to decide what happens to the child.
+			}
 		}
 		
 		ai_chance = {
@@ -2227,30 +2917,53 @@ character_event = {
 		
 		custom_tooltip = { text = EVTOPTA301_DESC }
 		
+		spouse = {
+			show_scope_change = no
+			tooltip = { opinion = { who = ROOT modifier = legitimized_bastard years = 10 } } # Spouse reaction.
+		}
 		FROM = {
 			hidden_tooltip = {
 				character_event = { id = 302 } # The child gets the father's dynasty
 			}
 			mother = {
-				character_event = { id = 303 tooltip = EVTTOOLTIP303 } # The child's mother is very pleased
+				show_scope_change = no
+				tooltip = { opinion = { who = ROOT modifier = legitimized_child years = 10 } }
+				hidden_tooltip = { character_event = { id = 303 tooltip = EVTTOOLTIP303 } } # The child's mother is very pleased
 				spouse = {
-					character_event = { id = 304 tooltip = EVTTOOLTIP304 } # The child's mother's husband is pissed off
+					show_scope_change = no
+					tooltip = { opinion = { who = ROOT modifier = opinion_cuckolded years = 10 } }
+					hidden_tooltip = { character_event = { id = 304 tooltip = EVTTOOLTIP304 } } # The child's mother's husband is pissed off
 				}		
 				consort = {
-					character_event = { id = 304 tooltip = EVTTOOLTIP304 } # The child's mother's lord is pissed off
+					show_scope_change = no
+					tooltip = { opinion = { who = ROOT modifier = opinion_cuckolded years = 10 } }
+					hidden_tooltip = { character_event = { id = 304 tooltip = EVTTOOLTIP304 } } # The child's mother's lord is pissed off
 				}			
 			}
 		}
-		any_child = {
+		if = {
 			limit = {
-				NOT = { character = FROM }
-				dynasty = ROOT
-				NOT = { trait = bastard }
+				any_child = {
+					is_alive = yes
+					NOT = { character = FROM }
+					dynasty = ROOT
+					NOT = { trait = bastard }
+				}  
 			}
-			opinion = {
-				who = ROOT
-				modifier = legitimized_bastard
-				months = 12
+			custom_tooltip = { text = EVTOPTA301_legchildren_TOOLTIP }
+		}
+		hidden_tooltip = {
+			any_child = {
+				limit = {
+					NOT = { character = FROM }
+					dynasty = ROOT
+					NOT = { trait = bastard }
+				}
+				opinion = {
+					who = ROOT
+					modifier = legitimized_bastard
+					months = 12
+				}
 			}
 		}
 	}
@@ -2258,6 +2971,21 @@ character_event = {
 	option = {
 		name = EVTOPTB301 # Acknowledge the child
 		
+		trigger = {
+			OR = {
+				FROM = { 
+					mother = { 
+						tier = ROOT 	# In case mother is same tier as real_father, real_father gets to claim the child provided that agnatic succession is in place.
+						NOR = { 
+							has_law = enatic_succession
+							has_law = enatic_cognatic_succession
+							has_law = true_cognatic_succession
+						} 
+					} 
+				}
+				FROM = { mother = { lower_tier_than = ROOT } } #In case the mother is a higher tier ruler, she gets to decide what happens to the child.
+			}
+		}
 		ai_chance = {
 			factor = 100
 			modifier = {
@@ -2288,8 +3016,12 @@ character_event = {
 		}
 		
 		custom_tooltip = { text = EVTOPTB301_DESC }
-		
+		spouse = {
+			show_scope_change = no
+			tooltip = { opinion = { who = ROOT modifier = acknowledged_bastard years = 10 } } # Spouse reaction.
+		}
 		FROM = {
+			show_scope_change = no
 			hidden_tooltip = {
 				character_event = { id = 306 } # The child gets the father's dynasty, but is not legitimized.
 			}
@@ -2298,12 +3030,18 @@ character_event = {
 				remove_trait = born_in_the_purple
 			}
 			mother = {
-				character_event = { id = 307 tooltip = EVTTOOLTIP307 } # The child's mother is pleased
+				show_scope_change = no
+				tooltip = { opinion = { who = ROOT modifier = acknowledged_child years = 10 } }
+				hidden_tooltip = { character_event = { id = 307 tooltip = EVTTOOLTIP307 } } # The child's mother is pleased
 				spouse = {
-					character_event = { id = 304 tooltip = EVTTOOLTIP304 } # The child's mother's husband is pissed off
+					show_scope_change = no
+					tooltip = { opinion = { who = ROOT modifier = opinion_cuckolded years = 10 } }
+					hidden_tooltip = { character_event = { id = 304 tooltip = EVTTOOLTIP304 } } # The child's mother's husband is pissed off
 				}
 				consort = {
-					character_event = { id = 304 tooltip = EVTTOOLTIP304 } # The child's mother's man is pissed off
+					show_scope_change = no
+					tooltip = { opinion = { who = ROOT modifier = opinion_cuckolded years = 10 } }
+					hidden_tooltip = { character_event = { id = 304 tooltip = EVTTOOLTIP304 } } # The child's mother's man is pissed off
 				}				
 			}
 		}
@@ -2311,7 +3049,21 @@ character_event = {
 	
 	option = {
 		name = EVTOPTC301 # Denounce the child
-		
+		trigger = {
+			OR = {
+				FROM = { 
+					mother = { 
+						tier = ROOT 	# In case mother is same tier as real_father, real_father gets to claim the child provided that agnatic succession is in place.
+						NOR = { 
+							has_law = enatic_succession
+							has_law = enatic_cognatic_succession
+							has_law = true_cognatic_succession
+						} 
+					} 
+				}
+				FROM = { mother = { lower_tier_than = ROOT } } #In case the mother is a higher tier ruler, she gets to decide what happens to the child.
+			}
+		}
 		ai_chance = {
 			factor = 100
 			modifier = {
@@ -2327,6 +3079,7 @@ character_event = {
 		custom_tooltip = { text = EVTOPTC301_DESC }
 		
 		FROM = {
+			show_scope_change = no
 			hidden_tooltip = {
 				character_event = { id = 309 } #  The child founds a new bastard dynasty
 			}
@@ -2343,14 +3096,29 @@ character_event = {
 				remove_trait = sayyid
 			}
 			mother = {
-				character_event = { id = 310 tooltip = EVTTOOLTIP310 } # The child's mother is dishonoured
+				show_scope_change = no
+				tooltip = { opinion = { who = ROOT modifier = opinion_cuckolded years = 10 } }
+				hidden_tooltip = { character_event = { id = 304 tooltip = EVTTOOLTIP304 } } # The child's mother's husband is pissed off
 				spouse = {
-					character_event = { id = 304 tooltip = EVTTOOLTIP304 } # The child's mother's husband is pissed off
+					how_scope_change = no
+					tooltip = { opinion = { who = ROOT modifier = opinion_cuckolded years = 10 } }
+					hidden_tooltip = { character_event = { id = 304 tooltip = EVTTOOLTIP304 } } # The child's mother's husband is pissed off
 				}	
 				consort = {
-					character_event = { id = 304 tooltip = EVTTOOLTIP304 } # The child's mother's man is pissed off
+					how_scope_change = no
+					tooltip = { opinion = { who = ROOT modifier = opinion_cuckolded years = 10 } }
+					hidden_tooltip = { character_event = { id = 304 tooltip = EVTTOOLTIP304 } } # The child's mother's man is pissed off
 				}				
 			}
+		}
+	}
+	option = {
+		name = EVTOPTD301 # Do nothing
+		trigger = {
+			FROM = { mother = { higher_tier_than = ROOT } } #In case the mother is a lower tier ruler, the father gets to decide what happens to the child.
+		}
+		ai_chance = {
+			factor = 100
 		}
 	}
 }
@@ -2360,7 +3128,32 @@ character_event = {
 	id = 302
 	
 	is_triggered_only = yes 
-	desc = EVTDESC302
+	desc = {
+		text = EVTDESC304
+		trigger = {
+			FROMFROM = {
+				mother = {
+					NOR = {
+						has_character_modifier = adulteress
+						has_character_modifier = incestuous_adulteress
+					}
+				}
+			}
+		}
+	}
+	desc = {
+		text = EVTDESC304_B
+		trigger = {
+			FROMFROM = {
+				mother = {
+					OR = {
+						has_character_modifier = adulteress
+						has_character_modifier = incestuous_adulteress
+					}
+				}
+			}
+		}
+	}
 	picture = GFX_evt_birth
 	border = GFX_event_normal_frame_intrigue
 
@@ -2621,17 +3414,33 @@ character_event = {
 	hide_window = yes
 	
 	trigger = {
-		mother = {
-			is_consort = yes #TODO: Should probably track this in code instead, in case consort status changes during pregnancy
+		OR = {
+			mother = {
+				is_consort = yes
+			}
+			father = {
+				is_consort = yes
+			}
 		}
 	}	
 	
 	option = {
-		add_trait = child_of_consort
+		if = { 
+			limit = {
+				mother = { is_consort = yes }
+			} 
+			add_trait = child_of_consort
+		}
+		if = { 
+			limit = {
+				father = { is_consort = yes }
+			} 
+			add_trait = child_of_consort_male
+		}
 	}
 }
 
-# On-action event: Birth complications
+# On-action event: Birth complications (the baby decides whether or not their mother dies)
 character_event = {
 	id = 313
 	desc = OK
@@ -2645,11 +3454,45 @@ character_event = {
 	}
 
 	immediate = {
+		if = { 
+			limit = { 
+				mother_even_if_dead = { 
+					OR = { 
+						has_character_flag = gabriel_baby
+						has_character_flag = lucifer_baby
+						has_character_flag = iblis_baby
+						has_character_flag = thor_baby
+						has_character_flag = loki_baby
+						has_character_flag = tengri_baby
+						has_character_flag = erlik_baby 
+					} 
+				}
+			}
+			character_event = { id = HFP.20538 days = 1 }
+		}
 		random_list = {
 			80 = {
 				# All is well
 			}
 			10 = {
+				modifier = { #Old remedy
+					factor = 0.25
+					mother = {
+						has_character_flag = flag_mother_dark_rest 
+					}
+				}
+				modifier = {
+					factor = 0
+					OR = { 
+						has_character_flag = gabriel_baby
+						has_character_flag = lucifer_baby
+						has_character_flag = iblis_baby
+						has_character_flag = thor_baby
+						has_character_flag = loki_baby
+						has_character_flag = tengri_baby
+						has_character_flag = erlik_baby 
+					}
+				}
 				add_trait = sickly
 
 				#Sickly infant treatment event
@@ -2705,8 +3548,13 @@ character_event = {
 
 	option = { # No complications
 		name = OK
+		trigger = { 
+			NOT = { 
+				mother = { trait = troubled_pregnancy }
+			} 
+		}
 		ai_chance = {
-			factor = 120
+			factor = 80
 			modifier = {
 				factor = 2.0
 				mother = {
@@ -2747,12 +3595,20 @@ character_event = {
 	}
 	option = { # Mother gets ill
 		name = OK
+		trigger = { 
+			NOT = { 
+				mother = { trait = troubled_pregnancy }
+			} 
+			NOT = { 
+				mother = { is_ill = yes }
+			} 
+		}
 		ai_chance = {
-			factor = 12
+			factor = 4
 			modifier = {
-				factor = 0
+				factor = 2
 				mother = {
-					trait = pneumonic
+					trait = hard_pregnancy
 				}
 			}
 			modifier = {
@@ -2770,24 +3626,20 @@ character_event = {
 		}
 		
 		mother = {
-			if = {
-				limit = {
-					is_ill = yes
-				}
-				character_event = { id = 316 }
-			}
-			if = {
-				limit = {
-					is_ill = no
-				}
-				character_event = { id = 315 }
-			}
+			character_event = { id = 315 }
 		}
 	}
-	option = { # Mother gets pneumonia
+	option = { # Mother has troubled pregnancy.
 		name = OK
+		trigger = { 
+			OR = { 
+				mother = { trait = troubled_pregnancy }
+				mother = { is_ill = yes }
+				mother = { check_variable = { which = troubled_pregnancy_variable value = 1 } }
+			} 
+		}
 		ai_chance = {
-			factor = 8
+			factor = 16
 			
 			modifier = {
 				factor = 2.0
@@ -2807,65 +3659,40 @@ character_event = {
 					NOT = { num_of_children = 2 }
 				}
 			}
-		}
-		
-		mother = {
-			if = {
-				limit = {
-					OR = {
-						trait = pneumonic 
-						has_epidemic = yes
-					}
-				}
-				death = {
-					death_reason = death_childbirth
-				}
-			}
-			if = {
-				limit = {
-					NOT = {
-						OR = {
-							trait = pneumonic 
-							has_epidemic = yes
-						}
-					}
-				}
-				character_event = { id = 316 }
-			}
-		}
-	}
-	option = { # Mother dies
-		name = OK
-		ai_chance = {
-			factor = 2
 			modifier = {
-				factor = 2.0
+				factor = 1.5
 				mother = {
-					NOT = { health = 4.1 }
-				}
-			}
-			modifier = {
-				factor = 6.0
-				mother = {
-					NOT = { health = 3.1 }
+					check_variable = { which = troubled_pregnancy_variable value = 2 }
 				}
 			}
 			modifier = {
 				factor = 1.5
 				mother = {
-					NOT = { num_of_children = 2 }
+					check_variable = { which = troubled_pregnancy_variable value = 3 }
+				}
+			}
+			modifier = {
+				factor = 2
+				mother = {
+					check_variable = { which = troubled_pregnancy_variable value = 4 }
+				}
+			}
+			modifier = {
+				factor = 3
+				mother = {
+					check_variable = { which = troubled_pregnancy_variable value = 5 }
 				}
 			}
 		}
+		
 		mother = {
-			death = {
-				death_reason = death_childbirth
-			}
+				character_event = { id = 316 } #Troubled pregnancy gets worse.
 		}
 	}
+	#no longer used
 }
 
-# On-action event: Birth complications after a stillbirth
+# On-action event: Birth complications after a stillbirth - disabled
 character_event = {
 	id = 314
 	desc = OK
@@ -2880,128 +3707,158 @@ character_event = {
 	
 	option = { # No complications
 		name = OK
+		trigger = { 
+			NOT = { 
+				mother = { trait = troubled_pregnancy }
+			} 
+		}
 		ai_chance = {
-			factor = 66
+			factor = 70
 			modifier = {
-				factor = 2.0
-				health = 6
+				factor = 0.7
+				mother = {
+					trait = hard_pregnancy
+				}
+			}
+			modifier = {
+				factor = 0.7
+				mother = {
+					is_ill = yes
+				}
 			}
 			modifier = {
 				factor = 2.0
-				health = 7
+				mother = {
+					health = 6
+				}
 			}
 			modifier = {
 				factor = 2.0
-				num_of_children = 3
+				mother = {
+					health = 7
+				}
+			}
+			modifier = {
+				factor = 2.0
+				mother = {
+					num_of_children = 3
+				}
 			}
 			modifier = {
 				factor = 1.2
-				age = 20
+				mother = {
+					age = 20
+				}
 			}
 			modifier = {
 				factor = 1.2
-				age = 25
+				mother = {
+					age = 25
+				}
 			}
 			modifier = {
 				factor = 1.2
-				age = 30
+				mother = {
+					age = 30
+				}
 			}
 		}
 	}
 	option = { # Mother gets ill
 		name = OK
+		trigger = { 
+			NOT = { 
+				mother = { trait = troubled_pregnancy }
+			} 
+			NOT = { 
+				mother = { is_ill = yes }
+			} 
+		}
 		ai_chance = {
-			factor = 22
+			factor = 5
 			modifier = {
-				factor = 0
-				trait = pneumonic
+				factor = 2
+				trait = hard_pregnancy
 			}
 			modifier = {
 				factor = 2.0
-				NOT = { health = 4.1 }
+				mother = {
+					NOT = { health = 4.1 }
+				}
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { num_of_children = 2 }
+				mother = {
+					NOT = { num_of_children = 2 }
+				}
 			}
 		}
 		
-		if = {
-			limit = {
-				is_ill = yes
-			}
+		mother = {
 			character_event = { id = 315 }
 		}
-		if = {
-			limit = {
-				is_ill = no
-			}
-			character_event = { id = 314 }
-		}
 	}
-	option = { # Mother gets pneumonia
+	option = { # Mother has troubled pregnancy.
 		name = OK
+		trigger = { 
+			OR = { 
+				mother = { trait = troubled_pregnancy }
+				mother = { is_ill = yes }
+				mother = { check_variable = { which = troubled_pregnancy_variable value = 1 } }
+			} 
+		}
 		ai_chance = {
-			factor = 10
+			factor = 25
 			
 			modifier = {
 				factor = 2.0
-				NOT = { health = 4.1 }
+				mother = {
+					NOT = { health = 4.1 }
+				}
 			}
 			modifier = {
 				factor = 6.0
-				NOT = { health = 3.1 }
+				mother = {
+					NOT = { health = 3.1 }
+				}
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { num_of_children = 2 }
+				mother = {
+					NOT = { num_of_children = 2 }
+				}
+			}
+			modifier = {
+				factor = 1.5
+				mother = {
+					check_variable = { which = troubled_pregnancy_variable value = 2 }
+				}
+			}
+			modifier = {
+				factor = 1.5
+				mother = {
+					check_variable = { which = troubled_pregnancy_variable value = 3 }
+				}
+			}
+			modifier = {
+				factor = 2
+				mother = {
+					check_variable = { which = troubled_pregnancy_variable value = 4 }
+				}
+			}
+			modifier = {
+				factor = 3
+				mother = {
+					check_variable = { which = troubled_pregnancy_variable value = 5 }
+				}
 			}
 		}
 		
-		if = {
-			limit = {
-				OR = {
-					trait = pneumonic 
-					has_epidemic = yes
-				}
-			}
-			death = {
-				death_reason = death_childbirth
-			}
-		}
-		if = {
-			limit = {
-				NOT = {
-					OR = {
-						trait = pneumonic 
-						has_epidemic = yes
-					}
-				}
-			}
-			character_event = { id = 315 }
+		mother = {
+				character_event = { id = 316 } #Troubled pregnancy gets worse.
 		}
 	}
-	option = { # Mother dies
-		name = OK
-		ai_chance = {
-			factor = 2
-			modifier = {
-				factor = 2.0
-				NOT = { health = 4.1 }
-			}
-			modifier = {
-				factor = 6.0
-				NOT = { health = 3.1 }
-			}
-			modifier = {
-				factor = 1.5
-				NOT = { num_of_children = 2 }
-			}
-		}
-		death = {
-			death_reason = death_childbirth
-		}
-	}
+	#no longer used
 }
 
 # Mother ill after giving birth
@@ -3035,68 +3892,198 @@ character_event = {
 	}
 }
 
-# Mother pneumonic after giving birth
+# Mother troubled after giving birth
 character_event = {
 	id = 316
-	desc = EVTDESC315
+	desc = {
+		text = EVTDESCA316
+		trigger = {
+			trait = troubled_pregnancy
+		}
+	}
+	desc = {
+		text = EVTDESCB316
+		trigger = { 
+			NOT = {
+				trait = troubled_pregnancy
+			}
+		}
+	}
 	picture = GFX_evt_illness
 	
 	is_triggered_only = yes
 	
-	immediate = {
-		if = {
-			limit = {
-				NOT = {
-					has_dlc = "Reapers"
-				}
-			}
-			add_trait = pneumonic
-		}
-	}
 
 	option = {
 		name = EVTOPTA315
-		if = {
-			limit = {
-				NOT = {
-					has_dlc = "Reapers"
+		if = { 
+			limit = { NOT = { trait = troubled_pregnancy } }
+			set_character_flag = troubled_pregnancy_relapse #Determines different desc for spouse
+			add_trait = troubled_pregnancy 
+		}
+		hidden_tooltip = { 
+			if = { 
+				limit = { is_married = yes } 
+				spouse = {
+					 character_event = { id = HFP.20552 } 
 				}
-			}
-			tooltip = {
-				add_trait = pneumonic
 			}
 		}
-		if = {
-			limit = {
-				has_dlc = "Reapers"
-			}
-			custom_tooltip = {
-				text = add_symptom_tooltip
-				hidden_tooltip = {
-					random_list = {
-						10 = {
-							modifier = {
-								factor = 0
-								trait = cough
-							}
-							character_event = { id = RIP.5000 }
-						}
-						10 = {
-							modifier = {
-								factor = 0
-								trait = fever
-							}
-							character_event = { id = RIP.5001 }
-						}
-						10 = {
-							modifier = {
-								factor = 0
-								trait = chest_pain
-							}				
-							character_event = { id = RIP.5005 }
-						}
-					}
+		hidden_tooltip = { 
+			random_list = { 
+				30 = { character_event = { id = HFP.20541 days = 12 random = 5 } } #fever
+				15 = { character_event = { id = HFP.20542 days = 12 random = 5 } } #hair loss
+				20 = { character_event = { id = HFP.20543 days = 12 random = 5 } } #blood
+				10 = { 
+
+				modifier = { 
+					factor = 0.7
+					persistent_event_target:pregnancy_mother_physician_per = { NOT = { learning = 5 } }
 				}
+				modifier = { 
+					factor = 0.8
+					persistent_event_target:pregnancy_mother_physician_per = { NOT = { learning = 10 } }
+				}
+				modifier = { 
+					factor = 0.9
+					persistent_event_target:pregnancy_mother_physician_per = { trait = slow }
+				}
+				modifier = { 
+					factor = 0.8
+					persistent_event_target:pregnancy_mother_physician_per = { trait = imbecile }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_mother_physician_per = { trait = scholar }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_mother_physician_per = { trait = physician }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_mother_physician_per = { trait = quick }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_mother_physician_per = { trait = genius }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_mother_physician_per = { learning = 10 }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_mother_physician_per = { learning = 15 }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_mother_physician_per = { learning = 20 }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_mother_physician_per = { learning = 25 }
+				}
+				modifier = { 
+					factor = 0.7
+					persistent_event_target:pregnancy_spouse_physician_per = { NOT = { learning = 5 } }
+				}
+				modifier = { 
+					factor = 0.8
+					persistent_event_target:pregnancy_spouse_physician_per = { NOT = { learning = 10 } }
+				}
+				modifier = { 
+					factor = 0.9
+					persistent_event_target:pregnancy_spouse_physician_per = { trait = slow }
+				}
+				modifier = { 
+					factor = 0.8
+					persistent_event_target:pregnancy_spouse_physician_per = { trait = imbecile }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_spouse_physician_per = { trait = scholar }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_spouse_physician_per = { trait = physician }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_spouse_physician_per = { trait = quick }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_spouse_physician_per = { trait = genius }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_spouse_physician_per = { learning = 10 }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_spouse_physician_per = { learning = 15 }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_spouse_physician_per = { learning = 20 }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_spouse_physician_per = { learning = 25 }
+				}
+				modifier = { 
+					factor = 0.7
+					persistent_event_target:pregnancy_regent_physician_per = { NOT = { learning = 5 } }
+				}
+				modifier = { 
+					factor = 0.8
+					persistent_event_target:pregnancy_regent_physician_per = { NOT = { learning = 10 } }
+				}
+				modifier = { 
+					factor = 0.9
+					persistent_event_target:pregnancy_regent_physician_per = { trait = slow }
+				}
+				modifier = { 
+					factor = 0.8
+					persistent_event_target:pregnancy_regent_physician_per = { trait = imbecile }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_regent_physician_per = { trait = scholar }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_regent_physician_per = { trait = physician }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_regent_physician_per = { trait = quick }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_regent_physician_per = { trait = genius }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_regent_physician_per = { learning = 10 }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_regent_physician_per = { learning = 15 }
+				}
+				modifier = { 
+					factor = 1.25
+					persistent_event_target:pregnancy_regent_physician_per = { learning = 20 }
+				}
+				modifier = { 
+					factor = 1.5
+					persistent_event_target:pregnancy_regent_physician_per = { learning = 25 }
+				}
+					character_event = { id = HFP.20544 days = 12 random = 5 } } #recovers completely
+				20 = { character_event = { id = HFP.20545 days = 12 random = 5 } } #recovers weakened
+				2 = { character_event = { id = HFP.20546 days = 12 random = 5 } } #remains infirm
+				3 = { character_event = { id = HFP.20547 days = 12 random = 5 } } #DEATH
 			}
 		}
 	}

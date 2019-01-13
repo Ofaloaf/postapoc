@@ -288,6 +288,21 @@ character_event = {
 				NOT = { trait = blinded }
 				NOT = { character = FROM }
 				NOT = { character = ROOT }
+				NOR = {
+					any_spouse = {
+						OR = {
+							character = FROM
+							character = ROOT
+						}
+					}
+					any_consort = {
+						NOT = { is_senior_consort_party = yes }
+						OR = {
+							character = FROM
+							character = ROOT
+						}
+					}
+				}
 				OR = {
 					is_close_relative = ROOT
 					is_close_relative = FROM
@@ -296,18 +311,6 @@ character_event = {
 					is_rival = ROOT
 					is_lover = FROM
 					is_lover = ROOT
-					any_spouse = {
-						OR = {
-							character = FROM
-							character = ROOT
-						}
-					}
-					any_consort = {
-						OR = {
-							character = FROM
-							character = ROOT
-						}
-					}
 					has_opinion_modifier = {
 						who = FROM
 						modifier = opinion_chasing_friend
@@ -406,6 +409,7 @@ character_event = {
 						character = FROM
 					}
 					any_consort = {
+						NOT = { is_senior_consort_party = yes }
 						character = FROM
 					}
 				}
@@ -458,6 +462,7 @@ character_event = {
 						character = FROMFROM
 					}
 					any_consort = {
+						NOT = { is_senior_consort_party = yes }
 						character = FROMFROM
 					}
 				}
@@ -506,7 +511,7 @@ character_event = {
 		if = {
 			limit = {
 				FROM = {
-					is_close_relative = event_target:target_lover_1				
+					is_close_relative = event_target:target_lover_1
 				}
 			}
 			set_character_flag = scandal_temp_incest
@@ -576,7 +581,7 @@ character_event = {
 					is_female = yes
 					OR = {
 						is_married = yes
-						is_consort = yes
+						NOT = { is_senior_consort_party = yes }
 					}
 				}
 			}
@@ -607,14 +612,14 @@ character_event = {
 		text = EVTDESC_WOL_55_AGE_YOUNG
 		trigger = {
 			has_character_flag = scandal_temp_age 
-			FROM = { NOT = { is_older_than = FROMFROM } }
+			FROM = { NOT = { is_older_than = ROOT_FROMFROM } }
 		}
 	}
 	desc = {
 		text = EVTDESC_WOL_55_AGE_OLD
 		trigger = {
 			has_character_flag = scandal_temp_age 
-			FROM = { is_older_than = FROMFROM }
+			FROM = { is_older_than = ROOT_FROMFROM }
 		}
 	}
 	desc = {
@@ -637,6 +642,7 @@ character_event = {
 	
 	option = {
 		name = EVTOPTA_WOL_55 # Expose them!
+		show_portrait = FROMFROM
 		trigger = {
 			NOT = {
 				OR = {
@@ -674,6 +680,7 @@ character_event = {
 	
 	option = {
 		name = EVTOPTA_WOL_55_UNHOLY # Expose the unholy sinners!
+		show_portrait = FROMFROM
 		trigger = {
 			OR = {
 				has_character_flag = scandal_temp_incest
@@ -774,6 +781,7 @@ character_event = {
 	
 	option = {
 		name = EVTOPTC_WOL_55 # Blackmail the seducer
+		show_portrait = FROMFROM
 		trigger = {
 			NOT = { is_father = FROM }
 			NOT = { is_mother = FROM }
@@ -867,9 +875,11 @@ letter_event = {
 		ai_chance = {
 			factor = 100
 		}
-		transfer_scaled_wealth = {
-			to = FROM
-			value = 0.2
+		tooltip = {
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 0.2
+			}
 		}
 		FROM = { letter_event = { id = WoL.57 days = 3 tooltip = EVTTOOLTIP_WoL_57 } }
 	}
@@ -906,6 +916,12 @@ letter_event = {
 	
 	option = {
 		name = EVTOPTA_WOL_57
+		FROM = {
+			transfer_scaled_wealth = {
+				to = ROOT
+				value = 0.2
+			}
+		}
 	}
 }
 
@@ -1067,7 +1083,7 @@ character_event = {
 		
 		if = {
 			limit = {
-				is_close_relative = FROMFROM		
+				is_close_relative = FROMFROM
 			}
 			if = {
 				limit = {
@@ -1179,6 +1195,7 @@ character_event = {
 		}
 		any_consort = {
 			limit = {
+				is_senior_consort_party = yes
 				NOT = { character = FROMFROM }
 				NOT = { character = FROM }
 			}
@@ -1315,7 +1332,7 @@ character_event = {
 		name = {
 			text = EVTOPTA_WOL_62_CR
 			trigger = {
-				FROM = { 
+				event_target:target_adulterer = {
 					is_close_relative = FROMFROMFROM 
 					NOT = { is_lover = FROMFROMFROM }
 				}
@@ -1324,7 +1341,7 @@ character_event = {
 		name = {
 			text = EVTOPTA_WOL_62
 			trigger = {
-				FROM = { 
+				event_target:target_adulterer = { 
 					OR = {
 						NOT = { is_close_relative = FROMFROMFROM } 
 						is_lover = FROMFROMFROM
@@ -1351,8 +1368,8 @@ character_event = {
 			text = EVTOPTA_WOL_63_CR
 			trigger = {
 				FROM = { 
-					is_close_relative = FROMFROM 
-					NOT = { is_lover = FROMFROM }
+					is_close_relative = event_target:target_adulterer
+					NOT = { is_lover = event_target:target_adulterer }
 				}
 			}
 		}
@@ -1361,8 +1378,8 @@ character_event = {
 			trigger = {
 				FROM = { 
 					OR = {
-						NOT = { is_close_relative = FROMFROM } 
-						is_lover = FROMFROM
+						NOT = { is_close_relative = event_target:target_adulterer } 
+						is_lover = event_target:target_adulterer
 					}
 				}
 			}
@@ -1805,7 +1822,8 @@ character_event = {
 	option = {
 		name = EVTOPTA_WOL_99
 		trigger = {
-			is_female = yes			
+			is_female = yes
+			NOT = { religion_group = indian_group }
 		}
 		ai_chance = {
 			factor = 100
@@ -1818,7 +1836,8 @@ character_event = {
 	option = {
 		name = EVTOPTA_WOL_99_PERS
 		trigger = {
-			is_female = yes			
+			is_female = yes
+			religion_group = indian_group
 		}
 		ai_chance = {
 			factor = 100
@@ -1996,32 +2015,40 @@ character_event = {
 		# Slow this down versus distant targets
 		if = {
 			limit = {
-				distance = {
-					who = FROMFROM
-					value = 200
+				location = {
+					distance = {
+						who = FROMFROM
+						value = 200
+					}
 				}
 			}
 			random_list = {
 				100 = {
 					modifier = {
 						factor = 2.0
-						distance = {
-							who = FROMFROM
-							value = 300
+						location = {
+							distance = {
+								who = FROMFROM
+								value = 300
+							}
 						}
 					}
 					modifier = {
 						factor = 2.0
-						distance = {
-							who = FROMFROM
-							value = 400
+						location = {
+							distance = {
+								who = FROMFROM
+								value = 400
+							}
 						}
 					}
 					modifier = {
 						factor = 2.0
-						distance = {
-							who = FROMFROM
-							value = 500
+						location = {
+							distance = {
+								who = FROMFROM
+								value = 500
+							}
 						}
 					}
 					repeat_event = { id = WoL.110 days = 20 random = 20 } # Fire again with no scope changes
@@ -2685,11 +2712,11 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				trait = fair
+				has_fair_trait_trigger = yes
 			}
 			modifier = {
 				factor = 0.5
-				FROM = { trait = ugly }
+				FROM = { has_ugly_trait_trigger = yes }
 			}
 			modifier = {
 				factor = 0.5
@@ -2766,7 +2793,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 2.0
-				trait = ugly
+				has_ugly_trait_trigger = yes
 			}
 			modifier = {
 				factor = 2.0
@@ -2834,7 +2861,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				trait = fair
+				has_fair_trait_trigger = yes
 			}
 			modifier = {
 				factor = 0.5
@@ -2848,7 +2875,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				FROM = { trait = ugly }
+				FROM = { has_ugly_trait_trigger = yes }
 			}
 			modifier = {
 				factor = 0.5
@@ -2921,7 +2948,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 2.0
-				trait = ugly
+				has_ugly_trait_trigger = yes
 			}
 			modifier = {
 				factor = 2.0
@@ -3067,7 +3094,7 @@ character_event = {
 					trait = paranoid
 				}
 				OR = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 					trait = leper
 					trait = dwarf
 					trait = harelip
@@ -3076,7 +3103,7 @@ character_event = {
 				FROM = {
 					NOT = {
 						OR = {
-							trait = ugly
+							has_ugly_trait_trigger = yes
 							trait = leper
 							trait = dwarf
 							trait = harelip
@@ -3149,7 +3176,7 @@ character_event = {
 					trait = paranoid
 				}
 				OR = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 					trait = leper
 					trait = dwarf
 					trait = harelip
@@ -3158,7 +3185,7 @@ character_event = {
 				FROM = {
 					NOT = {
 						OR = {
-							trait = ugly
+							has_ugly_trait_trigger = yes
 							trait = leper
 							trait = dwarf
 							trait = harelip
@@ -3550,11 +3577,11 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				trait = fair
+				has_fair_trait_trigger = yes
 			}
 			modifier = {
 				factor = 0.5
-				FROM = { trait = ugly }
+				FROM = { has_ugly_trait_trigger = yes }
 			}
 			modifier = {
 				factor = 0.5
@@ -3631,7 +3658,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 2.0
-				trait = ugly
+				has_ugly_trait_trigger = yes
 			}
 			modifier = {
 				factor = 2.0
@@ -3698,7 +3725,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				trait = fair
+				has_fair_trait_trigger = yes
 			}
 			modifier = {
 				factor = 0.5
@@ -3712,7 +3739,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				FROM = { trait = ugly }
+				FROM = { has_ugly_trait_trigger = yes }
 			}
 			modifier = {
 				factor = 0.5
@@ -3785,7 +3812,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 2.0
-				trait = ugly
+				has_ugly_trait_trigger = yes
 			}
 			modifier = {
 				factor = 2.0
@@ -3923,7 +3950,7 @@ character_event = {
 					trait = paranoid
 				}
 				OR = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 					trait = leper
 					trait = dwarf
 					trait = harelip
@@ -3932,7 +3959,7 @@ character_event = {
 				FROM = {
 					NOT = {
 						OR = {
-							trait = ugly
+							has_ugly_trait_trigger = yes
 							trait = leper
 							trait = dwarf
 							trait = harelip
@@ -4003,7 +4030,7 @@ character_event = {
 					trait = paranoid
 				}
 				OR = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 					trait = leper
 					trait = dwarf
 					trait = harelip
@@ -4012,7 +4039,7 @@ character_event = {
 				FROM = {
 					NOT = {
 						OR = {
-							trait = ugly
+							has_ugly_trait_trigger = yes
 							trait = leper
 							trait = dwarf
 							trait = harelip
@@ -4439,7 +4466,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				trait = fair
+				has_fair_trait_trigger = yes
 			}
 			modifier = {
 				factor = 0.5
@@ -4447,7 +4474,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				FROM = { trait = ugly }
+				FROM = { has_ugly_trait_trigger = yes }
 			}
 			modifier = {
 				factor = 0.5
@@ -4524,7 +4551,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 2.0
-				trait = ugly
+				has_ugly_trait_trigger = yes
 			}
 			modifier = {
 				factor = 2.0
@@ -4591,7 +4618,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				trait = fair
+				has_fair_trait_trigger = yes
 			}
 			modifier = {
 				factor = 0.5
@@ -4605,7 +4632,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				FROM = { trait = ugly }
+				FROM = { has_ugly_trait_trigger = yes }
 			}
 			modifier = {
 				factor = 0.5
@@ -4678,7 +4705,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 2.0
-				trait = ugly
+				has_ugly_trait_trigger = yes
 			}
 			modifier = {
 				factor = 2.0
@@ -4816,7 +4843,7 @@ character_event = {
 					trait = paranoid
 				}
 				OR = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 					trait = leper
 					trait = dwarf
 					trait = harelip
@@ -4825,7 +4852,7 @@ character_event = {
 				FROM = {
 					NOT = {
 						OR = {
-							trait = ugly
+							has_ugly_trait_trigger = yes
 							trait = leper
 							trait = dwarf
 							trait = harelip
@@ -4896,7 +4923,7 @@ character_event = {
 					trait = paranoid
 				}
 				OR = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 					trait = leper
 					trait = dwarf
 					trait = harelip
@@ -4905,7 +4932,7 @@ character_event = {
 				FROM = {
 					NOT = {
 						OR = {
-							trait = ugly
+							has_ugly_trait_trigger = yes
 							trait = leper
 							trait = dwarf
 							trait = harelip
@@ -5852,7 +5879,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				is_close_relative = FROM		
+				is_close_relative = FROM
 				NOT = {
 					OR = {
 						trait = arbitrary
@@ -6388,7 +6415,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				is_close_relative = FROM	
+				is_close_relative = FROM
 				NOT = {
 					OR = {
 						trait = arbitrary
@@ -6511,7 +6538,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 0.5
-				is_close_relative = FROM	
+				is_close_relative = FROM
 				NOT = {
 					OR = {
 						trait = arbitrary
@@ -7562,7 +7589,7 @@ character_event = {
 		}
 	}
 	option = { # Ask about star sign
-		name = EVTOPTE_WOL_351
+		name = EVTOPTE_WOL_351_FROMFROMFROM
 		trigger = {
 			society_member_of = hermetics
 		}
@@ -7663,7 +7690,7 @@ character_event = {
 		}
 	}
 	option = { # Ask about star sign
-		name = EVTOPTE_WOL_351
+		name = EVTOPTE_WOL_351_FROMFROM
 		trigger = {
 			society_member_of = hermetics
 		}
@@ -8647,6 +8674,7 @@ character_event = {
 			character_event = { id = WoL.409 }
 		}
 		any_consort = {
+			limit = { is_senior_consort_party = yes }
 			character_event = { id = WoL.409 }
 		}
 	}
@@ -10098,7 +10126,7 @@ character_event = {
 		modifier = {
 			factor = 4.0
 			OR = {
-				trait = ugly
+				has_ugly_trait_trigger = yes
 				trait = dwarf
 				trait = inbred
 				trait = imbecile
@@ -10276,7 +10304,7 @@ character_event = {
 		modifier = {
 			factor = 4.0
 			OR = {
-				trait = ugly
+				has_ugly_trait_trigger = yes
 				trait = dwarf
 				trait = inbred
 				trait = imbecile
@@ -10326,7 +10354,6 @@ character_event = {
 		
 		hidden_tooltip = {
 			new_character = {
-				character_event = { id = misc.3 } # Diversity
 				add_lover = ROOT
 				if = {
 					limit = { same_sex = ROOT }
@@ -10450,7 +10477,7 @@ character_event = {
 		modifier = {
 			factor = 4.0
 			OR = {
-				trait = ugly
+				has_ugly_trait_trigger = yes
 				trait = dwarf
 				trait = inbred
 				trait = imbecile
@@ -10494,19 +10521,19 @@ character_event = {
 		
 		hidden_tooltip = {
 			new_character = {
-				character_event = { id = misc.3 } # Diversity
 				add_lover = ROOT
 				if = {
 					limit = { same_sex = ROOT }
 					add_trait = homosexual
+				}
+				else = {
+					character_event = { id = WoL.98 } # Chance of impregnation
 				}
 				opinion = {
 					who = ROOT
 					modifier = opinion_seduced_lustful_worship
 					years = 30
 				}
-				
-				character_event = { id = WoL.98 } # Chance of impregnation
 				
 				random = {
 					chance = 25
@@ -10535,25 +10562,6 @@ character_event = {
 		}
 		
 		hidden_tooltip = {
-			if = {
-				limit = {
-					is_female = yes
-					NOT = { age = 45 }
-				}
-				random = {
-					chance = 33
-					if = {
-						limit = {
-							is_married = no
-							is_consort = no
-						}
-						impregnate = yes
-						break = yes
-					}
-					impregnate_cuckoo = yes
-				}
-			}
-			
 			random = {
 				chance = 25
 				character_event = { id = WoL.40 days = 7 } # Chance of VD
@@ -10663,7 +10671,7 @@ character_event = {
 		name = EVTOPTA_WOL_561
 		random = {
 			chance = 25
-			add_trait = scarred
+			add_scarred_tiered_effect = yes
 			hidden_tooltip = {
 				character_event = { id = 38308 days = 1 } # Notify Scarred
 			}
@@ -10695,14 +10703,13 @@ character_event = {
 				holder_scope = {
 					create_character = {
 						dynasty = none
-						religion = celtic_pagan
-						culture = newfie
+						religion = hellenic_pagan
+						culture = irish
 						female = yes
 						dna="gppniiosfag"
 						age = 20
 					}
 					new_character = {
-						new_character = { character_event = { id = misc.3 } } # Diversity
 						ROOT = {
 							random_list = {
 								50 = {
@@ -10719,7 +10726,6 @@ character_event = {
 										trait = fair
 									}
 									new_character = {
-										#this baby shouldn't get diversity
 										save_event_target_as = target_baby
 									}
 								}
@@ -10737,7 +10743,6 @@ character_event = {
 										trait = fair
 									}
 									new_character = {
-										#this baby shouldn't get diversity
 										save_event_target_as = target_baby
 									}
 								}
@@ -10976,11 +10981,11 @@ character_event = {
 		}
 		modifier = {
 			factor = 0.5
-			trait = fair
+			has_fair_trait_trigger = yes
 		}
 		modifier = {
 			factor = 10.0
-			trait = ugly
+			has_ugly_trait_trigger = yes
 		}
 		modifier = {
 			factor = 10.0
@@ -11296,7 +11301,18 @@ character_event = {
 # Seduction of a Concubine
 character_event = {
 	id = WoL.590
-	desc = EVTDESC_WOL_590
+	desc = { 
+		text = EVTDESC_WOL_590
+		trigger = {
+			event_target:target_consort = { is_female = yes }
+		}
+	}
+	desc = { 
+		text = EVTDESC_WOL_590_MALE
+		trigger = {
+			event_target:target_consort = { is_female = no }
+		}
+	}
 	picture = GFX_evt_sultan
 	border = GFX_event_normal_frame_intrigue
 	
@@ -11320,6 +11336,7 @@ character_event = {
 			}
 		}
 		any_consort = {
+			NOT = { is_senior_consort_party = yes }
 			NOT = { is_lover = ROOT }
 			prisoner = no
 			NOT = {
@@ -11342,7 +11359,7 @@ character_event = {
 		}
 		modifier = {
 			factor = 0.5
-			trait = fair
+			has_fair_trait_trigger = yes
 		}
 		modifier = {
 			factor = 0.5
@@ -11381,7 +11398,7 @@ character_event = {
 		}
 		modifier = {
 			factor = 10.0
-			trait = ugly
+			has_ugly_trait_trigger = yes
 		}
 		modifier = {
 			factor = 10.0
@@ -11393,6 +11410,7 @@ character_event = {
 		random_consort = {
 			limit = {
 				NOT = { is_lover = ROOT }
+				NOT = { character = ROOT }
 				prisoner = no
 				NOT = {
 					OR = {
@@ -11434,7 +11452,7 @@ character_event = {
 			modifier = {
 				factor = 0.25
 				FROM = {
-					trait = ugly
+					has_ugly_trait_trigger = yes
 				}
 			}
 			modifier = {
@@ -11482,7 +11500,7 @@ character_event = {
 			modifier = {
 				factor = 2.0
 				FROM = {
-					trait = fair
+					has_fair_trait_trigger = yes
 				}
 			}
 			modifier = {
@@ -11637,16 +11655,16 @@ character_event = {
 	option = {
 		name = EVTOPTA_WOL_593
 		
-		add_lover = FROM
+		add_lover = event_target:target_consort
 		
 		hidden_tooltip = {
 			remove_opinion = {
-				who = FROM
+				who = event_target:target_consort
 				modifier = opinion_seducing_concubine
 			}
 		}
 		
-#		log = "WoL.593: [From.GetTitledName] becomes the lover of [Root.GetTitledName]."
+#		log = "WoL.593: [target_consort.GetTitledName] becomes the lover of [Root.GetTitledName]."
 	}
 }
 

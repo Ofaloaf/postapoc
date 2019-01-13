@@ -534,17 +534,14 @@ character_event = {
 				character_event = { id = WoL.4110 }  # Party fling if both lustful
 			}
 			30 = {
-				modifier = {
-					factor = 0
-					NOT = {
-						top_liege = {
-							any_realm_character = {
-								has_opinion_modifier = {
-									modifier = opinion_carousing
-									who = ROOT
-								}
-								NOT = { is_friend = ROOT }
+				trigger = {
+					top_liege = {
+						any_realm_character = {
+							has_opinion_modifier = {
+								modifier = opinion_carousing
+								who = ROOT
 							}
+							NOT = { is_friend = ROOT }
 						}
 					}
 				}
@@ -684,6 +681,7 @@ character_event = {
 					trait = lunatic
 					trait = possessed
 					trait = impaler
+					any_artifact = { artifact_type = the_omnivore }
 				}
 			}
 			character_event = { id = WoL.4101 }
@@ -700,6 +698,7 @@ character_event = {
 						trait = lunatic
 						trait = possessed
 						trait = impaler
+						any_artifact = { artifact_type = the_omnivore }
 					}
 					ROOT = { ai = yes }
 				}
@@ -777,7 +776,10 @@ character_event = {
 				#hidden_tooltip = {
 				#	if = {
 				#		limit = {
-				#			religion = bon
+				#			OR = {
+				#				religion = bon
+				#				religion = bon_reformed 
+				#			}
 				#			ROOT = { ai = no }
 				#		}
 				#		ROOT = { set_character_flag = achievement_bon_appetit }
@@ -808,15 +810,18 @@ character_event = {
 				death_reason = death_murder_unknown_butchered
 				killer = ROOT
 			}
-			#hidden_tooltip = {
-			#	if = {
-			#		limit = {
-			#			religion = bon
-			#			ROOT = { ai = no }
-			#		}
-			#		ROOT = { set_character_flag = achievement_bon_appetit }
-			#	}
-			#}
+			hidden_tooltip = {
+				if = {
+					limit = {
+						OR = {
+							religion = bon
+							religion = bon_reformed
+						}
+						ROOT = { ai = no }
+					}
+					ROOT = { set_character_flag = achievement_bon_appetit }
+				}
+			}
 		}
 	}
 }
@@ -1070,8 +1075,7 @@ character_event = {
 
 	is_triggered_only = yes
 
-	option = {
-		name = EVTOPTA_WoL_4120
+	immediate = {
 		top_liege = {
 			random_realm_character = {
 				limit = {
@@ -1081,9 +1085,16 @@ character_event = {
 					}
 					NOT = { is_friend = ROOT }
 				}
-				add_friend = ROOT
-				hidden_tooltip = { character_event = { id = WoL.4121 } }
+				save_event_target_as = scoped_friend
 			}
+		}
+	}
+
+	option = {
+		name = EVTOPTA_WoL_4120
+		event_target:scoped_friend = {
+			add_friend = ROOT
+			hidden_tooltip = { character_event = { id = WoL.4121 } }
 		}
 	}
 }
@@ -2047,6 +2058,36 @@ character_event = {
 			random = {
 				chance = 30
 				remove_trait = depressed
+			}
+		}
+	}
+}
+
+# Clear guest DND if dead
+character_event = {
+	id = WoL.4801
+	hide_window = yes
+
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_modifier = organizing_party
+		top_liege = {
+			any_realm_character = {
+				has_character_flag = do_not_disturb
+				has_opinion_modifier = { who = ROOT modifier = opinion_carousing }
+			}
+		}
+	}
+
+	immediate = {
+		top_liege = {
+			any_realm_character = {
+				limit = {
+					has_character_flag = do_not_disturb
+					has_opinion_modifier = { who = ROOT modifier = opinion_carousing }
+				}
+				clr_character_flag = do_not_disturb
 			}
 		}
 	}

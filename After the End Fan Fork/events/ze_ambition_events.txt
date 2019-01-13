@@ -614,7 +614,7 @@ character_event = {
 }
 
 
-#Checking for land_for_son ambition
+#Checking for land_for_son/daughter ambition
 character_event = {
 	id = ZE.6010
 	hide_window = yes
@@ -625,8 +625,10 @@ character_event = {
 		is_heir = no
 		NOT = { trait = incapable }
 		OR = {
-			father = { has_ambition = obj_land_for_son }
-			mother = { has_ambition = obj_land_for_son }
+			AND = { ROOT = { is_female = no } father = { has_ambition = obj_land_for_son } }
+			AND = { ROOT = { is_female = no } mother = { has_ambition = obj_land_for_son } }
+			AND = { ROOT = { is_female = yes } father = { has_ambition = obj_land_for_daughter } }
+			AND = { ROOT = { is_female = yes } mother = { has_ambition = obj_land_for_daughter } }
 		}
 	}
 
@@ -635,7 +637,7 @@ character_event = {
 			if = { 
 				limit = { 
 					has_ambition = obj_land_for_son 
-					ROOT = { is_landed = yes } #Might be making him a landless mercenary.
+					ROOT = { is_landed = yes is_female = no } #Might be making him a landless mercenary.
 				} 
 				set_character_flag = land_for_son_successful
 				opinion = {
@@ -649,9 +651,37 @@ character_event = {
 			if = { 
 				limit = { 
 					has_ambition = obj_land_for_son 
-					ROOT = { is_landed = yes } #Might be making him a landless mercenary.
+					ROOT = { is_landed = yes is_female = no } #Might be making him a landless mercenary.
 				} 
 				set_character_flag = land_for_son_successful
+				opinion = {
+					modifier = opinion_ambition_fulfilled
+					who = FROMFROM
+					years = 5
+				}
+			}
+		}
+		father = {
+			if = { 
+				limit = { 
+					has_ambition = obj_land_for_daughter
+					ROOT = { is_landed = yes is_female = yes } #Might be making him a landless mercenary.
+				} 
+				set_character_flag = land_for_daughter_successful
+				opinion = {
+					modifier = opinion_ambition_fulfilled
+					who = FROMFROM
+					years = 5
+				}
+			}
+		}
+		mother = { 
+			if = { 
+				limit = { 
+					has_ambition = obj_land_for_daughter 
+					ROOT = { is_landed = yes is_female = yes } #Might be making him a landless mercenary.
+				} 
+				set_character_flag = land_for_daughter_successful
 				opinion = {
 					modifier = opinion_ambition_fulfilled
 					who = FROMFROM
@@ -665,9 +695,39 @@ character_event = {
 #Asking liege to give land to son
 character_event = {
 	id = ZE.6012
-	picture = GFX_evt_son_asking_father
+	desc = {
+		trigger = {
+			FROMFROM = {
+				has_ambition = obj_land_for_son
+			}
+		}
+		text = EVTDESC_ZE_6012
+	}
+	desc = {
+		trigger = {
+			FROMFROM = {
+				has_ambition = obj_land_for_daughter
+			}
+		}
+		text = EVTDESC_ZE_6012_B
+	}
+	picture = { 
+		trigger = { 
+			FROMFROM = {
+				has_ambition = obj_land_for_son
+			}
+		} 
+		picture = GFX_evt_son_asking_father
+	}
+	picture = { 
+		trigger = { 
+			FROMFROM = {
+				has_ambition = obj_land_for_daughter
+			}
+		} 
+		picture = GFX_evt_daughter_asking_mother
+	}
 	border = GFX_event_normal_frame_diplomacy
-	desc = EVTDESC_ZE_6012
 
 	is_triggered_only = yes
 
@@ -685,28 +745,66 @@ character_event = {
 			save_event_target_as = requested_province 
 		}
 		FROMFROM = {
-			random_child = {
-				limit = {
-					is_female = no
-					is_landed = no
-					is_adult = yes
-					is_heir = no
-					prisoner = no
-					NOR = { 
-						trait = incapable
-						is_ascetic_trigger = yes
+			if = { 
+				limit = { has_ambition = obj_land_for_son }
+				random_child = {
+					limit = {
+						is_female = no
+						is_landed = no
+						is_adult = yes
+						is_heir = no
+						prisoner = no
+						NOR = { 
+							trait = incapable
+							is_ascetic_trigger = yes
+						}
+						liege = {
+							character = PREVPREV
+						}
 					}
-					liege = {
-						character = PREVPREV
-					}
+					save_event_target_as = chosen_son
 				}
-				save_event_target_as = chosen_son
+			}
+			if = { 
+				limit = { has_ambition = obj_land_for_daughter }
+				random_child = {
+					limit = {
+						is_female = yes
+						is_landed = no
+						is_adult = yes
+						is_heir = no
+						prisoner = no
+						NOR = { 
+							trait = incapable
+							is_ascetic_trigger = yes
+						}
+						liege = {
+							character = PREVPREV
+						}
+					}
+					save_event_target_as = chosen_son
+				}
 			}
 		}
 	}
 
 	option = {
-		name = EVTOPTA_ZE_6012
+		name = {
+			text = EVTOPTA_ZE_6012
+			trigger = {
+				FROMFROM = {
+					has_ambition = obj_land_for_son
+				}
+			}
+		}
+		name = {
+			text = EVTOPTA_ZE_6012_B
+			trigger = {
+				FROMFROM = {
+					has_ambition = obj_land_for_daughter
+				}
+			}
+		}
 		ai_chance = {
 			factor = 20
 		}
@@ -756,9 +854,39 @@ character_event = {
 #Land granted from request
 character_event = {
 	id = ZE.6013
-	picture = GFX_evt_son_asking_father
+	desc = {
+		trigger = {
+			ROOT = {
+				has_ambition = obj_land_for_son
+			}
+		}
+		text = EVTDESC_ZE_6013
+	}
+	desc = {
+		trigger = {
+			ROOT = {
+				has_ambition = obj_land_for_daughter
+			}
+		}
+		text = EVTDESC_ZE_6013_B
+	}
+	picture = { 
+		trigger = { 
+			ROOT = {
+				has_ambition = obj_land_for_son
+			}
+		} 
+		picture = GFX_evt_son_asking_father
+	}
+	picture = { 
+		trigger = { 
+			ROOT = {
+				has_ambition = obj_land_for_daughter
+			}
+		} 
+		picture = GFX_evt_daughter_asking_mother
+	}
 	border = GFX_event_normal_frame_diplomacy
-	desc = EVTDESC_ZE_6013
 
 	is_triggered_only = yes
 
@@ -770,9 +898,24 @@ character_event = {
 #denied land
 character_event = {
 	id = ZE.6014
+	desc = {
+		trigger = {
+			ROOT = {
+				has_ambition = obj_land_for_son
+			}
+		}
+		text = EVTDESC_ZE_6014
+	}
+	desc = {
+		trigger = {
+			ROOT = {
+				has_ambition = obj_land_for_daughter
+			}
+		}
+		text = EVTDESC_ZE_6014_B
+	}
 	picture = GFX_evt_recieve_letter
 	border = GFX_event_normal_frame_diplomacy
-	desc = EVTDESC_ZE_6014
 
 	is_triggered_only = yes
 
@@ -784,9 +927,24 @@ character_event = {
 #got land! but now owes favor
 character_event = {
 	id = ZE.6015
+	desc = {
+		trigger = {
+			ROOT = {
+				has_ambition = obj_land_for_son
+			}
+		}
+		text = EVTDESC_ZE_6015
+	}
+	desc = {
+		trigger = {
+			ROOT = {
+				has_ambition = obj_land_for_daughter
+			}
+		}
+		text = EVTDESC_ZE_6015_B
+	}
 	picture = GFX_evt_recieve_letter
 	border = GFX_event_normal_frame_diplomacy
-	desc = EVTDESC_ZE_6015
 
 	is_triggered_only = yes
 

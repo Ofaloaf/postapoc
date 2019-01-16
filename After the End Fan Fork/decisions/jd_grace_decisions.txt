@@ -153,7 +153,7 @@ offmap_decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.1 # slow down
+				factor = 0.66 # slow down
 			}
 			modifier = {
 				factor = 0.1
@@ -166,7 +166,7 @@ offmap_decisions = {
 	chinese_grace_become_tributary = {
 		only_independent = yes
 		button_name = offmap_gifts
-		ai_check_interval = 12
+		ai_check_interval = 36
 
 		potential = {
 			is_offmap_tag = offmap_china
@@ -716,6 +716,10 @@ offmap_decisions = {
 
 		potential = {
 			is_offmap_tag = offmap_china
+			OR = {
+				ai = no
+				china_offmap_tribute_decisions_enabled_trigger = yes # Allow is checked for each valid 3rd party, so it is cheaper to check it here for the AI
+			}
 		}
 	
 		from_potential = {
@@ -738,7 +742,13 @@ offmap_decisions = {
 				is_inaccessible_trigger = no
 			}
 			# china_offmap_decisions_enabled_trigger = yes #leave in please, to be used if the tooltip for china_offmap_tribute_decisions_enabled_trigger changes and we need to reference things uniquely again
-			china_offmap_tribute_decisions_enabled_trigger = yes
+			tooltip = { china_offmap_tribute_decisions_enabled_trigger = yes }
+			hidden_tooltip = {
+				OR = { 
+					ai = yes
+					china_offmap_tribute_decisions_enabled_trigger = yes # AI has already checked this in the potential
+				}
+			}
 		}
 		
 		third_party_potential = {
@@ -1046,7 +1056,17 @@ offmap_decisions = {
 				value = 40
 				FROMFROM = { 
 					show_scope_change = no
-					trait = fair
+					OR= {
+						trait = quick
+						trait = genius
+					}
+				}
+			}
+			additive_modifier = {
+				value = 20
+				FROMFROM = { 
+					show_scope_change = no
+					trait = erudite
 				}
 			}
 			additive_modifier = {
@@ -1112,13 +1132,13 @@ offmap_decisions = {
 					trait = scholar
 				}
 			}
-			additive_modifier = {
-				value = 40
-				FROMFROM = { 
-					show_scope_change = no
-					trait = faqih
-				}
-			}
+			#additive_modifier = {
+			#	value = 40
+			#	FROMFROM = { 
+			#		show_scope_change = no
+			#		trait = faqih
+			#	}
+			#}
 			additive_modifier = {
 				value = 25
 				custom_tooltip = {
@@ -1161,7 +1181,7 @@ offmap_decisions = {
 				OR = {
 					offmap_china = {
 						show_scope_change = no 
-						offmap_has_like = likes_eunuchs
+						offmap_has_like = likes_monks
 					}
 				}
 			}
@@ -1178,7 +1198,7 @@ offmap_decisions = {
 				factor = 0.5
 				offmap_china = {
 					show_scope_change = no 
-					offmap_has_dislike = likes_eunuchs
+					offmap_has_dislike = likes_monks
 				}
 			}
 			modifier = {
@@ -1429,11 +1449,15 @@ offmap_decisions = {
 		third_party_filter = home_court
 		ai_third_party_filter = home_court
 		third_party = FROM
-		ai_check_interval = 12
+		ai_check_interval = 20
 		show_third_party_potential = yes
 
 		potential = {
 			is_offmap_tag = offmap_china
+			OR = {
+				ai = no
+				china_offmap_tribute_decisions_enabled_trigger = yes # Allow is checked for each valid 3rd party, so it is cheaper to check it here for the AI
+			}
 		}
 	
 		from_potential = {
@@ -1456,13 +1480,41 @@ offmap_decisions = {
 				is_inaccessible_trigger = no
 			}
 			# china_offmap_decisions_enabled_trigger = yes #leave in please, to be used if the tooltip for china_offmap_tribute_decisions_enabled_trigger changes and we need to reference things uniquely again
-			china_offmap_tribute_decisions_enabled_trigger = yes
+			tooltip = { china_offmap_tribute_decisions_enabled_trigger = yes }
+			hidden_tooltip = {
+				OR = { 
+					ai = yes
+					china_offmap_tribute_decisions_enabled_trigger = yes # AI has already checked this in the potential
+				}
+			}
 		}
 							
 		third_party_potential = {
 			show_only_failed_conditions = yes
 			custom_tooltip = {
 				text = china_tribute_send_concubine_preference_tt
+				OR = {
+					AND = {
+						offmap_china = {
+							offmap_ruler = {
+								is_female = yes
+							}
+						}
+						FROMFROM = {
+							is_female = no
+						}
+					}
+					AND = {
+						offmap_china = {
+							offmap_ruler = {
+								is_female = no
+							}
+						}
+						FROMFROM = {
+							is_female = yes
+						}
+					}
+				}
 			}
 			FROMFROM = {
 				show_scope_change = no
@@ -1473,11 +1525,11 @@ offmap_decisions = {
 						dynasty = ROOT_FROM
 					}
 				}
-				# custom_tooltip = {
-					# text = is_adult_under_45_tt
-					# is_adult = yes
-					# NOT = { age = 45 }
-				# }
+				custom_tooltip = {
+					text = is_adult_under_45_tt
+					is_adult = yes
+					NOT = { age = 45 }
+				}
 				NOT = { is_landed = yes }
 				NOT = { is_ruler = yes }
 				NOT = { is_heir = yes }
@@ -1515,6 +1567,11 @@ offmap_decisions = {
 					NOT = { trait = mangled }
 				}
 				NOT = { prisoner = yes }
+				custom_tooltip = {
+					text = is_not_ascetic_or_celibate_tt
+					NOT = { is_ascetic_trigger = yes }
+					NOT = { trait = celibate }
+				}
 			}
 		}
 		
@@ -1722,10 +1779,24 @@ offmap_decisions = {
 				}
 			}
 			additive_modifier = {
+				value = 40
+				FROMFROM = { 
+					show_scope_change = no
+					trait = groomed
+				}
+			}
+			additive_modifier = {
 				value = -80
 				FROMFROM = { 
 					show_scope_change = no
 					trait = ugly
+				}
+			}
+			additive_modifier = {
+				value = -40
+				FROMFROM = { 
+					show_scope_change = no
+					trait = uncouth
 				}
 			}
 			additive_modifier = {
@@ -1826,7 +1897,7 @@ offmap_decisions = {
 				OR = {
 					offmap_china = {
 						show_scope_change = no 
-						offmap_has_like = likes_concubines
+						offmap_has_like = likes_nuns
 					}
 				}
 			}
@@ -1843,7 +1914,7 @@ offmap_decisions = {
 				factor = 0.5
 				offmap_china = {
 					show_scope_change = no 
-					offmap_has_dislike = likes_concubines
+					offmap_has_dislike = likes_nuns
 				}
 			}
 			modifier = {
@@ -2076,7 +2147,7 @@ offmap_decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.3 # slow down
+				factor = 0.5 # slow down
 			}
 		}
 	}
@@ -3215,8 +3286,10 @@ offmap_decisions = {
 					text = send_artifact_potential_tt
 					quality > 2
 					NOR = {
+						has_artifact_flag = flag_considering_donation 
 						has_artifact_flag = curse
 						has_artifact_flag = chinese
+						#bunch of crown artifacts were here
 					}
 				}
 			}
@@ -3475,13 +3548,7 @@ offmap_decisions = {
 	chinese_kow_tow_pilgrimage = {
 		only_playable = yes
 		button_name = offmap_gifts
-		ai_check_interval = 10
-		
-		from_potential = {
-		}
-		
-		potential = {
-		}
+		ai_check_interval = 120
 		
 		allow = {
 			show_only_failed_conditions = yes
@@ -3564,7 +3631,7 @@ offmap_decisions = {
 		ai_will_do ={
 			factor = 1
 			modifier = {
-				factor = 0.01 #slow down
+				factor = 0.1 #slow down
 			}
 		}
 	}
@@ -3594,9 +3661,9 @@ offmap_decisions = {
 			is_offmap_tag = offmap_china
 		}
 
-#		potential = {
-#			offmap_china = { governor = { character = ROOT } }
-#		}
+		#potential = {
+			#offmap_china = { governor = { character = ROOT } }
+		#}
 
 		allow = {
 			show_only_failed_conditions = yes
@@ -3662,7 +3729,7 @@ offmap_decisions = {
 							capital_scope = {
 								OR = {
 									region = world_south_america_caribbean
-									region = world_south_america_pacific
+									region = world_caribbean
 								}
 							}
 						}
@@ -3696,15 +3763,16 @@ offmap_decisions = {
 			mercenary = no
 			holy_order = no
 			is_landed = yes
+
 		}
 
 		potential = {
 			is_offmap_tag = offmap_china
 		}
 
-#		potential = {
-#			offmap_china = { governor = { character = ROOT } }
-#		}
+		#potential = {
+			#offmap_china = { governor = { character = ROOT } }
+		#}
 
 		allow = {
 			show_only_failed_conditions = yes
@@ -3713,7 +3781,7 @@ offmap_decisions = {
 				has_offmap_currency = { offmap = offmap_china value = 250 }
 				custom_tooltip = {
 					text = chinese_grace_doctor_allow_tt
-					NOT = { any_courtier = { has_minor_title = title_court_physician } }
+					NOT = { any_courtier_or_vassal = { has_minor_title = title_court_physician } }
 				}
 				prisoner = no
 				NOT = { trait = incapable }
@@ -3769,7 +3837,7 @@ offmap_decisions = {
 		}
 	}
 	
-	# Chinese Artifact
+	# Brazilian Artifact
 	brazilian_artifact = {
 		only_playable = yes
 		button_name = offmap_boons
@@ -3801,30 +3869,37 @@ offmap_decisions = {
 				hidden_tooltip = {
 					FROM = {
 						NAND = {
-							has_artifact = chinese_artwork
-							has_artifact = chinese_calligraphy
-							has_artifact = chinese_sculpture
-							has_artifact = chinese_ceremonial_robes
+							has_artifact = cristo_redentor
+							has_artifact = tourmaline_amulet
+							has_artifact = soccer_ball
+							has_artifact = oriental_rug
 							OR = {
-								has_artifact = chinese_prev_emperor_sculpture
+								has_artifact = brazilian_prev_emperor_sculpture
 								offmap_china = {
 									offmap_prev_ruler = {
 										always = no
 									}
 								}
 							}
-							has_artifact = chinese_arm_protector
-							has_artifact = chinese_serpent_spear
-							has_artifact = chinese_ji
-							has_artifact = chinese_crossbow
-							has_artifact = chinese_bronze_sculpture
-							has_artifact = chinese_book_health
-							has_artifact = chinese_book_law
-							has_artifact = chinese_book_history
-							has_artifact = chinese_book_economy
-							has_artifact = chinese_painting_of_glitterhoof
-							has_artifact = chinese_tapestry
-							has_artifact = chinese_tapestry_grand
+							has_artifact = carranca
+							has_artifact = paubrasilia_dyed_robes
+							has_artifact = silk_shroud
+							has_artifact = brazilian_reliquary
+							has_artifact = jungle_knife
+							has_artifact = berimbau
+							has_artifact = dragoon_lance
+							has_artifact = brazilian_firearm
+							has_artifact = paubrasilia_sculpture
+							has_artifact = brazilian_painting_of_glitterhoof
+							has_artifact = brazilian_tapestry
+							has_artifact = brazilian_tapestry_grand
+							has_artifact = carta_armor
+							has_artifact = guerilla_warfare
+							has_artifact = the_guarani
+							has_artifact = brazilian_book_health
+							has_artifact = brazilian_book_action
+							has_artifact = brazilian_book_history
+							has_artifact = brazilian_book_economy
 						}
 					}
 				}
@@ -3841,7 +3916,7 @@ offmap_decisions = {
 					offmap = offmap_china
 					value = -500
 				}
-				custom_tooltip = { text = brazilian_artifact_effect_tt }
+				custom_tooltip = { text = chinese_artifact_effect_tt }
 			}
 			hidden_effect = { offmap_china = { governor = { character_event = { id = JD.3030 } } } }
 			hidden_effect = { FROM = { set_china_boon_cd_effect = yes } }
@@ -3867,14 +3942,13 @@ offmap_decisions = {
 	}
 	
 	# Siege Engineers
-	chinese_siege_engineers = {
+	chinese_master_architect = {
 		only_playable = yes
 		button_name = offmap_boons
-		ai_check_interval = 60
+		ai = no
 
 		from_potential = {
 			has_dlc = "Jade Dragon"
-			ai = no
 			mercenary = no
 			holy_order = no
 			is_landed = yes
@@ -4087,7 +4161,7 @@ offmap_decisions = {
 		}
 	}
 
-	chinese_master_architect = {
+	chinese_master_engineer = {
 		only_playable = yes
 		button_name = offmap_boons
 		ai_check_interval = 60
@@ -4251,7 +4325,7 @@ offmap_decisions = {
 		third_party_filter = realm_including_me
 		ai_third_party_filter = court
 		third_party = from
-		ai_check_interval = 6
+		ai_check_interval = 12
 		show_third_party_potential = yes
 		
 		from_potential = {
@@ -4271,11 +4345,11 @@ offmap_decisions = {
 				show_scope_change = no
 				conditional_tooltip = {
 					trigger = { NOT = { has_character_modifier = peace_deal_with_china } }
-					has_offmap_currency = { offmap = offmap_china value = 900 }
+					has_offmap_currency = { offmap = offmap_china value = 1000 }
 				}
 				conditional_tooltip = {
 					trigger = { has_character_modifier = peace_deal_with_china }
-					has_offmap_currency = { offmap = offmap_china value = 650 }
+					has_offmap_currency = { offmap = offmap_china value = 750 }
 				}
 				OR = {
 					custom_tooltip = {
@@ -4389,7 +4463,7 @@ offmap_decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.05 # slow down
+				factor = 0.1 # slow down
 			}
 			modifier = {
 				factor = 0.5
@@ -4416,14 +4490,13 @@ offmap_decisions = {
 		third_party_filter = independent_rulers
 		ai_third_party_filter = independent_rulers
 		third_party = from
-		ai_check_interval = 360
+		ai = no
 		show_third_party_potential = yes
 		
 		from_potential = {
 			has_dlc = "Jade Dragon"
 			mercenary = no
 			holy_order = no
-			ai = no
 			is_landed = yes
 		}
 
@@ -4734,9 +4807,9 @@ offmap_decisions = {
 	china_force_to_open = {
 		only_playable = yes
 		button_name = offmap_hostility
+		ai = no
 	
 		from_potential = {
-			ai = no
 			has_dlc = "Jade Dragon"
 			mercenary = no
 			holy_order = no
@@ -4847,9 +4920,9 @@ offmap_decisions = {
 	china_tributary_break_free = {
 		only_playable = yes
 		button_name = offmap_hostility
+		ai = no
 	
 		from_potential = {
-			ai = no
 			has_dlc = "Jade Dragon"
 			mercenary = no
 			holy_order = no
@@ -4914,9 +4987,9 @@ offmap_decisions = {
 		ai_third_party_filter = home_court
 		third_party = FROM
 		show_third_party_potential = yes
+		ai = no
 	
 		from_potential = {
-			ai = no
 			has_dlc = "Jade Dragon"
 			mercenary = no
 			holy_order = no
@@ -4949,7 +5022,7 @@ offmap_decisions = {
 					custom_tooltip = { #Borders the eastern edge of the map
 						text = china_invade_dragon_throne_eastern_edge_tt
 						any_realm_province = {
-							region = custom_brazilian_invasion_target_region
+							region = custom_southern_edge_of_map
 						}
 					}
 				}

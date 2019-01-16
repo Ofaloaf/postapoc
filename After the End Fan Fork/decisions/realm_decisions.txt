@@ -3,12 +3,13 @@ decisions = {
 	hold_a_epic_tournament  = {
 		only_independent = yes
 		is_high_prio = yes
+		ai_check_interval = 24
 		
 		potential = {
 			is_playable = yes
-			NOT = {
+			NOR = {
+				has_character_modifier = epic_tournament
 				has_character_flag = epic_tournament
-				has_character_flag = do_not_disturb
 			}
 			NOR = {
 				religion = celtic_pagan
@@ -16,6 +17,10 @@ decisions = {
 			}
 			independent = yes
 			NOT = { is_nomadic = yes }
+			#OR = {
+			#	gender_equality_trigger = yes
+			#	NOT = { is_female = yes	}
+			#}
 			OR = {
 				tier = king
 				tier = emperor 
@@ -39,7 +44,11 @@ decisions = {
 			}
 		}
 		effect = {
-			set_character_flag = epic_tournament
+			add_character_modifier = {
+				name = epic_tournament
+				years = 100
+				hidden = yes
+			}
 			set_character_flag = do_not_disturb
 			clr_character_flag = tournament_has_ended
 			hidden_tooltip = { character_event = { id = 70999 days = 300 } } # Safety catch flag clearing
@@ -66,11 +75,13 @@ decisions = {
 	
 	buy_indulgence_for_sins = {
 		only_playable = yes
+		ai_check_interval = 6
 		potential = {
 			religion = ursuline
 			age = 16
 			demesne_size = 1
 			NOT = { has_character_flag = ask_for_indulgence }
+			NOT = { trait = excommunicated }
 		}
 		allow = {
 			prisoner = no
@@ -100,12 +111,14 @@ decisions = {
 
 	issue_declaration_of_repentance = {
 		only_playable = yes
+		ai_check_interval = 80
+		is_high_prio = yes
 		potential = {
-			is_playable = yes
-			religion = catholic
 			age = 16
-			demesne_size = 1
-			NOT = { has_character_flag = ask_for_repentance }
+			is_playable = yes
+			is_landed = yes
+			higher_tier_than = BARON #Low nobility requires somebody else to ask the Papacy to Lift the Excommunication on their behalf.
+			#religion = catholic #Fraticelli, Reformed Pagans, etc.
 			rightful_religious_head_scope = {
 				ROOT = {
 					excommunicated_for = PREV
@@ -113,22 +126,43 @@ decisions = {
 			}
 		}
 		allow = {
-			scaled_wealth = 2.0
 			is_heretic = no
+			custom_tooltip = { 
+				text = tooltip_issued_decla_repentance_recently
+				hidden_tooltip = { NOT = { has_character_modifier = asked_repentance_from_sins_cooldown } } 
+			}
 		}
 		effect = {
-			set_character_flag = ask_for_repentance
+			hidden_tooltip = {
+				add_character_modifier = {
+					name = asked_repentance_from_sins_cooldown
+					months = 48
+					hidden = yes
+				}
+			}
 			rightful_religious_head_scope = {
-				character_event = { id = 39252 days = 5 random = 12 tooltip = "repentance_ask" }
+				character_event = { id = HFP.23003 days = 5 random = 12 tooltip = "repentance_ask" }
 			}
 		}
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0
+				factor = 0.25
 				NOT = {
-					scaled_wealth = 10.0
+					scaled_wealth = 2.0
 				}
+			}
+			modifier = {
+				factor = 0
+				trait = stubborn
+			}
+			modifier = {
+				factor = 0
+				trait = cynical
+			}
+			modifier = {
+				factor = 2
+				trait = zealous
 			}
 		}
 	}
@@ -190,6 +224,7 @@ decisions = {
 	mend_great_schism = {
 		only_independent = yes
 		is_high_prio = yes
+		ai_check_interval = 24
 		
 		potential = {
 			has_dlc = "Legacy of Rome"
@@ -213,6 +248,9 @@ decisions = {
 				holder_scope = {
 					is_heretic = no # If the Pope (and thus Catholicism) is heretical, mending the schism is no longer possible
 				}
+			}
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
 			}
 		}
 		allow = {
@@ -322,7 +360,7 @@ decisions = {
 			}
 			any_realm_lord = { 
 				ai = yes
-				has_landed_title = c_washington
+				has_landed_title = c_washington 
 			}
 			any_realm_lord = { 
 				ai = yes
@@ -343,8 +381,9 @@ decisions = {
 							usurp_title = PREV
 						}
 					}
+					#b_roma = { set_name = Lateran }
 					b_the_pentagon = { 
-						set_name = "The White House" 
+						set_name = "The White House"
 						ROOT = { capital = PREV }
 					}
 				}
@@ -354,10 +393,11 @@ decisions = {
 			factor = 0
 		}
 	}
-
+	
 	petition_doge_for_tp = {
 		only_playable = yes
 		is_high_prio = yes
+		ai_check_interval = 6
 		potential = {
 			is_playable = yes
 			is_merchant_republic = no
@@ -407,6 +447,7 @@ decisions = {
 	usurp_tp = {
 		only_playable = yes
 		is_high_prio = yes
+		ai_check_interval = 6
 		potential = {
 			is_playable = yes
 			is_merchant_republic = yes
@@ -483,13 +524,17 @@ decisions = {
 	build_new_yeshiva = {
 		only_playable = yes
 		is_high_prio = yes
+		ai_check_interval = 24
 		
 		potential = {
 			has_dlc = "Sons of Abraham"
 			is_playable = yes
-			religion = jewish
+			religion_group = jewish_group
 			NOT = { has_global_flag = new_yeshiva_built }
 			NOT = { has_global_flag = building_new_yeshiva }
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
 		}
 		allow = {
 			independent = yes
@@ -519,6 +564,7 @@ decisions = {
 	install_grand_rebbe = {
 		only_playable = yes
 		is_high_prio = yes
+		ai_check_interval = 24
 		
 		potential = {
 			has_dlc = "Sons of Abraham"
@@ -526,6 +572,9 @@ decisions = {
 			religion = jewish
 			has_global_flag = new_yeshiva_built
 			NOT = { has_global_flag = grand_rebbe_installed }
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
 		}
 		allow = {
 			independent = yes
@@ -555,6 +604,15 @@ decisions = {
 					narrative_event = { id = SoA.550 }
 				}
 			}
+			d_jewish = {
+				holder_scope = {
+					k_israel = {
+						holder_scope = {
+							set_defacto_vassal = PREVPREV
+						}
+					}
+				}
+			}
 		}
 		ai_will_do = {
 			factor = 1
@@ -563,6 +621,7 @@ decisions = {
 	
 	welcome_jews = {
 		only_playable = yes
+		ai_check_interval = 6
 		
 		potential = {
 			#has_dlc = "Sons of Abraham"
@@ -572,6 +631,9 @@ decisions = {
 				has_character_modifier = expelled_jews_timer
 			}
 			has_character_modifier = expelled_jewish
+			NOT = {
+				government = order_government
+			}
 		}
 		allow = {
 			has_character_modifier = expelled_jewish
@@ -610,7 +672,7 @@ decisions = {
 			factor = 1
 			
 			modifier = {
-				factor = 0.1 # Less likely to do it
+				factor = 0.5 # Less likely to do it
 			}
 			modifier = {
 				factor = 0
@@ -621,6 +683,7 @@ decisions = {
 	
 	expel_jews = {
 		only_independent = yes
+		ai_check_interval = 60
 		
 		potential = {
 			has_dlc = "Sons of Abraham"
@@ -637,16 +700,22 @@ decisions = {
 				religion_group = cult_of_saints
 				religion_group = oldworld
 				religion_group = latter_day_saints
-			}
+			}	
 			NOR = {
-				religion = anabaptist
 				religion_group = jewish_group
+				religion = anabaptist
 				has_character_modifier = expelled_jewish
 				is_nomadic = yes
 				secret_religion = jewish
 				secret_religion = reform
 			}
 			age = 16
+			NOT = {
+				has_character_flag = currently_considering_expelling_jews
+			}
+			NOT = {
+				government = order_government
+			}
 		}
 		allow = {
 			independent = yes
@@ -657,9 +726,53 @@ decisions = {
 				religion_group = oldworld
 				religion_group = latter_day_saints
 			}
-			NOT = { any_realm_province = { religion_group = jewish_group } }
+			conditional_tooltip = {
+				trigger = {
+					any_realm_province = {
+						religion_group = jewish_group
+					}
+				}
+				NOT = { 
+					any_realm_province = { 
+						religion_group = jewish_group 
+					} 
+				}
+			}
+			conditional_tooltip = {
+				trigger = {
+					any_realm_lord = {
+						religion_group = jewish_group
+					}
+				}
+				NOT = { 
+					any_realm_lord = { 
+						religion_group = jewish_group 
+					} 
+				}
+			}
+			conditional_tooltip = {
+				trigger = {
+					has_character_flag = epidemic_blame_game
+				}
+
+				custom_tooltip = {
+					text = cannot_expel_jews_during_blame_game_chain_TT
+
+					always = no
+				}
+			}
 			prisoner = no
 			NOT = { trait = incapable }
+			custom_tooltip = {
+				text = NOT_DESCENDANT_OF_A_JEWISH_SAINT	
+				hidden_trigger = {
+					NOT = { 
+						any_owned_bloodline = {
+							has_bloodline_flag = jewish_saintly_bloodline
+						}
+					}
+				}
+			}
 		}
 		effect = {
 			prestige = -100
@@ -672,8 +785,13 @@ decisions = {
 			if = {
 				limit = {
 					NOT = { trait = arbitrary }
+					has_character_modifier = borrowed_from_jews
 				}
 				add_trait = arbitrary
+			}
+			if = {
+				limit = { has_character_modifier = borrowed_from_jews }
+				remove_character_modifier = borrowed_from_jews
 			}
 			add_character_modifier = {
 				name = expelled_jewish
@@ -700,7 +818,7 @@ decisions = {
 			factor = 1
 			
 			modifier = {
-				factor = 0.001 # Less likely to do it
+				factor = 0.05 # Less likely to do it
 			}
 			modifier = {
 				factor = 0
@@ -731,32 +849,29 @@ decisions = {
 				factor = 0
 				trait = kind
 			}
-			modifier = {
-				factor = 0
-				trait = just
-			}
-			modifier = {
-				factor = 1.2
-				trait = zealous
-				trait = arbitrary
-			}
-			modifier = {
-				factor = 2
-				trait = greedy
-			}
 		}
 	}
-
+	
 	form_new_kingdom = {
 		only_independent = yes
 		is_high_prio = yes
+		ai_check_interval = 24
 		
 		potential = {
 			is_playable = yes
 			tier = DUKE
 			NOT = { tier = KING }
 			
-			has_dlc = "Charlemagne"
+			OR = {
+				has_dlc = "Charlemagne"
+				AND = {
+					is_alternate_start = yes
+					has_alternate_start_parameter = {
+						key = dejure_kingdoms
+						value = none
+					}
+				}
+			}
 			
 			holy_order = no
 			
@@ -785,6 +900,13 @@ decisions = {
 					}
 				}
 				prestige = 15000
+				AND = {
+					is_alternate_start = yes
+					has_alternate_start_parameter = {
+						key = dejure_kingdoms
+						value = none
+					}
+				}
 			}
 		}
 		allow = {
@@ -792,7 +914,35 @@ decisions = {
 			prisoner = no
 			NOT = { trait = incapable }
 			independent = yes
-			prestige = 1000
+			
+			conditional_tooltip = {
+				trigger = {
+					AND = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_kingdoms
+							value = none
+						}
+					}
+				}
+				prestige = 250
+				wealth = 50
+			}
+			
+			conditional_tooltip = {
+				trigger = {
+					NOT = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_kingdoms
+							value = none
+						}
+					}
+				}
+				prestige = 1000
+				wealth = 300
+			}
+
 			OR = {
 				realm_size = 35
 				custom_tooltip = {
@@ -805,7 +955,6 @@ decisions = {
 					}
 				}
 			}
-			wealth = 300
 		}
 		effect = {
 			primary_title = {
@@ -818,6 +967,10 @@ decisions = {
 					holder = ROOT
 					base_title = THIS
 					copy_title_laws = yes
+				}
+
+				new_title = {
+					copy_title_history = PREV
 				}
 
 				hidden_tooltip = {
@@ -841,6 +994,20 @@ decisions = {
 									}
 									de_jure_liege = PREVPREV
 								}
+								if = {
+									limit = {
+										has_alternate_start_parameter = {
+											key = dejure_kingdoms
+											value = none
+										}
+									}
+									any_title_under = {
+										limit = {
+											tier = DUKE
+										}
+										de_jure_liege = PREVPREV
+									}
+								}
 								any_title_under = {
 									limit = {
 										tier = COUNT
@@ -863,13 +1030,62 @@ decisions = {
 										}
 									}
 								}
+								if = {
+									limit = {
+										has_alternate_start_parameter = {
+											key = dejure_kingdoms
+											value = none
+										}
+									}
+									any_title_under = {
+										limit = {
+											tier = COUNT
+											location = {
+												duchy = {
+													NOT = { de_jure_liege_or_above = PREVPREVPREVPREV }
+													ROOT = {
+														completely_controls = PREV
+													}
+												}
+											}
+										}
+										location = {
+											duchy = {
+												de_jure_liege = PREVPREVPREVPREV
+											}
+										}
+									}
+								}
 							}
 						}
 					}
 				}
 
 			}
-			wealth = -300
+			if = {
+				limit = {
+					AND = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_kingdoms
+							value = none
+						}
+					}
+				}
+				wealth = -50
+			}
+			if = {
+				limit = {
+					NOT = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_kingdoms
+							value = none
+						}
+					}
+				}
+				wealth = -300
+			}
 			custom_tooltip = { text = form_new_kingdom_tooltip }
 			chronicle = {
 				entry = CHRONICLE_FOUNDED_NEW_KINGDOM_OR_EMPIRE
@@ -887,12 +1103,28 @@ decisions = {
 	form_new_empire = {
 		only_independent = yes
 		is_high_prio = yes
+		ai_check_interval = 24
 		
 		potential = {
 			is_playable = yes
 			tier = KING
-			is_nomadic = no
-			has_dlc = "Charlemagne"
+			
+			OR = {
+				has_dlc = "Charlemagne"
+				AND = {
+					is_alternate_start = yes
+					OR = {
+						has_alternate_start_parameter = {
+							key = dejure_kingdoms
+							value = none
+						}
+						has_alternate_start_parameter = {
+							key = dejure_empires
+							value = none
+						}
+					}
+				}
+			}
 			
 			holy_order = no
 			
@@ -908,6 +1140,19 @@ decisions = {
 					prestige = 40000
 				}
 				prestige = 120000
+				AND = {
+					is_alternate_start = yes
+					OR = {
+						has_alternate_start_parameter = {
+							key = dejure_kingdoms
+							value = none
+						}
+						has_alternate_start_parameter = {
+							key = dejure_empires
+							value = none
+						}
+					}
+				}
 			}
 			
 			NOT = {
@@ -922,7 +1167,35 @@ decisions = {
 			prisoner = no
 			NOT = { trait = incapable }
 			independent = yes
-			prestige = 8000
+			
+			conditional_tooltip = {
+				trigger = {
+					AND = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_empires
+							value = none
+						}
+					}
+				}
+				prestige = 2000
+				wealth = 200
+			}
+			
+			conditional_tooltip = {
+				trigger = {
+					NOT = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_empires
+							value = none
+						}
+					}
+				}
+				prestige = 8000
+				wealth = 1000
+			}
+			
 			OR = {
 				realm_size = 180
 				custom_tooltip = {
@@ -935,7 +1208,6 @@ decisions = {
 					}
 				}
 			}
-			wealth = 1000
 		}
 		effect = {
 			primary_title = {
@@ -950,6 +1222,10 @@ decisions = {
 					copy_title_laws = yes
 				}
 
+				new_title = {
+					copy_title_history = PREV
+				}
+
 				hidden_tooltip = {
 					ROOT = {
 						primary_title = {
@@ -957,8 +1233,8 @@ decisions = {
 								any_title_under = {
 									limit = {
 										tier = KING
-										empire = {
-											has_holder = no
+										NOT = {
+											empire = { has_holder = yes }
 										}
 									}
 									de_jure_liege = PREVPREV
@@ -968,8 +1244,8 @@ decisions = {
 										tier = DUKE
 										location = {
 											kingdom = {
-												empire = {
-													has_holder = no
+												NOT = {
+													empire = { has_holder = yes }
 												}
 												
 												NOT = { de_jure_liege_or_above = PREVPREVPREVPREV }
@@ -990,7 +1266,32 @@ decisions = {
 					}
 				}
 			}
-			wealth = -1000
+			
+			if = {
+				limit = {
+					AND = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_empires
+							value = none
+						}
+					}
+				}
+				wealth = -200
+			}
+			if = {
+				limit = {
+					NOT = {
+						is_alternate_start = yes
+						has_alternate_start_parameter = {
+							key = dejure_empires
+							value = none
+						}
+					}
+				}
+				wealth = -1000
+			}
+			
 			custom_tooltip = { text = form_new_empire_tooltip }
 			chronicle = {
 				entry = CHRONICLE_FOUNDED_NEW_KINGDOM_OR_EMPIRE
@@ -1008,6 +1309,7 @@ decisions = {
 	# Hold Wargames - for nomads
 	hold_nomad_wargames = {
 		only_playable = yes
+		ai_check_interval = 4
 		
 		potential = {
 			is_playable = yes
@@ -1046,7 +1348,7 @@ decisions = {
 			always = no
 		}
 		ai_will_do = {
-			factor = 0.1
+			factor = 0.4
 			modifier = {
 				factor = 0
 				NOT = {
@@ -1057,7 +1359,7 @@ decisions = {
 				factor = 2
 				current_heir = {
 					dynasty = ROOT
-					combat_rating = 8
+					combat_rating = 70
 				}
 			}
 			modifier = {
@@ -1080,6 +1382,7 @@ decisions = {
 	convert_to_feudalism_indep  = {
 		only_independent = yes
 		is_high_prio = yes
+		ai_check_interval = 12
 		
 		potential = {
 			is_playable = yes
@@ -1117,10 +1420,9 @@ decisions = {
 			
 			if = {
 				limit = {
-					NOT = { religion = cetic }
-					NAND = { 
-						religion = gaian 
-						higher_tier_than = BARON
+					NOR = {
+						religion = cetic
+						religion = gaian
 					}
 				}
 				
@@ -1146,12 +1448,13 @@ decisions = {
 						ai = no
 					}
 					chronicle = {
-						entry = CHRONICLE_ADOPTED_BUREAUCRACY
+						entry = CHRONICLE_ADOPTED_IQTA
 						picture = GFX_evt_castle_construction
 					}
 				}
 				set_government_type = bureaucratic_government
 			}
+			
 			if = {
 				limit = {
 					religion = gaian
@@ -1187,6 +1490,14 @@ decisions = {
 					}
 					convert_to = CASTLE
 					refill_holding_levy = yes
+					location = { #Clear Tribal Great Pillars
+						clr_province_flag = flag_great_pillar_norse
+						clr_province_flag = flag_great_pillar_revelationist
+						clr_province_flag = flag_great_pillar_rust_cultist
+						clr_province_flag = flag_great_pillar_occultist
+						clr_province_flag = flag_great_pillar_thelemic
+						clr_province_flag = flag_great_pillar_celtic_pagan
+					}
 					
 					if = {
 						limit = {
@@ -1238,8 +1549,9 @@ decisions = {
 	}
 	
 	convert_to_feudalism_vassal = {
-		only_rulers = yes
+		only_playable = yes
 		is_high_prio = yes
+		ai_check_interval = 12
 		
 		potential = {
 			is_ruler = yes
@@ -1275,13 +1587,29 @@ decisions = {
 					}
 				}
 			}
-			capital_holding = {
-				OR = {
-					AND = {
-						holding_type = tribal
-						has_building = tb_hillfort_4
+			OR = {
+				capital_holding = {
+					OR = {
+						AND = {
+							holding_type = tribal
+							has_building = tb_hillfort_4
+						}
+						holding_type = castle
 					}
-					holding_type = castle
+				}
+				AND = {
+					NOT = { tier = BARON }
+					capital_scope = {
+						any_province_holding = {
+							holding_type = castle
+							holder_scope = {
+								OR = {
+									character = ROOT
+									is_liege_or_above = ROOT
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1291,7 +1619,10 @@ decisions = {
 			
 			if = {
 				limit = {
-					NOT = { religion = cetic }
+					NOR = {
+						religion = cetic
+						religion = gaian
+					}
 				}
 				
 				if = {
@@ -1316,21 +1647,94 @@ decisions = {
 						ai = no
 					}
 					chronicle = {
-						entry = CHRONICLE_ADOPTED_BUREAUCRACY
+						entry = CHRONICLE_ADOPTED_IQTA
 						picture = GFX_evt_castle_construction
 					}
 				}
 				set_government_type = bureaucratic_government
 			}
 			
+			if = {
+				limit = {
+					religion = gaian
+					higher_tier_than = BARON
+				}
+				
+				if = {
+					limit = {
+						ai = no
+					}
+					chronicle = {
+						entry = CHRONICLE_ADOPTED_FEUDALISM
+						picture = GFX_evt_castle_construction
+					}
+				}
+				set_government_type = theocratic_feudal_government
+			}
+			
 			hidden_tooltip = {
+				if = {
+					limit = {
+						capital_holding = {
+							holding_type = tribal
+							ROOT = { NOT = { tier = BARON } }
+						}
+						capital_scope = {
+							any_province_holding = {
+								holding_type = castle
+								holder_scope = {
+									OR = {
+										character = ROOT
+										is_liege_or_above = ROOT
+									}
+								}
+							}
+						}
+					}
+					
+					capital_scope = {
+						random_province_holding = {
+							limit = {
+								holding_type = castle
+								holder_scope = {
+									OR = {
+										character = ROOT
+										is_liege_or_above = ROOT
+									}
+								}
+							}
+							if = {
+								limit = {
+									NOT = { holder = ROOT }
+								}
+								usurp_title = ROOT
+							}
+							make_capital_holding = yes
+							ROOT = { set_character_flag = feudalize_handled_capital }
+						}
+					}
+				}
+				
 				any_demesne_title = {
 					limit = {
 						tier = baron
 						holding_type = tribal
+						location = {
+							capital_holding = {
+								NOT = { holding_type = castle }
+							}
+						}
 					}
 					convert_to = CASTLE
 					refill_holding_levy = yes
+					location = { #Clear Tribal Great Pillars
+						clr_province_flag = flag_great_pillar_norse
+						clr_province_flag = flag_great_pillar_revelationist
+						clr_province_flag = flag_great_pillar_rust_cultist
+						clr_province_flag = flag_great_pillar_occultist
+						clr_province_flag = flag_great_pillar_thelemic
+						clr_province_flag = flag_great_pillar_celtic_pagan
+					}
 					
 					if = {
 						limit = {
@@ -1383,7 +1787,7 @@ decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.001
+				factor = 0.01
 				liege = {
 					OR = {
 						NOT = { religion_group = ROOT }
@@ -1395,25 +1799,18 @@ decisions = {
 				}
 			}
 			modifier = {
-				factor = 0.01
+				factor = 0.1
 				liege = {
 					NOT = { culture_group = ROOT }
 				}
 			}
 			
 			modifier = {
-				factor = 0.01
+				factor = 0.1
 				liege = {
 					religion_group = ROOT
 					NOT = { religion_group = pagan_group }
 					NOT = { religion = ROOT }
-				}
-			}
-			modifier = {
-				factor = 0.1
-				liege = {
-					culture_group = ROOT
-					NOT = { culture = ROOT }
 				}
 			}
 		}
@@ -1501,6 +1898,18 @@ decisions = {
 									}
 									convert_to = CITY
 									refill_holding_levy = yes
+									location = { #Clear Tribal Great Pillars
+										clr_province_flag = flag_great_pillar_norse
+										clr_province_flag = flag_great_pillar_tengri
+										clr_province_flag = flag_great_pillar_slavic
+										clr_province_flag = flag_great_pillar_baltic
+										clr_province_flag = flag_great_pillar_finnish
+										clr_province_flag = flag_great_pillar_west_african
+										clr_province_flag = flag_great_pillar_aztec
+										clr_province_flag = flag_great_pillar_bon
+										clr_province_flag = flag_great_pillar_zun
+										clr_province_flag = flag_great_pillar_hellenic
+									}
 									
 									if = {
 										limit = {
@@ -1557,6 +1966,14 @@ decisions = {
 					}
 					convert_to = CITY
 					refill_holding_levy = yes
+					location = { #Clear Tribal Great Pillars
+						clr_province_flag = flag_great_pillar_norse
+						clr_province_flag = flag_great_pillar_revelationist
+						clr_province_flag = flag_great_pillar_rust_cultist
+						clr_province_flag = flag_great_pillar_occultist
+						clr_province_flag = flag_great_pillar_thelemic
+						clr_province_flag = flag_great_pillar_celtic_pagan
+					}
 					
 					if = {
 						limit = {
@@ -1623,7 +2040,6 @@ decisions = {
 			factor = 0
 		}
 	}
-	
 }
 
 targetted_decisions = {
@@ -1632,6 +2048,7 @@ targetted_decisions = {
 		
 		filter = self
 		ai_target_filter = self
+		ai_check_interval = 60
 		
 		potential = {
 			has_dlc = "Sons of Abraham"
@@ -1645,6 +2062,9 @@ targetted_decisions = {
 			}
 			is_adult = yes
 			prisoner = no
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
 		}
 		
 		allow = {
@@ -1676,12 +2096,13 @@ targetted_decisions = {
 				liege = { trait = twelve_tribes }
 			}
 			modifier = {
-				factor = 0.005 # Slow it down
+				factor = 0.5 # Slow it down
 			}
 		}
 	}
 	embrace_bobo_ashanti = {
 		only_playable = yes
+		ai_check_interval = 60
 		
 		filter = self
 		ai_target_filter = self
@@ -1698,6 +2119,9 @@ targetted_decisions = {
 			}
 			is_adult = yes
 			prisoner = no
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
 		}
 		
 		allow = {
@@ -1741,8 +2165,9 @@ targetted_decisions = {
 				decadence = 80
 			}
 			modifier = {
-				factor = 0.005 # Slow it down
+				factor = 0.5 # Slow it down
 			}
 		}
 	}
 }
+

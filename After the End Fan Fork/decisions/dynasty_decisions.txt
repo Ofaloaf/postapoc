@@ -17,8 +17,9 @@ targetted_decisions = {
 	commit_suicide = {
 		filter = self
 		ai_target_filter = self
+		ai = no
+
 		potential = {
-			ai = no
 			is_adult = yes
 
 			OR = {
@@ -43,7 +44,17 @@ targetted_decisions = {
 			prisoner = no
 			custom_tooltip = {
 				text = is_not_busy_trigger_tooltip
-				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+				hidden_tooltip = {
+					# NOR  = { has_character_flag = do_not_disturb is_inaccessible_trigger = yes }
+					# Line above outcommented to account for Seclusion (below)
+					OR = {
+						in_seclusion = yes
+						NOR = {
+							has_character_flag = do_not_disturb
+							is_inaccessible_trigger = yes
+						}
+					}
+				}
 			}
 			custom_tooltip = {
 				NOT = { has_character_flag = attempting_suicide }
@@ -89,6 +100,7 @@ targetted_decisions = {
 		only_playable = yes
 		filter = close_relatives
 		ai_target_filter = close_relatives
+		ai_check_interval = 30
 	
 		from_potential = {
 			ai = no
@@ -103,8 +115,17 @@ targetted_decisions = {
 			is_liege_or_above = FROM
 		}
 		allow = {
-			FROM = {
-				piety = 20
+			conditional_tooltip = {
+				trigger = {
+					NOT = {
+						any_owned_bloodline = {
+							has_bloodline_flag = bloodline_legitimize
+						}
+					}
+				}
+				FROM = {
+					piety = 20
+				}
 			}
 		}
 		effect = {
@@ -112,7 +133,21 @@ targetted_decisions = {
 			remove_trait = bastard
 			add_trait = legit_bastard
 			recalc_succession = yes
-			FROM = { piety = -20 }
+			FROM = { 
+				show_scope_change = no
+				if = {
+					limit = {
+						NOT = {
+							any_owned_bloodline = {
+								has_bloodline_flag = bloodline_legitimize
+							}
+						}
+					}
+					FROM = {
+						piety = -20
+					}
+				}
+			}
 			if = {
 				limit = {
 					prisoner = yes
@@ -124,6 +159,7 @@ targetted_decisions = {
 			if = {
 				limit = { FROM = { is_female = no } }
 				mother = {
+					show_scope_change = no
 					opinion = {
 						who = FROM
 						modifier = legitimized_child
@@ -132,7 +168,9 @@ targetted_decisions = {
 				}
 			}
 			FROM = {
+				show_scope_change = no
 				spouse = {
+					show_scope_change = no
 					if = {
 						limit = {
 							NOT = {
@@ -148,16 +186,29 @@ targetted_decisions = {
 						}
 					}
 				}
-				any_child = {
+				if = {
 					limit = {
-						NOT = { character = ROOT }
-						dynasty = ROOT_FROM
-						NOT = { trait = bastard }
+						any_child = {
+							dynasty = ROOT_FROM
+							NOT = { character = ROOT }
+							NOT = { trait = bastard }
+						}
 					}
-					opinion = {
-						who = ROOT_FROM
-						modifier = legitimized_bastard
-						months = 12
+					custom_tooltip = {
+						text = any_child_gets_angry_tt
+						any_child = {
+							show_scope_change = no
+							limit = {
+								NOT = { character = ROOT }
+								dynasty = ROOT_FROM
+								NOT = { trait = bastard }
+							}
+							opinion = {
+								who = ROOT_FROM
+								modifier = legitimized_bastard
+								months = 12
+							}
+						}
 					}
 				}
 			}
@@ -176,7 +227,7 @@ targetted_decisions = {
 	#	only_playable = yes
 	#	filter = dynasty
 	#	ai_target_filter = dynasty
-	#	ai_check_interval = 3
+	#	ai_check_interval = 6
 	#
 	#	hide_in_decisions_list = yes # This decision is shown in the Religion View for each decadent character
 	#	
@@ -195,6 +246,7 @@ targetted_decisions = {
 	#		is_female = no
 	#		prisoner = no
 	#		trait = decadent
+	#		has_regent = no
 	#		lower_tier_than = FROM
 	#	}
 	#	
@@ -234,13 +286,404 @@ targetted_decisions = {
 	#	}
 	#}
 
+	# Unhardcoded decision.
+	order_to_take_vows = {
+		only_playable = yes
+		filter = court
+		ai_target_filter = court
+		ai_check_interval = 120 #Check every 120 months
+		
+		from_potential = {
+			is_playable = yes
+			has_regent = no
+			prisoner = no
+			is_adult = yes
+			has_dlc = "Sons of Abraham"
+			OR = {
+				AND = { 
+					religion_group = christian
+					is_alternate_start = no
+				}
+				AND = { 
+					religion_group = cult_of_saints
+					is_alternate_start = no
+				}
+				AND = { 
+					religion_group = latter_day_saints
+					is_alternate_start = no
+				}
+				AND = { 
+					religion = hindu
+					is_alternate_start = no
+				}
+				has_religion_feature = religion_monastic
+				has_religion_feature = religion_feature_west_african
+			}
+		}
+		
+		potential = {
+			is_adult = yes
+			is_ruler = no
+			religion = FROM
+			NOR = { 
+				trait = incapable 
+				trait = monk
+				trait = nun
+				#trait = muni
+				#trait = aryika
+				#trait = bhikkhu
+				#trait = bhikkhuni
+				trait = sanyasi
+				trait = sanyasini
+			}
+			host = { character = FROM }
+		}
+		
+		allow = {
+			OR = { 
+				AND = { 
+					is_married = no
+					custom_tooltip = {
+						text = NOT_HEIR_TITLE_TT
+						NOT = {
+                        	any_heir_title = { 
+                            	always = yes
+                            }
+                        }
+                    }
+				}
+				prisoner = yes
+				conditional_tooltip = {
+					trigger = { dynasty = FROM }
+					custom_tooltip = { #Matilde's Bloodline
+						text = BLOODLINE_EASIER_VOWS_TOOLTIP
+						AND = { 
+							FROM = { 
+								dynasty = ROOT
+								any_owned_bloodline = {
+									has_bloodline_flag = bloodline_easy_monks
+									bloodline_is_active_for = PREV
+								}
+							}
+							ROOT = { 
+								any_owned_bloodline = {
+									has_bloodline_flag = bloodline_easy_monks
+									bloodline_is_active_for = PREV
+								}
+							}
+						}
+					}
+				}
+			}
+			FROM = { piety = 50 }
+		}
+
+		effect = {
+			FROM = { piety = -50 }
+			add_ascetic_trait_effect = yes #Adds religion-based monk-traits.
+			if = { #For pagans and Altstart
+				limit = { 
+					NOR = { 
+						religion_group = christian
+						religion_group = cult_of_saints
+						religion_group = latter_day_saints
+						religion = hindu
+					} 
+					is_female = no
+				}
+				add_trait = monk
+			}
+			if = {
+				limit = { 
+					NOR = { 
+						religion_group = christian
+						religion_group = cult_of_saints
+						religion_group = latter_day_saints
+						religion = hindu
+					} 
+					is_female = yes
+				}
+				add_trait = nun
+			}
+			if = {
+				limit = { prisoner = yes }
+				prisoner = no
+			}
+			if = {
+				limit = { is_married = yes }
+				any_spouse = { remove_spouse = ROOT }
+			}
+			if = { #Make them actually become monks/nuns if you have Societies.
+				limit = { 
+					has_dlc = "Mystics"	
+					is_in_society = no		
+					OR = {
+						religion = catholic
+						AND = {
+							is_heretic = no
+							OR = {
+								religion = neognostic
+								religion = sedevacantist
+								religion = nestorian
+							}
+						}
+					} 
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					random_list = { 
+						50 = { 
+							trigger = { religion = catholic } 
+							join_society = monastic_order_leibowitz 
+						} 
+						50 = { join_society = monastic_order_dominican } 
+					}
+				}
+			}
+			if = {
+				limit = { 
+					has_dlc = "Mystics" 
+					is_in_society = no
+					OR = {
+						religion = evangelical
+						AND = {
+							is_heretic = no
+							OR = {
+								religion = charismatic
+								religion = antinomian
+							}
+						}
+					}
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					join_society = monastic_order_evangelical
+				}
+			}
+			if = {
+				limit = { 
+					has_dlc = "Mystics" 
+					is_in_society = no
+					OR = {
+						religion = ursuline
+						AND = {
+							is_heretic = no
+							religion = angeline
+						}
+					}
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					join_society = monastic_order_ursuline
+				}
+			}
+			if = {
+				limit = { 
+					has_dlc = "Mystics" 
+					is_in_society = no
+					OR = {
+						religion = high_church
+						AND = {
+							is_heretic = no
+							religion = anglo_papalist
+							religion = united_church
+						}
+					}
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					join_society = monastic_order_benedictine
+				}
+			}
+			if = {
+				limit = { 
+					has_dlc = "Mystics" 
+					is_in_society = no
+					OR = {
+						religion = high_church
+						AND = {
+							is_heretic = no
+							religion = bickertonite
+							religion = woolleyite
+							religion = strangite
+						}
+					}
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					join_society = monastic_order_mormon
+				}
+			}
+			if = {
+				limit = { 
+					has_dlc = "Mystics" 
+					is_in_society = no
+					religion = cetic
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					join_society = monastic_order_cetic
+				}
+			}
+			if = {
+				limit = { 
+					has_dlc = "Mystics" 
+					is_in_society = no
+					OR = {
+						religion = jewish
+						AND = {
+							is_heretic = no
+							religion = reform
+						}
+					}
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					join_society = monastic_order_jewish
+				}
+			}
+			if = {
+				limit = { 
+					has_dlc = "Mystics" 
+					is_in_society = no
+					religion = hindu 
+				}
+				custom_tooltip = { text = tooltip_vows_monk_joins_society }
+				hidden_tooltip = { 
+					join_society = monastic_order_hindu
+				}
+			}
+			if = {
+				limit = { 
+					any_realm_lord = { is_theocracy = yes religion = ROOT }
+				}
+				custom_tooltip = { text = tooltip_vows_monk_goes_to_theocracy }
+				hidden_tooltip = { 
+					random_realm_lord = { 
+						limit = { is_theocracy = yes religion = ROOT }
+						preferred_limit = { 
+							reverse_opinion = { who = FROM value = 20 }
+							vassal_of = FROM
+							same_society_as = ROOT #The one he just joined.
+						} 
+						preferred_limit = { 
+							vassal_of = FROM
+							same_society_as = ROOT #The one he just joined.
+						} 
+						preferred_limit = { 
+							same_society_as = ROOT #The one he just joined.
+						} 
+						preferred_limit = { 
+							vassal_of = FROM
+						} 
+						ROOT = { 
+							move_character = PREV
+						} 
+					}
+				}
+			}
+			if = {
+				limit = { NOR = { trait = zealous dynasty = FROM } }
+				opinion = { modifier = opinion_cloistered_me who = FROM years = 20 }
+			}
+			if = {
+				limit = { NOT = { trait = zealous } dynasty = FROM }
+				opinion = { modifier = opinion_cloistered_me_family who = FROM years = 20 }
+			}
+			if = {
+				limit = { is_child_of = FROM }
+				hidden_tooltip = { FROM = { character_event = { id = HFP.23001 } } }
+			}
+			
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = { #Hate you too much to just send you off.
+				factor = 0
+				prisoner = yes
+				NOT = { is_child_of = FROM }
+				FROM = { is_benevolent_trigger = no }
+				NOT = {
+					reverse_opinion = {
+						who = FROM
+						value = -20
+					}
+				}
+			}
+			modifier = { #Like him too much to do it.
+				factor = 0
+				reverse_opinion = {
+					who = FROM
+					value = 50
+				}
+			}
+			modifier = { #I'm a good ruler and he is a dynastic heir.
+				factor = 0
+				is_child_of = FROM
+				dynasty = FROM
+				FROM = { is_benevolent_trigger = yes }
+				reverse_opinion = {
+					who = FROM
+					value = 0
+				}
+			}
+			modifier = { #Must protect the line.
+				factor = 5
+				is_child_of = FROM
+				NOT = { dynasty = FROM }
+			}
+			modifier = { #Hate you.
+				factor = 5
+				is_child_of = FROM
+				is_rival = FROM
+			}
+			modifier = { #There are better spares.
+				factor = 20
+				is_child_of = FROM
+				OR = { 
+					has_negative_congenital_trigger = yes
+					has_infertile_trait_trigger = yes
+					has_severe_disability_trigger = yes
+				}
+				FROM = { 
+					any_child = { 
+						is_alive = yes
+						NOR = { 
+							character = ROOT 
+							has_negative_congenital_trigger = yes
+							has_infertile_trait_trigger = yes
+							has_severe_disability_trigger = yes
+						}
+					}
+				}
+			}
+			modifier = { #Must preserve the realm from falling to evil.
+				factor = 5
+				is_evil_trigger = yes
+				FROM = { 
+					is_benevolent_trigger = yes 
+					any_child = { 
+						is_alive = yes
+						NOR = { 
+							character = ROOT 
+							is_evil_trigger = yes
+						}
+					}
+				}
+			}
+		}
+	}
 	send_child_into_hiding = {
 		only_rulers = yes
 		is_high_prio = yes
 		
 		filter = dynasty
 		ai_target_filter = dynasty
-		ai_check_interval = 3
+		ai_check_interval = 12
 	
 		from_potential = {
 			is_ruler = yes
@@ -282,7 +725,6 @@ targetted_decisions = {
 			OR = {
 				father = { ai = no }
 				mother = { ai = no }
-				is_primary_heir = yes
 				AND = {
 					is_female = no
 					FROM = {
@@ -293,6 +735,7 @@ targetted_decisions = {
 						}
 					}
 				}
+				is_primary_heir = yes
 				AND = {
 					is_female = yes
 					FROM = {
@@ -448,7 +891,7 @@ targetted_decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.3
+				factor = 0.5
 			}
 			modifier = {
 				factor = 0.5
@@ -491,7 +934,7 @@ targetted_decisions = {
 		
 		filter = dynasty
 		ai_target_filter = dynasty
-		ai_check_interval = 3
+		ai_check_interval = 12
 	
 		from_potential = {
 			is_ruler = yes
@@ -567,7 +1010,7 @@ targetted_decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.1
+				factor = 0.3
 				FROM = { trait = paranoid }
 			}
 			modifier = {
@@ -589,16 +1032,16 @@ targetted_decisions = {
 	}
 	
 	go_into_hiding = {
-		only_rulers = yes
+		only_playable = yes
 		is_high_prio = yes
 		
 		filter = self
 		ai_target_filter = self
-		ai_check_interval = 3
+		ai_check_interval = 12
 		
 		potential = {
 			prisoner = no
-			NOT = { is_inaccessible_trigger = yes }
+			is_inaccessible_trigger = no
 			OR = {
 				ai = no
 				trait = amateurish_plotter
@@ -698,7 +1141,7 @@ targetted_decisions = {
 				}
 			}
 			modifier = {
-				factor = 0.3
+				factor = 0.5
 			}
 			modifier = {
 				factor = 0.1
@@ -729,7 +1172,7 @@ targetted_decisions = {
 		
 		filter = self
 		ai_target_filter = self
-		ai_check_interval = 3
+		ai_check_interval = 12
 		
 		potential = {
 			is_ruler = yes
@@ -787,7 +1230,7 @@ targetted_decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.1
+				factor = 0.3
 				trait = paranoid
 			}
 			modifier = {
@@ -821,7 +1264,7 @@ targetted_decisions = {
 		
 		filter = spouse
 		ai_target_filter = spouse
-		ai_check_interval = 3
+		ai_check_interval = 12
 		
 		from_potential = {
 			is_ruler = yes
@@ -932,7 +1375,7 @@ targetted_decisions = {
 			factor = 1 
 			
 			modifier = {
-				factor = 0.3
+				factor = 0.5
 			}
 			modifier = {
 				factor = 0.1
@@ -1001,7 +1444,7 @@ targetted_decisions = {
 		
 		filter = spouse
 		ai_target_filter = spouse
-		ai_check_interval = 3
+		ai_check_interval = 12
 		
 		from_potential = {
 			is_ruler = yes
@@ -1051,7 +1494,7 @@ targetted_decisions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 0.1
+				factor = 0.3
 				trait = paranoid
 			}
 			modifier = {

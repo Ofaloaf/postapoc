@@ -3,6 +3,8 @@ decisions = {
 	conscript_merchant_ships = {
 		only_playable = yes
 		is_high_prio = yes
+		ai_check_interval = 12
+
 		potential = {
 			is_playable = yes
 			OR = {
@@ -51,7 +53,12 @@ decisions = {
 		only_playable = yes
 		is_high_prio = yes
 		is_mercenary = yes
+		ai_check_interval = 12
+
 		potential = {
+			NOT = {
+				has_dlc = "Legacy of Rome"
+			}
 			is_playable = yes
 			is_tribal = yes
 			is_landed = yes
@@ -59,8 +66,14 @@ decisions = {
 				ai = no
 				any_war = {
 					OR = {
-						is_primary_war_defender = yes
-						is_primary_war_attacker = yes
+						any_defender = {
+							character = ROOT
+							is_primary_war_defender = yes
+						}
+						any_attacker = {
+							character = ROOT
+							is_primary_war_attacker = yes
+						}
 					}
 				}
 			}
@@ -94,5 +107,133 @@ decisions = {
 			factor = 0 # decisions with the "is_mercenary" will not be calculated from the script
 		}
 	}
-	
+
+	raise_defensive_unit = {
+		only_playable = yes
+		is_high_prio = yes
+		is_mercenary = yes
+		ai_check_interval = 12
+
+		potential = {
+			has_dlc = "The Old Gods"
+			NOT = {
+				has_dlc = "Legacy of Rome"
+			}
+			is_playable = yes
+			is_tribal = yes
+			is_landed = yes
+			OR = {
+				religion = occultist
+				religion = occultist_reformed
+				religion = celtic_pagan
+				religion = celtic_pagan_reformed
+				religion = revelationist
+				religion = revelationist_reformed
+			}
+		}
+
+		allow = {
+			war = yes
+			
+			custom_tooltip = {
+				text = raise_defensive_unit_tooltip
+
+				hidden_tooltip = {
+					any_war = {
+						any_defender = {
+							character = ROOT
+							is_primary_war_defender = yes
+						}
+
+						#Defending against heathen
+						OR = {
+							#Defender is finnish pagan but attacker is not
+							AND = {
+								ROOT = {
+									OR = {
+										religion = occultist
+										religion = occultist_reformed
+									}
+								}
+								attacker = {
+									NOR = {
+										religion = occultist
+										religion = occultist_reformed
+									}
+								}
+							}
+
+							#Defender is west african pagan but attacker is not
+							AND = {
+								ROOT = {
+									OR = {
+										religion = celtic_pagan
+										religion = celtic_pagan_reformed
+									}
+								}
+								attacker = {
+									NOR = {
+										religion = celtic_pagan
+										religion = celtic_pagan_reformed
+									}
+								}
+							}
+
+							#Defender is baltic pagan but attacker is not
+							AND = {
+								ROOT = {
+									OR = {
+										religion = revelationist
+										religion = revelationist_reformed
+									}
+								}
+								attacker = {
+									NOR = {
+										religion = revelationist
+										religion = revelationist_reformed
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			piety = 200	
+		}
+
+		effect = {
+			custom_tooltip = { text = summon_defensive_unit }
+			piety = -200
+
+			hidden_tooltip = {
+				capital_scope = {
+					ROOT = {
+						spawn_unit = {
+							owner = ROOT
+							home = PREV
+							province = PREV
+							disband_on_peace = yes
+							maintenance_multiplier = 0.25
+							attrition = 1.0 
+
+							troops = {
+								archers = { 400 400 }
+								light_infantry = { 1000 1000 }
+								heavy_infantry = { 350 350 }
+								light_cavalry = { 250 250 }
+							}
+						}
+					}
+				}
+			}
+		}
+
+		revoke_allowed = {
+			always = no
+		}
+
+		ai_will_do = {
+			factor = 0
+		}
+	}	
 }

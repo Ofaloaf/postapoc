@@ -1,0 +1,546 @@
+
+#####################################################
+##################### Dueling #######################
+#####################################################
+
+
+######## To check for weapon types used...
+is_dueling_weapon_artifact_and_equipped = { #meaning ranged weapons (except the handgun) and lances are excluded 
+	has_artifact_flag = combat_weapon
+	NOT = { #Currently, we are not using bows - for future reference, that'd go here
+		has_artifact_flag = bow
+		has_artifact_flag = crossbow
+		has_artifact_flag = ranged_weapon
+	}
+	is_artifact_equipped = yes
+}
+is_using_blunt_weapon_trigger = { #blunt weapon!
+	OR = {
+		has_character_flag = weapon_is_mace
+		has_character_flag = weapon_is_staff
+		event_target:dueling_weapon_1 = {
+			OR = {
+				has_artifact_flag = mace
+				has_artifact_flag = hammer
+				has_artifact_flag = staff
+			}
+			artifact_owner = { character = PREVPREV }
+		}
+		event_target:dueling_weapon_2 = {
+			OR = {
+				has_artifact_flag = mace
+				has_artifact_flag = hammer
+				has_artifact_flag = staff
+			}
+			artifact_owner = { character = PREVPREV }
+		}
+	}
+}
+is_using_sharp_weapon_trigger = { #Sharp weapon!
+	OR = {
+		has_character_flag = weapon_is_sword
+		has_character_flag = weapon_is_scimitar
+		has_character_flag = weapon_is_axe
+		has_character_flag = weapon_is_spear
+		event_target:dueling_weapon_1 = {
+			OR = {
+				has_artifact_flag = sword
+				has_artifact_flag = axe
+				has_artifact_flag = spear
+			}
+			artifact_owner = { character = PREVPREV }
+		}
+		event_target:dueling_weapon_2 = {
+			OR = {
+				has_artifact_flag = sword
+				has_artifact_flag = axe
+				has_artifact_flag = spear
+			}
+			artifact_owner = { character = PREVPREV }
+		}
+	}
+}
+is_using_piercing_weapon_trigger = { #Sharp, but not an axe
+	is_using_sharp_weapon_trigger = yes
+	NOT = { has_character_flag = weapon_is_axe }
+	NOT = {
+		event_target:dueling_weapon_1 = {
+			has_artifact_flag = axe
+			artifact_owner = { character = PREVPREV }
+		}
+	}
+	NOT = {
+		event_target:dueling_weapon_2 = {
+			has_artifact_flag = axe
+			artifact_owner = { character = PREVPREV }
+		}
+	}
+}
+is_using_spear_weapon_trigger = { #A spear!
+	OR = {
+		has_character_flag = weapon_is_spear
+		event_target:dueling_weapon_1 = {
+			has_artifact_flag = spear
+			artifact_owner = { character = PREVPREV }
+		}
+		event_target:dueling_weapon_2 = {
+			has_artifact_flag = spear
+			artifact_owner = { character = PREVPREV }
+		}
+	}
+}
+
+is_using_gun_trigger = { #A gun!
+	OR = {
+		event_target:dueling_weapon_1 = {
+			has_artifact_flag = gun
+			artifact_owner = { character = PREVPREV }
+		}
+		event_target:dueling_weapon_2 = {
+			has_artifact_flag = gun
+			artifact_owner = { character = PREVPREV }
+		}
+	}
+}
+
+
+######## To check whether a character has dueled before...
+has_duel_exp_modifier_trigger = {
+	custom_tooltip = {
+		text = has_dueling_exp_tt
+		hidden_trigger = {
+			OR = {
+				has_character_modifier = duel_exp_1
+				has_character_modifier = duel_exp_2
+				has_character_modifier = duel_exp_3
+				has_character_modifier = duel_exp_4
+				has_character_modifier = duel_exp_5
+				has_character_modifier = duel_exp_6
+				has_character_modifier = duel_exp_7
+				has_character_modifier = duel_exp_8
+			}
+		}
+	}
+}
+
+######## Personal combat rating values... #Reusable
+is_the_worst_duelist_trigger = {
+	NOT = { combat_rating = 0 }
+}
+is_terrible_duelist_trigger = {
+	combat_rating = 0
+	NOT = { combat_rating = 15 }
+}
+is_bad_duelist_trigger = {
+	combat_rating = 15
+	NOT = { combat_rating = 30 }
+}
+is_ok_duelist_trigger = {
+	combat_rating = 30
+	NOT = { combat_rating = 45 }
+}
+is_decent_duelist_trigger = {
+	combat_rating = 45
+	NOT = { combat_rating = 60 }
+}
+is_good_duelist_trigger = {
+	combat_rating = 60
+	NOT = { combat_rating = 75 }
+}
+is_great_duelist_trigger = {
+	combat_rating = 75
+	NOT = { combat_rating = 90 }
+}
+is_fantastic_duelist_trigger = {
+	combat_rating = 90
+	NOT = { combat_rating = 105 }
+}
+is_the_best_duelist_trigger = {
+	combat_rating = 105
+}
+
+# Combat rating checks - grouped.. #Reusable
+duelist_skill_is_low_group_trigger = {
+	OR = {
+		is_the_worst_duelist_trigger = yes
+		is_terrible_duelist_trigger = yes
+		is_bad_duelist_trigger = yes
+	}	
+}
+duelist_skill_is_medium_group_trigger = {
+	OR = {
+		is_ok_duelist_trigger = yes
+		is_decent_duelist_trigger = yes
+		is_good_duelist_trigger = yes
+	}
+}
+duelist_skill_is_high_group_trigger = {
+	OR = {
+		is_great_duelist_trigger = yes
+		is_fantastic_duelist_trigger = yes
+		is_the_best_duelist_trigger = yes
+	}
+}
+
+######## Combat rating compared to other target... #Reusable
+is_the_worst_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value < -90 } #Checks that you're worse than -90 below Prev in skill
+}
+is_terrible_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value >= -90 } #Checks that you're between -90 to -41 below Prev in skill
+	combat_rating_diff = { who = PREV value < -40 }
+}
+is_bad_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value >= -40 } #Checks that you're between -40 to -16 below Prev in skill
+	combat_rating_diff = { who = PREV value < -15 }	
+}
+is_ok_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value >= -15 } #Checks that you're -15 below or up to -6 below than Prev
+	combat_rating_diff = { who = PREV value < -5 }
+}
+is_decent_dueler_compared_to_prev_trigger = { #Should check if even...
+	combat_rating_diff = { who = PREV value >= -5 } #Checks that you're -5 below or up to 4 above Prev in skill
+	combat_rating_diff = { who = PREV value < 5 }
+}
+is_good_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value >= 5 } #Checks that you're between 5 to 14 above Prev in skill
+	combat_rating_diff = { who = PREV value < 15 }
+}
+is_great_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value >= 15 } #Checks that you're between 15 to 39 above Prev in skill
+	combat_rating_diff = { who = PREV value < 40 }
+}
+is_fantastic_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value >= 40 } #Checks that you're between 40 to 89 above Prev in skill
+	combat_rating_diff = { who = PREV value < 90 }
+}
+is_the_best_dueler_compared_to_prev_trigger = {
+	combat_rating_diff = { who = PREV value >= 90 } #Checks that you're more than 90 above Prev in skill
+}
+
+# Combat rating compared to other target - grouped... #Reusable
+duelist_skill_compared_to_prev_low_group_trigger = {
+	custom_tooltip = {
+		text = this_is_worse_than_prev_tt
+		hidden_trigger = {
+			OR = {
+				is_the_worst_dueler_compared_to_prev_trigger = yes
+				is_terrible_dueler_compared_to_prev_trigger = yes
+				is_bad_dueler_compared_to_prev_trigger = yes
+				is_ok_dueler_compared_to_prev_trigger = yes
+			}
+		}
+	}	
+}
+duelist_skill_compared_to_prev_medium_group_trigger = {
+	custom_tooltip = {
+		text = evenly_matched_tt
+		hidden_trigger = {
+			is_decent_dueler_compared_to_prev_trigger = yes
+		}
+	}
+}
+duelist_skill_compared_to_prev_high_group_trigger = {
+custom_tooltip = {
+		text = this_is_better_than_prev_tt
+		hidden_trigger = {
+			OR = {
+				is_good_dueler_compared_to_prev_trigger = yes
+				is_great_dueler_compared_to_prev_trigger = yes
+				is_fantastic_dueler_compared_to_prev_trigger = yes
+				is_the_best_dueler_compared_to_prev_trigger = yes
+			}
+		}
+	}
+}
+
+######## Duel score values... (used in targeted duels)
+duel_result_score_the_worst_trigger = {
+	NOT = { check_variable = { which = duel_result_score value = 0 } }
+}
+duel_result_score_terrible_trigger = {
+	check_variable = { which = duel_result_score value = 0 }
+	NOT = { check_variable = { which = duel_result_score value = 15 } }
+}
+duel_result_score_bad_trigger = {
+	check_variable = { which = duel_result_score value = 15 }
+	NOT = { check_variable = { which = duel_result_score value = 30 } }
+}
+duel_result_score_ok_trigger = {
+	check_variable = { which = duel_result_score value = 30 }
+	NOT = { check_variable = { which = duel_result_score value = 45 } }
+}
+duel_result_score_decent_trigger = {
+	check_variable = { which = duel_result_score value = 45 }
+	NOT = { check_variable = { which = duel_result_score value = 60 } }
+}
+duel_result_score_good_trigger = {
+	check_variable = { which = duel_result_score value = 60 }
+	NOT = { check_variable = { which = duel_result_score value = 75 } }
+}
+duel_result_score_great_trigger = {
+	check_variable = { which = duel_result_score value = 75 }
+	NOT = { check_variable = { which = duel_result_score value = 90 } }
+}
+duel_result_score_fantastic_trigger = {
+	check_variable = { which = duel_result_score value = 90 }
+	NOT = { check_variable = { which = duel_result_score value = 105 } }
+}
+duel_result_score_the_best_trigger = {
+	check_variable = { which = duel_result_score value = 105 }
+}
+
+#Duel score checks - grouped..
+duel_result_score_low_group_trigger = {
+	OR = {
+		duel_result_score_the_worst_trigger = yes
+		duel_result_score_terrible_trigger = yes
+		duel_result_score_bad_trigger = yes
+		duel_result_score_ok_trigger = yes
+	}	
+}
+duel_result_score_medium_group_trigger = {
+	duel_result_score_decent_trigger = yes
+}
+duel_result_score_high_group_trigger = {
+	OR = {
+		duel_result_score_good_trigger = yes
+		duel_result_score_great_trigger = yes
+		duel_result_score_fantastic_trigger = yes
+		duel_result_score_the_best_trigger = yes
+	}
+}
+
+#Animal might come to your rescue...
+has_pet_animal_trigger = {
+	OR = {
+		has_character_modifier = pet_hunting_dog
+		has_character_modifier = pet_cat
+		has_character_modifier = nomad_warhorse
+		has_character_modifier = pet_owl
+		has_character_modifier = pet_hunting_eagle
+	}
+}
+
+enemy_commander_and_liege_are_different_characters = {
+	event_target:enemy_commander = { NOT = { character = event_target:enemy_liege } }
+}
+home_commander_and_liege_are_different_characters = {
+	event_target:home_commander = { NOT = { character = event_target:home_liege } }
+}
+
+is_allowed_deadly_duels_trigger = {
+	NOT = { has_character_flag = mock_duel } #never in initiation rites
+
+	#Reasons a character might be allowed to duel someone to the death...
+    OR = {
+        is_member_of_any_warrior_lodge_trigger = yes
+        has_focus = focus_war
+        trait = arbitrary
+        trait = cruel
+        trait = impaler
+       	event_target:combatant_2 = { is_rival = PREV }
+   		event_target:combatant_2 = { is_foe = PREV }
+   		#Special game rules... 
+		has_game_rule = {
+            name = dueling
+            value = unrestricted
+        }
+    }
+}
+
+is_allowed_honor_duels_trigger = {
+	#Reasons a character might be allowed Duels for Honor...
+	NOT = {
+		has_game_rule = {
+            name = dueling
+            value = unrestricted
+        }
+	}
+}
+
+is_allowed_sparring_duels_trigger = {
+	#Reasons a character might be allowed practice (non-lethal) duels, to improve their skill...
+	OR = {
+	    is_member_of_any_warrior_lodge_trigger = yes
+		has_focus = focus_war
+	}
+}
+this_can_duel_with_from_trigger = { 
+	NOR = { 
+		trait = incapable
+		has_character_modifier = bedridden_illness
+		has_character_modifier = severe_illness
+	}
+	OR = {
+	    is_female = no
+	 	is_member_of_roots_warrior_lodge_trigger = yes
+	    #Both FROM and ROOT have gender equality
+	    AND = {
+	        OR = {
+	            trait = brave
+	            gender_equality_trigger = yes
+	            has_religion_feature = religion_matriarchal
+	            religion_group = pagan_group
+	            is_nomadic = yes
+	            religion_group = oldworld
+	        }
+	        FROM = {
+	            OR = {
+	  	            gender_equality_trigger = yes
+	           		has_religion_feature = religion_matriarchal
+	                religion_group = pagan_group
+	                is_nomadic = yes
+	                religion_group = oldworld
+	            }
+	        }
+	    }
+	}
+	FROM = { 
+  		is_within_diplo_range = ROOT
+        OR = {
+   			is_female = no
+			is_member_of_roots_warrior_lodge_trigger = yes
+	        #Both FROM and ROOT have gender equality
+            AND = {
+                OR = {
+ 	                trait = brave
+                    gender_equality_trigger = yes
+	            	has_religion_feature = religion_matriarchal
+                    religion_group = pagan_group
+					religion_group = oldworld
+                    is_nomadic = yes
+                }
+                ROOT = {
+                    OR = {
+      	                gender_equality_trigger = yes
+	            		has_religion_feature = religion_matriarchal
+                        religion_group = pagan_group
+						religion_group = oldworld
+                        is_nomadic = yes
+                    }
+                }
+            }
+        }
+    }
+}
+
+# To make sure characters have a chance of gaining a lover from dueling them (used as a modifier weight)...
+prev_is_lonely_this_romance_makes_sense_trigger = {
+	PREV = { has_lover = no }
+	AND = {
+    	NOT = { is_lover = PREV }
+		# Check opinions and attraction, etc...
+		NOT = { is_rival = PREV }
+		NOT = { is_lover = PREV }
+		prev_attraction_trigger = yes
+		OR = {
+			reverse_opinion = { who = PREV value = 45 }
+			reverse_has_opinion_modifier = { who = PREV modifier = opinion_budding_romance }
+		}
+		attacted_to_prev_trigger = yes
+		OR = {
+			opinion = { who = ROOT value = 45 }
+			has_opinion_modifier = { who = ROOT modifier = opinion_budding_romance }
+		}
+    }
+}
+
+
+# this has a chance of adding a special outcome flag in duels...
+interesting_duel_target_for_prev_trigger = {
+	OR = {
+		# Romance potential...
+	    AND = {
+	    	NOT = { is_lover = PREV }
+			# Check opinions and attraction, etc...
+			NOT = { is_rival = PREV }
+			NOT = { is_lover = PREV }
+			prev_attraction_trigger = yes
+			OR = {
+				reverse_opinion = { who = PREV value = 45 }
+				reverse_has_opinion_modifier = { who = PREV modifier = opinion_budding_romance }
+			}
+			attacted_to_prev_trigger = yes
+			OR = {
+				opinion = { who = ROOT value = 45 }
+				has_opinion_modifier = { who = ROOT modifier = opinion_budding_romance }
+			}
+	    }
+		# Friendship potential...
+		AND = {
+			NOT = { is_friend = PREV }
+			opinion = { who = PREV value = 5 }
+			reverse_opinion = { who = PREV value = 5 }
+			this_has_terrible_opinion_modifier_of_root_trigger = no
+			root_has_terrible_opinion_modifier_of_this_trigger = no
+		}
+
+		# Rival potential...
+		AND = {
+			NOT = { is_rival = PREV }
+			NOT = { is_lover = PREV }
+			NOT = { is_friend = PREV }
+			NOT = { opinion = { who = PREV value = 5 } }
+			OR = {
+				is_foe = PREV #checks if the current scope has committed a crime against PREV
+				PREV = { is_foe = PREVPREV} #checks if PREV has committed a crime against current scope
+				NOT = { opinion = { who = PREV value = -25 } }
+				this_has_terrible_opinion_modifier_of_root_extended_trigger = yes
+			}
+		}
+		AND = {
+			NOT = { is_rival = PREV }
+			NOT = { is_lover = PREV }
+			NOT = { is_friend = PREV }
+			NOT = { reverse_opinion = { who = PREV value = 5 } }
+			OR = {
+				is_foe = PREV #checks if the current scope has committed a crime against PREV
+				PREV = { is_foe = PREVPREV} #checks if PREV has committed a crime against current scope
+				NOT = { reverse_opinion = { who = PREV value = -25 } }
+				root_has_terrible_opinion_modifier_of_this_extended_trigger = yes
+			}
+		}
+	}
+}
+
+has_bruises_trigger = {
+	OR = {
+		has_character_modifier = black_eye
+		has_character_modifier = swollen_wrist
+		has_character_modifier = swollen_ankle
+		has_character_modifier = concussion
+		has_character_modifier = cracked_ribs
+		has_character_modifier = badly_bruised
+		has_character_modifier = sore_muscles
+	}
+}
+
+is_using_intrigue_trigger = { #Either THIS is the attacker using intrigue, or the defender using intrigue
+	OR = {
+        AND = {
+            character = event_target:combatant_1
+            has_character_flag = attacker_using_poison@event_target:combatant_2
+        }
+        AND = {
+            character = event_target:combatant_2
+            has_character_flag = defender_using_poison@event_target:combatant_1
+        }
+    }
+}
+
+# Either from rank 4 warrior lodge, or a bloodline
+is_indomitable_trigger = {
+	OR = {
+		AND = {
+			society_rank == 4
+			is_member_of_any_warrior_lodge_trigger = yes
+		}
+		any_owned_bloodline = {
+			has_bloodline_flag = indomitable_bloodline
+		}
+	}
+}
+
+
+

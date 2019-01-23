@@ -1,0 +1,68 @@
+# Scripted triggers used by the game
+
+# Check if a character can be assigned to lead troops
+# Root = Character
+fit_to_lead_troops = {
+	is_adult = yes
+	NOT = { has_character_modifier = in_meditation }
+	NOT = { has_character_modifier = doing_penance }
+	NOT = { has_character_modifier = out_traveling }
+	NOT = { has_character_modifier = mother_dark_rest }
+	NAND = { # Only certain popes will lead troops
+		OR = {
+			has_landed_title = k_papal_state
+			has_landed_title = k_ursuline
+			has_landed_title = d_quorum_of_the_twelve
+		}
+		NOR = {
+			has_education_martial_trigger = yes
+			has_minor_title = title_commander
+			has_job_title = job_marshal
+		}
+	}
+	OR = {
+		ai = no
+		war = yes
+		has_minor_title = title_commander
+		has_job_title = job_marshal
+		AND = { # Catch-all to make landless adventurers and such lead their troops...
+			primary_title = {
+				higher_tier_than = COUNT
+			}
+			NOT = {
+				any_demesne_title = {
+					lower_tier_than = DUKE
+				}
+			}
+		}
+	}
+	OR = {
+		ai = no
+		has_minor_title = title_commander
+		has_job_title = job_marshal
+		AND = { # Catch-all to make landless adventurers and such lead their troops...
+			primary_title = {
+				higher_tier_than = COUNT
+			}
+			NOT = {
+				any_demesne_title = {
+					lower_tier_than = DUKE
+				}
+			}
+		}
+		AND = {
+			is_ruler = yes
+			higher_real_tier_than = COUNT
+			OR = {
+				AND = { 
+					combat_rating = 10
+					trait = craven
+				}
+				AND = { 
+					combat_rating = -35
+					NOT = { trait = craven }
+				}
+			}
+		}
+	}
+}

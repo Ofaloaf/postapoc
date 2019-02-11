@@ -1,0 +1,106 @@
+This feature was introduced in 2.9/Holy Fury, and is used for reforming religions.
+
+This folder is used to define what features can be chosen, and what those features do.
+
+== Structure ==
+
+For the purposes of scopes, by "religion", the documentation means "the religion resulting from this reformation". E.G., if the player is norse_pagan, the "religion" is norse_pagan_reformed.
+When religions are randomized in alternate start, the actual on-map religion will be the scope. E.G., when norse_pagan gets randomized, the scope will be norse_pagan, not norse_pagan_reformed.
+
+religion_nature = { # Name of the feature category. This loc key will be used for its name, and it plus "_desc" for its description. The key plus "_feature" will be used in the religion feature list, if defined
+	buttons = { nature } # A list of buttons that pick from this category. Need to be defined as windows within the religion_reformation_view window. The window need the elements "label", "picture", and "feature_label"
+	
+	religion_peaceful = { # Name of a feature
+		picture = GFX_pick_era_image_1 # What image to use for the feature
+		potential = { # When the feature will show in the UI. ROOT is the religion, FROM is the reformer
+			always = yes
+		}
+		trigger = { # When the feature can be picked. ROOT is the religion, FROM is the reformer
+			always = yes
+		}
+		effect = { # What effects it will have. ROOT is the religion, FROM is the reformer
+			set_pacifist = yes
+		}
+		ai_will_do = { 	#  The chance the AI will pick a given option when reforming its religion. Also used in the UI for generating the starting choices for the player. Note that when hitting "randomize", no weighting is applied whatsoever. Note that if you don't define this, the chance will be considered "1"
+			factor = 10 # Base chance
+			modifier = { # ROOT is the religion, FROM is the reformer
+				factor = 2
+				always = yes
+			}
+		}
+	}
+	religion_blah_blah = { # Name of another feature. Any number of features can be defined
+		...
+	}
+}
+
+You can extend a category from another file by simply using its name again. Useful for adding more doctrines or similar on top of what vanilla provides.
+E.G.,
+religion_nature = {
+	some_new_doctrine = {
+		blah blah blah
+	}
+}
+Would result in "some_new_doctrine" getting added to the "religion_nature" category.
+
+Be aware that FROM might not exist; in Alternate Start, if religion features are randomized there will not be a reformer specified.
+
+== Related effects ==
+The following effects can be used to change how a religion works:
+	set_peace_piety_gain
+	set_pacifist
+	set_convert_other_groups
+	set_convert_same_group
+	set_peace_prestige_loss
+	set_ai_aggression
+	set_unit_modifier
+	set_unit_home_modifier
+	set_hard_to_convert
+	set_raised_vassal_opinion_loss
+	set_piety_loss_for_attacking_same_religion
+	set_max_wives
+	set_max_consorts
+	set_feminist
+	set_heir_designation
+	set_short_reign_opinion_year_mult
+	set_jizya_tax
+	set_can_retire_to_monastery
+	set_can_excommunicate
+	set_can_grant_divorce
+	set_can_grant_invasion_cb
+	set_can_grant_claim
+	set_can_call_crusade
+	set_pc_marriage
+	set_bs_marriage
+	set_psc_marriage
+	set_cousin_marriage
+	set_seafaring
+	set_allow_looting
+	set_allow_rivermovement
+	set_autocephaly
+	set_pentarchy
+	set_divine_blood
+	set_religion_head # When used in religion scope, sets the title that controls the religion. Use "none" to set the religion as not having any controller. If a title already controls the religion when this is called, it will cease to control the religion. Example: set_religion_head = k_norway/ROOT/none
+	set_uses_decadence
+	set_can_have_antipopes
+	set_priests_can_marry
+	set_priests_can_inherit
+	set_ignores_defensive_attrition
+	set_character_modifier
+	add_intermarry # Used with another religion as target. E.G., add_intermarry = ROOT/catholic. Can also be used with groups. Adds it to both religions
+	remove_intermarry # Used with another religion as target. E.G., remove_intermarry = ROOT/catholic. Can also be used to remove groups. Removes it from both religions
+	clear_intermarry # Removes all intermarrying. Does not affect other religions
+	set_defensive_attrition
+	set_female_temple_holders
+	set_male_temple_holders
+	set_branch_tag # Sets the branch tag of the religion, which is used for generating religious branch traits. Normally, these would be the name of a religion, but now they can be custom instead. E.G., "set_branch_tag = tag_name" will cause members of this religion to choose a branch trait from the traits tagged with that tag name
+	set_allows_matrilineal_marriage
+
+The following effects only affect religion reformation:
+	make_reformer_head_of_religion = yes # Causes the person reforming to get the religion head title. Note that the controlling title *must* be defined in landed titles for this to work. If "no", it'll be given to a bishop or randomly generated character instead
+	set_no_head_of_religion = yes # Causes no religious head at all to be created, like the Indian religions
+	
+== Related triggers ==
+has_religion_feature = feature_name # Checks if the scoped religion (or character or so on; anything with a religion) has the given feature
+has_selected_religion_feature = feature_name # Checks if the reformer has selected the given feature; can be used to make features mutually exclusive. Works in any scope, but *only* works in religious feature triggers; you risk OOS and similar if you try to use it elsewhere. Use "has_religion_feature" instead. Note that when the player is replacing a selected feature by clicking it, it is *not* considered selected, allowing them to replace it with a mutually exclusive feature
+

@@ -10,6 +10,7 @@ replace_path = "history/wars"
 replace_path = "common"
 replace_path = "common/death"
 replace_path = "common/landed_titles"
+replace_path = "common/trade_routes"
 replace_path = "gfx/flags"
 replace_path = "music"
 

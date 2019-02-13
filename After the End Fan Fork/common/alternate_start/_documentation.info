@@ -1,0 +1,255 @@
+This folder is used for defining settings for the alternate start generation, both Shattered World and Random World.
+
+== Setting format ==
+Settings follow this format:
+name = { # Name of the setting. Same name in loc will be used, prefixed with "setting_". E.G., "setting_name" in this case. That key post-fixed with "_tooltip" will be used for the tooltip, and with "_tooltip_delayed" for the delayed tooltip
+	type = checkbox # What sort of UI to use. See the "types" section for a full list of possible types
+	random_default = option_name # What to default to in Random World. Optional; will default to first defined option if left out
+	shattered_default = option_name # What to default to in Shattered World. Optional; will default to first defined option if left out
+	sort_priority = 1000 # Where to display it in the settings list. The higher the priority, the earlier it will show up. Ties are broken by definition order. If not defined, priority is considered to be 0. Priority can be negative
+	separator = yes # If set to yes, the "separator" icon will be shown on the GUI entry
+	potential = { # When the option should show up. If the conditions are not met, it will not be displayed. Note that this is only evaluated when the player opens the settings; it does *not* dynamically update based on selected settings
+		some_triggers
+	}
+	trigger = { # When the option should be enabled. Will be greyed out if conditions are not met. Especially useful for settings that are only relevant given that some other setting is enabled
+		some_trigger
+	}
+	
+	option_name = { # Name of the option. Same name (pre-fixed with the loc key for the setting itself) in loc will be used for UI types that show names. Will be post-fixed with "_tooltip"/"_tooltip_delayed" for tooltips. The first option listed is the default option unless overriden with "random_default" or "shattered_default"
+		generate_dukes = yes # Various parameters can be set. See the "parameters" section further down for a full list
+		effect = { } # An effect to be run after the parameters have been executed
+	}
+	option_name = { ... } # You can define any number of options. Note that they cannot be named the same as another property, such as "default" or "max"
+	
+	default = 10 # Default value for a slider
+	min = 0 # Minimum value for a slider or double slider
+	max = 100 # Maximum value for a slider or double slider
+	min_default = 10 # Default value for one knob on a double slider
+	max_default = 50 # Default value for the other knob on a double slider
+	apply_before_generation = yes # Whether to apply the setting before or after characters are generated
+	priority = 1000 # Determines the order of execution for settings. Default is 0 priority. See "execution order" section for more info
+}
+
+== Types ==
+Settings come in the following types:
+* checkbox - Binary state. The "checked" option will be used if ticked. "unchecked" if not. For no effect, just leave the given option blank or omit it entirely.
+* slider - Discrete number line. The value chosen by the player can be referenced in script, and for some settings will affect code
+* double_slider - Discrete number line where the player sets two values rather than one. The values chosen by the player can be referenced in script, and for some settings will affect code
+* selection - Allows any number of distinct choices. The first one listed will be the default
+* custom - Allows any number of distinct choices. Uses window type with the same name as the option, prefixed with "alt_setting_" and post-fixed with "_entry (E.G., alt_setting_tier_entry). The window type requires buttons with the same name as each choice. The first one listed will be the default. The window type also needs a "selection_indicator" icon. This will get moved to the upper-left corner of whichever option is selected
+
+== Parameters ==
+Settings can set various parameters that will be executed by the code, or referenced by script.
+Full list of parameters with code effects:
+
+* generate_dukes = yes # Elevate a count in every duchy to duke, and vassalize the other counts
+* consolidate_dukes = yes # The dukes will also get every county in their duchy, held personally
+* holding_type = historical # Does not touch holdings, but makes all rulers of one or two holding tribal provinces (note holdings, not slots) of Nomadic cultures Nomads
+* holding_type = feudal # Makes every county in the game have a feudal, temple, and city holding, in that order
+* holding_type = tribal # Makes every county in the game have just a single tribal holding
+* holding_type = nomadic # Makes every county in the game have no holdings whatsoever
+* holding_type = tribal_nomadic # Makes all Nomadic cultured provinces (as defined in the culture itself) have no holdings. Everything else has a single tribal holding
+* holding_slots = random # Causes the number of holding slots to be randomized between 1 and 7. Formula is ( 2d7 + 1 ) / 2
+* holding_slots = one-seven # Causes the number of holding slots to be set to this number in the whole world
+* culture = random/full_random # Causes culture to be randomized. See "culture and religion spread" section
+* religion = random/full_random # Causes religion to be randomized. See "culture and religion spread" section
+* technology = flat # Causes all provinces to have the same tech level (interpolated by year between the ideal years for 0 and 8 tech)
+* dejure_kingdoms = none # Causes all dejure kingdoms and empires to get removed
+* dejure_kingdoms = random # Causes all dejure kingdoms to be replaced with randomly generated ones
+* dejure_empires = none # Causes all dejure empires to get removed
+* dejure_empires = random # Causes all dejure empires to be replaced with randomly generated ones
+* holy_sites = random # Causes holy sites for any religion with provinces on the map to be randomized. See "holy site generation" for more info
+* culture_names = random # Causes culture names to get randomized. See "culture name generation" for more info
+* religion_names = random # Causes religion names to get randomized. See "religion name generation" for more info
+* religion_features = random # Causes religions to have their features reset, and then generated from the religion_features folder in common. See "religion feature generation" for more info
+* generate_random_dukes = yes # Elevate counts to dukes if they meet certain requirements. For more info, see "random duke/king/emperor generation"
+* generate_random_kings = yes # Elevate rulers to kings if they meet certain requirements. For more info, see "random duke/king/emperor generation"
+* generate_random_emperors = yes # Elevate rulers to emperors if they meet certain requirements. For more info, see "random duke/king/emperor generation"
+* generate_random_holdings = yes # Randomizes the holdings in the world. For more info, see "random holding generation"
+
+You can also define any parameter in order to reference it in script with the "has_alternate_parameter" trigger. E.G., "test = hello" would have no effect, but could be checked in script with has_alternate_parameter = { key = test value = hello }
+
+== Sliders ==
+The following sliders have code effects:
+
+* female_percentage  # The value here determines the chance of each ruler being female
+* marriage_percentage # The value here determines the chance of each (adult) ruler being married
+* num_counties # The max number of counties a count can be generated with. Counts will continually roll a 50% to get one more county until they either hit this cap, or fail a roll
+
+== Double sliders ==
+The following double sliders have code effects:
+
+* age_span # The value here determines the bounds within which character ages are generated
+* num_of_children # The value here determines how many children adult rulers have
+* dejure_kingdom_size # The value here determines how big randomly generated kingdoms are
+* dejure_empire_size # The value here determines how big randomly generated empires are
+* MORE TBA
+
+== Execution order ==
+Settings are executed in priority order. When priority is the same, ties are broken by definition order.
+The parameters of a setting are executed before the "effect" section.
+All options are executed *after* the generation of counts, but before the game has actually started, unless "apply_before_generation = yes" is set. If set, the option is instead executed before character generation.
+
+The on-action "on_alternate_start" will be run on game start if an alternate start is used. It fires after the generation is done, the save loaded, and execution of startup stuff completed
+
+== Related triggers ==
+is_alternate_start = yes        # Whether the game was started as a shattered/random world
+is_shattered_world = yes        # Whether the game was started as a shattered world
+is_random_world = yes           # Whether the game was started as a random world
+
+has_alternate_start_setting = { # Whether the given setting has the given option
+	setting = dukes             # The key of the setting to check
+	option = checked            # The key of the option to check for
+}
+
+has_alternate_start_parameter = {# Whether the given parameter has been set to the given value
+	key = generate_dukes        # The parameter key to check
+	value = yes                 # The value key to check for
+}
+
+has_alternate_start_setting = { # Whether the given setting has the given value
+	setting = female_percentage # The key of the setting to check
+	value > 10                  # The value to compare to. Also takes variables
+}
+
+has_alternate_start_setting = { # Whether the given setting has the given bounds
+	setting = age_bounds    	# The key of the setting to check
+	max > 10                    # The value to compare the max value to. Also takes variables
+	min > 5                    	# The value to compare the min value to. Also takes variables
+}
+
+is_name_randomized = yes		# Checks if the name of the religion or culture currently scoped to has been randomized
+
+Future:
+is_random_world = yes
+
+== Related effects ==
+export_to_variable = {          # Will export the value chosen by the player for a setting to a provided variable
+	which = variable_name       # Variable to export to
+	value = alternate_start_value/alternate_start_min_value/alternate_start_max_value # What to export
+	key = setting_name          # Which setting to export it from
+}
+
+== Culture and religion spread ==
+It is possible to randomize cultures and religions.
+The basic process is this:
+
+0. All cultures/religions are cleared from the map
+1. For every group, a random province is chosen as the seed province (for religions, this is weighted using "religion_group_spawn", which can use the special trigger any_religion_distance to check the distance to groups already spawned. Religion group spawn happens in a random order)
+2. Each province that neighbors a group gets its score calculated. Note that this means a province that borders multiple filled out provinces can have multiple entries. Even for the same group
+3. A province is picked by random (weighted proportionally by the score) from the score list, and given the culture/religion group
+4. Step 2 and 3 are repeated until all provinces have a culture/religion group
+5. For each group, the religion/culture is cleared once more. Each culture/religion within that group randomly picks a starting province within the area allocated to the group. Steps 2 through 4 are then run using cultures rather than group
+
+On top of normal adjacencies, the adjacencies from the "adjacencies" section are used. See the "adjacencies" section of this document. These are *required* if your mod has islands, as otherwise they might end up with no culture or religion. Your territory thus has to be fully connected. You can ensure a score of 0 to make sure it only ever spreads via such an adjacency when there are literally no other options though.
+
+Scoring is done by the culture_spread and so on sections. In vanilla you find these in 01_spread.txt. The scopes available are the culture/religion as ROOT, and the province being evaluated as FROM.
+For the groups, the provided culture/religion scope is the first entry within the group.
+
+You can also set the following parameter in religions, cultures, and their groups:
+alternate_start = {
+	some_trigger
+}
+The scope is the culture/religion (first culture/religion in group if on group-level). Can be used to check for specific settings and the like
+
+== Kingdom and empire spread ==
+Kingdom/empire generation works somewhat similarly to culture and religion.
+However, instead of all cultures/religions getting evaluated at the same time, for title generation only a single title is generated at a time.
+
+On top of normal adjacencies, the adjacencies from the "adjacencies" section are used. See the "adjacencies" section of this document.
+
+The algorithm is this:
+1. We keep a list of all provinces that are on the border of the duchies handed out so far
+2. We grab a random unassigned duchy that borders one of those provinces. If we're out of border provinces, we just grab a random unassigned duchy
+3. We then grab random duchies that border the just created kingdom until we either hit our target size (random number in the range provided by the slider slider) or we run out of bordering duchies
+4. If we're short of the minimum number of duchies, we try to find a neighboring kingdom to merge with. If the current kingdom is one duchy large, it will merge no matter what. Otherwise, it only merges if that would still leave it under the max duchy limit. E.G., if the min is 3 and the max 10, a 2-duchy kingdom would merge with a neighboring 8-duchy kingdom, but not a 9-duchy kingdom
+5. We return to step 2 until we are out of unassigned duchies
+For empires, just replace "duchy/kingdom" with "kingdom/empire".
+
+At the end of this process, the game attempts to give away duchies/kingdoms that are only slightly connected to the rest of the kingdom/empire, so as to get more realistic title shapes. This always respects the min and max duchies/kingdoms.
+
+Duchies/kingdoms are picked similarly to provinces in the culture/religion spread; for every province the title being generated currently borders that is not already given to a title, a score is calculated. Note that like culture/religion spread, each unique border pair gets its own score, so if two provinces both border the same two provinces in another duchy, that's a total of four scores. This helps keep the titles compact.
+
+The kingdom scoring is done in dejure_kingdom_spread.
+The empire scoring is done in dejure_empire_spread.
+ROOT is the province being evaluated.
+FROM is the province within the title closest to its geographical center of the title being generated, updated as more duchies/kingdoms are added to it.
+FROMFROM is the province bordering the province being evaluated
+
+The historical dejure kingdoms/empires get marked as inactive.
+
+== Adjacencies ==
+Adjacencies follow this format:
+adjacencies = {
+	1 = 2 # The two provinces to connect. Order does not matter; the connection is two-way
+	2 = 3
+	...
+}
+
+== Holy site generation ==
+The game will generate five holy sites for any religion with provinces on the map if the "holy_sites = random" parameter is provided.
+
+Any province with a county title is eligible for this. The selection ensures the same province cannot be selected twice. Parent religions will be processed before their heresies, ensuring you can base heresy holy sites partially or entirely on parent religion holy sites if you want.
+
+A province is selected at random based on the weighting provided in "holy_site_spread".
+
+To make nice-looking selection easier, we've added the following triggers:
+* "num_holy_sites_generated < 3" - Checks how many holy sites exist for the religion at the moment
+* "holy_site_distance = { target = FROM value < 200 }" - Checks the distance to the nearest holy site of the target religion
+* "religion_distance = { target = FROM value > 500 }" - Checks the distance to the nearest province of the target religion. Be aware that this check can get very expensive if you're not careful. If you can, use holy_site_distance instead
+
+When holy sites are randomized, the preferred capital of the rel head title will be set to the first generated holy site.
+
+The game makes sure all holy sites end up with a temple, increasing the # of holding slots if necessary. In Nomad titles this will result in no temple, but guarantees enough slots to build one
+
+== Spread notes ==
+Be aware that the spread calculations use 32-bit fixed point numbers.
+This means that if the sum of all chances is above roughly 2.1 million, the numbers will go negative and all hell breaks loose. Therefore, try to keep your numbers within reason.
+It also means that modifiers smaller than 0.001 are not possible; it will be interpreted as 0.
+
+== Culture name generation ==
+The culture naming is very simple. The game will compile a list of every county that has the culture. It will then pick one at random (unweighted), and then 50-50 to pick either the county's adjective or the adjective of the duchy it is in.
+The exact same thing is done for culture groups, except checking the counties' culture group rather than culture.
+
+== Religion name generation ==
+Religion naming comes in three formats: character name based, dynasty name based, and holy site based.
+These are equally likely.
+
+What loc keys to use are defined in "religion_name_formats" (02_naming.txt in vanilla).
+Note that all three sections *must* have at least one key, or the game will crash when religion name randomization is used.
+
+If holy site is picked, a random loc key from the "holy_site" section will be picked, and a random holy site will get picked and the name of the county inserted.
+
+If character or dynasty based naming is picked, a list of all provinces with the religion will be made, much like for culture generation. One is picked at random, and the culture in that province used to generate the name.
+For character name based, it will pick a random male name, weighted according to the regular naming weights.
+For dynasty name based, it will pick a random dynasty of that culture with no restrictions. This pick is unweighted. The last word in the dynasty name will be used if it consists of more than one word. Apostrophes E.G., as in d'Anjou) will be considered as spaces.
+
+It then takes a random loc key from the character/dynasty section, and runs it through localisation.
+
+Gods, piety, and so on get their names randomly selected from the corresponding section in religion_name_formats. These are simply loc keys that provide suitable generic names. Heresies will take their descriptions from heresy_desc rather than desc.
+Descriptions will be unique as long as you have defined at least as many descriptions as there are religions that can spawn on the map, as divided between heresies and non-heresies.
+
+Religions with no provinces will copy their parent religion's naming for gods and so on, while generating a name of their own based on the culture used for the parent religion's name, or its holy sites.
+
+After the naming has been decided the scripted effect "randomize_religion_names_effect" is called. There is no scope. It is used to activate, give holders and rename all religious titles.
+
+When religion names are randomized, the icons will be replaced with the religion icon strips in gfx/interface/shattered_random
+
+== Religion feature generation ==
+Religions are processed in definition order, except with all base religions first, then heresies. Reformed versions get their features removed, but no new ones generated since that gets handled by reforming the religion.
+First, the scripted effect "reset_religion_features_effect" is called. The scope provided is the religion as ROOT.
+Then features are picked according to the ai_will_do of the features.
+Note that the FROM scope will be undefined as there is no reformer.
+
+When features are randomized, "allows_matrilineal_marriage" in governments will be ignored and assumed to always be "yes".
+
+== Random duke/king/empire generation ==
+Random duke generation works pretty simply.
+We roll a number from 0 up to and including 99. If it is below the "duke_ignore_rate" parameter, we skip this duchy.
+
+We make a list of all rulers in the duchy. We sort it by # of counties they have in the duchy. Then we grab the one with the most counties. Ties are broken by # of counties held (that is, if they hold more outside the duchy). A ruler is considered to hold their personal counties, and those of any vassal who is at least two levels below the tier being generated (not relevant for dukes, but gives better results for kings and emperors).
+If they hold at least as many % of the duchy as "duke_threshold" duke parameter, we give them the duchy.
+For the remaining rulers in the area, if they are still count-level and independent, we roll for each a number between 0 and 99. If it is below the "duke_vassalization_rate" parameter, they get vassalized by the duke. Rulers with more than half their realm outside the dejure area will not get vassalized
+
+For kings and emperors, same as above, but replace the word "duke".
+Any enclaves (defined as a realm bordering only a single realm, and not being coastal) get vassalized by the realm surrounding them, assuming they're higher tier

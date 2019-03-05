@@ -1,0 +1,2789 @@
+# Warrior Lodges decisions
+# By Milla Isaksson
+
+targeted_decisions = {
+	duel_decision = {
+	    only_playable = yes
+	    is_high_prio = yes
+	    diplomacy_icon = GFX_duel_decision
+	    
+	    #ai_target_filter = rivals
+		ai_check_interval = 10
+	    
+	    from_potential = {
+	        is_playable = yes
+	        is_adult = yes
+	        prisoner = no
+	        OR = {
+	        	AND = {
+	        		has_focus = focus_war
+		    		has_dlc = "Way of Life"
+	        	}
+	        	AND = {
+	        		has_dlc = "Holy Fury"
+					is_member_of_any_warrior_lodge_trigger = yes
+	        	}
+				AND = {
+	        		has_dlc = "Holy Fury"
+					any_bloodline = {
+						has_bloodline_flag = duelist_bloodline
+					}
+	        	}
+	        }
+	        has_regent = no
+	        is_inaccessible_trigger = no
+
+	        OR = {
+	            ai = no
+	            
+	            is_female = no
+
+	            AND = {
+	                is_female = yes
+	                OR = {
+	                    trait = brave
+	                    religion_group = pagan_group
+						religion_group = oldworld
+						religion = neognostic
+	                    is_nomadic = yes
+	                    gender_equality_trigger = yes
+	                }
+	            }
+	        }
+	    }
+	    
+	    potential = {
+	    	OR = {
+		    	AND = { #Either you are adult, as well as your target...
+		        	is_adult = yes
+		    		FROM = { is_adult = yes }
+		    	}
+		    	AND = { #Or you are both children! WEIRD!
+		        	is_adult = no
+		    		FROM = { is_adult = no }
+		    	}
+	    	}
+
+	        prisoner = no
+	        NOT = { character = FROM }
+	        is_inaccessible_trigger = no
+	    }
+	    
+	    allow = {
+	    	trigger_if = { #[Won't show ANY reqs. if you have "Unrestricted" duels...]
+				limit = { #But otherwise: find a target, valid both relationship-, and healthwise...
+					NOT = { 
+						has_game_rule = {
+	                        name = dueling
+	                        value = unrestricted
+	                    }
+					}
+				}
+                OR = { # RELATIONSHIP/mission reqs...
+                    custom_tooltip = {
+                        text = duel_tooltip_rivals
+                        is_rival = FROM
+                    }
+                    custom_tooltip = {
+                        text = duel_tooltip_foes
+                        is_foe = FROM
+                    }
+                    trigger_if = {
+                        limit = { religion = FROM }
+                    	custom_tooltip = {
+                    		text = duel_tooltip_excommunicated
+                    		FROM = { trait = zealous }
+                        	trait = excommunicated
+                    	}
+                    }
+                    #trigger_if = {
+                    #    limit = { FROM = { religion_group = muslim } }
+	                #    custom_tooltip = {
+	                #        text = duel_tooltip_decadent
+	                #        FROM = { trait = zealous }
+	                #        trait = decadent
+	                #    }
+					#}
+					trigger_if = {
+						limit = {
+			                any_quester_targeting_this = { #FROM must have this as a quest target
+								character = FROM
+								OR = {
+									has_quest = quest_warrior_lodge_duel_honor
+									has_quest = quest_warrior_lodge_duel_deadly
+								}
+							}
+						}
+						custom_tooltip = {
+							text = quest_target_tt
+							any_quester_targeting_this = { #FROM must have this as a quest target
+								character = FROM
+								OR = {
+									has_quest = quest_warrior_lodge_duel_honor
+									has_quest = quest_warrior_lodge_duel_deadly
+								}
+							}
+						}
+					}
+                }
+			}
+
+            #Both are healthy
+            custom_tooltip = {
+                text = duel_tooltip_sickness
+                FROM = {
+                	NOR = { #Not in sickly in bed, but sick if well treated is okay
+                		has_character_modifier = bedridden_illness
+                		has_character_modifier = severe_illness
+						trait = incapable
+					}
+                }
+                ROOT = {
+                    NOR = { #Not in sickly in bed, but sick if well treated is okay
+                		has_character_modifier = bedridden_illness
+                		has_character_modifier = severe_illness
+						trait = incapable
+                    }
+                }
+            }
+            
+            custom_tooltip = {
+            	text = duel_tooltip_pregnant
+                FROM = { is_pregnant = no }
+                ROOT = { is_pregnant = no }
+            }
+
+	                #Checks gender and some religious stuff... (turned this into apply_any_applicable_harsh_penalties_effect instead)
+#	                custom_tooltip = {
+#	                    text = duel_tooltip_valid_target_updated
+#	                    #text = duel_tooltip_valid_target
+#	                    hidden_tooltip = { ### Not female or challenger religion accepts female warriors
+#	                         OR = {
+#	                            is_female = no
+#
+#	                            is_member_of_roots_warrior_lodge_trigger = yes
+	                            #
+#	                            #Both FROM and ROOT have gender equality
+#	                            AND = {
+#	                                OR = {
+#	                                    trait = brave
+#	                                    gender_equality_trigger = yes
+#	                                    religion_group = pagan_group
+#	                                    is_nomadic = yes
+#	                                    religion = buddhist
+#	                                    religion = bogomilist
+#	                                }
+#	                                FROM = {
+#	                                    OR = {
+#	                                        gender_equality_trigger = yes
+#	                                        religion_group = pagan_group
+#	                                        is_nomadic = yes
+#	                                        religion = buddhist
+#	                                        religion = bogomilist
+#	                                    }
+#	                                }
+#	                            }
+#	                        }
+#	                        ### Not priest or challenger religion is pagan
+#	                        trigger_if = {
+#	                        	limit = { is_member_of_any_warrior_lodge_trigger = no }
+#		                        OR = {
+#		                            is_priest = no
+#		                            FROM = { religion_group = pagan_group }
+#		                        }
+#	                        }
+#	                    }
+#	                }
+
+	        ####### You won't want to fight someone who is badly injured, and if you are hurt yourself, you will want to wait...
+	        custom_tooltip = {
+	            text = duel_tooltip_recent_duel
+	            hidden_tooltip = {
+	                FROM = { NOT = { has_character_modifier = recent_duel_timer } }
+	                NOT = { has_character_modifier = recent_duel_timer }
+	            }
+	        }
+
+	        #############################################################################
+
+	        custom_tooltip = {
+	            #text = duel_tooltip_busy
+	            text = duel_tooltip_no_war
+	            hidden_tooltip = {
+	                FROM = {
+	                    #NOT = { has_character_flag = do_not_disturb }
+	                    NOT = { war = yes }
+	                }
+	                #NOT = { has_character_flag = do_not_disturb }
+	                NOT = { war = yes }
+	            }
+	        }
+	        trigger_if = { #If you do not have this as your mission target, you need to be within diplo-range...
+	        	limit = {
+	        		NOT = {
+						any_quester_targeting_this = { #FROM must have this as a quest target
+							character = FROM
+							OR = {
+								has_quest = quest_warrior_lodge_duel_honor
+								has_quest = quest_warrior_lodge_duel_deadly
+							}
+						}
+					}
+	        	}
+	        	is_within_diplo_range = FROM # CPU HEAVY!
+	        }
+	        trigger_if = { #If you *do* have this as your mission target, it's fine regardless of range..
+	        	limit = {
+					any_quester_targeting_this = {
+						character = FROM
+						OR = {
+							has_quest = quest_warrior_lodge_duel_honor
+							has_quest = quest_warrior_lodge_duel_deadly
+						}
+					}
+	        	}
+	        	OR = {
+	        		is_within_diplo_range = FROM
+	        		custom_tooltip = {
+						text = quest_target_tt
+						any_quester_targeting_this = { #FROM must have this as a quest target
+							character = FROM
+							OR = {
+								has_quest = quest_warrior_lodge_duel_honor
+								has_quest = quest_warrior_lodge_duel_deadly
+							}
+						}
+					}
+	        	}
+	        }
+	        trigger_if = {
+	        	limit = {
+					has_character_modifier = has_recently_declined_duel_cooldown
+	        	}
+	        	custom_tooltip = {
+	        		text = opinion_duel_decline_cooldown_tt
+		        	NOT = { 
+		        		has_character_modifier = has_recently_declined_duel_cooldown
+					}
+	        	}
+	        }
+	    }
+	    
+	    effect = {
+	    	#REQUIRED event targets for setting up duel evaluation!
+	    	FROM = { save_event_target_as = combatant_1 } #the person issuing the duel...
+	    	save_event_target_as = combatant_2 #the target of the duel...
+
+	    	apply_degree_of_dishonorable_duel_effect = yes #checks a bunch of age and health statuses...
+	    	apply_any_applicable_harsh_penalties_effect = yes #if your target is someone 
+	        
+	        FROM = {
+	            pacifists_lose_piety_effect = yes
+	            add_character_modifier = {
+	                modifier = recent_duel_timer
+	                duration = 90
+	                hidden = yes
+	            }
+	        }
+	        hidden_tooltip = {
+	            character_event = { id = HFP.10095 } #Duel evaluation (hidden) + result event as follow-up.
+	        }
+	    }
+	    
+	    revoke_allowed = {
+	        always = no
+	    }
+	    ai_will_do = {
+	        factor = 1
+	        modifier = {
+	            factor = 0
+	            has_character_modifier = declined_prestige_duel_timer #if the target has already declined a duel, AI's won't attempt to duel them while the timer is still
+	        }
+	        modifier = {
+	            factor = 0.1
+	        }
+	        modifier = {
+	            factor = 1.5
+	        	FROM = { potentially_interested_in_rivaling_root_trigger = yes }
+	        }
+	    }
+	}
+
+	########################################
+	# 				CLAIM duels 		   #
+	########################################
+	claim_duel_decision = {
+	    only_playable = yes
+	    is_high_prio = yes
+	    diplomacy_icon = GFX_duel_decision
+
+		ai_check_interval = 10
+	    
+	    from_potential = {
+	        is_playable = yes
+	        is_adult = yes
+	        prisoner = no
+    		has_dlc = "Holy Fury"
+
+    		is_tribal = yes
+
+    		any_claim = {
+   				always = yes
+    		}
+
+	        has_regent = no
+	        is_inaccessible_trigger = no
+
+	        OR = {
+	            ai = no	            
+	            is_female = no
+	            AND = {
+	                is_female = yes
+	                OR = {
+	                    trait = brave
+	                    religion_group = pagan_group
+	                    religion_group = oldworld
+						religion = neognostic
+	                    is_nomadic = yes
+	                    gender_equality_trigger = yes
+	                }
+	            }
+	        }
+	    }
+	    
+	    potential = {
+	        OR = {
+	        	AND = { # they are independent...
+		        	independent = yes
+		        	FROM = { has_strong_claim = PREV }
+	        	}
+	        	AND = { # You share liege...
+	        		liege = {
+	        			any_vassal = {
+	        				character = FROM
+	        			}
+	        		}
+		        	FROM = { has_strong_claim = PREV }
+	        	}
+#	        	AND = {
+#	        		any_vassal = {
+#	        			ai = yes
+#	        			FROM = { has_strong_claim = PREV }
+#	        		}
+#	        	}
+	        }
+	    	OR = {
+		    	AND = { #Either you are adult, as well as your target...
+		        	is_adult = yes
+		    		FROM = { is_adult = yes }
+		    	}
+		    	AND = { #Or you are both children! WEIRD!
+		        	is_adult = no
+		    		FROM = { is_adult = no }
+		    	}
+	    	}
+
+	        prisoner = no
+	        NOT = { character = FROM }
+	        is_inaccessible_trigger = no
+	        FROM = { NOT = { has_character_flag = claim_duel@PREV } }
+	    }
+	    
+	    allow = {
+	    	### For CLAIM duels ###
+	    	custom_tooltip = {
+        		text = both_tribal_tt
+        		is_tribal = yes
+        		FROM = { is_tribal = yes }
+        	}
+		    FROM = { has_strong_claim = PREV }
+
+            #Both are healthy
+            custom_tooltip = {
+                text = duel_tooltip_sickness
+                FROM = {
+                	NOR = { #Not in sickly in bed, but sick if well treated is okay
+                		has_character_modifier = bedridden_illness
+                		has_character_modifier = severe_illness
+						trait = incapable
+					}
+                }
+                ROOT = {
+                    NOR = { #Not in sickly in bed, but sick if well treated is okay
+                		has_character_modifier = bedridden_illness
+                		has_character_modifier = severe_illness
+						trait = incapable
+                    }
+                }
+            }
+                
+            #Checks gender and some religious stuff... (turned into apply_any_applicable_harsh_penalties_effect instead)
+#            custom_tooltip = {
+#                text = duel_tooltip_valid_target
+#                hidden_tooltip = { ### Not female or challenger religion accepts female warriors
+#                     OR = {
+#                        is_female = no
+#
+#                        is_member_of_roots_warrior_lodge_trigger = yes
+                        #
+#                        #Both FROM and ROOT have gender equality
+#                        AND = {
+#                            OR = {
+#                                trait = brave
+#                                gender_equality_trigger = yes
+#                                religion_group = pagan_group
+#                                is_nomadic = yes
+#                                religion = buddhist
+#                                religion = bogomilist
+#                            }
+#                            FROM = {
+#                                OR = {
+#                                    gender_equality_trigger = yes
+#                                    religion_group = pagan_group
+#                                    is_nomadic = yes
+#                                    religion = buddhist
+#                                    religion = bogomilist
+#                                }
+#                            }
+#                        }
+#                    }
+#                    ### Not priest or challenger religion is pagan
+#                    trigger_if = {
+#                    	limit = { is_member_of_any_warrior_lodge_trigger = no }
+#                        OR = {
+#                            is_priest = no
+#                            FROM = { religion_group = pagan_group }
+#                        }
+#                    }
+#                }
+#            }
+
+	        custom_tooltip = {
+	            text = duel_tooltip_recent_duel
+	            hidden_tooltip = {
+	                FROM = { NOT = { has_character_modifier = recent_duel_timer } }
+	                NOT = { has_character_modifier = recent_duel_timer }
+	            }
+	        }
+
+	        custom_tooltip = {
+	        	text = duel_tooltip_recent_challenge_tt
+	            hidden_tooltip = {
+	                FROM = { NOT = { has_character_modifier = recently_challenged_rule_timer } }
+	            }	
+	        }
+
+	        custom_tooltip = {
+	            #text = duel_tooltip_busy
+	            text = duel_tooltip_no_war
+	            hidden_tooltip = {
+	                FROM = {
+	                    #NOT = { has_character_flag = do_not_disturb }
+	                    NOT = { war = yes }
+	                }
+	                #NOT = { has_character_flag = do_not_disturb }
+	                NOT = { war = yes }
+	            }
+	        }
+	        
+	        is_within_diplo_range = FROM # CPU HEAVY!
+
+	        trigger_if = {
+	        	limit = {
+					has_character_modifier = has_recently_declined_duel_cooldown
+	        	}
+	        	custom_tooltip = {
+	        		text = opinion_duel_decline_cooldown_tt
+		        	NOT = { 
+		        		has_character_modifier = has_recently_declined_duel_cooldown
+					}
+	        	}
+	        }
+	    }
+	    
+	    effect = {
+	    	#REQUIRED event targets for setting up duel evaluation!
+	    	FROM = { save_event_target_as = combatant_1 } #the person issuing the duel...
+	    	save_event_target_as = combatant_2 #the target of the duel...
+
+	    	apply_degree_of_dishonorable_duel_effect = yes #checks a bunch of age and health statuses...
+	    	apply_any_applicable_harsh_penalties_effect = yes
+	        			
+			if = { # If Challenger has more than one claim to fight for...
+				limit = {
+					any_demesne_title = {
+						count > 1
+						FROM = { has_strong_claim = PREV }
+					}
+				}
+				random_demesne_title = {
+					limit = { event_target:combatant_1 = { has_strong_claim = PREV } }
+					preferred_limit = { tier = emperor }
+					preferred_limit = { tier = king }
+					preferred_limit = { tier = duke }
+					preferred_limit = { tier = count }
+					preferred_limit = { tier = baron }
+					save_event_target_as = target_title
+				}
+				event_target:combatant_1 = { set_character_flag = wants_multiple_titles_from@event_target:combatant_2 }
+			}
+			else_if = { # There is only ONE claim involved...
+				limit = {
+					any_demesne_title = {
+						FROM = { has_strong_claim = PREV }
+					}
+				}
+				random_demesne_title = {
+					limit = { event_target:combatant_1 = { has_strong_claim = PREV } }
+					save_event_target_as = target_title
+				}
+				event_target:combatant_1 = { set_character_flag = wants_single_title_from@event_target:combatant_2 }
+			}
+
+	        FROM = {
+	        	set_character_flag = claim_duel@ROOT
+	            pacifists_lose_piety_effect = yes
+	            add_character_modifier = {
+	                modifier = recent_duel_timer
+	                duration = 90
+	                hidden = yes
+	            }
+	        }
+
+	        FROM = {
+	        	show_scope_change = no
+	       		increase_troublemaker_status_effect = yes
+	        }
+
+	        hidden_effect = {
+		        FROM = {
+		        	add_character_modifier = {
+		        		modifier = recently_challenged_rule_timer
+		                duration = 90
+		                hidden = yes
+		        	}
+		        }
+	        }
+	        
+	        hidden_tooltip = {
+	            character_event = { id = HF.10095 days = 1 } #Duel evaluation (hidden) + result event as follow-up.
+	        }
+	    }
+	    
+	    revoke_allowed = {
+	        always = no
+	    }
+	    ai_will_do = {
+	        factor = 1
+	        modifier = {
+	            factor = 0
+	            has_character_modifier = declined_prestige_duel_timer #if the target has already declined a duel, AI's won't attempt to duel them while the timer is still
+	        }
+	        modifier = {
+	            factor = 0.1
+	        }
+	        modifier = {
+	            factor = 1.1
+	            trait = brave
+	        }
+	        modifier = {
+	            factor = 1.5
+	            trait = ambitious
+	        }
+	        title_tier_reduction_score = yes
+	    }
+	}
+
+	########################################
+
+
+	### Recruit/Induct your child into your warrior lodge ###
+	recruit_child_decision = {
+	    only_playable = yes
+	    is_high_prio = yes
+	    diplomacy_icon = GFX_duel_decision
+		ai_check_interval = 36
+	    
+	    from_potential = {
+    		has_dlc = "Holy Fury"
+	        is_playable = yes
+	        is_adult = yes
+	        prisoner = no
+			is_member_of_any_warrior_lodge_trigger = yes
+	        has_regent = no
+	        is_inaccessible_trigger = no
+	    }
+	    
+	    potential = {
+        	NOT = { character = FROM }
+	        prisoner = no
+	        is_child_of = FROM
+			
+	        OR = {
+	            FROM = { ai = no }
+	            is_primary_heir = FROM
+	        }
+	        NOT = { has_character_flag = flag_child_abandoned_lodge }
+	    }
+	    
+	    allow = {
+		    age = 12
+	    	trigger_if = {
+	    		limit = { #can't be in a society already...
+	    			is_in_society = yes
+	    			NOR = { # but not a secret one...
+	    				is_secret_religious_society_member_trigger = yes
+		                is_devil_worshiper_trigger = yes
+		                society_member_of = the_assassins
+	    			}
+	    		}
+		    	is_in_society = no
+	    	}
+
+	    	trigger_if = {
+	    		limit = {
+	    			OR = {
+	    				has_character_flag = is_being_recruited_to_warrior_lodge_by_parent
+	    				has_character_flag = refused_trial
+	    			}
+	    		}
+		    	custom_tooltip = {
+		    		text = already_attempted_recruitment_tt
+		    		NOR = {
+		    			has_character_flag = refused_trial
+		    			has_character_flag = is_being_recruited_to_warrior_lodge_by_parent
+		    		}
+		    	}
+	    	}
+	    	trigger_if = {
+	    		limit = {
+	    			OR = { #Either you or the recruit have a bloodline that matters...
+		    			FROM = {
+		    				any_owned_bloodline = {
+								has_bloodline_flag = bloodline_legendary_warrior
+							}
+		    			}
+	    				any_owned_bloodline = {
+							has_bloodline_flag = bloodline_legendary_warrior
+						}
+						custom_tooltip = {
+	        				text = has_mission_to_recruit_tt
+			        		FROM = {
+								has_quest = quest_warrior_lodge_recruit
+		        				quest_target = { character = ROOT }
+							}
+	        			}
+    				}
+	    		}
+	    		OR = {
+	    			FROM = { show_scope_change = no has_society_currency_tiny_trigger = yes } #It could cost currency...
+	    			custom_tooltip = {
+	    				text = legendary_warrior_bloodline_trigger_tt
+	    				OR = { #Or you or the recruit have a bloodline that matters...
+			    			FROM = {
+			    				any_owned_bloodline = {
+									has_bloodline_flag = bloodline_legendary_warrior
+								}
+			    			}
+		    				any_owned_bloodline = {
+								has_bloodline_flag = bloodline_legendary_warrior
+							}
+	    				}
+	    			}
+	    			custom_tooltip = { #Or you have a mission to recruit ROOT...
+        				text = has_mission_to_recruit_tt
+		        		FROM = {
+							has_quest = quest_warrior_lodge_recruit
+	        				quest_target = { character = ROOT }
+						}
+        			}
+	    		}
+	    	}
+	    	trigger_if = {
+	    		limit = {
+	    			NOR = { #No one has a bloodline that matters...
+		    			FROM = {
+		    				any_owned_bloodline = {
+								has_bloodline_flag = bloodline_legendary_warrior
+							}
+		    			}
+	    				any_owned_bloodline = {
+							has_bloodline_flag = bloodline_legendary_warrior
+						}
+    				}
+    				NOT = {
+	    				custom_tooltip = {
+	        				text = has_mission_to_recruit_tt
+			        		FROM = {
+								has_quest = quest_warrior_lodge_recruit
+		        				quest_target = { character = ROOT }
+							}
+	        			}
+        			}
+	    		}
+    			FROM = { show_scope_change = no has_society_currency_tiny_trigger = yes } #It could cost currency...
+	    	}
+
+	        is_inaccessible_trigger = no
+
+	        custom_tooltip = {
+	            text = characters_are_not_busy_tt
+	            hidden_tooltip = {
+	                FROM = {
+	                    NOT = { has_character_flag = do_not_disturb }
+	                    NOT = { war = yes }
+	                }
+	                NOT = { has_character_flag = do_not_disturb }
+	                NOT = { war = yes }
+	            }
+	        }
+	        trigger_if = {
+	        	limit = { NOT = { is_within_diplo_range = FROM } }
+	        	is_within_diplo_range = FROM # CPU HEAVY!
+	        }
+
+	        trigger_if = { #If landed, target character must be tribal or nomadic
+	        	limit = { is_landed = yes }
+	        	OR = {
+        			has_tribal_or_nomadic_government_trigger = yes
+	        		custom_tooltip = {
+        				text = has_mission_to_recruit_tt
+		        		FROM = {
+							has_quest = quest_warrior_lodge_recruit
+	        				quest_target = { character = ROOT }
+						}
+        			}
+	        	}
+	        }
+	        trigger_if = { #If landed, recruiting character must be tribal or nomadic
+	        	limit = { FROM = { is_landed = yes } }
+	        	OR = {
+        			FROM = { has_tribal_or_nomadic_government_trigger = yes }
+        			custom_tooltip = {
+        				text = has_mission_to_recruit_tt
+		        		FROM = {
+							has_quest = quest_warrior_lodge_recruit
+	        				quest_target = { character = ROOT }
+						}
+        			}
+	        	}
+	        }
+	    }
+	    
+	    effect = {
+	    	FROM = { save_event_target_as = recruiting_parent }
+        	
+        	if = {
+        		limit = {
+        			NOR = { #If no one has a bloodline that matters...
+		    			FROM = {
+		    				any_owned_bloodline = {
+								has_bloodline_flag = bloodline_legendary_warrior
+							}
+		    			}
+	    				any_owned_bloodline = {
+							has_bloodline_flag = bloodline_legendary_warrior
+						}
+    				}
+    				NOT = {
+						custom_tooltip = {
+		    				text = has_mission_to_recruit_tt
+			        		FROM = {
+								has_quest = quest_warrior_lodge_recruit
+		        				quest_target = { character = ROOT }
+							}
+		    			}
+		    		}
+        		}
+        		FROM = { show_scope_change = no detract_society_currency_tiny_effect = yes } #It will cost currency...
+        	}
+
+
+	    	save_event_target_as = new_recruit
+	    	set_character_flag = society_join_block
+        	set_character_flag = awaiting_initiation_trial
+        	set_character_flag = is_being_recruited_to_warrior_lodge_by_parent
+	    	#used later for joining correct society:
+	    	FROM = { society = { save_event_target_as = warrior_lodge_to_join } }
+
+	        hidden_tooltip = {
+	            character_event = { id = HF.10016 }
+	        }
+	    }
+	    
+	    revoke_allowed = {
+	        always = no
+	    }
+	    ai_will_do = {
+	        factor = 1
+	    }
+	}
+
+##############################
+########## POWERS ############
+##############################
+
+	#Power, rank 4: Choose Military Aspect
+	choose_military_aspect = {
+		is_in_society = yes
+		
+		filter = self
+		ai_target_filter = self
+		ai_check_interval = 12
+		
+		potential = {
+			character = FROM
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			is_member_of_any_warrior_lodge_trigger = yes
+			society_rank == 4
+		}
+		
+		allow = {
+			has_society_currency_minor_trigger = yes
+			custom_tooltip = {
+				text = choose_military_aspect_allow_tt
+				NOT = { has_character_flag = choosing_military_aspect }
+			}
+			OR = {
+				custom_tooltip = {
+					text = does_not_have_a_lifestyle_trait_tt
+					NOT = { lifestyle_traits = 1 }
+				}
+				trait = duelist
+				trait = hunter
+				trait = strategist
+			}
+		}
+		
+		effect = {
+			hidden_tooltip = {
+				if = {
+					limit = { has_lifestyle_martial_trigger = yes }
+					character_event = { id = HF.10020 } #Choose which trait to replace your current with...!
+				}
+				if = {
+					limit = { NOT = { lifestyle_traits = 1 } }
+					character_event = { id = HF.10021 } #Choose a path to go down...
+				}
+			}
+			set_character_flag = choosing_military_aspect
+			detract_society_currency_minor_effect = yes
+		}
+		
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				lifestyle_traits = 1
+			}
+		}
+	}
+
+
+	#Power, rank 2: Gain Lodge-specific Commander trait
+	warrior_training = {
+		is_in_society = yes
+		
+		filter = self
+		ai_target_filter = self
+		ai_check_interval = 12
+		
+		potential = {
+			character = FROM
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			is_member_of_any_warrior_lodge_trigger = yes
+			society_rank >= 2
+			NOT = { has_character_flag = choosing_warrior_training } #to stop you spamming the button
+			has_current_warrior_lodge_leader_trait_trigger = no #to keep it hidden once you're done
+		}
+		
+		allow = {
+			has_society_currency_medium_trigger = yes
+			custom_tooltip = {
+				text = has_no_warrior_training_with_current_society_tt
+				has_current_warrior_lodge_leader_trait_trigger = no
+			}
+		}
+		
+		effect = {
+			hidden_tooltip = {
+				character_event = { id = HF.10040 } #Gain trait...
+			}
+			set_character_flag = choosing_warrior_training
+			detract_society_currency_medium_effect = yes
+		}
+		
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				lifestyle_traits = 1
+			}
+			modifier = {
+				factor = 0.1
+				has_religion_matching_joined_warrior_lodge_trigger = no
+			}
+		}
+	}
+
+	#Power, rank 1 (Rust Cultist only): Toughness
+	warrior_toughness = {
+		is_in_society = yes
+		
+		filter = self
+		ai_target_filter = self
+		ai_check_interval = 12
+		
+		potential = {
+			character = FROM
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			society_member_of = warrior_lodge_rust_cultist
+			society_rank = 1
+			NOT = { has_character_flag = using_toughness } #to stop you spamming the button
+		}
+		
+		allow = {
+			has_society_currency_minor_trigger = yes
+			has_religion_matching_joined_warrior_lodge_trigger = yes
+			custom_tooltip = {
+				text = not_already_using_toughness_tt
+				NOT = { has_character_flag = using_toughness }
+			}
+			OR = {
+				trait = wounded
+				trait = severely_injured
+				trait = maimed
+				trait = mangled
+				trait = infection
+			}
+		}
+		
+		effect = {
+			hidden_tooltip = {
+				character_event = { id = HF.10055 } #Remove physical injury...
+			}
+			set_character_flag = using_toughness
+			detract_society_currency_minor_effect = yes
+		}
+		
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				trait = depressed
+			}
+			modifier = {
+				factor = 1.5
+				in_command = yes
+			}
+		}
+	}
+
+	#Power, rank 1 (Norse and Celtic only): Go Berserk
+	warrior_lodge_norse_go_berserk = {
+		is_in_society = yes
+		
+		filter = self
+		ai_target_filter = self
+		ai_check_interval = 12
+		
+		potential = {
+			character = FROM
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			OR = {
+				society_member_of = warrior_lodge_norse
+				society_member_of = warrior_lodge_celtic
+			}
+			society_rank = 1
+			NOT = { has_character_flag = going_berserk } #to stop you spamming the button
+		}
+		
+		allow = {
+			has_society_currency_minor_trigger = yes
+			has_religion_matching_joined_warrior_lodge_trigger = yes
+			custom_tooltip = {
+				text = not_already_going_berserk_tt
+				NOT = { has_character_flag = going_berserk }
+			}
+			OR = {
+				NOT = { trait = berserker }
+				prisoner = yes
+			}
+		}
+		
+		effect = {
+			if = {
+				limit = { NOT = { trait = berserker } }
+				custom_tooltip = {
+					text = gain_berserker_tt #Specifies what the trait gives: must be updated if trait is
+					#tooltip = { add_trait = berserker } #no longer needed
+				}
+			}
+			set_character_flag = special_berserker # Will last for at least 10 years
+			hidden_effect = {
+	    		if = {
+	    			limit = {
+	    				NOT = { trait = wroth }
+	    				NOT = { trait = patient }
+	    			}
+    				add_trait = wroth
+	    		}
+				if = {
+					limit = { trait = patient }
+					remove_trait = patient
+				}
+				if = {
+					limit = { trait = defensive_leader }
+					remove_trait = defensive_leader
+				}
+				if = {
+					limit = {
+						NOT = { leader_traits = 1 }
+						NOT = { trait = aggressive_leader }
+					}
+					add_trait = aggressive_leader
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = { prisoner = no }
+					character_event = { id = HF.10056 } #Fires event to handle outcome...
+				}
+				else = { #Might break you out of prison or have something bonkers happen...
+					character_event = { id = HF.10070 } #Fires event to handle outcome...
+				}
+			}
+			set_character_flag = going_berserk
+			detract_society_currency_minor_effect = yes
+		}
+		
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.1
+				trait = shy
+			}
+			modifier = {
+				factor = 0.1
+				trait = craven
+			}
+			modifier = {
+				factor = 0.1
+				trait = patient
+			}
+			modifier = {
+				factor = 0.1
+				trait = defensive_leader
+			}
+		}
+	}
+
+	#Power, rank 4: Call to Glory
+	warrior_lodge_call_to_glory = {
+		only_playable = yes
+		is_high_prio = yes
+		is_mercenary = yes
+
+		filter = self
+		ai_target_filter = self
+		ai_check_interval = 12
+		
+		potential = {
+			character = FROM
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			is_member_of_any_warrior_lodge_trigger = yes
+			society_rank = 4
+			NOT = { has_character_modifier = call_to_glory }
+			OR = {
+				ai = no
+				any_war = {
+					OR = {
+						any_defender = {
+							character = ROOT
+							is_primary_war_defender = yes
+						}
+						any_attacker = {
+							character = ROOT
+							is_primary_war_attacker = yes
+						}
+					}
+				}
+			}
+		}
+		
+		allow = {
+			war = yes
+			has_society_currency_major_trigger = yes
+			in_command = yes
+		}
+		
+		effect = {
+			detract_society_currency_major_effect = yes
+			custom_tooltip = { 
+				text = tooltip_lodge_call_to_glory
+				hidden_tooltip = {
+					set_variable = { which = "call_to_glory_variable" value = 0 } #Cleanup the variable.
+					character_event = { id = HF.25030 } #First recurring event.
+					add_character_modifier = { 
+						modifier = call_to_glory 
+						duration = -1 #Removed by recurring event and on_action when at peace or if leaving society.
+					} 
+				}
+			}
+		}
+		
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 0 # decisions with the "is_mercenary" will not be calculated from the script
+		}
+	}
+}
+	
+society_decisions = {
+	warrior_lodge_legendary_gathering = {
+		only_playable = yes
+		ai_check_interval = 36 #check only once every 36 months.
+		is_high_prio = yes
+		potential = {
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			is_member_of_any_warrior_lodge_trigger = yes
+			society_rank == 4
+			OR = {
+				society_has_active_progress = no
+				society = {
+					had_flag = {
+		                flag = used_legendary_gathering
+		                years = 100
+		            }
+	            }
+			}
+
+		}
+		allow = {
+			has_society_currency_major_trigger = yes
+			is_inaccessible_trigger = no
+			custom_tooltip = {
+				text = legendary_gathering_cd_tt
+				society = {
+					OR = {
+						NOT = { has_flag = used_legendary_gathering }
+						had_flag = {
+		                    flag = used_legendary_gathering
+		                    years = 100
+		                }
+					}
+				}
+			}
+		}
+		effect = {
+			detract_society_currency_major_effect = yes
+			custom_tooltip = { text = legendary_gathering_tt }
+			sound_effect = pagan_warhorn
+
+			if = {
+				limit = {
+					society = {
+						had_flag = {
+			                flag = used_legendary_gathering
+			                years = 100
+			            }
+					}
+				}
+				clr_flag = used_legendary_gathering
+			}
+
+			society = { set_flag = used_legendary_gathering } #Needs to be checked (should stick 100 years)
+
+			hidden_effect = {
+				society = { clr_flag = block_society_progress }
+				if = {
+					limit = {
+						society_has_active_progress = yes
+						society = {
+							had_flag = {
+				                flag = used_legendary_gathering
+				                years = 100
+				            }
+			            }
+					}
+					set_society_progress = 0
+				}
+			}
+			start_society_progress = yes
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.1
+			modifier = {
+				factor = 1.5 #more likely if ambitious
+				OR = {
+					trait = ambitious
+					ai_ambition = 50
+				}
+			}
+			modifier = {
+				factor = 0.1
+				any_bloodline = { always = yes } #Less likely if already has a bloodline...
+			}
+			modifier = {
+				factor = 0.1
+				duelist_skill_is_high_group_trigger = no #less likely if AI is not a great duelist...
+			}
+			modifier = {
+				factor = 0.1
+				duelist_skill_is_high_group_trigger = no #less likely if AI is not a great duelist...
+			}
+			modifier = {
+				factor = 0.1 #less likely if irrational
+				NOT = { ai_rationality = 0 }
+			}
+		}
+	}
+
+	warrior_lodge_summon_commander = {
+		only_playable = yes
+		ai_check_interval = 36 #check only once every 36 months.
+		potential = {
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			is_member_of_any_warrior_lodge_trigger = yes
+			society_rank = 2
+
+		}
+		allow = {
+			has_society_currency_medium_trigger = yes
+			is_inaccessible_trigger = no
+		}
+		effect = {
+			detract_society_currency_medium_effect = yes
+			custom_tooltip = { text = tooltip_summoning_lodge_commander }
+			hidden_tooltip = { 
+			if = { 
+				limit = { has_religion_feature = religion_matriarchal }
+				create_random_soldier = {
+					random_traits = yes
+					dynasty = random
+					female = yes
+					attributes = {
+						diplomacy = 4
+						learning = 4
+						stewardship = 4
+						intrigue = 4
+						martial = 14
+					}
+				}
+			}
+			if = { 
+				limit = { NOT = { has_religion_feature = religion_matriarchal } }
+				create_random_soldier = {
+					random_traits = yes
+					dynasty = random
+					female = no
+					attributes = {
+						diplomacy = 4
+						learning = 4
+						stewardship = 4
+						intrigue = 4
+						martial = 14
+					}
+				}
+			}
+			if = { 
+				limit = { 
+					NOR = { 
+						has_religion_feature = religion_matriarchal 
+						has_religion_feature = religion_patriarchal 
+					} 
+					has_game_rule = {
+						name = gender
+						value = all
+					}
+				}
+				create_random_soldier = {
+					random_traits = yes
+					dynasty = random
+					female = 50
+					attributes = {
+						diplomacy = 4
+						learning = 4
+						stewardship = 4
+						intrigue = 4
+						martial = 14
+					}
+				}
+			}
+			if = { 
+				limit = { 
+					NOR = { 
+						has_religion_feature = religion_matriarchal 
+						has_religion_feature = religion_patriarchal 
+						has_game_rule = {
+							name = gender
+							value = all
+						}
+					} 
+				}
+				create_random_soldier = {
+					random_traits = yes
+					dynasty = random
+					female = 5
+					attributes = {
+						diplomacy = 4
+						learning = 4
+						stewardship = 4
+						intrigue = 4
+						martial = 14
+					}
+				}
+			}
+			if = { 
+				limit = { has_religion_feature = religion_patriarchal }
+				create_random_soldier = {
+					random_traits = yes
+					dynasty = random
+					female = no
+					attributes = {
+						diplomacy = 4
+						learning = 4
+						stewardship = 4
+						intrigue = 4
+						martial = 14
+					}
+				}
+			}
+			}
+			new_character = {
+				remove_trait = weak
+				remove_trait = slow
+				remove_trait = imbecile
+				remove_trait = dull
+		
+				remove_trait = mystic
+				remove_trait = socializer
+				remove_trait = gamer
+				remove_trait = hedonist
+				remove_trait = duelist
+				remove_trait = hunter
+				remove_trait = strategist
+				remove_trait = administrator
+				remove_trait = architect
+				remove_trait = gardener
+				remove_trait = schemer
+				remove_trait = impaler
+				remove_trait = seducer
+				remove_trait = seductress
+				remove_trait = theologian
+				remove_trait = scholar
+				if = { 
+					limit = { 
+						is_female = yes 
+						ROOT = { 
+							NOR = { 
+								has_religion_feature = religion_matriarchal 
+								has_religion_feature = religion_patriarchal 
+								has_game_rule = {
+									name = gender
+									value = all
+								}
+							} 
+						} 
+					}
+					set_character_flag = special_marshal
+				}
+		
+				random_list = { # Flavor Randomization
+					35 = { 
+						# Nothing
+					}
+					15 = {
+						change_martial = 2
+					}
+					10 = {
+						add_trait = robust
+					}
+					10 = {
+						add_trait = duelist
+					}
+					10 = {
+						add_trait = hunter
+					}
+					5 = {
+						add_trait = strategist
+					}
+					5 = {
+						change_martial = 4
+					}
+					5 = {
+						if = {
+							limit = {
+								has_dlc = "Reapers"
+							}
+							add_trait = one_eyed
+						}
+					}
+					5 = { 
+						add_trait = shrewd
+					}
+					3 = { 
+						add_trait = giant
+					}
+				}
+				join_prev_warrior_lodge_society_effect = yes
+				hidden_tooltip = {
+					random = { 
+						chance = 50  #Chance of the commander being spawned from another religion.
+						give_this_warrior_lodge_religion_effect = yes 
+						set_character_flag = ai_flag_refuse_conversion	#In which case don't allow liege to immediately demand conversion.
+					}
+					add_warrior_lodge_leader_trait_effect = yes
+					if = {
+						limit = {
+							OR = {
+								religion = hellenic_pagan
+								religion = hellenic_pagan_reformed
+								has_religion_feature = religion_astrology
+							}
+						}
+						hidden_tooltip = { add_western_zodiac_trait_effect = yes }
+					}
+					if = {
+						limit = {
+							has_religion_feature = religion_no_leader
+							religion_group = pagan_group
+						}
+						random_list = {  
+							5 = {
+								add_trait = pagan_branch_1
+							}
+							25 = {
+								add_trait = pagan_branch_2
+							}
+							25 = {
+								add_trait = pagan_branch_3
+							}
+							25 = {
+								add_trait = pagan_branch_4
+							}
+						}
+					}
+				}
+				set_character_flag = invited_lodge_soldier
+				set_character_flag = lodge_warrior_original_court_@ROOT
+                set_character_flag = no_court_invites
+				save_event_target_as = invited_lodge_soldier
+			}
+			character_event = { id = HF.25000 }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.1
+			modifier = {
+				factor = 0.5
+				war = no #Only summon in time of need.
+			}
+			modifier = {
+				factor = 0.1
+				any_courtier = { is_member_of_any_warrior_lodge_trigger = yes } #Less likely to invite if there is already someone else at court.
+			}
+			modifier = {
+				factor = 0.1
+				any_courtier = { has_job_title = job_marshal martial = 16 }
+			}
+			modifier = {
+				factor = 0.25 #Fearful to be challenged for leadership.
+				is_tribal = yes
+				trait = paranoid
+			}
+			modifier = {
+				factor = 0 #Only use if empty commander spots.
+           		OR = {
+                	AND = {
+                    	tier = COUNT
+                        any_realm_character = {
+                            count = 2
+                            liege = { character = ROOT }
+                            has_minor_title = title_commander
+                        }
+                	}
+                	AND = {
+                    	tier = DUKE
+                        any_realm_character = {
+                            count = 4
+                            liege = { character = ROOT }
+                            has_minor_title = title_commander
+                        }
+                	}
+                	AND = {
+                    	tier = KING
+                   		 is_nomadic = no
+                        any_realm_character = {
+                            count = 6
+                            liege = { character = ROOT }
+                            has_minor_title = title_commander
+                        }
+                	}
+               		AND = {
+                	    tier = EMPEROR
+                	    is_nomadic = no
+                        any_realm_character = {
+                            count = 8
+                            liege = { character = ROOT }
+                            has_minor_title = title_commander
+                        }
+                	}
+                	AND = {
+                	    tier = KING
+                 	   is_nomadic = yes
+                        any_realm_character = {
+                            count = 2
+                            liege = { character = ROOT }
+                            has_minor_title = title_commander
+                        }
+                	}
+               		AND = {
+                	    tier = EMPEROR
+                	    is_nomadic = yes
+                        any_realm_character = {
+                            count = 4
+                            liege = { character = ROOT }
+                            has_minor_title = title_commander
+                        }
+                	}
+            	}
+			}
+		}
+	}
+	warrior_lodge_celtic_summon_warriors = {
+		only_playable = yes
+		is_mercenary = yes
+		ai_check_interval = 20 #check only once every 20 months.
+		is_high_prio = yes
+		potential = {
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			society_member_of = warrior_lodge_celtic
+			society_rank = 3
+			OR = { 
+				religion = celtic_pagan 
+				religion = celtic_pagan_reformed
+			}
+			OR = {
+				ai = no
+				any_war = {
+					OR = {
+						any_defender = {
+							character = ROOT
+							is_primary_war_defender = yes
+						}
+						any_attacker = {
+							character = ROOT
+							is_primary_war_attacker = yes
+						}
+					}
+				}
+			}
+		}
+		allow = {
+			war = yes
+			has_society_currency_medium_trigger = yes
+			is_inaccessible_trigger = no
+			custom_tooltip = { 
+				text = tooltip_has_not_already_summoned_ukko_warriors
+				hidden_tooltip = { NOT = { has_character_modifier = lodge_summon_warriors_cooldown } } 
+			}
+		}
+		effect = {
+			detract_society_currency_medium_effect = yes
+			character_event = { id = HF.25001 }
+			custom_tooltip = { text = tooltip_summon_warriors_ukko }
+			hidden_tooltip = { 
+				add_character_modifier = { 
+					modifier = lodge_summon_warriors_cooldown 
+					duration = -1 #Removed on_action when player is back at peace.
+					hidden = yes
+				} 
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0 # decisions with the "is_mercenary" will not be calculated from the script
+		}
+	}
+	warrior_lodge_rust_cultist_stand_together = {
+		only_playable = yes
+		is_mercenary = yes
+		ai_check_interval = 20 #check only once every 20 months.
+		is_high_prio = yes
+		potential = {
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			society_member_of = warrior_lodge_rust_cultist
+			society_rank = 2
+			OR = { 
+				religion = rust_cultist 
+				religion = rust_cultist_reformed
+			}
+			OR = {
+				ai = no
+				any_war = {
+					OR = {
+						any_defender = {
+							character = ROOT
+							is_primary_war_defender = yes
+						}
+						any_attacker = {
+							character = ROOT
+							is_primary_war_attacker = yes
+						}
+					}
+				}
+			}
+		}
+		allow = {
+			war = yes
+			has_society_currency_medium_trigger = yes
+			is_inaccessible_trigger = no
+			custom_tooltip = { 
+				text = tooltip_has_not_already_stood_together_slavic
+				hidden_tooltip = { NOT = { has_character_modifier = lodge_slavic_stand_together_cooldown } } 
+			}
+			custom_tooltip = { 
+				text = tooltip_stand_together_candidate_exists
+				hidden_tooltip = { 
+					any_society_member = { 
+						is_ruler = no
+						religion = ROOT
+						NOR = { 
+							host = { character = ROOT } 
+							host = { ai = no } 
+							is_heir = ROOT
+							trait = incapable
+							is_inaccessible_trigger = yes
+							in_command = yes
+							has_minor_title = title_commander
+							has_job_title = job_marshal
+						}
+					} 
+				} 
+			}
+		}
+		effect = {
+			detract_society_currency_medium_effect = yes
+			custom_tooltip = { text = tooltip_slavic_stand_together }
+			hidden_tooltip = { 
+				character_event = { id = HF.25007 }
+				add_character_modifier = { 
+					modifier = lodge_slavic_stand_together_cooldown 
+					duration = -1 #Removed on_action when player is back at peace.
+					hidden = yes
+				} 
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0 # decisions with the "is_mercenary" will not be calculated from the script
+		}
+	}
+	warrior_lodge_ghost_dance_call_of_the_plains = {
+		only_playable = yes
+		ai_check_interval = 50 #check only once every 50 months.
+		is_high_prio = yes
+		potential = {
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			society_member_of = warrior_lodge_ghost_dance
+			society_rank = 2
+			religion = ghost_dance
+		}
+		allow = {
+			#show_only_failed_conditions = yes
+			has_society_currency_minor_trigger = yes
+			is_inaccessible_trigger = no
+			conditional_tooltip = {
+				trigger = { is_nomadic = yes }
+				custom_tooltip = { 
+					text = tooltip_call_of_the_steppe_cooldown
+					hidden_tooltip = { NOR = { has_character_modifier = lodge_call_of_the_steppe_boost has_character_flag = flag_using_call_of_the_steppes } } 
+				}
+			}
+		}
+		effect = {
+			detract_society_currency_minor_effect = yes
+			if = {
+				limit = { is_nomadic = yes }
+				custom_tooltip = { text = tooltip_call_of_the_steppe_nomad }
+				hidden_tooltip = { 
+					character_event = { id = HF.25004 }
+				}
+			}
+			if = {
+				limit = { is_nomadic = no }
+				custom_tooltip = { text = tooltip_call_of_the_steppe_feudal }
+				hidden_tooltip = { 
+					character_event = { id = HF.25005 }
+					set_character_flag = flag_using_call_of_the_steppes
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.1
+			modifier = {
+				factor = 0.5
+				trait = stubborn
+			}
+			modifier = { #I am losing the war, help!
+				factor = 10
+				any_war = {
+					defender = { character = ROOT }
+					attacker = {
+						war_score = -50
+					}
+				}
+			}
+			modifier = { #I am winning the war, no need!
+				factor = 0
+				any_war = {
+					defender = { character = ROOT }
+					attacker = {
+						war_score = 50
+					}
+				}
+			}
+			modifier = {
+				factor = 4
+				war = yes
+			}
+			modifier = {
+				factor = 0 #No need for levy reinforcement for non-nomads when at peace.
+				is_nomadic = no
+				war = no
+			}
+			modifier = {
+				factor = 2
+				trait = zealous
+			}
+			modifier = {
+				factor = 3
+				trait = ambitious
+			}
+		}
+	}
+
+	warrior_lodge_war_sacrifice = {
+		is_in_society = yes
+		ai_check_interval = 6 #check only once every 6 months.
+		potential = {
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			is_member_of_any_warrior_lodge_trigger = yes
+			society_rank >= 3
+			OR = {
+				ai = no
+				any_war = {
+					OR = {
+						any_defender = {
+							character = ROOT
+							is_primary_war_defender = yes
+						}
+						any_attacker = {
+							character = ROOT
+							is_primary_war_attacker = yes
+						}
+					}
+				}
+			}
+		}
+		allow = {
+			has_society_currency_medium_trigger = yes
+			is_inaccessible_trigger = no
+			NOT = { trait = incapable }
+			custom_tooltip = { 
+				text = tooltip_war_sacrifice_cooldown
+				hidden_tooltip = { 
+					NOR = { 
+						has_character_modifier = lodge_war_sacrifice_cooldown
+						has_character_flag = flag_picking_war_sacrifice
+					} 
+				} 
+			}
+		}
+		effect = {
+			detract_society_currency_medium_effect = yes
+			custom_tooltip = { text = tooltip_lodge_war_sacrifice }
+			set_character_flag = flag_picking_war_sacrifice
+			hidden_tooltip = { 
+				character_event = { id = HF.25021 }
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.1
+			modifier = {
+				factor = 0.5
+				trait = stubborn
+			}
+			modifier = {
+				factor = 1.5
+				has_religion_matching_joined_warrior_lodge_trigger = no
+			}
+			modifier = {
+				factor = 0.5
+				trait = craven
+			}
+			modifier = {
+				factor = 0
+				war = no
+			}
+			modifier = { #I am losing the war, help!
+				factor = 10
+				any_war = {
+					defender = { character = ROOT }
+					attacker = {
+						war_score = -50
+					}
+				}
+			}
+			modifier = { #I am winning the war, no need!
+				factor = 0.25
+				any_war = {
+					defender = { character = ROOT }
+					attacker = {
+						war_score = 50
+					}
+				}
+			}
+			modifier = {
+				factor = 2
+				trait = zealous
+				religion_group = pagan_group
+			}
+			modifier = {
+				factor = 0
+				trait = zealous
+				OR = { 
+					NOT = { religion_group = pagan_group }
+					religion = rust_cultist
+				}
+			}
+			modifier = {
+				factor = 3
+				trait = brave
+			}
+			modifier = {
+				factor = 3
+				has_religion_feature = religion_haruspicy
+			}
+			modifier = {
+				factor = 5
+				has_religion_feature = religion_ritual_sacrifice
+			}
+		}
+	}
+	warrior_lodge_revelationist_battle_trance = {
+		is_in_society = yes
+		ai_check_interval = 12 #check only once every 12 months.
+		potential = {
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			society_member_of = warrior_lodge_revelationist
+			society_rank >= 2
+			OR = { 
+				religion = revelationist 
+				religion = revelationist_reformed
+			}
+		}
+		allow = {
+			has_society_currency_minor_trigger = yes
+			is_inaccessible_trigger = no
+			NOT = { trait = incapable }
+			custom_tooltip = { 
+				text = tooltip_zun_battle_trance_cooldown
+				hidden_tooltip = { 
+					NOR = { 
+						has_character_modifier = lodge_zun_battle_trance_1
+						has_character_modifier = lodge_zun_battle_trance_2
+						has_character_modifier = lodge_zun_battle_trance_3
+						has_character_flag = flag_picking_battle_trance
+					} 
+				} 
+			}
+		}
+		effect = {
+			detract_society_currency_minor_effect = yes
+			custom_tooltip = { text = tooltip_zun_battle_trance }
+			set_character_flag = flag_picking_battle_trance
+			hidden_tooltip = { 
+				character_event = { id = HF.25006 }
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.1
+			modifier = {
+				factor = 0.5
+				trait = stubborn
+			}
+			modifier = {
+				factor = 0
+				trait = craven
+			}
+			modifier = {
+				factor = 0
+				is_ill = yes
+			}
+			modifier = { #I am losing the war, help!
+				factor = 10
+				any_war = {
+					defender = { character = ROOT }
+					attacker = {
+						war_score = -50
+					}
+				}
+			}
+			modifier = { #I am winning the war, no need!
+				factor = 0
+				any_war = {
+					defender = { character = ROOT }
+					attacker = {
+						war_score = 50
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				war = no
+			}
+			modifier = {
+				factor = 2
+				trait = zealous
+			}
+			modifier = {
+				factor = 3
+				trait = brave
+			}
+		}
+	}
+	warrior_lodge_raven_tales_create_fetish = {
+		is_in_society = yes
+		is_high_prio = yes
+		ai_check_interval = 150 #check only once every 150 months.
+		potential = {
+			has_dlc = "Holy Fury"
+			is_adult = yes
+			society_member_of = warrior_lodge_raven_tales
+			society_rank = 4
+			religion = raven_tales
+			OR = {
+				ai = no
+				AND = {
+					ai = yes
+					is_landed = yes
+				}
+				AND = {
+					ai = yes
+					is_landed = no
+					NOT = {
+   						any_artifact = {
+   							has_artifact_flag = mask 
+   						}
+   					}
+				}
+			}
+		}
+		allow = {
+			trigger_if = {
+				limit = {
+					ai = no
+				}
+				has_society_currency_major_trigger = yes
+			}
+			is_inaccessible_trigger = no
+			NOT = { trait = incapable }
+			custom_tooltip = { 
+				text = tooltip_west_african_create_fetish_cooldown
+				hidden_tooltip = { 
+					NOT = { 
+						has_character_flag = flag_ordered_fetish_creation #Removed upon ending of event chain.
+					} 
+				} 
+			}
+			custom_tooltip = {
+				text = tooltip_has_african_mask_duplicate
+   				OR = {
+   					NOT = {
+   						any_artifact = {
+   							has_artifact_flag = mask 
+   						}
+   					}
+   					NOT = {
+   						any_artifact = {
+   							has_artifact_flag = totem 
+   						}
+   					}
+   				}
+   			}
+		}
+		effect = {
+			if = {
+				limit = {
+					ai = no
+				}
+				detract_society_currency_major_effect = yes
+			}
+			custom_tooltip = { text = tooltip_west_african_create_fetish }
+			if = {
+				limit = {
+					ai = yes
+					is_landed = no
+					NOT = {
+   						any_artifact = {
+   							has_artifact_flag = mask 
+   						}
+   					}
+				}
+				generate_mask_effect = yes
+			}
+			else = {
+				set_character_flag = flag_ordered_fetish_creation
+				hidden_tooltip = {
+					character_event = { id = HF.25040 }
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.5
+				trait = stubborn
+			}
+			modifier = {
+				factor = 5
+				trait = ambitious
+			}
+			modifier = {
+				factor = 5
+				trait = zealous
+			}
+			modifier = {
+				factor = 2
+				war = yes
+			}
+		}
+	}
+}
+
+#Cannot create new lodges
+
+settlement_decisions = {
+	#Power, rank 3: Inspire Warriors
+	warrior_lodge_inspire_warriors = {
+		ai_check_interval = 80 #check only once every 80 months.
+		filter = owned
+		ai_target_filter = owned
+		
+		from_potential = {
+			is_playable = yes
+			has_dlc = "Holy Fury"
+			higher_tier_than = BARON
+			is_member_of_any_warrior_lodge_trigger = yes
+			society_rank >= 3
+			NOT = { has_character_flag = inspiring_warriors }
+		}
+		
+		potential = {
+			holder_scope = {
+				character = FROM
+			}
+		}
+		allow = {
+			#show_only_failed_conditions = yes
+			FROM = {
+				show_scope_change = no
+				has_society_currency_minor_trigger = yes
+			}
+			NOT = { holding_total_levy_percent = 1 } #Holding does not have a full garrison or levy
+		}
+		effect = {
+			save_event_target_as = target_holding
+			FROM = {
+				show_scope_change = no
+				set_character_flag = inspiring_warriors
+				detract_society_currency_minor_effect = yes
+				character_event = { id = HF.10059 }	#handle actual effect		
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 1
+	        modifier = { #I am losing the war, help!
+				factor = 1.5
+				any_war = {
+					defender = { character = FROM }
+					attacker = {
+						war_score = -50
+					}
+				}
+			}
+			modifier = { #I am winning the war, no need!
+				factor = 0
+				any_war = {
+					defender = { character = FROM }
+					attacker = {
+						war_score = 50
+					}
+				}
+			}
+			modifier = { #I am not at war, who cares!
+	            factor = 0
+	            FROM = { war = no }
+	        }
+		}
+	}
+
+	#Power, rank 3: Occultist Holds
+	warrior_lodge_occultist_holds = {
+		ai_check_interval = 80 #check only once every 80 months.
+		filter = owned
+		ai_target_filter = owned
+		is_high_prio = yes
+		
+		from_potential = {
+			is_playable = yes
+			is_nomadic = no
+			is_adult = yes
+			higher_tier_than = BARON
+			has_dlc = "Holy Fury"
+			society_member_of = warrior_lodge_occultist
+			society_rank >= 3
+			OR = { 
+				religion = occultist 
+				religion = occultist_reformed
+			}
+		}
+		
+		potential = {
+			holder_scope = {
+				character = FROM
+			}
+			OR = { 
+				AND = { 
+					holding_type = tribal
+					NAND = { 
+						OR = { 
+							has_building = tb_hillfort_4
+							is_building = tb_hillfort_4
+						}
+						OR = { 
+							has_building = tb_defensive_fortifications_4
+							is_building = tb_defensive_fortifications_4
+						}
+					}
+				}
+				AND = { 
+					holding_type = castle
+					NAND = { 
+						OR = { 
+							has_building = ca_wall_5
+							has_building = ca_con_wall_6
+							is_building = ca_wall_5
+						}
+						OR = { 
+							has_building = ca_wall_q_5
+							is_building = ca_wall_q_5
+						}
+					}
+				}
+			}
+		}
+		allow = { #Now it's going to get ugly...
+			show_only_failed_conditions = yes
+			FROM = { has_society_currency_minor_trigger = yes }
+			OR = { 
+				conditional_tooltip = {
+					trigger = { 
+						holding_type = tribal
+						NOT = { has_building = tb_hillfort_4 } 
+					}
+					AND = { 
+						holding_type = tribal
+						hidden_tooltip = { NOT = { has_building = tb_hillfort_4 } } 
+						OR = { 
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_hillfort_1
+									hidden_tooltip = { 
+										NOR = { 
+											is_building = tb_hillfort_1 
+											has_building = tb_hillfort_1 
+										}
+										location = { TECH_CASTLE_CONSTRUCTION = 0 }
+									}
+								}
+							}
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_hillfort_2
+									hidden_tooltip = { 
+										has_building = tb_hillfort_1
+										NOR = { 
+											is_building = tb_hillfort_2 
+											has_building = tb_hillfort_2 
+										}
+										location = { TECH_CASTLE_CONSTRUCTION = 0 }
+									}
+								}
+							}
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_hillfort_3
+									hidden_tooltip = { 
+										has_building = tb_hillfort_2
+										NOR = { 
+											is_building = tb_hillfort_3 
+											has_building = tb_hillfort_3 
+										}
+										location = { TECH_CASTLE_CONSTRUCTION = 1 }
+									}
+								}
+							}
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_hillfort_4
+									hidden_tooltip = { 
+										has_building = tb_hillfort_3
+										NOR = { 
+												is_building = tb_hillfort_4 
+												has_building = tb_hillfort_4 
+											}
+										location = { TECH_CASTLE_CONSTRUCTION = 1 }
+									}
+								}
+							}
+						}
+					}
+				}
+				conditional_tooltip = {
+					trigger = { 
+						holding_type = tribal
+						OR = { 
+							is_building = tb_hillfort_4
+							has_building = tb_hillfort_4
+							can_build_hillfort_trigger = no
+						}
+					}
+					AND = { 
+						holding_type = tribal
+						hidden_tooltip = { 
+							OR = { 
+								is_building = tb_hillfort_4 #Prioritize hillfort first, as is more important.
+								has_building = tb_hillfort_4
+								can_build_hillfort_trigger = no
+							}
+							NOR = { 
+								is_building = tb_defensive_fortifications_4
+								has_building = tb_defensive_fortifications_4
+							}
+						}
+						OR = { 
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_defensive_fortifications_1
+									hidden_tooltip = { 
+										NOR = { 
+											is_building = tb_defensive_fortifications_1 
+											has_building = tb_defensive_fortifications_1
+										}
+										location = { TECH_CASTLE_CONSTRUCTION = 0 }
+									}
+								}
+							}
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_defensive_fortifications_2 
+									hidden_tooltip = { 
+										has_building = tb_defensive_fortifications_1
+										NOR = { 
+											is_building = tb_defensive_fortifications_2 
+											has_building = tb_defensive_fortifications_2 
+										}
+										location = { TECH_CASTLE_CONSTRUCTION = 0 }
+									}
+								}
+							}
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_defensive_fortifications_3
+									hidden_tooltip = { 
+										has_building = tb_defensive_fortifications_2
+										NOR = { 
+											is_building = tb_defensive_fortifications_3 
+											has_building = tb_defensive_fortifications_3 
+										}
+										location = { TECH_CASTLE_CONSTRUCTION = 1 }
+									}
+								}
+							}
+							AND = { 
+								custom_tooltip = { 
+									text = tooltip_can_build_tb_defensive_fortifications_4
+									hidden_tooltip = { 
+										has_building = tb_defensive_fortifications_3
+										NOR = { 
+											is_building = tb_defensive_fortifications_4 
+											has_building = tb_defensive_fortifications_4 
+										}
+										location = { TECH_CASTLE_CONSTRUCTION = 1 }
+									}
+								}
+							}
+						}
+					}
+				}
+				conditional_tooltip = {
+					trigger = { 
+						holding_type = castle
+						NOT = { has_building = ca_wall_5 }
+					}
+					AND = { 
+						holding_type = castle
+						hidden_tooltip = { NOT = { has_building = ca_wall_5 } }
+						custom_tooltip = { 
+							text = tooltip_can_build_ca_wall_1
+							hidden_tooltip = { 
+								OR = { 
+									AND = { 
+										NOR = { 
+											is_building = ca_wall_1 
+											has_building = ca_wall_1
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 0 }
+									}
+									AND = { 
+										has_building = ca_wall_1
+										NOR = { 
+											is_building = ca_wall_2 
+											has_building = ca_wall_2
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 2 }
+									}
+									AND = { 
+										has_building = ca_wall_2
+										NOR = { 
+											is_building = ca_wall_3 
+											has_building = ca_wall_3
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 4 }
+									}
+									AND = { 
+										has_building = ca_wall_3
+										NOR = { 
+											is_building = ca_wall_4 
+											has_building = ca_wall_4
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 6 }
+									}
+									AND = { 
+										has_building = ca_wall_4
+										NOR = { 
+											is_building = ca_wall_5 
+											has_building = ca_wall_5
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 8 }
+									}
+								}
+							}
+						}
+					}
+				}
+				conditional_tooltip = {
+					trigger = { 
+						holding_type = castle
+						OR = { 
+							is_building = ca_wall_5 
+							has_building = ca_wall_5 
+							can_build_walls_trigger = no
+						}
+					}
+					AND = { 
+						holding_type = castle
+						hidden_tooltip = { 
+							OR = { 
+								is_building = ca_wall_5 #Prioritize walls first, as they give more benefits.
+								has_building = ca_wall_5 
+								can_build_walls_trigger = no
+							}
+							NOR = { 
+								is_building = ca_wall_q_5
+								has_building = ca_wall_q_5
+							}
+						}
+						custom_tooltip = { 
+							text = tooltip_can_build_ca_wall_q_1
+							hidden_tooltip = { 
+								OR = { 
+									AND = { 
+										NOR = { 
+											is_building = ca_wall_q_1
+											has_building = ca_wall_q_1
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 0 }
+									}
+									AND = { 
+										has_building = ca_wall_q_1
+										NOR = { 
+											is_building = ca_wall_q_2 
+											has_building = ca_wall_q_2
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 1 }
+									}
+									AND = { 
+										has_building = ca_wall_q_2
+										NOR = { 
+											is_building = ca_wall_q_3 
+											has_building = ca_wall_q_3
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 3 }
+									}
+									AND = { 
+										has_building = ca_wall_q_3
+										NOR = { 
+											is_building = ca_wall_q_4 
+											has_building = ca_wall_q_4 
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 5 }
+									}
+									AND = { 
+										has_building = ca_wall_q_4
+										NOR = { 
+											is_building = ca_wall_q_5 
+											has_building = ca_wall_q_5
+										}
+										location = { TECH_FORTIFICATIONS_CONSTRUCTION = 7 }
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		effect = {
+			FROM = { 
+				detract_society_currency_minor_effect = yes 
+				hidden_tooltip = { 
+					random_list = { 
+						33 = { sound_effect = baltic_holds_01 } 
+						33 = { sound_effect = baltic_holds_02 } 
+						33 = { sound_effect = baltic_holds_03 } 
+					}
+				}
+			}
+			
+			if = {
+				limit = {
+					holding_type = castle
+					can_build_walls_trigger = yes
+					NOR = { 
+						has_building = ca_wall_5
+						is_building = ca_wall_5 
+					}
+				}
+				if = { 
+				limit = { 
+					has_building = ca_wall_4
+					NOR = { 
+						is_building = ca_wall_5 
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 8 }
+					}
+					add_building = ca_wall_5
+					hidden_tooltip = { FROM = { character_event = { id = HF.25068 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = ca_wall_3
+					NOR = { 
+						is_building = ca_wall_4 
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 6 }
+					}
+					add_building = ca_wall_4
+					hidden_tooltip = { FROM = { character_event = { id = HF.25068 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = ca_wall_2
+					NOR = { 
+						is_building = ca_wall_3 
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 4 }
+					}
+					add_building = ca_wall_3
+					hidden_tooltip = { FROM = { character_event = { id = HF.25068 } } }
+				}
+				else_if = { 
+					limit = { 
+						has_building = ca_wall_1
+						NOR = { 
+							is_building = ca_wall_2 
+						}
+						location = { TECH_FORTIFICATIONS_CONSTRUCTION = 2 }
+					}
+					add_building = ca_wall_2
+					hidden_tooltip = { FROM = { character_event = { id = HF.25068 } } }
+				}
+				else_if = { 
+					limit = { 
+						NOR = { 
+							is_building = ca_wall_1 
+							has_building = ca_wall_1 
+						}
+						location = { TECH_FORTIFICATIONS_CONSTRUCTION = 0 }
+					}
+					add_building = ca_wall_1
+					hidden_tooltip = { FROM = { character_event = { id = HF.25068 } } }
+				}
+				break = yes
+			}
+			if = {
+				limit = {
+					holding_type = castle
+					NOR = { 
+						has_building = ca_wall_q_5
+						is_building = ca_wall_q_5 
+					}
+					OR = { 
+						is_building = ca_wall_5 
+						has_building = ca_wall_5 
+						can_build_walls_trigger = no
+					}
+				}
+				if = { 
+				limit = { 
+					has_building = ca_wall_q_4
+					NOR = { 
+						is_building = ca_wall_q_5 
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 7 }
+					}
+					add_building = ca_wall_q_5
+					hidden_tooltip = { FROM = { character_event = { id = HF.25069 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = ca_wall_q_3
+					NOR = { 
+						is_building = ca_wall_q_4 
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 5 }
+					}
+					add_building = ca_wall_q_4
+					hidden_tooltip = { FROM = { character_event = { id = HF.25069 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = ca_wall_q_2
+					NOR = { 
+						is_building = ca_wall_q_3 
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 3 }
+					}
+					add_building = ca_wall_q_3
+					hidden_tooltip = { FROM = { character_event = { id = HF.25069 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = ca_wall_q_1
+					NOR = { 
+						is_building = ca_wall_q_2 
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 1 }
+					}
+					add_building = ca_wall_q_2
+					hidden_tooltip = { FROM = { character_event = { id = HF.25069 } } }
+				}
+				else_if = { 
+				limit = { 
+					NOR = { 
+						is_building = ca_wall_q_1
+						has_building = ca_wall_q_1
+					}
+					location = { TECH_FORTIFICATIONS_CONSTRUCTION = 0 }
+					}
+					add_building = ca_wall_q_1
+					hidden_tooltip = { FROM = { character_event = { id = HF.25069 } } }
+				}
+			}
+			if = {
+				limit = {
+					holding_type = tribal
+					can_build_hillfort_trigger = yes
+					NOR = { 
+						has_building = tb_hillfort_4
+						is_building = tb_hillfort_4 
+					}
+				}
+				if = { 
+				limit = { 
+					has_building = tb_hillfort_3
+					NOR = { 
+						is_building = tb_hillfort_4 
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 1 }
+					}
+					add_building = tb_hillfort_4
+					hidden_tooltip = { FROM = { character_event = { id = HF.25067 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = tb_hillfort_2
+					NOR = { 
+						is_building = tb_hillfort_3 
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 0 }
+					}
+					add_building = tb_hillfort_3
+					hidden_tooltip = { FROM = { character_event = { id = HF.25066 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = tb_hillfort_1
+					NOR = { 
+						is_building = tb_hillfort_2 
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 0 }
+					}
+					add_building = tb_hillfort_2
+					hidden_tooltip = { FROM = { character_event = { id = HF.25065 } } }
+				}
+				else_if = { 
+				limit = { 
+					NOR = { 
+						is_building = tb_hillfort_1
+						has_building = tb_hillfort_1
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 0 }
+					}
+					add_building = tb_hillfort_1
+					hidden_tooltip = { FROM = { character_event = { id = HF.25064 } } }
+				}
+				break = yes
+			}
+			if = {
+				limit = {
+					holding_type = tribal
+					NOR = { 
+						has_building = tb_defensive_fortifications_4  
+						is_building = tb_defensive_fortifications_4  
+					}
+					OR = { 
+						is_building = tb_hillfort_4 
+						has_building = tb_hillfort_4 
+						can_build_hillfort_trigger = no
+					}
+				}
+				if = { 
+				limit = { 
+					has_building = tb_defensive_fortifications_3
+					NOR = { 
+						is_building = tb_defensive_fortifications_4 
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 1 }
+					}
+					add_building = tb_defensive_fortifications_4
+					hidden_tooltip = { FROM = { character_event = { id = HF.25063 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = tb_defensive_fortifications_2
+					NOR = { 
+						is_building = tb_defensive_fortifications_3 
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 0 }
+					}
+					add_building = tb_defensive_fortifications_3
+					hidden_tooltip = { FROM = { character_event = { id = HF.25062 } } }
+				}
+				else_if = { 
+				limit = { 
+					has_building = tb_defensive_fortifications_1
+					NOR = { 
+						is_building = tb_defensive_fortifications_2 
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 0 }
+					}
+					add_building = tb_defensive_fortifications_2
+					hidden_tooltip = { FROM = { character_event = { id = HF.25061 } } }
+				}
+				else_if = { 
+				limit = { 
+					NOR = { 
+						is_building = tb_defensive_fortifications_1 
+						has_building = tb_defensive_fortifications_1
+					}
+					location = { TECH_CASTLE_CONSTRUCTION = 0 }
+					}
+					add_building = tb_defensive_fortifications_1
+					hidden_tooltip = { FROM = { character_event = { id = HF.25060 } } }
+				}
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 1
+		}
+	}
+}

@@ -1,0 +1,7268 @@
+# Written by Flavio
+
+namespace = HF
+###############################################################################################
+
+# The Great Tribal Festival
+
+############################################################################################### 
+
+#Main cleanup event clearing all flags, modifiers, etc.
+character_event = {
+	id = HF.23800
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		clean_up_great_tribal_festival_flags_effect = yes
+		any_vassal = { 
+			limit = { 
+				has_opinion_modifier = { 
+					who = ROOT
+					modifier = opinion_great_tribal_festival_guest 
+				} 
+			} 
+			clean_up_great_tribal_festival_flags_effect = yes
+		}
+	}
+}
+#On death: if host dies, the event chain is interrupted immediately.
+character_event = {
+	id = HF.23801
+	hide_window = yes
+
+	has_character_flag = flag_holding_great_tribal_festival
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		any_realm_character = { 
+			limit = { 
+				has_opinion_modifier = { 
+					who = ROOT
+					modifier = opinion_great_tribal_festival_guest 
+				} 
+			} 
+			character_event = { id = HF.23802 } 
+		}
+		if = { 
+			limit = { 
+				is_member_of_any_warrior_lodge_trigger = yes
+			} 
+			any_society_member = { #Possible Hero guest.
+				limit = { 
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23805 } 
+			}
+		}
+	}
+}
+#All guests notified that the festival has been interrupted by the unexpected death of the host.
+character_event = {
+	id = HF.23802
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHF23802
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23802
+		hidden_tooltip = { clean_up_great_tribal_festival_flags_effect = yes } 
+	}
+}
+
+#On_war_started: The Great Tribal Festival is off.
+character_event = {
+	id = HF.23803
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	war = yes
+
+	trigger = { 
+		OR = {
+			FROM = {
+				has_character_flag = flag_holding_great_tribal_festival
+			}
+			ROOT = {
+				has_character_flag = flag_holding_great_tribal_festival
+			}
+		}
+	}
+	
+	immediate = {
+		if = {
+			limit = {
+				FROM = {
+					has_character_flag = flag_holding_great_tribal_festival
+				}
+			}
+			FROM = { 
+				character_event = { id = HF.23804 }	
+			} 
+		}
+		if = {
+			limit = {
+				ROOT = {
+					has_character_flag = flag_holding_great_tribal_festival
+				}
+			}
+			ROOT = { 
+				character_event = { id = HF.23804 }	
+			} 
+		}
+	}
+}
+#Host: A war has started, the feast is off.
+character_event = {
+	id = HF.23804
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHF23804
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23804
+		hidden_tooltip = { clean_up_great_tribal_festival_flags_effect = yes } 
+		hidden_tooltip = {
+			any_realm_character = { 
+				limit = { 
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23805 } 
+			}
+			if = { 
+				limit = { 
+					is_member_of_any_warrior_lodge_trigger = yes
+				} 
+				any_society_member = { #Possible Hero guest.
+					limit = { 
+						has_opinion_modifier = { 
+							who = ROOT
+							modifier = opinion_great_tribal_festival_guest 
+						} 
+					} 
+					character_event = { id = HF.23805 } 
+				}
+			}
+		}
+	}
+}
+
+#Guests informed that the feast is off because of a war.
+character_event = {
+	id = HF.23805
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHF23805
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23805
+		hidden_tooltip = { clean_up_great_tribal_festival_flags_effect = yes } 
+	}
+}
+
+##################################################################
+
+#The event chain begins
+
+##################################################################
+#Liege sends invitations.
+character_event = {
+	id = HF.23806
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHF23806
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	immediate = { save_event_target_as = great_tribal_festival_host } 
+	
+	option = {
+		name = EVTOPTAHF23806
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23806 } 
+		hidden_tooltip = {
+			any_courtier_or_vassal = { 
+				limit = { 					
+					age = 8 #Children get their own events.
+					NOR = {
+						prisoner = yes
+						has_character_flag = do_not_disturb
+						has_character_modifier = holding_large_feast  
+						has_any_opinion_modifier = opinion_coronation_guest
+						has_any_opinion_modifier = opinion_great_tribal_festival_guest 
+						trait = incapable
+						is_inaccessible_trigger = yes
+					} 
+				} 
+				letter_event = { id = HF.23807 } 
+			}
+			if = { 
+				limit = { 
+					is_member_of_any_warrior_lodge_trigger = yes
+				} 
+				random_society_member = { #Possible Hero guest.
+					limit = { 
+						same_society_as = ROOT
+						society_rank = 4
+						ai = yes
+						NOR = {
+							prisoner = yes
+							character = ROOT
+							liege = { character = ROOT } 
+							top_liege = { character = ROOT } 
+							has_character_flag = do_not_disturb
+							has_character_modifier = holding_large_feast  
+							has_any_opinion_modifier = opinion_coronation_guest
+							has_any_opinion_modifier = opinion_great_tribal_festival_guest 
+							trait = incapable
+							is_inaccessible_trigger = yes
+						} 
+					} 
+					random = { 
+						chance = 50
+						modifier = { 
+							factor = 1.25 
+							ROOT = { real_tier = KING } 
+						} 
+						modifier = { 
+							factor = 1.5 
+							ROOT = { real_tier = EMPEROR } 
+						} 
+						modifier = { 
+							factor = 1.5 
+							ROOT = { prestige = 500 } 
+						} 
+						letter_event = { id = HF.23809 } 
+					} 
+				}
+			}
+			character_event = { id = HF.23811 days = 20 } #Preparation event for host. 
+		}
+	}
+}
+
+#Vassal/Courtier receives invitation to festival.
+letter_event = {
+	id = HF.23807
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23807
+	border = GFX_event_letter_frame_diplomacy
+
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23807
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23807 }
+		hidden_tooltip = { 
+			character_event = { id = HF.23811 days = 20 } #Preparation event for guests.
+			opinion = {
+				modifier = opinion_great_tribal_festival_guest
+				months = 12
+				who = FROM
+			}
+			if = { #Vassal's family is invited as well.
+				limit = {
+					is_ruler = yes
+					higher_real_tier_than = BARON
+				}
+				FROM = { character_event = { id = HF.23808 days = 1 random = 7 } } #Notification.
+				any_spouse = {
+					limit = {
+						is_ruler = no
+						at_location = ROOT
+						NOR = {
+							prisoner = yes
+							has_character_flag = do_not_disturb
+							has_character_modifier = holding_large_feast  
+							has_any_opinion_modifier = opinion_coronation_guest
+							has_any_opinion_modifier = opinion_great_tribal_festival_guest 
+							trait = incapable
+							is_inaccessible_trigger = yes
+						} 
+					}
+					opinion = {
+						modifier = opinion_great_tribal_festival_guest
+						months = 12
+						who = FROM
+					}
+				}
+				any_child = {
+					limit = {
+						is_ruler = no
+						at_location = ROOT				
+						age = 8
+						NOR = {
+							prisoner = yes
+							has_character_flag = do_not_disturb
+							has_character_modifier = holding_large_feast  
+							has_any_opinion_modifier = opinion_coronation_guest
+							has_any_opinion_modifier = opinion_great_tribal_festival_guest 
+							trait = incapable
+							is_inaccessible_trigger = yes
+						} 
+					}
+					opinion = {
+						modifier = opinion_great_tribal_festival_guest
+						months = 12
+						who = FROM
+					}
+				}
+			}
+		}
+		hidden_tooltip = { 
+			character_event = { id = HF.23800 days = 300 } # Full cleanup event, in case something goes wrong.
+		} 
+		ai_chance = { 
+			factor = 90 
+		}
+	}
+	option = {
+		name = EVTOPTBHF23807
+		ai_chance = { 
+			factor = 10 
+			modifier = {
+				factor = 0
+				is_ruler = no
+			}
+			modifier = {
+				factor = 1.5
+				trait = shy
+			}
+			modifier = {
+				factor = 0.5
+				trait = gregarious
+			}
+		}
+	}
+}
+
+#Host: notification of a guest's positive response.
+character_event = {
+	id = HF.23808
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHF23808
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+
+	notification = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23808
+	}
+}
+
+#Hidden ping for the Warrior Lodge Hero.
+letter_event = {
+	id = HF.23809
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		FROM = { character_event = { id = HF.23810 days = 3 random = 7 } }
+		hidden_tooltip = { 
+			character_event = { id = HF.23800 days = 300 } # Full cleanup event, in case something goes wrong.
+		} 
+	}
+}
+
+#Host informed of Warrior Lodge visitor.
+letter_event = {
+	id = HF.23810
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23810
+	border = GFX_event_letter_frame_diplomacy
+
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	option = {
+		name = EVTOPTAHF23810
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23810 }
+		hidden_tooltip = { 
+			reverse_opinion = {
+				modifier = opinion_great_tribal_festival_guest
+				months = 12
+				who = FROM
+			}
+			save_persistent_event_target = { name = warrior_lodge_guest scope = FROM }
+		}
+		ai_chance = { 
+			factor = 70 
+		}
+	}
+	option = { #Refuse him.
+		name = EVTOPTBHF23810
+		if = {
+			limit = {  
+				same_society_as = FROM
+			}
+			detract_society_currency_medium_effect = yes
+		}
+		FROM = {
+			show_scope_change = no
+			opinion = {  
+				modifier = insulted
+				months = 48
+				who = FROM
+			}
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 1.25
+				trait = paranoid
+			}
+			modifier = {
+				factor = 1.75
+				NOT = { opinion = { who = FROM value = -10 } }
+			}
+			modifier = {
+				factor = 0.5
+				opinion = { who = FROM value = 40 }
+			}
+		}
+	}
+}
+
+#Host/Guest: Preparation event. Decide how to contribute to the festival.
+character_event = {
+	id = HF.23811
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = {
+		text = EVTDESCHFA23811
+		picture = GFX_evt_tribal_lands
+		trigger = { 
+			is_adult = yes
+		}
+	}
+	desc = {
+		text = EVTDESCHFB23811
+		picture = GFX_evt_child_sword
+		trigger = { 
+			is_adult = no
+		}
+	}
+
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+
+	immediate = {
+		remove_character_modifier = enjoying_the_countryside
+		remove_character_modifier = feverish_grooming
+		remove_character_modifier = tribal_studying_legends
+		remove_character_modifier = expensive_craftsmen
+	}
+	
+	option = { #Spend time hunting and training.
+		name = EVTOPTAHF23811
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23811 }
+		trigger = {  
+			is_adult = yes
+			is_ruler = yes 
+			prisoner = no
+	   		OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+		   		has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		add_character_modifier = { 
+			name = enjoying_the_countryside
+			months = 16
+		}
+		if = { 
+			limit = { 
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_APPROVES }
+			add_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_impressed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 1.25
+				trait = brave
+			}
+			modifier = {
+				factor = 1.25
+				trait = hunter
+			}
+			modifier = {
+				factor = 1.25
+				trait = duelist
+			}
+		}
+	}
+	option = { #Spend time grooming yourself.
+		name = EVTOPTBHF23811
+		custom_tooltip = { text = TOOLTIP_EVTOPTBHF23811 }
+		trigger = {  
+			is_adult = yes
+			prisoner = no
+	   		OR = {
+				can_enter_festival_physical_competitions_trigger = no
+		   		has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = stressed }
+			}
+			random = { chance = 20 add_trait = stressed }
+		}
+		add_character_modifier = { 
+			name = feverish_grooming
+			months = 16
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 1.25
+				has_fair_trait_trigger = yes
+			}
+			modifier = {
+				factor = 1.25
+				trait = gregarious
+			}
+			modifier = {
+				factor = 1.25
+				trait = proud
+			}
+		}
+	}
+	option = { #Study legends.
+		name = EVTOPTCHF23811
+		custom_tooltip = { text = TOOLTIP_EVTOPTCHF23811 }
+		trigger = { is_adult = yes }
+		if = { 
+			limit = { 
+				NOT = { trait = stressed }
+			}
+			random = { chance = 20 add_trait = stressed }
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		add_character_modifier = { 
+			name = tribal_studying_legends
+			months = 16
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 1.25
+				trait = poet
+			}
+			modifier = {
+				factor = 1.25
+				trait = gregarious
+			}
+			modifier = {
+				factor = 1.25
+				trait = scholar
+			}
+		}
+	}
+	option = { #Hire craftsmen.
+		name = EVTOPTDHF23811
+		custom_tooltip = { text = TOOLTIP_EVTOPTDHF23811 }
+		trigger = { is_adult = yes is_ruler = yes }
+		scaled_wealth = { value = -1 min = -25 max = -150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 2 } }
+		add_character_modifier = { 
+			name = expensive_craftsmen
+			months = 16
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 1.25
+				trait = zealous
+			}
+			modifier = {
+				factor = 1.25
+				trait = charitable
+			}
+			modifier = {
+				factor = 1.25
+				trait = theologian
+			}
+		}
+	}
+	option = { #Do nothing special.
+		name = {
+			text = EVTOPTDHF23811_A
+			trigger = {
+				is_adult = yes
+			}
+		}
+		name = {
+			text = EVTOPTDHF23811_B
+			trigger = {
+				is_adult = no
+			}
+		}
+		ai_chance = { 
+			factor = 1 
+			modifier = {
+				factor = 1.5
+				trait = shy
+			}
+		}
+	}
+	after = { 
+		if = { 
+			limit = { 
+				has_character_flag = flag_holding_great_tribal_festival
+			}
+			character_event = { id = HF.23812 days = 12 } 
+		}
+	}
+}
+
+#The Festival starts (host notification).
+character_event = {
+	id = HF.23812
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHF23812
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_host_holding_brawling_tournament
+		clr_character_flag = flag_host_holding_drinking_tournament
+		clr_character_flag = flag_host_holding_eating_tournament
+		clr_character_flag = flag_host_holding_taming_tournament
+		clr_character_flag = flag_host_holding_beauty_contest
+		clr_character_flag = flag_host_holding_tapestry_contest
+		clr_character_flag = flag_host_holding_poetry_contest
+		clr_character_flag = flag_host_holding_singing_contest
+	}
+
+	option = {
+		name = EVTOPTAHF23812
+		capital_scope = {
+			add_province_modifier = {
+				name = tribal_festival_modifier
+				months = 5
+			}
+		}
+		hidden_tooltip = {
+			random_list = { #First of all determine randomly what competition will be held during this festival.
+				#Brawling tournament.
+				#Drinking contest.
+				#Eating contest.
+				#Horse Taming.
+
+				#Beauty contest.
+				#Poetry contest.
+				#Singing contest.
+				#Tapestry contest.
+
+				25 = { #Brawling tournament
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+					   		OR = {
+								can_enter_festival_physical_competitions_trigger = yes
+						   		has_game_rule = {
+									name = gender
+									value = all
+								} 
+							}
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_brawling_tournament
+					character_event = { id = HF.23860 days = 80 }
+				}
+				25 = { #Drinking tournament
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+					   		OR = {
+								can_enter_festival_physical_competitions_trigger = yes
+						   		has_game_rule = {
+									name = gender
+									value = all
+								} 
+							}
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_drinking_tournament
+					character_event = { id = HF.23862 days = 80 }
+				}
+				25 = { #Eating tournament
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+					   		OR = {
+								can_enter_festival_physical_competitions_trigger = yes
+						   		has_game_rule = {
+									name = gender
+									value = all
+								} 
+							}
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_eating_tournament
+					character_event = { id = HF.23864 days = 80 }
+				}
+				25 = { #Horse Taming
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+					   		OR = {
+								can_enter_festival_physical_competitions_trigger = yes
+						   		has_game_rule = {
+									name = gender
+									value = all
+								} 
+							}
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_taming_tournament
+					character_event = { id = HF.23866 days = 80 }
+				}
+
+
+				25 = { #Beauty Contest
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+					   		OR = {
+								can_enter_festival_physical_competitions_trigger = no
+						   		has_game_rule = {
+									name = gender
+									value = all
+								} 
+							}
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_beauty_contest
+					character_event = { id = HF.23868 days = 80 }
+				}
+				25 = { #Poetry Contest
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_poetry_contest
+					character_event = { id = HF.23870 days = 80 }
+				}
+				25 = { #Singing Contest
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_singing_contest
+					character_event = { id = HF.23872 days = 80 }
+				}
+				25 = { #Tapestry Contest
+					trigger = { 
+						any_realm_character = { 
+							OR = {
+								character = ROOT
+								has_opinion_modifier = {
+									modifier = opinion_great_tribal_festival_guest
+									who = ROOT
+								}
+							}
+							is_adult = yes
+							prisoner = no
+							NOT = { trait = incapable }
+					   		OR = {
+								can_enter_festival_physical_competitions_trigger = no
+						   		has_game_rule = {
+									name = gender
+									value = all
+								} 
+							}
+							count = 3
+						}
+					}
+					set_character_flag = flag_host_holding_tapestry_contest
+					character_event = { id = HF.23874 days = 80 }
+				}
+				1 = { #Not enough contenders to have any competition. Go directly to the religious rite.
+					trigger = { 
+						NOT = { 
+							any_realm_character = { 
+								OR = {
+									character = ROOT
+									has_opinion_modifier = {
+										modifier = opinion_great_tribal_festival_guest
+										who = ROOT
+									}
+								}
+								is_adult = yes
+								prisoner = no
+								NOT = { trait = incapable }
+								count = 3
+							}
+						}
+					}
+					character_event = { id = HF.23910 days = 120 }
+				} 
+			} 
+			any_realm_character = { 
+				limit = { 
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23813 } #Notify all guests as well.
+			}
+			great_tribal_festival_flavor_list_liege_effect = yes
+		}
+	}
+}
+
+#Guests informed of the start of the festival.
+character_event = {
+	id = HF.23813
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHF23813
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23813
+		hidden_tooltip = {
+			great_tribal_festival_flavor_list_effect = yes
+		}
+	}
+}
+
+#### Intermediate Flavor Events ###
+
+#Fortuneteller offers to read future.
+character_event = {
+	id = HF.23814
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23814
+	desc = EVTDESCHFB23814
+	desc = EVTDESCHFC23814
+	picture = GFX_evt_tribal_shrine
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	option = {
+		name = EVTOPTAHF23814
+		scaled_wealth = { value = -1 min = -15 max = -50 }
+		hidden_tooltip = {
+			random_list = {
+				25 = {
+					modifier = {
+						factor = 1.15
+						trait = zealous
+					}
+					modifier = {
+						factor = 1.25
+						piety = 50
+					}
+					modifier = {
+						factor = 1.25
+						piety = 100
+					}
+					modifier = {
+						factor = 1.25
+						piety = 150
+					}
+					modifier = {
+						factor = 1.25
+						piety = 200
+					}
+					modifier = {
+						factor = 1.25
+						piety = 250
+					}
+					character_event = { id = HF.23815 }
+				}
+				45 = {
+					character_event = { id = HF.23816 }
+				}
+				25 = {
+					character_event = { id = HF.23817 }
+				}
+			}
+		}
+		ai_chance = { 
+			factor = 50 
+			modifier = {
+				factor = 1.5
+				trait = zealous
+			}
+			modifier = {
+				factor = 0
+				NOT = { wealth = 150 }
+			}
+		}
+	}
+	option = {
+		name = EVTOPTBHF23814
+		ai_chance = { 
+			factor = 20 
+			modifier = {
+				factor = 1.5
+				trait = cynical
+			}
+		}
+	}
+}
+
+#Very Good result.
+character_event = {
+	id = HF.23815
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23815
+	picture = GFX_evt_tribal_shrine
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23815
+		tiered_piety_reward_effect = yes
+		add_character_modifier = {
+			name = tribal_festival_very_good_fortune
+			months = 24
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 2 } }
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+
+#Good result.
+character_event = {
+	id = HF.23816
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23816
+	picture = GFX_evt_tribal_shrine
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23816
+		add_character_modifier = {
+			name = tribal_festival_good_fortune
+			months = 24
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+
+#Bad result.
+character_event = {
+	id = HF.23817
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23817
+	picture = GFX_evt_tribal_shrine
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTAHF23817
+		add_character_modifier = {
+			name = tribal_festival_bad_fortune
+			months = 12
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = -1 } }
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+
+#Alchemist selling perfumes.
+character_event = {
+	id = HF.23818
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23818
+	picture = GFX_evt_market
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	option = { #Potion
+		name = EVTOPTAHF23818
+		scaled_wealth = { value = -1 min = -5 max = -35 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		add_character_modifier = {
+			name = tribal_festival_bought_potion
+			months = 24
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 0
+				NOT = { wealth = 50 }
+			}
+		}
+	}
+	option = { #Charm
+		name = EVTOPTBHF23818
+		tiered_piety_negative_effect = yes
+		add_character_modifier = {
+			name = tribal_festival_bought_charm
+			months = 24
+		}
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { #Perfume
+		name = EVTOPTCHF23818
+		tiered_prestige_negative_effect = yes
+		add_character_modifier = {
+			name = tribal_festival_bought_perfume
+			months = 24
+		}
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { #Nothing
+		name = EVTOPTDHF23818
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+}
+
+#Alchemist selling strength charms.
+character_event = {
+	id = HF.23819
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23819
+	picture = GFX_evt_market
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	
+	option = { #Strength Potion
+		name = EVTOPTAHF23819
+		scaled_wealth = { value = -1 min = -5 max = -35 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		add_character_modifier = {
+			name = tribal_festival_bought_strength_potion
+			months = 24
+		}
+		if = { 
+			limit = { 
+				has_character_flag = flag_holding_great_tribal_festival
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 0
+				NOT = { wealth = 50 }
+			}
+		}
+	}
+	option = { #Strength Charm
+		name = EVTOPTBHF23819
+		tiered_piety_negative_effect = yes
+		add_character_modifier = {
+			name = tribal_festival_bought_strength_charm
+			months = 24
+		}
+		if = { 
+			limit = { 
+				has_character_flag = flag_holding_great_tribal_festival
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { #Bravery Amulet
+		name = EVTOPTCHF23819
+		tiered_prestige_negative_effect = yes
+		add_character_modifier = {
+			name = tribal_festival_bought_bravery_amulet
+			months = 24
+		}
+		if = { 
+			limit = { 
+				has_character_flag = flag_holding_great_tribal_festival
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { #Nothing
+		name = EVTOPTDHF23819
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+}
+
+#Merchant selling holy trinkets.
+character_event = {
+	id = HF.23820
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23820
+	picture = GFX_evt_market
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	option = { 
+		name = EVTOPTAHF23820
+		scaled_wealth = { value = -1 min = -25 max = -50 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 2 } }
+		add_character_modifier = {
+			name = tribal_festival_bought_very_good_trinkets
+			months = 24
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 0
+				NOT = { wealth = 50 }
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTBHF23820
+		scaled_wealth = { value = -1 min = -10 max = -25 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		add_character_modifier = {
+			name = tribal_festival_bought_good_trinkets
+			months = 24
+		}
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { 
+		name = EVTOPTCHF23820
+		scaled_wealth = { value = -1 min = -5 max = -10 }
+		add_character_modifier = {
+			name = tribal_festival_bought_cheap_trinkets
+			months = 24
+		}
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { #Nothing
+		name = EVTOPTDHF23820
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+}
+
+#tribal_festival_potential_friend_2 wants to befriend tribal_festival_potential_friend_1.
+character_event = {
+	id = HF.23821
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23821
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_friend_1
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	option = { 
+		name = EVTOPTAHF23821
+		trigger = { trait = gregarious }
+		tooltip_info = gregarious
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23821 }
+		hidden_tooltip = { event_target:tribal_festival_potential_friend_1 = { character_event = { id = HF.23822 } } }
+		ai_chance = { 
+			factor = 50 
+		}
+	}
+	option = { 
+		name = EVTOPTBHF23821
+		custom_tooltip = { text = TOOLTIP_EVTOPTBHF23821 }
+		hidden_tooltip = { event_target:tribal_festival_potential_friend_1 = { character_event = { id = HF.23826 } } }
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { #Not interested.
+		name = EVTOPTCHF23821
+		ai_chance = { 
+			factor = 20 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+		}
+	}
+}
+
+#tribal_festival_potential_friend_1 gets gregarious event.
+character_event = {
+	id = HF.23822
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23822
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_friend_2
+	
+	is_triggered_only = yes
+	
+	option = { #Rejected.
+		name = EVTOPTAHF23822
+		trigger = { trait = paranoid }
+		tooltip_info = paranoid
+		hidden_tooltip = { event_target:tribal_festival_potential_friend_2 = { character_event = { id = HF.23823 } } }
+		ai_chance = { 
+			factor = 50 
+		}
+	}
+	option = { #Becoming friends.
+		name = EVTOPTBHF23822
+		trigger = { 
+			FROM = { NOT = { num_of_friends = 3 } } 
+			NOT = { num_of_friends = 3 } 
+		}
+		add_friend = FROM
+		hidden_tooltip = { event_target:tribal_festival_potential_friend_2 = { character_event = { id = HF.23824 } } }
+		ai_chance = { 
+			factor = 20 
+		}
+	}
+	option = { #Take positive opinion.
+		name = EVTOPTCHF23822
+		hidden_tooltip = { event_target:tribal_festival_potential_friend_2 = { character_event = { id = HF.23825 } } }
+		opinion = {
+			modifier = opinion_swayed_3
+			years = 5
+			who = FROM
+		}
+		ai_chance = { 
+			factor = 20 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+		}
+	}
+}
+#Paranoid courtier rejected offer.
+character_event = {
+	id = HF.23823
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23823
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_friend_1
+	
+	is_triggered_only = yes
+	
+	option = { #Rejected.
+		name = EVTOPTAHF23823
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+#Guest became friend.
+character_event = {
+	id = HF.23824
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23824
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_friend_1
+	
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23824
+		add_friend = FROM
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+#Guest took opinion.
+character_event = {
+	id = HF.23825
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23825
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_friend_1
+	
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23825
+		tooltip = {
+			reverse_opinion = {
+				modifier = opinion_swayed_3
+				years = 5
+				who = FROM
+			}
+		}
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+
+
+#tribal_festival_potential_friend_1 gets regular friendship event.
+character_event = {
+	id = HF.23826
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23826
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_friend_2
+	
+	is_triggered_only = yes
+	
+	option = { #Rejected.
+		name = EVTOPTAHF23826
+		trigger = { trait = paranoid }
+		tooltip_info = paranoid
+		hidden_tooltip = { event_target:tribal_festival_potential_friend_2 = { character_event = { id = HF.23823 } } }
+		ai_chance = { 
+			factor = 50 
+		}
+	}
+	option = { #Take positive opinion.
+		name = EVTOPTBHF23826
+		hidden_tooltip = { event_target:tribal_festival_potential_friend_2 = { character_event = { id = HF.23827 } } }
+		opinion = {
+			modifier = opinion_swayed_2
+			years = 5
+			who = FROM
+		}
+		ai_chance = { 
+			factor = 20 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+		}
+	}
+}
+
+#Guest took opinion.
+character_event = {
+	id = HF.23827
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23825 #Same as above.
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_friend_1
+	
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23825
+		tooltip = {
+			reverse_opinion = {
+				modifier = opinion_swayed_2
+				years = 5
+				who = FROM
+			}
+		}
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+
+#tribal_festival_potential_friend_2 wants to (pretend to) befriend tribal_festival_potential_friend_1.
+character_event = {
+	id = HF.23828
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23828
+	picture = GFX_evt_lunatic
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_enemy_1
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Trick
+		name = EVTOPTAHF23828
+		trigger = { trait = schemer NOT = { trait = deceitful } }
+		tooltip_info = schemer
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23828 }
+		hidden_tooltip = { event_target:tribal_festival_potential_enemy_1 = { character_event = { id = HF.23829 } } }
+		ai_chance = { 
+			factor = 50 
+		}
+	}
+	option = { #Trick
+		name = EVTOPTAHF23828
+		trigger = { trait = deceitful }
+		tooltip_info = deceitful
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23828 }
+		hidden_tooltip = { event_target:tribal_festival_potential_enemy_1 = { character_event = { id = HF.23829 } } }
+		ai_chance = { 
+			factor = 50 
+		}
+	}
+	option = { #Insult
+		name = EVTOPTBHF23828
+		custom_tooltip = { text = TOOLTIP_EVTOPTBHF23828 }
+		event_target:tribal_festival_potential_enemy_1 = {
+			show_scope_change = no
+			opinion = {
+				modifier = opinion_antagonized_2
+				years = 5
+				who = ROOT
+			}
+		}
+		hidden_tooltip = { event_target:tribal_festival_potential_enemy_1 = { character_event = { id = HF.23834 } } }
+		ai_chance = { 
+			factor = 20 
+			modifier = {
+				factor = 0.25
+				trait = craven
+			}
+			modifier = {
+				factor = 1.5
+				trait = wroth
+			}
+			modifier = {
+				factor = 1.5
+				trait = honest
+			}
+		}
+	}
+	option = { #Not interested.
+		name = EVTOPTCHF23828
+		ai_chance = { 
+			factor = 20 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+		}
+	}
+}
+
+#tribal_festival_potential_friend_1 gets fake friendship event.
+character_event = {
+	id = HF.23829
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23826 #Tricky character uses the same event as the legit friendship one.
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_enemy_2
+	
+	is_triggered_only = yes
+	
+	option = { #Rejected.
+		name = EVTOPTAHF23826
+		trigger = { trait = paranoid }
+		tooltip_info = paranoid
+		hidden_tooltip = { event_target:tribal_festival_potential_enemy_2 = { character_event = { id = HF.23830 } } }
+		ai_chance = { 
+			factor = 50 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+		}
+	}
+	option = { #Take fake positive opinion.
+		name = EVTOPTBHF23826
+		hidden_tooltip = { event_target:tribal_festival_potential_enemy_2 = { character_event = { id = HF.23831 } } }
+		tooltip = {
+			opinion = {
+				modifier = opinion_swayed_2
+				years = 5
+				who = FROM
+			}
+		}
+		ai_chance = { 
+			factor = 30 
+			modifier = {
+				factor = 2
+				trait = drunkard
+			}
+		}
+	}
+}
+
+#Paranoid courtier rejected offer.
+character_event = {
+	id = HF.23830
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23830
+	picture = GFX_evt_tribal_lands
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_enemy_1
+	
+	is_triggered_only = yes
+	
+	option = { #Rejected.
+		name = EVTOPTAHF23830
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+
+#Guest was fooled, time to decide his fate.
+character_event = {
+	id = HF.23831
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23831
+	picture = GFX_evt_lunatic
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_enemy_1
+	
+	is_triggered_only = yes
+	
+	option = { #Abandon him in wilderness
+		name = EVTOPTAHF23831
+		trigger = { trait = cruel }
+		tooltip_info = cruel
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23831 }
+		hidden_tooltip = { event_target:tribal_festival_potential_enemy_1 = { character_event = { id = HF.23832 } } }
+		FROM = { 
+			random_list = { 
+				50 = { 
+				}
+				20 = { 
+					trigger = { NOT = { trait = wounded } }
+					add_trait = wounded
+				}
+				10 = { 
+					trigger = { NOT = { trait = mangled } has_dlc = "Reapers" }
+					add_trait = mangled
+				}
+				10 = { 
+					trigger = { NOR = { trait = mangled has_dlc = "Reapers" } }
+					add_trait = maimed
+				}
+				5 = { 
+					death = { death_reason = death_accident }
+				}
+			}
+		}
+		ai_chance = { 
+			factor = 70 
+		}
+	}
+	option = { #Mock him in front of everybody.
+		name = EVTOPTBHF23831
+		custom_tooltip = { text = TOOLTIP_EVTOPTBHF23831 }
+		hidden_tooltip = { event_target:tribal_festival_potential_enemy_1 = { character_event = { id = HF.23833 } } }
+		reverse_opinion = {
+			modifier = opinion_antagonized_3
+			years = 5
+			who = FROM
+		}
+		tooltip = { 
+			FROM = { 
+				tiered_prestige_negative_effect = yes
+			}
+		}
+		ai_chance = { 
+			factor = 30 
+		}
+	}
+}
+
+#Guest abandoned in the wilderness drunk.
+character_event = {
+	id = HF.23832
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23832
+	picture = GFX_evt_mysterious_forest
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_enemy_2
+	
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23832
+		opinion = {
+			modifier = opinion_antagonized_3
+			years = 15
+			who = FROM
+		}
+		random_list = { 
+			50 = { 
+			}
+			20 = { 
+				trigger = { NOT = { trait = wounded } }
+				add_trait = wounded
+			}
+			10 = { 
+				trigger = { NOT = { trait = mangled } has_dlc = "Reapers" }
+				add_trait = mangled
+			}
+			10 = { 
+				trigger = { NOR = { trait = mangled has_dlc = "Reapers" } }
+				add_trait = maimed
+			}
+			5 = { 
+				death = { death_reason = death_accident }
+			}
+		}
+		ai_chance = { 
+			factor = 100 
+		}
+	}
+}
+
+#Drunk guest is mocked.
+character_event = {
+	id = HF.23833
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23833
+	picture = GFX_evt_drunk
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_enemy_2
+	
+	is_triggered_only = yes
+	
+	option = { #Special option. - Wroth character starts duel!
+		name = EVTOPTAHF23833
+		custom_tooltip = { text = tooltip_22022_Y }
+		trigger = { 
+			trait = wroth
+			this_can_duel_with_from_trigger = yes
+		}
+		tooltip_info = wroth
+		tiered_prestige_negative_effect = yes
+		set_character_flag = flag_antagonizer_duel #Used to prevent Merciless from being applied in case you win and decide to kill the opponent, given that it's a honor duel. Removed in the clean_up_after_duel_effect.
+		FROM = { 
+			set_character_flag = flag_antagonizer_duel
+		}
+		opinion = { 
+			modifier = opinion_antagonized_3
+			who = ROOT
+			years = 15
+		}
+	    #REQUIRED event targets for setting up duel evaluation!
+	    hidden_tooltip = { 
+	    	save_event_target_as = combatant_1 #the person issuing the duel...
+	    	FROM = { save_event_target_as = combatant_2 } #the target of the duel...
+	    }
+	    FROM = {
+	    	show_scope_change = no
+	    	apply_degree_of_dishonorable_duel_effect = yes  #checks a bunch of age and health statuses...
+	    }
+	    pacifists_lose_piety_effect = yes
+	    add_character_modifier = {
+	        modifier = recent_duel_timer
+	        duration = 365
+	        hidden = yes
+	    }
+	    hidden_tooltip = {
+	        FROM = { character_event = { id = HFP.10095 days = 1 } } #Duel evaluation (hidden) + result event as follow-up.
+	    }
+		ai_chance = { 
+			factor = 40
+			modifier = { 
+				factor = 0.1
+				trait = craven
+			}
+			modifier = { 
+				factor = 1.5
+				trait = brave
+			}
+			modifier = { 
+				factor = 1.25
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 5 } }
+			}
+			modifier = { 
+				factor = 1.25
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 10 } }
+			}
+			modifier = { 
+				factor = 1.5
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 15 } }
+			}
+			modifier = { 
+				factor = 1.75
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 20 } }
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTBHF23833
+		tiered_prestige_negative_effect = yes
+		opinion = {
+			modifier = opinion_antagonized_3
+			years = 15
+			who = FROM
+		}
+		add_character_modifier = {
+			name = publicly_humiliated
+			years = 2
+		}
+		ai_chance = { 
+			factor = 80 
+		}
+	}
+}
+
+#Guest is insulted.
+character_event = {
+	id = HF.23834
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23834
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_potential_enemy_2
+	
+	is_triggered_only = yes
+	
+	option = { #Special option. - Wroth character starts duel!
+		name = EVTOPTAHF23834
+		custom_tooltip = { text = tooltip_22022_Y }
+		trigger = { 
+			trait = wroth
+			this_can_duel_with_from_trigger = yes
+		}
+		tooltip_info = wroth
+		opinion = { 
+			modifier = opinion_antagonized_3
+			who = ROOT
+			years = 15
+		}
+	    #REQUIRED event targets for setting up duel evaluation!
+	    hidden_tooltip = { 
+	    	save_event_target_as = combatant_1 #the person issuing the duel...
+	    	FROM = { save_event_target_as = combatant_2 } #the target of the duel...
+	    }
+	    FROM = {
+	    	show_scope_change = no
+	    	apply_degree_of_dishonorable_duel_effect = yes  #checks a bunch of age and health statuses...
+	    }
+	    
+	    pacifists_lose_piety_effect = yes
+	    add_character_modifier = {
+	        modifier = recent_duel_timer
+	        duration = 365
+	        hidden = yes
+	    }
+	    hidden_tooltip = {
+	        FROM = { character_event = { id = HFP.10095 days = 1 } } #Duel evaluation (hidden) + result event as follow-up.
+	    }
+		ai_chance = { 
+			factor = 40
+			modifier = { 
+				factor = 0.1
+				trait = craven
+			}
+			modifier = { 
+				factor = 1.5
+				trait = brave
+			}
+			modifier = { 
+				factor = 1.25
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 5 } }
+			}
+			modifier = { 
+				factor = 1.25
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 10 } }
+			}
+			modifier = { 
+				factor = 1.5
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 15 } }
+			}
+			modifier = { 
+				factor = 1.75
+				ROOT = { attribute_diff = { character = FROM attribute = combat_rating  value = 20 } }
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTBHF23834
+		tiered_prestige_negative_effect = yes
+		opinion = {
+			modifier = opinion_antagonized_2
+			years = 15
+			who = FROM
+		}
+		ai_chance = { 
+			factor = 80 
+		}
+	}
+}
+
+#The Warrior Lodge Hero is humiliating other guests.
+character_event = {
+	id = HF.23835
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23835
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_diplomacy
+	portrait = persistent_event_target:warrior_lodge_guest
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		persistent_event_target:warrior_lodge_guest = { is_alive = yes }
+	}
+
+	#Diplomatic resolution.
+	#Take the Hero's side.
+	#Take the Guests' side.
+
+	option = { #Use Diplomacy to stop him.
+		name = EVTOPTAHF23835
+		trigger = { diplomacy = 12 }
+		tooltip_info = diplomacy
+		if = { 
+			limit = { 
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_APPROVES }
+			add_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_impressed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+	}
+	option = { #Take the Hero's side.
+		name = EVTOPTBHF23835
+		if = { 
+			limit = { 
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_APPROVES }
+			add_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_impressed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		custom_tooltip = { text = TOOLTIP_EVTOPTBHF23835 }
+		hidden_tooltip = { 
+			any_realm_character = { 
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = {
+						modifier = opinion_great_tribal_festival_guest
+						who = ROOT
+					}
+					ROOT = {
+						persistent_event_target:warrior_lodge_guest = { NOT = { character = PREVPREV } }
+					}
+				}
+				opinion = {
+					modifier = insulted
+					months = 34
+					who = ROOT
+				}
+			}
+		}
+	}
+	option = { #Take the guests' side.
+		name = EVTOPTCHF23835
+		if = { 
+			limit = { 
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = insulted
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+	}
+}
+
+#### Intermediate Kid Flavor Events ###
+
+#Dared to sneak into the main hall.
+character_event = {
+	id = HF.23836
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23836
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	#Accept dare.
+	#Refuse dare.
+
+	option = {
+		name = EVTOPTAHF23836
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23836 }
+		hidden_tooltip = {  
+			random_list = { 
+				50 = { 
+					modifier = { 
+						factor = 1.25
+						intrigue = 4
+					} 
+					modifier = { 
+						factor = 1.25
+						intrigue = 6
+					} 
+					modifier = { 
+						factor = 1.25
+						intrigue = 8
+					} 
+					modifier = { 
+						factor = 1.5
+						trait = quick
+					} 
+					modifier = { 
+						factor = 1.75
+						trait = genius
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = shrewd
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = dull
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = slow
+					} 
+					modifier = { 
+						factor = 0.5
+						trait = imbecile
+					} 
+					modifier = { 
+						factor = 0.25
+						trait = inbred
+					} 
+					modifier = { 
+						factor = 1.25
+						has_fair_trait_trigger = yes
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = shy
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = timid
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = idolizer
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = brooding
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = playful
+					} 
+					character_event = { id = HF.23838 } #Success.
+				}
+				50 = { character_event = { id = HF.23837 } } #Failure.
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF23836
+		tiered_piety_reward_effect = yes
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		ai_chance = { factor = 0 }
+	}
+}
+
+#Failed to sneak into the hall.
+character_event = {
+	id = HF.23837
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23837
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23837
+		tiered_prestige_negative_effect = yes
+	}
+}
+
+#Successfully snuck into the hall.
+character_event = {
+	id = HF.23838
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23838
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	#Rig the offerings on the shrine.
+	#Invite all friends to share food.
+
+	option = {
+		name = EVTOPTAHF23838
+		change_intrigue = 2
+		hidden_tooltip = { 
+			if = { 
+				limit = { 
+					NOR = { 
+						this_has_cool_nickname_trigger = yes
+						this_has_super_cool_nickname_trigger = yes
+					}
+				} 
+				random = { 
+					chance = 1
+					give_nickname = nick_the_pest
+				}
+			}
+			event_target:great_tribal_festival_host = { 
+				any_realm_character = { 
+					limit = { 
+						NOT = { character = ROOT }
+						has_opinion_modifier = {
+							modifier = opinion_great_tribal_festival_guest
+							who = PREV
+						}
+					}
+					character_event = { id = HF.23839 }
+				}
+			}
+		}
+		ai_chance = { factor = 50 }
+	}
+	option = {
+		name = EVTOPTBHF23838
+		change_diplomacy = 2
+		hidden_tooltip = { 
+			if = { 
+				limit = { 
+					NOR = { 
+						this_has_cool_nickname_trigger = yes
+						this_has_super_cool_nickname_trigger = yes
+					}
+				} 
+				random = { 
+					chance = 1
+					give_nickname = nick_the_piglet
+				}
+			}
+			gain_weight_small_effect = yes
+			event_target:great_tribal_festival_host = { 
+				any_realm_character = { 
+					limit = { 
+						NOT = { character = ROOT }
+						has_opinion_modifier = {
+							modifier = opinion_great_tribal_festival_guest
+							who = PREV
+						}
+					}
+					character_event = { id = HF.23840 }
+				}
+			}
+		}
+		ai_chance = { factor = 50 }
+	}
+}
+
+#Other guests notified of kid messing with the offerings.
+character_event = {
+	id = HF.23839
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = {
+		text = EVTDESCHFA23839
+		trigger = { 
+			is_adult = yes
+		}
+	}
+	desc = {
+		text = EVTDESCHFB23839
+		trigger = { 
+			is_adult = no
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23839
+		trigger = { 
+			is_adult = yes
+		}
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23839 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = -1 } }
+		opinion = {
+			modifier = opinion_disrespectful_pest
+			months = 25
+			who = ROOT
+		}
+	}
+	option = {
+		name = EVTOPTBHF23839
+		trigger = { 
+			is_adult = no
+		}
+		opinion = {
+			modifier = opinion_impressed
+			months = 25
+			who = ROOT
+		}
+	}
+}
+
+#Other guests notified of kids eating the food.
+character_event = {
+	id = HF.23840
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = {
+		text = EVTDESCHFA23840
+		trigger = { 
+			is_adult = yes
+		}
+	}
+	desc = {
+		text = EVTDESCHFB23840
+		trigger = { 
+			is_adult = no
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23840
+		trigger = { 
+			is_adult = yes
+		}
+		scaled_wealth = { value = -0.75 min = -5 max = -25 }
+		opinion = {
+			modifier = opinion_disrespectful_pest
+			months = 25
+			who = ROOT
+		}
+	}
+	option = {
+		name = EVTOPTBHF23840
+		trigger = { 
+			is_adult = no
+		}
+		opinion = {
+			modifier = opinion_impressed
+			months = 25
+			who = ROOT
+		}
+	}
+}
+#Dared to steal trinket from merchant.
+character_event = {
+	id = HF.23841
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23841
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	#Accept dare.
+	#Refuse dare.
+
+	option = {
+		name = EVTOPTAHF23841
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23841 }
+		hidden_tooltip = {  
+			random_list = { 
+				50 = { 
+					modifier = { 
+						factor = 1.25
+						intrigue = 4
+					} 
+					modifier = { 
+						factor = 1.25
+						intrigue = 6
+					} 
+					modifier = { 
+						factor = 1.25
+						intrigue = 8
+					} 
+					modifier = { 
+						factor = 1.5
+						trait = quick
+					} 
+					modifier = { 
+						factor = 1.75
+						trait = genius
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = shrewd
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = dull
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = slow
+					} 
+					modifier = { 
+						factor = 0.5
+						trait = imbecile
+					} 
+					modifier = { 
+						factor = 0.25
+						trait = inbred
+					} 
+					modifier = { 
+						factor = 1.25
+						has_fair_trait_trigger = yes
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = shy
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = timid
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = idolizer
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = brooding
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = playful
+					} 
+					character_event = { id = HF.23843 } #Success.
+				}
+				50 = { character_event = { id = HF.23842 } } #Failure.
+			}
+		}
+		ai_chance = { factor = 95 }
+	}
+	option = { 
+		name = EVTOPTBHF23841
+		tiered_piety_reward_effect = yes
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		ai_chance = { factor = 5 }
+	}
+}
+
+#Failed to steal from merchant.
+character_event = {
+	id = HF.23842
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23842
+	picture = GFX_evt_market
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23842
+		tiered_prestige_negative_effect = yes
+	}
+}
+
+#Successfully steal from merchant.
+character_event = {
+	id = HF.23843
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23843
+	picture = GFX_evt_market
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23843
+		change_intrigue = 1
+		scaled_wealth = { value = 0.75 min = 5 max = 25 }
+		hidden_tooltip = { 
+			if = { 
+				limit = { 
+					NOR = { 
+						this_has_cool_nickname_trigger = yes
+						this_has_super_cool_nickname_trigger = yes
+					}
+				} 
+				random = { 
+					chance = 1
+					give_nickname = nick_the_little_crow
+				}
+			}
+			event_target:great_tribal_festival_host = { 
+				any_realm_character = { 
+					limit = { 
+						NOT = { character = ROOT }
+						has_opinion_modifier = {
+							modifier = opinion_great_tribal_festival_guest
+							who = PREV
+						}
+					}
+					character_event = { id = HF.23844 }
+				}
+			}
+		}
+	}
+}
+
+#Other guests notified of kid stealing trinkets.
+character_event = {
+	id = HF.23844
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = {
+		text = EVTDESCHFA23844
+		trigger = { 
+			is_adult = yes
+		}
+	}
+	desc = {
+		text = EVTDESCHFB23844
+		trigger = { 
+			is_adult = no
+		}
+	}
+	picture = GFX_evt_market
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23844
+		trigger = { 
+			is_adult = yes
+		}
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } #Host has to reimburse the merchant.
+			scaled_wealth = { value = -0.75 min = -5 max = -25 } 
+		}
+		opinion = {
+			modifier = opinion_disrespectful_pest
+			months = 25
+			who = ROOT
+		}
+	}
+	option = {
+		name = EVTOPTBHF23844
+		trigger = { 
+			is_adult = no
+		}
+		opinion = {
+			modifier = opinion_impressed
+			months = 25
+			who = ROOT
+		}
+	}
+}
+
+#Dared to launch mud on guests.
+character_event = {
+	id = HF.23845
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23845
+	picture = GFX_evt_child_bully
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	#Accept dare.
+	#Refuse dare.
+
+	option = {
+		name = EVTOPTAHF23845
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23845 }
+		hidden_tooltip = {  
+			random_list = { 
+				50 = { 
+					modifier = { 
+						factor = 1.25
+						martial = 4
+					} 
+					modifier = { 
+						factor = 1.25
+						martial = 6
+					} 
+					modifier = { 
+						factor = 1.25
+						martial = 8
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = quick
+					} 
+					modifier = { 
+						factor = 1.5
+						trait = genius
+					} 
+					modifier = { 
+						factor = 1.15
+						trait = shrewd
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = dull
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = slow
+					} 
+					modifier = { 
+						factor = 0.5
+						trait = imbecile
+					} 
+					modifier = { 
+						factor = 0.25
+						trait = inbred
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = shy
+					} 
+					modifier = { 
+						factor = 0.75
+						trait = timid
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = idolizer
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = brooding
+					} 
+					modifier = { 
+						factor = 1.25
+						trait = playful
+					} 
+					modifier = { 
+						factor = 1.5
+						trait = strong
+					} 
+					modifier = { 
+						factor = 0.5
+						trait = weak
+					} 
+					modifier = { 
+						factor = 0.5
+						trait = feeble
+					} 
+					modifier = { 
+						factor = 1.5
+						trait = robust
+					} 
+					character_event = { id = HF.23847 } #Success.
+				}
+				50 = { character_event = { id = HF.23846 } } #Failure.
+			}
+		}
+		ai_chance = { factor = 50 }
+	}
+	option = { 
+		name = EVTOPTBHF23845
+		tiered_piety_reward_effect = yes
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		ai_chance = { factor = 20 }
+	}
+}
+#Failed to throw mud.
+character_event = {
+	id = HF.23846
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23846
+	picture = GFX_evt_child_bully
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23846
+		tiered_prestige_negative_effect = yes
+	}
+}
+
+#Successfully throw mud.
+character_event = {
+	id = HF.23847
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23847
+	picture = GFX_evt_child_bully
+	border = GFX_event_normal_frame_diplomacy
+	hide_from = yes
+	show_from_from = no
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTAHF23847
+		change_martial = 1
+		hidden_tooltip = { 
+			if = { 
+				limit = { 
+					NOR = { 
+						this_has_cool_nickname_trigger = yes
+						this_has_super_cool_nickname_trigger = yes
+					}
+				} 
+				random = { 
+					chance = 1
+					give_nickname = nick_the_gnat
+				}
+			}
+			event_target:great_tribal_festival_host = { 
+				any_realm_character = { 
+					limit = { 
+						NOT = { character = ROOT }
+						has_opinion_modifier = {
+							modifier = opinion_great_tribal_festival_guest
+							who = PREV
+						}
+					}
+					character_event = { id = HF.23848 }
+				}
+			}
+		}
+	}
+}
+
+#Other guests notified of kids throwing mud at them.
+character_event = {
+	id = HF.23848
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = {
+		text = EVTDESCHFA23848
+		trigger = { 
+			is_adult = yes
+			has_character_modifier = mud_splatter
+		}
+	}
+	desc = {
+		text = EVTDESCHFB23848
+		trigger = { 
+			is_adult = yes
+			NOT = { has_character_modifier = mud_splatter }
+		}
+	}
+	desc = {
+		text = EVTDESCHFC23848
+		trigger = { 
+			is_adult = no
+		}
+	}
+	picture = GFX_evt_child_bully
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+
+	immediate = {
+		if = {
+			limit = {
+				is_adult = yes
+			}
+			random = {
+				chance = 35
+				modifier = {
+					factor = 0.25
+					has_character_modifier = tribal_festival_very_good_fortune
+				}
+				modifier = {
+					factor = 0.5
+					has_character_modifier = tribal_festival_good_fortune
+				}
+				modifier = { #The prophecy came true!
+					factor = 2
+					has_character_modifier = tribal_festival_bad_fortune
+				}
+				add_character_modifier = {
+					name = mud_splatter
+					months = 2
+				}
+			}
+		}
+	}
+	option = {
+		name = EVTOPTAHF23848
+		trigger = { 
+			is_adult = yes
+		}
+		opinion = {
+			modifier = opinion_disrespectful_pest
+			months = 25
+			who = ROOT
+		}
+	}
+	option = {
+		name = EVTOPTBHF23848
+		trigger = { 
+			is_adult = no
+		}
+		opinion = {
+			modifier = opinion_impressed
+			months = 25
+			who = ROOT
+		}
+	}
+}
+
+#scoped_running_child_2 challenges scoped_running_child_1 to run.
+character_event = {
+	id = HF.23849
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23849
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:scoped_running_child_1
+
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Challenge
+		name = EVTOPTAHF23849
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23849 }
+		hidden_tooltip = { event_target:scoped_running_child_1 = { character_event = { id = HF.23850 } } }
+		ai_chance = { 
+			factor = 95 
+		}
+	}
+	option = { #Not interested.
+		name = EVTOPTBHF23849
+		tiered_prestige_negative_effect = yes
+		ai_chance = { 
+			factor = 5
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+			modifier = {
+				factor = 2
+				trait = timid
+			}
+		}
+	}
+}
+
+#scoped_running_child_1 receives challenge.
+character_event = {
+	id = HF.23850
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23850
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:scoped_running_child_2
+	
+	is_triggered_only = yes
+	
+	option = { #Take on challenge.
+		name = EVTOPTAHF23850
+		custom_tooltip = { text = TOOLTIP_EVTOPTAHF23850 }
+		hidden_tooltip = { event_target:scoped_running_child_2 = { character_event = { id = HF.23852 } } }
+		ai_chance = { 
+			factor = 95
+		}
+	}
+	option = { #Not interested.
+		name = EVTOPTCHF23850
+		tiered_prestige_negative_effect = yes
+		hidden_tooltip = { event_target:scoped_running_child_2 = { character_event = { id = HF.23851 } } }
+		ai_chance = { 
+			factor = 5
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+			modifier = {
+				factor = 2
+				trait = timid
+			}
+		}
+	}
+}
+
+#scoped_running_child_2 informed that other child is not interested.
+character_event = {
+	id = HF.23851
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23851
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:scoped_running_child_1
+	
+	is_triggered_only = yes
+	
+	option = { #Take on challenge.
+		name = EVTOPTAHF23851
+		ai_chance = { 
+			factor = 90 
+		}
+	}
+}
+
+#scoped_running_child_2 race winner decided, first child notified.
+character_event = {
+	id = HF.23852
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = {
+		text = EVTDESCHFA23852
+		trigger = { 
+			has_character_flag = flag_child_race_winner
+		}
+	}
+	desc = {
+		text = EVTDESCHFB23852
+		trigger = { 
+			NOT = { has_character_flag = flag_child_race_winner }
+		}
+	}
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:scoped_running_child_1
+	
+	is_triggered_only = yes
+	
+	immediate = { 
+		random_list = { 
+			50 = {  
+				modifier = {
+					factor = 0.75
+					trait = timid
+				}
+				modifier = {
+					factor = 0.75
+					trait = affectionate
+				}
+				modifier = {
+					factor = 1.5
+					trait = playful
+				}
+				modifier = {
+					factor = 1.15
+					trait = haughty
+				}
+				modifier = {
+					factor = 1.5
+					trait = rowdy
+				}
+				modifier = {
+					factor = 0.85
+					trait = fussy
+				}
+				modifier = {
+					factor = 0.85
+					trait = brooding
+				}
+				modifier = {
+					factor = 1.25
+					trait = willful
+				}
+				modifier = {
+					factor = 0.15
+					trait = incapable
+				}
+				modifier = {
+					factor = 0.85
+					trait = infirm
+				}
+				modifier = {
+					factor = 0.85
+					trait = wounded
+				}
+				modifier = {
+					factor = 0.85
+					trait = maimed
+				}
+				modifier = {
+					factor = 0.85
+					is_ill = yes
+				}
+				modifier = {
+					factor = 1.15
+					trait = quick
+				}
+				modifier = {
+					factor = 1.25
+					trait = genius
+				}
+				modifier = {
+					factor = 0.75
+					trait = weak
+				}
+				modifier = {
+					factor = 0.75
+					trait = feeble
+				}
+				modifier = {
+					factor = 0.75
+					trait = sturdy
+				}
+				modifier = {
+					factor = 1.5
+					trait = strong
+				}
+				modifier = {
+					factor = 1.5
+					trait = robust
+				}
+				modifier = {
+					factor = 0.5
+					trait = clubfooted
+				}
+				modifier = {
+					factor = 0.5
+					trait = dwarf
+				}
+				modifier = {
+					factor = 0.5
+					trait = hunchback
+				}
+				modifier = {
+					factor = 1.5
+					trait = brave
+				}
+				modifier = {
+					factor = 1.5
+					trait = diligent
+				}
+				modifier = {
+					factor = 0.75
+					trait = craven
+				}
+				modifier = {
+					factor = 0.75
+					trait = slothful
+				}
+				set_character_flag = flag_child_race_winner
+			} 
+			50 = {  
+				modifier = {
+					factor = 0.75
+					FROM = { trait = timid }
+				}
+				modifier = {
+					factor = 0.75
+					FROM = { trait = affectionate }
+				}
+				modifier = {
+					factor = 1.5
+					FROM = { trait = playful }
+				}
+				modifier = {
+					factor = 1.15
+					FROM = { trait = haughty }
+				}
+				modifier = {
+					factor = 1.5
+					FROM = { trait = rowdy }
+				}
+				modifier = {
+					factor = 0.85
+					FROM = { trait = fussy }
+				}
+				modifier = {
+					factor = 0.85
+					FROM = { trait = brooding }
+				}
+				modifier = {
+					factor = 1.25
+					FROM = { trait = willful }
+				}
+				modifier = {
+					factor = 0.15
+					FROM = { trait = incapable }
+				}
+				modifier = {
+					factor = 0.85
+					FROM = { trait = infirm }
+				}
+				modifier = {
+					factor = 0.85
+					FROM = { trait = wounded }
+				}
+				modifier = {
+					factor = 0.85
+					FROM = { trait = maimed }
+				}
+				modifier = {
+					factor = 0.85
+					FROM = { is_ill = yes }
+				}
+				modifier = {
+					factor = 1.15
+					FROM = { trait = quick }
+				}
+				modifier = {
+					factor = 1.25
+					FROM = { trait = genius }
+				}
+				modifier = {
+					factor = 0.75
+					FROM = { trait = weak }
+				}
+				modifier = {
+					factor = 0.75
+					FROM = { trait = feeble }
+				}
+				modifier = {
+					factor = 0.75
+					FROM = { trait = sturdy }
+				}
+				modifier = {
+					factor = 1.5
+					FROM = { trait = strong }
+				}
+				modifier = {
+					factor = 1.5
+					FROM = { trait = robust }
+				}
+				modifier = {
+					factor = 0.5
+					FROM = { trait = clubfooted }
+				}
+				modifier = {
+					factor = 0.5
+					FROM = { trait = dwarf }
+				}
+				modifier = {
+					factor = 0.5
+					FROM = { trait = hunchback }
+				}
+				modifier = {
+					factor = 1.5
+					FROM = { trait = brave }
+				}
+				modifier = {
+					factor = 1.5
+					FROM = { trait = diligent }
+				}
+				modifier = {
+					factor = 0.75
+					FROM = { trait = craven }
+				}
+				modifier = {
+					factor = 0.75
+					FROM = { trait = slothful }
+				}
+				FROM = { set_character_flag = flag_child_race_winner }
+			} 
+		}
+	}
+	option = { #I won!
+		name = EVTOPTAHF23852
+		trigger = { has_character_flag = flag_child_race_winner }
+		tiered_prestige_reward_effect = yes
+		change_martial = 1
+		clr_character_flag = flag_child_race_winner
+		hidden_tooltip = { 
+			if = { 
+				limit = { 
+					NOR = { 
+						this_has_cool_nickname_trigger = yes
+						this_has_super_cool_nickname_trigger = yes
+					}
+				} 
+				random = { 
+					chance = 1
+					give_nickname = nick_the_splinter
+				}
+			}
+		}
+		tooltip = {
+			reverse_opinion = {
+				modifier = opinion_angry
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { 
+			factor = 10 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+			modifier = {
+				factor = 2
+				trait = timid
+			}
+		}
+	}
+	option = { #I lost!
+		name = EVTOPTBHF23852
+		trigger = { NOT = { has_character_flag = flag_child_race_winner } }
+		tiered_prestige_negative_effect = yes
+		clr_character_flag = flag_child_race_winner
+		opinion = {
+			modifier = opinion_angry
+			months = 12
+			who = FROM
+		}
+		ai_chance = { 
+			factor = 10 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+			modifier = {
+				factor = 2
+				trait = timid
+			}
+		}
+	}
+	after = { 
+		hidden_tooltip = { event_target:scoped_running_child_1 = { character_event = { id = HF.23853 } } }
+	}
+}
+
+#scoped_running_child_1 second child notified.
+character_event = {
+	id = HF.23853
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = {
+		text = EVTDESCHFA23852 #Same loc as above.
+		trigger = { 
+			has_character_flag = flag_child_race_winner
+		}
+	}
+	desc = {
+		text = EVTDESCHFB23852
+		trigger = { 
+			NOT = { has_character_flag = flag_child_race_winner }
+		}
+	}
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:scoped_running_child_2
+	
+	is_triggered_only = yes
+	
+	option = { #I won!
+		name = EVTOPTAHF23852
+		trigger = { has_character_flag = flag_child_race_winner }
+		tiered_prestige_reward_effect = yes
+		change_martial = 1
+		clr_character_flag = flag_child_race_winner
+		hidden_tooltip = { 
+			if = { 
+				limit = { 
+					NOR = { 
+						this_has_cool_nickname_trigger = yes
+						this_has_super_cool_nickname_trigger = yes
+					}
+				} 
+				random = { 
+					chance = 1
+					give_nickname = nick_the_splinter
+				}
+			}
+		}
+		tooltip = {
+			reverse_opinion = {
+				modifier = opinion_angry
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { 
+			factor = 10 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+			modifier = {
+				factor = 2
+				trait = timid
+			}
+		}
+	}
+	option = { #I lost!
+		name = EVTOPTBHF23852
+		trigger = { NOT = { has_character_flag = flag_child_race_winner } }
+		tiered_prestige_negative_effect = yes
+		clr_character_flag = flag_child_race_winner
+		opinion = {
+			modifier = opinion_angry
+			months = 12
+			who = FROM
+		}
+		ai_chance = { 
+			factor = 10 
+			modifier = {
+				factor = 2
+				trait = shy
+			}
+			modifier = {
+				factor = 2
+				trait = timid
+			}
+		}
+	}
+}
+
+#Climbing a tree.
+character_event = {
+	id = HF.23854
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23854
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = { #Climb.
+		name = EVTOPTAHF23854
+		random_list = { 
+			50 = {  
+				modifier = {
+					factor = 0.75
+					trait = timid
+				}
+				modifier = {
+					factor = 0.75
+					trait = affectionate
+				}
+				modifier = {
+					factor = 1.5
+					trait = playful
+				}
+				modifier = {
+					factor = 1.15
+					trait = haughty
+				}
+				modifier = {
+					factor = 1.5
+					trait = rowdy
+				}
+				modifier = {
+					factor = 0.85
+					trait = fussy
+				}
+				modifier = {
+					factor = 0.85
+					trait = brooding
+				}
+				modifier = {
+					factor = 1.25
+					trait = willful
+				}
+				modifier = {
+					factor = 0.15
+					trait = incapable
+				}
+				modifier = {
+					factor = 0.85
+					trait = infirm
+				}
+				modifier = {
+					factor = 0.85
+					trait = wounded
+				}
+				modifier = {
+					factor = 0.85
+					trait = maimed
+				}
+				modifier = {
+					factor = 0.85
+					is_ill = yes
+				}
+				modifier = {
+					factor = 1.15
+					trait = quick
+				}
+				modifier = {
+					factor = 1.25
+					trait = genius
+				}
+				modifier = {
+					factor = 0.75
+					trait = weak
+				}
+				modifier = {
+					factor = 0.75
+					trait = feeble
+				}
+				modifier = {
+					factor = 1.5
+					trait = strong
+				}
+				modifier = {
+					factor = 1.5
+					trait = robust
+				}
+				modifier = {
+					factor = 0.5
+					trait = clubfooted
+				}
+				modifier = {
+					factor = 0.5
+					trait = dwarf
+				}
+				modifier = {
+					factor = 0.5
+					trait = hunchback
+				}
+				modifier = {
+					factor = 1.5
+					trait = brave
+				}
+				modifier = {
+					factor = 1.5
+					trait = diligent
+				}
+				modifier = {
+					factor = 0.75
+					trait = craven
+				}
+				modifier = {
+					factor = 0.75
+					trait = slothful
+				}
+				custom_tooltip = { text = TOOLTIP_EVTOPTAHF23854_SUCCESS }
+				hidden_tooltip = { character_event = { id = HF.23855 } }
+			} 
+			50 = {  
+				custom_tooltip = { text = TOOLTIP_EVTOPTAHF23854_FAILURE }
+				hidden_tooltip = { character_event = { id = HF.23856 } }
+			} 
+		}
+		ai_chance = { 
+			factor = 90 
+		}
+	}
+	option = { #Better not try to.
+		name = EVTOPTBHF23854
+		ai_chance = { 
+			factor = 10 
+		}
+	}
+}
+
+#Succeeded in climbing the tree.
+character_event = {
+	id = HF.23855
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23855
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = { #Look warriors training
+		name = EVTOPTAHF23855
+		change_martial = 1
+	}
+	option = { #Look merchant caravans
+		name = EVTOPTBHF23855
+		change_stewardship = 1
+	}
+	option = { #Look peasants chatting
+		name = EVTOPTCHF23855
+		change_intrigue = 1
+	}
+	option = { #Recite prayers to the sky gods
+		name = EVTOPTDHF23855
+		change_learning = 1
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+	}
+}
+
+#Falling from tree.
+character_event = {
+	id = HF.23856
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23856
+	picture = GFX_evt_child_talking
+	border = GFX_event_normal_frame_diplomacy
+	
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23856
+		if = { 
+			limit = { trait = wounded } 
+			random = { 
+				chance = 25 
+				death = { death_reason = death_accident } 
+			}
+		}
+		if = { 
+			limit = { NOT = { trait = wounded } }
+			random = { 
+				chance = 25 
+				add_trait = wounded 
+			}
+		}
+	}
+}
+
+####################
+### Competitions ###
+####################
+
+#Host: Start of Brawling Tournament.
+character_event = {
+	id = HF.23860
+	title = EVTTITLEHF23860
+	desc = EVTDESCHFA23860
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23860
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_brawling_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23860
+		if = { 
+			limit = { 
+				is_adult = yes
+				prisoner = no
+				NOT = { trait = incapable }
+				OR = {
+					can_enter_festival_physical_competitions_trigger = yes
+					has_game_rule = {
+						name = gender
+						value = all
+					} 
+				}
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23861 } #Guests decide if to participate as well (if allowed to)
+			}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Brawling competition begins.
+	}
+}
+
+#Guest: Want to participate to the brawling competition?
+character_event = {
+	id = HF.23861
+	title = EVTTITLEHF23860
+	desc = EVTDESCHFA23861
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23861
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_brawling_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23861
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#Host: Start of Drinking Tournament.
+character_event = {
+	id = HF.23862
+	title = EVTTITLEHF23862
+	desc = EVTDESCHFA23862
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23862
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_drinking_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23862
+		if = { 
+			limit = { 
+				is_adult = yes
+				prisoner = no
+				NOT = { trait = incapable }
+				OR = {
+					can_enter_festival_physical_competitions_trigger = yes
+					has_game_rule = {
+						name = gender
+						value = all
+					} 
+				}
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23863 } #Guests decide if to participate as well (if allowed to)
+			}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Drinking competition begins.
+	}
+}
+
+#Guest: Want to participate to the drinking competition?
+character_event = {
+	id = HF.23863
+	title = EVTTITLEHF23862
+	desc = EVTDESCHFA23863
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23863
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_drinking_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23863
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#Host: Start of Eating Tournament.
+character_event = {
+	id = HF.23864
+	title = EVTTITLEHF23864
+	desc = EVTDESCHFA23864
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23864
+		trigger = { 
+			is_adult = yes
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_eating_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23864
+		if = { 
+			limit = { 
+				is_adult = yes
+				NOT = { trait = incapable }
+				OR = {
+					can_enter_festival_physical_competitions_trigger = yes
+					has_game_rule = {
+						name = gender
+						value = all
+					} 
+				}
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23865 } #Guests decide if to participate as well (if allowed to)
+			}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Eating competition begins.
+	}
+}
+
+#Guest: Want to participate to the eating competition?
+character_event = {
+	id = HF.23865
+	title = EVTTITLEHF23864
+	desc = EVTDESCHFA23865
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23865
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_eating_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23865
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#Host: Start of Horse-Taming Tournament.
+character_event = {
+	id = HF.23866
+	title = EVTTITLEHF23866
+	desc = EVTDESCHFA23866
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23866
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_taming_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23866
+		if = { 
+			limit = { 
+				is_adult = yes
+				prisoner = no
+				NOT = { trait = incapable }
+				OR = {
+					can_enter_festival_physical_competitions_trigger = yes
+					has_game_rule = {
+						name = gender
+						value = all
+					} 
+				}
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23867 } #Guests decide if to participate as well (if allowed to)
+			}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Taming competition begins.
+	}
+}
+
+#Guest: Want to participate to the horse taming competition?
+character_event = {
+	id = HF.23867
+	title = EVTTITLEHF23866
+	desc = EVTDESCHFA23867
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23867
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = yes
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_taming_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23867
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#Host: Start of Beauty Competition.
+character_event = {
+	id = HF.23868
+	title = EVTTITLEHF23868
+	desc = EVTDESCHFA23868
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23868
+		trigger = { 
+			is_adult = yes
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_beauty_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23868
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23869 } #Guests decide if to participate as well (if allowed to)
+			}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Beauty competition begins.
+	}
+}
+
+#Guest: Want to participate to the beauty competition?
+character_event = {
+	id = HF.23869
+	title = EVTTITLEHF23868
+	desc = EVTDESCHFA23869
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23869
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_beauty_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23869
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#Host: Start of Poetry Competition.
+character_event = {
+	id = HF.23870
+	title = EVTTITLEHF23870
+	desc = EVTDESCHFA23870
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23870
+		trigger = { 
+			is_adult = yes
+			NOT = { trait = incapable }
+		}
+		if = { 
+			limit = { 
+				is_adult = yes
+				NOT = { trait = incapable }
+				OR = {
+					can_enter_festival_physical_competitions_trigger = yes
+					has_game_rule = {
+						name = gender
+						value = all
+					} 
+				}
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		set_character_flag = flag_tribal_festival_poetry_contender
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #Do nothing.
+		name = EVTOPTBHF23870
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23871 } #Guests decide if to participate as well (if allowed to)
+		}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Poetry competition begins.
+	}
+}
+
+#Guest: Want to participate to the poetry competition?
+character_event = {
+	id = HF.23871
+	title = EVTTITLEHF23870
+	desc = EVTDESCHFA23871
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23871
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_poetry_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23871
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#Host: Start of Singing Competition.
+character_event = {
+	id = HF.23872
+	title = EVTTITLEHF23872
+	desc = EVTDESCHFA23872
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23872
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+		}
+		if = { 
+			limit = { 
+				is_adult = yes
+				NOT = { trait = incapable }
+				OR = {
+					can_enter_festival_physical_competitions_trigger = yes
+					has_game_rule = {
+						name = gender
+						value = all
+					} 
+				}
+				persistent_event_target:warrior_lodge_guest = { 
+					is_alive = yes 
+					same_society_as = ROOT 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_DISAPPROVES }
+			detract_society_currency_trivial_effect = yes
+			persistent_event_target:warrior_lodge_guest = { 
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_disappointed
+					months = 50
+					who = ROOT
+				}
+			}
+		}
+		set_character_flag = flag_tribal_festival_singing_contender
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #Do nothing.
+		name = EVTOPTBHF23872
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23873 } #Guests decide if to participate as well (if allowed to)
+			}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Singing competition begins.
+	}
+}
+
+#Guest: Want to participate to the singing competition?
+character_event = {
+	id = HF.23873
+	title = EVTTITLEHF23872
+	desc = EVTDESCHFA23873
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23873
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_singing_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23873
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#Host: Start of Tapestry Competition.
+character_event = {
+	id = HF.23874
+	title = EVTTITLEHF23874
+	desc = EVTDESCHFA23874
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+		any_realm_character = { 
+			has_opinion_modifier = { 
+				who = ROOT
+				modifier = opinion_great_tribal_festival_guest 
+			} 
+			is_adult = yes
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+			count = 3
+		}
+	}
+
+	fail_trigger_effect = {
+		if = { 
+			limit = { has_character_flag = flag_holding_great_tribal_festival } 
+			character_event = { id = HF.23910 } #If there are no longer any courtiers to fight, move directly to the religious ceremony.
+		}
+	}
+
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	option = { #Join in.
+		name = EVTOPTAHF23874
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_tapestry_contender
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #Do nothing.
+		name = EVTOPTBHF23874
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { 
+			any_realm_character = { #Inform all adult guests.
+				limit = { 
+					is_adult = yes
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23875 } #Guests decide if to participate as well (if allowed to)
+			}
+		}
+		hidden_tooltip = { character_event = { id = HF.23876 days = 20 } }  #Tapestry competition begins.
+	}
+}
+
+#Guest: Want to participate to the tapestry competition?
+character_event = {
+	id = HF.23875
+	title = EVTTITLEHF23874
+	desc = EVTDESCHFA23875
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		clr_character_flag = flag_tribal_festival_brawling_contender
+		clr_character_flag = flag_tribal_festival_drinking_contender
+		clr_character_flag = flag_tribal_festival_eating_contender
+		clr_character_flag = flag_tribal_festival_taming_contender
+		clr_character_flag = flag_tribal_festival_beauty_contender
+		clr_character_flag = flag_tribal_festival_poetry_contender
+		clr_character_flag = flag_tribal_festival_singing_contender
+		clr_character_flag = flag_tribal_festival_tapestry_contender
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Join in.
+		name = EVTOPTAHF23875
+		trigger = { 
+			is_adult = yes
+			prisoner = no
+			NOT = { trait = incapable }
+			OR = {
+				can_enter_festival_physical_competitions_trigger = no
+				has_game_rule = {
+					name = gender
+					value = all
+				} 
+			}
+		}
+		set_character_flag = flag_tribal_festival_tapestry_contender
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTBHF23875
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_tooltip = { character_event = { id = HF.23876 days = 12 } }
+	}
+}
+
+#The Competition start. Host will handle the first row to decide the two final contenders and the winner.
+character_event = {
+	id = HF.23876
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	#Check what competition is being held, then whether the character receiving the event is participating in it or just looking.
+	desc = { 
+		text = EVTDESCHFA23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_brawling_tournament }
+			has_character_flag = flag_tribal_festival_brawling_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFA23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_brawling_tournament }
+			NOT = { has_character_flag = flag_tribal_festival_brawling_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_drinking_tournament }
+			has_character_flag = flag_tribal_festival_drinking_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_drinking_tournament }
+			NOT = { has_character_flag = flag_tribal_festival_drinking_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFC23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_eating_tournament }
+			has_character_flag = flag_tribal_festival_eating_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFC23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_eating_tournament }
+			NOT = { has_character_flag = flag_tribal_festival_eating_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFD23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_taming_tournament }
+			has_character_flag = flag_tribal_festival_taming_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFD23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_taming_tournament }
+			NOT = { has_character_flag = flag_tribal_festival_taming_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFE23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_beauty_contest }
+			has_character_flag = flag_tribal_festival_beauty_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFE23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_beauty_contest }
+			NOT = { has_character_flag = flag_tribal_festival_beauty_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFF23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_poetry_contest }
+			has_character_flag = flag_tribal_festival_poetry_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFF23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_poetry_contest }
+			NOT = { has_character_flag = flag_tribal_festival_poetry_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFG23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_singing_contest }
+			has_character_flag = flag_tribal_festival_singing_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFG23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_singing_contest }
+			NOT = { has_character_flag = flag_tribal_festival_singing_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFH23876_A
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_tapestry_contest }
+			has_character_flag = flag_tribal_festival_tapestry_contender
+		}
+	}
+	desc = { 
+		text = EVTDESCHFH23876_B
+		trigger = { 
+			event_target:great_tribal_festival_host = { has_character_flag = flag_host_holding_tapestry_contest }
+			NOT = { has_character_flag = flag_tribal_festival_tapestry_contender }
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23876
+		ai_chance = { factor = 100 }
+		hidden_tooltip = { #Check what competition is being held, pick two potential winner from all contenders.
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_brawling_tournament
+				}
+				pick_potential_brawling_winners_effect = yes
+			}
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_drinking_tournament
+				}
+				pick_potential_drinking_winners_effect = yes
+			}
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_eating_tournament
+				}
+				pick_potential_eating_winners_effect = yes
+			}
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_taming_tournament
+				}
+				pick_potential_taming_winners_effect = yes
+			}
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_beauty_contest
+				}
+				pick_potential_beauty_winners_effect = yes
+			}
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_poetry_contest
+				}
+				pick_potential_poetry_winners_effect = yes
+			}
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_singing_contest
+				}
+				pick_potential_singing_winners_effect = yes
+			}
+			if = { 
+				limit = { 
+					has_character_flag = flag_holding_great_tribal_festival 
+					has_character_flag = flag_host_holding_tapestry_contest
+				}
+				pick_potential_tapestry_winners_effect = yes
+			}
+		}
+	}
+}
+
+#Winner of Brawling tournament.
+character_event = {
+	id = HF.23880
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23880
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_undefeated
+				}
+				25 = {
+					give_nickname = nick_the_thigh_biter
+				}
+				25 = {
+					give_nickname = nick_the_strongest_of_location
+				}
+				25 = {
+					give_nickname = nick_the_champion_of_province
+				}
+				30 = {
+				}
+			}
+		}
+		random_list = {
+			5 = {
+				add_character_modifier = {
+					modifier = black_eye
+					months = 10
+				}
+			}
+			5 = {
+	        	add_character_modifier = {
+					modifier = swollen_wrist
+					months = 10
+				}
+			}
+			5 = {
+	        	add_character_modifier = {
+					modifier = swollen_ankle
+					months = 10
+				}
+			}
+			1 = {
+	        	add_character_modifier = {
+					modifier = concussion
+					months = 10
+				}
+			}
+			5 = {
+	        	add_character_modifier = {
+					modifier = badly_bruised
+					months = 10
+				}
+			}
+			60 = {
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23880
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { 
+					character = ROOT
+					persistent_event_target:warrior_lodge_guest = { 
+						is_alive = yes 
+						ROOT = { same_society_as = PREV } 
+					} 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_APPROVES_VICTORY }
+			add_society_currency_minor_effect = yes
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = brave }
+			}
+			random = {
+				chance = 5
+				add_trait = brave
+				hidden_tooltip = { character_event = { id = 38270 } }
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			event_target:tribal_festival_loser = { character_event = { id = HF.23881 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23882 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Brawling tournament notified.
+character_event = {
+	id = HF.23881
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23881
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_jittery
+				}
+				25 = {
+					give_nickname = nick_the_dust_biter
+				}
+				25 = {
+					give_nickname = nick_the_squealer
+				}
+				25 = {
+					give_nickname = nick_the_cowardly
+				}
+				25 = {
+					give_nickname = nick_the_squirmy
+				}
+				25 = {
+					give_nickname = nick_the_frantic
+				}
+				25 = {
+					give_nickname = nick_the_toothless
+				}
+				25 = {
+					give_nickname = nick_the_toothless_wolf
+				}
+				25 = {
+					give_nickname = nick_the_broken_nail
+				}
+				40 = {
+				}
+			}
+		}
+		random_list = {
+			10 = {
+				add_character_modifier = {
+					modifier = black_eye
+					months = 10
+				}
+			}
+			10 = {
+	        	add_character_modifier = {
+					modifier = swollen_wrist
+					months = 10
+				}
+			}
+			10 = {
+	        	add_character_modifier = {
+					modifier = swollen_ankle
+					months = 10
+				}
+			}
+			5 = {
+	        	add_character_modifier = {
+					modifier = concussion
+					months = 10
+				}
+			}
+			10 = {
+	        	add_character_modifier = {
+					modifier = badly_bruised
+					months = 10
+				}
+			}
+			60 = {
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23881
+		if = { 
+			limit = { is_benevolent_trigger = no }
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23882
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23882
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_brawling_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23882
+		trigger = { 
+			has_character_flag = flag_tribal_festival_brawling_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF23882
+		ai_chance = { factor = 70 }
+	}
+}
+
+#Winner of Drinking tournament.
+character_event = {
+	id = HF.23883
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23883
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_mead_master
+				}
+				25 = {
+					give_nickname = nick_the_hundred_flagons
+				}
+				25 = {
+					give_nickname = nick_the_bottomless
+				}
+				40 = {
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23883
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { 
+					character = ROOT
+					persistent_event_target:warrior_lodge_guest = { 
+						is_alive = yes 
+						ROOT = { same_society_as = PREV } 
+					} 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_APPROVES_VICTORY }
+			add_society_currency_minor_effect = yes
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = drunkard }
+			}
+			random = {
+				chance = 5
+				add_trait = drunkard
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			event_target:tribal_festival_loser = { character_event = { id = HF.23884 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23885 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Drinking tournament notified.
+character_event = {
+	id = HF.23884
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23884
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_dry_throat
+				}
+				25 = {
+					give_nickname = nick_the_floor_kisser
+				}
+				25 = {
+					give_nickname = nick_the_green_faced
+				}
+				25 = {
+					give_nickname = nick_the_pups_gut
+				}
+				25 = {
+					give_nickname = nick_the_sleepy
+				}
+				25 = {
+					give_nickname = nick_the_jittery
+				}
+				40 = {
+				}
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23884
+		if = { 
+			limit = { is_benevolent_trigger = no}
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23885
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23885
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_drinking_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23885
+		trigger = { 
+			has_character_flag = flag_tribal_festival_drinking_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF23885
+		ai_chance = { factor = 70 }
+	}
+}
+
+#Winner of Eating tournament.
+character_event = {
+	id = HF.23886
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23886
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_bottomless
+				}
+				25 = {
+					give_nickname = nick_the_beef_thrasher
+				}
+				60 = {
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23886
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { 
+					character = ROOT
+					persistent_event_target:warrior_lodge_guest = { 
+						is_alive = yes 
+						ROOT = { same_society_as = PREV } 
+					} 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_APPROVES_VICTORY }
+			add_society_currency_minor_effect = yes
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = gluttonous }
+			}
+			random = {
+				chance = 5
+				add_trait = gluttonous
+				hidden_tooltip = { character_event = { id = 38277 } } #Notify Gluttonous
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			gain_weight_small_effect = yes
+			event_target:tribal_festival_loser = { character_event = { id = HF.23887 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23888 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Eating tournament notified.
+character_event = {
+	id = HF.23887
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23887
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_green_faced
+				}
+				25 = {
+					give_nickname = nick_the_pups_gut
+				}
+				25 = {
+					give_nickname = nick_butter_teeth
+				}
+				25 = {
+					give_nickname = nick_the_jittery
+				}
+				40 = {
+				}
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23887
+		if = { 
+			limit = { is_benevolent_trigger = no }
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23888
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23888
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_eating_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23888
+		trigger = { 
+			has_character_flag = flag_tribal_festival_eating_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF23888
+		ai_chance = { factor = 70 }
+	}
+}
+
+#Winner of Taming tournament.
+character_event = {
+	id = HF.23889
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23889
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_horse_gelder
+				}
+				25 = {
+					give_nickname = nick_the_undefeated
+				}
+				25 = {
+					give_nickname = nick_the_tamer
+				}
+				60 = {
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23889
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { 
+					character = ROOT
+					persistent_event_target:warrior_lodge_guest = { 
+						is_alive = yes 
+						ROOT = { same_society_as = PREV } 
+					} 
+				}
+			}
+			custom_tooltip = { text = TOOLTIP_FESTIVAL_LODGE_HERO_APPROVES_VICTORY }
+			add_society_currency_minor_effect = yes
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = brave }
+			}
+			random = {
+				chance = 5
+				add_trait = brave
+				hidden_tooltip = { character_event = { id = 38270 } }
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			event_target:tribal_festival_loser = { character_event = { id = HF.23890 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23891 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Taming tournament notified.
+character_event = {
+	id = HF.23890
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23890
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_dust_biter
+				}
+				25 = {
+					give_nickname = nick_the_cowardly
+				}
+				25 = {
+					give_nickname = nick_the_squirmy
+				}
+				25 = {
+					give_nickname = nick_the_broken_nail
+				}
+				40 = {
+				}
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23890
+		if = { 
+			limit = { is_benevolent_trigger = no }
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23891
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23891
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_taming_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23891
+		trigger = { 
+			has_character_flag = flag_tribal_festival_taming_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF23891
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Winner of Beauty tournament.
+character_event = {
+	id = HF.23892
+	desc = EVTDESCHFA23892
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_fairest_of_location
+				}
+				25 = {
+					trigger = { is_female = yes }
+					give_nickname = nick_the_dove
+				}
+				25 = {
+					trigger = { is_female = no }
+					give_nickname = nick_the_stallion
+				}
+				25 = {
+					trigger = { is_female = yes }
+					give_nickname = nick_the_harth_of_location
+				}
+				60 = {
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23892
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = proud }
+			}
+			random = {
+				chance = 5
+				add_trait = proud
+				hidden_tooltip = { character_event = { id = 38261 } } # Notify Proud
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			event_target:tribal_festival_loser = { character_event = { id = HF.23893 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23894 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Beauty tournament notified.
+character_event = {
+	id = HF.23893
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23893
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_flat_chested
+				}
+				25 = {
+					give_nickname = nick_the_oakskin
+				}
+				25 = {
+					give_nickname = nick_the_toothless
+				}
+				25 = {
+					give_nickname = nick_the_spare
+				}
+				25 = {
+					give_nickname = nick_the_rough_hair
+				}
+				40 = {
+				}
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23893
+		if = { 
+			limit = { is_benevolent_trigger = no }
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23894
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23894
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_beauty_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23894
+		trigger = { 
+			has_character_flag = flag_tribal_festival_beauty_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF23894
+		ai_chance = { factor = 70 }
+	}
+}
+
+#Winner of Poetry tournament.
+character_event = {
+	id = HF.23895
+	desc = EVTDESCHFA23895
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_word_master
+				}
+				25 = {
+					give_nickname = nick_the_silver_tongue
+				}
+				25 = {
+					give_nickname = nick_the_bard
+				}
+				60 = {
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23895
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = gregarious }
+			}
+			random = {
+				chance = 5
+				add_trait = gregarious
+				hidden_tooltip = { character_event = { id = 38265 } }
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			event_target:tribal_festival_loser = { character_event = { id = HF.23896 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23897 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Poetry tournament notified.
+character_event = {
+	id = HF.23896
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23896
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_word_thief
+				}
+				25 = {
+					give_nickname = nick_the_broken_lute
+				}
+				25 = {
+					give_nickname = nick_the_forgetful
+				}
+				25 = {
+					give_nickname = nick_the_singing_crow
+				}
+				25 = {
+					give_nickname = nick_the_thin_minded
+				}
+				40 = {
+				}
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23896
+		if = { 
+			limit = { is_benevolent_trigger = no }
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23897
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23897
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_poetry_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23897
+		trigger = { 
+			has_character_flag = flag_tribal_festival_poetry_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF23897
+		ai_chance = { factor = 70 }
+	}
+}
+
+#Winner of Singing tournament.
+character_event = {
+	id = HF.23898
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23898
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_word_master
+				}
+				25 = {
+					give_nickname = nick_the_silver_tongue
+				}
+				25 = {
+					give_nickname = nick_the_bard
+				}
+				60 = {
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23898
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = gregarious }
+			}
+			random = {
+				chance = 5
+				add_trait = gregarious
+				hidden_tooltip = { character_event = { id = 38265 } }
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			event_target:tribal_festival_loser = { character_event = { id = HF.23899 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23900 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Singing tournament notified.
+character_event = {
+	id = HF.23899
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23899
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_word_thief
+				}
+				25 = {
+					give_nickname = nick_the_broken_lute
+				}
+				25 = {
+					give_nickname = nick_the_forgetful
+				}
+				25 = {
+					give_nickname = nick_the_singing_crow
+				}
+				25 = {
+					give_nickname = nick_the_thin_minded
+				}
+				40 = {
+				}
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23899
+		if = { 
+			limit = { is_benevolent_trigger = no }
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23900
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23900
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_singing_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23900
+		trigger = { 
+			has_character_flag = flag_tribal_festival_singing_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF23900
+		ai_chance = { factor = 70 }
+	}
+}
+
+#Winner of Tapestry tournament.
+character_event = {
+	id = HF.23901
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23901
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_star_weaver
+				}
+				25 = {
+					give_nickname = nick_the_quick_fingers
+				}
+				60 = {
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	
+	option = { #Tiered prestige reward based on Host's tier.
+		name = EVTOPTAHF23901
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = DUKE }
+			}
+			prestige = 50
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = KING }
+			}
+			prestige = 100
+		}
+		if = { 
+			limit = { 
+				event_target:great_tribal_festival_host = { real_tier = EMPEROR }
+			}
+			prestige = 150
+		}
+		if = { 
+			limit = { 
+				NOT = { trait = gregarious }
+			}
+			random = {
+				chance = 5
+				add_trait = gregarious
+				hidden_tooltip = { character_event = { id = 38265 } }
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = no
+			}
+			add_character_modifier = {
+				modifier = tribal_king_of_fair
+				years = 100
+			}
+		}
+		if = { 
+			limit = { 
+				is_female = yes
+			}
+			add_character_modifier = {
+				modifier = tribal_queen_of_fair
+				years = 100
+			}
+		}
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 3 } }
+		hidden_tooltip = {  
+			event_target:tribal_festival_loser = { character_event = { id = HF.23902 } }
+			event_target:great_tribal_festival_host = {  
+				any_realm_character = { 
+					limit = { 
+						NOT = { event_target:tribal_festival_winner = { character = PREV } } 
+						NOT = { event_target:tribal_festival_loser = { character = PREV } } 
+						NOT = { ROOT = { character = PREV } } 
+					}
+					character_event = { id = HF.23903 }
+				}
+			}
+			event_target:great_tribal_festival_host = { character_event = { id = HF.23910 days = 10 } } #Host (who may or may not be ROOT) goes to religious phase.
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Second-place loser of Tapestry tournament notified.
+character_event = {
+	id = HF.23902
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23902
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	portrait = event_target:tribal_festival_winner
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+	
+	immediate = {
+		if = { 
+			limit = { 
+				this_has_average_nickname_trigger = no 
+				this_has_cool_nickname_trigger = no 
+				this_has_super_cool_nickname_trigger = no 
+			}
+			random_list = {
+				25 = {
+					give_nickname = nick_the_clumsy
+				}
+				25 = {
+					give_nickname = nick_the_messy
+				}
+				60 = {
+				}
+			}
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23902
+		if = { 
+			limit = { is_benevolent_trigger = no }
+			opinion = {
+				modifier = opinion_sore_loser
+				months = 12
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Everyone else receives the event.
+character_event = {
+	id = HF.23903
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = { 
+		text = EVTDESCHFA23903
+		trigger = { 
+			NOT = { has_character_flag = flag_tribal_festival_tapestry_contender }
+		}
+	}
+	desc = { 
+		text = EVTDESCHFB23903
+		trigger = { 
+			has_character_flag = flag_tribal_festival_tapestry_contender
+		}
+	}
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { #Host offers prize to winner to gain opinion/divine_favor.
+		name = EVTOPTZHF23900
+		trigger = { 
+			has_character_flag = flag_holding_great_tribal_festival 
+			NOT = { event_target:tribal_festival_winner = { character = ROOT } } #Stop complimenting yourself, you'll go blind.
+		}
+		custom_tooltip = { text = TT_EVTOPTZHF23900 }
+		transfer_scaled_wealth = { to = event_target:tribal_festival_winner value = 1.0 min = 25 max = 150 }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		event_target:tribal_festival_winner = { 
+			show_scope_change = no
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = ROOT
+			} 
+			hidden_tooltip = { character_event = { id = HF.23904 } }
+		}
+		ai_chance = { 
+			factor = 30
+			modifier = {  
+				factor = 2
+				trait = charitable
+			}
+			modifier = {  
+				factor = 0
+				trait = greedy
+			}
+		}
+	}
+
+	option = { 
+		name = EVTOPTAHF23903
+		ai_chance = { factor = 70 }
+	}
+}
+
+#Winner given prize by Host.
+character_event = {
+	id = HF.23904
+	title = EVTTITLEHF_TRIBAL_FESTIVAL
+	desc = EVTDESCHFA23904
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_diplomacy
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF23904
+		tooltip = { FROM = { transfer_scaled_wealth = { to = ROOT value = 1.0 min = 25 max = 150 } } }
+		hidden_tooltip = { change_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+		tooltip = { 
+			opinion = {  
+				modifier = opinion_victory_prize
+				years = 10
+				who = FROM
+			}
+		}
+		ai_chance = { factor = 70 }
+	}
+}
+
+###############################################
+### Festival Phase 3: Religious Celebration ###
+###############################################
+
+#Host gets main event.
+character_event = {
+	id = HF.23910
+	title = EVTTITLE23910
+	desc = { 
+		text = EVTDESCHFA23910
+		trigger = { 
+			NOT = { 
+				religion_group = pagan_group 
+				is_reformed_religion = no
+			}
+			NOR = { 
+				religion_group = christian
+				religion_group = latter_day_saints
+			}
+		}
+		picture = GFX_evt_pagan
+	}
+	desc = { 
+		text = EVTDESCHFB23910
+		trigger = { 
+			NOT = { 
+				religion_group = pagan_group 
+				is_reformed_religion = no
+			}
+			OR = {
+				religion_group = christian
+				religion_group = latter_day_saints
+			}
+		}
+		picture = GFX_evt_icon
+	}
+	desc = { 
+		text = EVTDESCHFC23910
+		trigger = { 
+			religion_group = pagan_group 
+			is_reformed_religion = no
+		}
+		picture = GFX_evt_irminsul_shrine
+	}
+	picture = GFX_evt_irminsul_shrine
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF23910
+		if = {
+			limit = {		
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 1 } }
+			}
+			piety = 5
+		}
+		#Prosperity first.
+		if = {
+			limit = {
+				has_dlc = "Reapers"
+				check_variable = { which = "tribal_festival_divine_favor" value = 1 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 2 } }
+			}
+			custom_tooltip = {
+				text = capital_prospers_custom_tooltip
+				hidden_tooltip = {
+					capital_scope = {
+						change_variable = { which = prosperity_value value = 4 }
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_dlc = "Reapers"
+				check_variable = { which = "tribal_festival_divine_favor" value = 2 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 4 } }
+			}
+			custom_tooltip = {
+				text = capital_prospers_custom_tooltip
+				hidden_tooltip = {
+					capital_scope = {
+						change_variable = { which = prosperity_value value = 6 }
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_dlc = "Reapers"
+				check_variable = { which = "tribal_festival_divine_favor" value = 4 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 6 } }
+			}
+			custom_tooltip = {
+				text = capital_prospers_custom_tooltip
+				hidden_tooltip = {
+					capital_scope = {
+						change_variable = { which = prosperity_value value = 12 }
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_dlc = "Reapers"
+				check_variable = { which = "tribal_festival_divine_favor" value = 6 }
+			}
+			custom_tooltip = {
+				text = capital_prospers_custom_tooltip
+				hidden_tooltip = {
+					capital_scope = {
+						change_variable = { which = prosperity_value value = 18 }
+					}
+				}
+			}
+		}
+
+		#Then piety for non-unreformed pagans.
+		if = {
+			limit = {		
+				NOT = { 
+					religion_group = pagan_group 
+					is_reformed_religion = no
+				}
+				check_variable = { which = "tribal_festival_divine_favor" value = 1 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 2 } }
+			}
+			piety = 10
+		}
+		if = {
+			limit = {		
+				NOT = { 
+					religion_group = pagan_group 
+					is_reformed_religion = no
+				}
+				check_variable = { which = "tribal_festival_divine_favor" value = 2 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 4 } }
+			}
+			piety = 15
+		}
+		if = {
+			limit = {		
+				NOT = { 
+					religion_group = pagan_group 
+					is_reformed_religion = no
+				}
+				check_variable = { which = "tribal_festival_divine_favor" value = 4 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 6 } }
+			}
+			piety = 30
+		}
+		if = {
+			limit = {		
+				NOT = { 
+					religion_group = pagan_group 
+					is_reformed_religion = no
+				}
+				check_variable = { which = "tribal_festival_divine_favor" value = 6 }
+			}
+			piety = 60
+		}
+
+		#And Moral Authority for unreformed pagans.
+		if = {
+			limit = {		
+				religion_group = pagan_group 
+				is_reformed_religion = no
+				check_variable = { which = "tribal_festival_divine_favor" value = 1 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 2 } }
+			}
+			religion_authority = {
+				modifier = great_tribal_festival_1
+				years = 2
+			}
+		}
+		if = {
+			limit = {		
+				religion_group = pagan_group 
+				is_reformed_religion = no
+				check_variable = { which = "tribal_festival_divine_favor" value = 2 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 4 } }
+			}
+			religion_authority = {
+				modifier = great_tribal_festival_1
+				years = 3
+			}
+		}
+		if = {
+			limit = {		
+				religion_group = pagan_group 
+				is_reformed_religion = no
+				check_variable = { which = "tribal_festival_divine_favor" value = 4 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 6 } }
+			}
+			religion_authority = {
+				modifier = great_tribal_festival_2
+				years = 3
+			}
+		}
+		if = {
+			limit = {	
+				religion_group = pagan_group 
+				is_reformed_religion = no
+				check_variable = { which = "tribal_festival_divine_favor" value = 6 }
+			}
+			religion_authority = {
+				modifier = great_tribal_festival_2
+				years = 4
+			}
+		}
+		hidden_tooltip = { #Final event for vassals.
+			any_realm_character = { 
+				limit = { 
+					has_opinion_modifier = { 
+						who = ROOT
+						modifier = opinion_great_tribal_festival_guest 
+					} 
+				} 
+				character_event = { id = HF.23911 } 
+			}
+			if = { 
+				limit = { persistent_event_target:warrior_lodge_guest = { is_alive = yes } }
+				persistent_event_target:warrior_lodge_guest = { 
+					character_event = { id = HF.23911 } 
+				}
+			}
+			clean_up_great_tribal_festival_flags_effect = yes
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Vassals notified.
+character_event = {
+	id = HF.23911
+	title = EVTTITLE23911
+	desc = { 
+		text = EVTDESCHFA23911
+		trigger = { 
+			FROM = { 
+				NOT = { 
+					religion_group = pagan_group 
+					is_reformed_religion = no
+				}
+				NOR = { 
+					religion_group = christian
+					religion_group = latter_day_saints
+				}
+			}
+		}
+		picture = GFX_evt_pagan
+	}
+	desc = { 
+		text = EVTDESCHFB23911
+		trigger = { 
+			FROM = { 
+				NOT = { 
+					religion_group = pagan_group 
+					is_reformed_religion = no
+				}
+				OR = {
+					religion_group = christian
+					religion_group = latter_day_saints
+				}
+			}
+		}
+		picture = GFX_evt_icon
+	}
+	desc = { 
+		text = EVTDESCHFC23911
+		trigger = { 
+			FROM = { 
+				religion_group = pagan_group 
+				is_reformed_religion = no
+			}
+		}
+		picture = GFX_evt_irminsul_shrine
+	}
+	picture = GFX_evt_irminsul_shrine
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		event_target:great_tribal_festival_host = { has_character_flag = flag_holding_great_tribal_festival }
+	}
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF23911
+		opinion = {
+			modifier = opinion_held_great_festival
+			years = 10
+			who = FROM
+		}
+		#Vassals only get piety.
+		if = {
+			limit = {		
+				check_variable = { which = "tribal_festival_divine_favor" value = 1 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 2 } }
+			}
+			piety = 10
+		}
+		if = {
+			limit = {		
+				check_variable = { which = "tribal_festival_divine_favor" value = 2 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 4 } }
+			}
+			piety = 15
+		}
+		if = {
+			limit = {	
+				check_variable = { which = "tribal_festival_divine_favor" value = 4 }
+				NOT = { check_variable = { which = "tribal_festival_divine_favor" value = 6 } }
+			}
+			piety = 30
+		}
+		if = {
+			limit = {
+				check_variable = { which = "tribal_festival_divine_favor" value = 6 }
+			}
+			piety = 60
+		}
+		clean_up_great_tribal_festival_flags_effect = yes
+		ai_chance = { factor = 100 }
+	}
+}

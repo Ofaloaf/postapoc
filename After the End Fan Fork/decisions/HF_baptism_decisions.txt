@@ -1,0 +1,1374 @@
+
+targetted_decisions = {
+
+	request_sponsored_baptism = {
+		ai_target_filter = court
+		ai = no
+		
+		from_potential = {
+			has_dlc = "Holy Fury"
+			is_tribal = yes
+			religion_group = pagan_group
+			#higher_real_tier_than = count 		#condition only for ai to avoid single counts spamming Kings
+			NOT = { trait = incapable }
+			NOT = { is_reformed_religion = yes }
+			#NOT = { has_character_modifier = baptism_request_cooldown }
+			NOT = { has_character_flag = flag_converting_baptism }
+			independent = yes
+
+		}
+		potential = {
+			independent = yes
+			is_tribal = no
+			is_nomadic = no
+			is_theocracy = no
+			higher_real_tier_than = DUKE
+			NOT = { trait = incapable }
+			has_regent = no
+			NOT = { religion = FROM }
+			NOT = { pays_tribute_to = FROM }
+			NOT = { has_character_flag = flag_sponsoring_baptism }
+			OR = { #only a select few religious groups can sponsor mass baptisms
+				religion_group = christian
+				religion_group = cult_of_saints
+				religion_group = latter_day_saints
+				religion_group = pacific
+				religion_group = oldworld
+				religion_group = jewish_group
+				religion_group = indian_group
+				AND = {
+					religion_group = pagan_group
+					is_reformed_religion = yes
+				}
+			}
+		}
+		allow = {
+			is_within_diplo_range = FROM
+			prisoner = no
+			has_regent = no
+			custom_tooltip = {
+				text = NOT_CURRENTLY_BAPTIZING
+				hidden_tooltip = {
+					NOT = { has_character_flag = flag_sponsoring_baptism }
+				}
+			}
+			conditional_tooltip = {
+				trigger = { has_character_modifier = baptism_request_cooldown }
+				custom_tooltip = {
+					text = NOT_BEEN_ASKED_BAPTISM_RECENTLY
+					hidden_tooltip = {  
+						NOT = { has_character_modifier = baptism_request_cooldown } 
+					} 
+				} 
+			} 
+			custom_tooltip = {
+				text = NOT_ROOT_RELIGION_PLAYABLE
+				hidden_tooltip = { ROOTs_religion_is_playable_trigger = yes }
+			}
+			FROM = { pagan_baptism_trigger = yes }
+		}
+		effect = {
+			hidden_effect = {
+				FROM = {
+					add_character_modifier = {
+						name = baptism_request_cooldown
+						months = 1
+						hidden = yes
+					}
+				}
+				add_character_modifier = {
+					name = baptism_request_cooldown
+					months = 1
+					hidden = yes
+				}
+			opinion = {
+					modifier = opinion_baptism_sponsor_target
+					years = 20
+					who = FROM
+					origin_description = EVTTOOLTIPHFA20005
+				}
+				FROM = {
+					opinion = {
+						modifier = opinion_baptism_sponsor_target
+						years = 20
+						who = ROOT
+						origin_description = EVTTOOLTIPHFB20005
+					}
+				}
+			}
+			letter_event = { id = HF.20000 tooltip = EVTTOOLTIPHF20000 }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		ai_acceptance = {
+			factor = 10	# The base score	
+			yes_threshold = 0 
+			show_maybe_for_human = yes 
+	
+			additive_modifier = {
+				value = 10
+				localisation_key = baptism_sponsor_patriarch
+				religion_head = { is_liege_or_above = ROOT }
+			}
+		#	additive_modifier = {
+		#		value = -15 
+		#		custom_tooltip = { text = send_extracoronation_invitations
+		#		NOT = { true_religion = FROM }
+		#		society_member_of = secret_religious_cult }
+		#	}
+		#	additive_modifier = {
+		#		value = 5
+		#		true_religion = FROM
+		#	}
+		#	additive_modifier = {
+		#		value = 10
+		#		custom_tooltip = { text = send_extracoronation_invitations }
+		#		hidden_tooltip = { true_religion = FROM
+		#		society_member_of = secret_religious_cult }
+		#	}
+			additive_modifier = {
+				value = 5
+				localisation_key = baptism_sponsor_emperor
+				tier = EMPEROR
+			}
+			additive_modifier = {
+				value = 5
+				localisation_key = baptism_sponsor_ally
+				has_non_aggression_pact_with = FROM
+			}
+			additive_modifier = { #Fylkir and the like, not actual theocracies.
+				value = 5
+				localisation_key = baptism_sponsor_fylkir
+				religion_head = { character = ROOT }
+			}
+			additive_modifier = {
+				value = -5
+				localisation_key = baptism_sponsor_wealth
+				NOT = { wealth = 0 }
+			}
+			additive_modifier = {
+				value = 5
+				localisation_key = baptism_sponsor_wealth
+				wealth = 100
+				NOT = { wealth = 200 }
+			}
+			additive_modifier = {
+				value = 10
+				localisation_key = baptism_sponsor_wealth
+				wealth = 200
+			}
+			additive_modifier = {
+				value = 10
+				localisation_key = baptism_sponsor_proselytizer
+				NOT = { religion = woolleyite }
+				OR = {
+					religion_group = christian
+					religion_group = cult_of_saints
+					religion_group = latter_day_saints
+				}
+			}
+			additive_modifier = {
+				value = 10
+				localisation_key = baptism_sponsor_sympathetic
+				trait = sympathy_pagans
+				FROM = { religion_group = pagan_group } 
+				NOT = { true_religion = FROM } 
+			}
+			additive_modifier = {
+				value = 10
+				localisation_key = baptism_sponsor_sympathetic
+				true_religion = FROM
+				NOT = { trait = sympathy_pagans } 
+			}
+			additive_modifier = {
+				value = 20
+				localisation_key = baptism_sponsor_sympathetic
+				true_religion = FROM
+				trait = sympathy_pagans
+			}
+			additive_modifier = { #Potential reformed pagans
+				value = 10
+				localisation_key = baptism_sponsor_pagan
+				religion_group = pagan_group
+			}
+			additive_modifier = {
+				value = -30
+				localisation_key = baptism_sponsor_size
+				relative_realm_size = {
+					who = FROM 
+					size < 1.5
+				}
+			}
+			additive_modifier = {
+				value = -15
+				localisation_key = baptism_sponsor_size
+				NOT = {
+					relative_realm_size = {
+						who = FROM 
+						size < 1.5
+					}
+				}
+				relative_realm_size = {
+					who = FROM 
+					size < 1
+				}
+			}
+			additive_modifier = {
+				value = 20
+				localisation_key = baptism_sponsor_size
+				relative_realm_size = {
+					who = FROM 
+					size > 2
+				}
+			}
+			additive_modifier = {
+				value = -100
+				localisation_key = baptism_sponsor_power
+				FROM = { relative_power = { who = ROOT power = 5 } }
+			}
+			additive_modifier = {
+				value = -50
+				localisation_key = baptism_sponsor_power
+				NOT = { FROM = { relative_power = { who = ROOT power = 5 } } }
+				FROM = { relative_power = { who = ROOT power = 4 } }
+			}
+			additive_modifier = {
+				value = -20
+				localisation_key = baptism_sponsor_power
+				NOT = { FROM = { relative_power = { who = ROOT power = 4 } } }
+				FROM = { relative_power = { who = ROOT power = 3 } }
+			}
+			additive_modifier = {
+				value = -10
+				localisation_key = baptism_sponsor_power
+				NOT = { FROM = { relative_power = { who = ROOT power = 3 } } }
+				FROM = { relative_power = { who = ROOT power = 2 } }
+			}
+			additive_modifier = {
+				value = 5
+				localisation_key = baptism_sponsor_power
+				relative_power = { who = FROM power = 2 }
+				NOT = { relative_power = { who = FROM power = 3 } }
+			}
+			additive_modifier = {
+				value = 15
+				localisation_key = baptism_sponsor_power
+				relative_power = { who = FROM power = 3 }
+				NOT = { relative_power = { who = FROM power = 4 } }
+			}
+			additive_modifier = {
+				value = 30
+				localisation_key = baptism_sponsor_power
+				relative_power = { who = FROM power = 4 }
+				NOT = { relative_power = { who = FROM power = 6 } }
+			}
+			additive_modifier = {
+				value = 50
+				localisation_key = baptism_sponsor_power
+				relative_power = { who = FROM power = 6 }
+				NOT = { relative_power = { who = FROM power = 8 } }
+			}
+			additive_modifier = {
+				value = 100
+				localisation_key = baptism_sponsor_power
+				relative_power = { who = FROM power = 8 }
+			}
+			additive_modifier = {
+				value = 10
+				localisation_key = baptism_sponsor_relative
+				is_close_relative = FROM
+			}
+			additive_modifier = {
+				value = 20
+				localisation_key = baptism_sponsor_ally
+				is_friend = FROM
+			}
+			additive_modifier = {
+				value = 20
+				localisation_key = baptism_sponsor_ally
+				is_lover = FROM
+			}
+			additive_modifier = {
+				value = 50
+				localisation_key = baptism_sponsor_suzerain
+				FROM = { pays_tribute_to = ROOT }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = 75		#Counteract huge distance penalty.
+				localisation_key = baptism_sponsor_suzerain
+				FROM = { pays_tribute_to = ROOT }
+				ROOT = { is_offmap_governor = offmap_china }
+			}
+			additive_modifier = {
+				value = -75
+				localisation_key = baptism_sponsor_tributary
+				pays_tribute_to = FROM
+			}
+			additive_modifier = {
+				value = -30
+				localisation_key = baptism_sponsor_enemy
+				is_rival = FROM
+			}
+			additive_modifier = {
+				value = -5
+				localisation_key = baptism_sponsor_opinion
+				NOT = { opinion = { who = from value = 0 } }
+				opinion = { who = from value = -20 }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -10
+				localisation_key = baptism_sponsor_opinion
+				NOT = { opinion = { who = from value = -20 } }
+				opinion = { who = from value = -40 } 
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -15
+				localisation_key = baptism_sponsor_opinion
+				NOT = { opinion = { who = from value = -40 } }
+				opinion = { who = from value = -60 } 
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -20
+				localisation_key = baptism_sponsor_opinion
+				NOT = { opinion = { who = from value = -60 } }
+				opinion = { who = from value = -80 } 
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -25
+				localisation_key = baptism_sponsor_opinion
+				NOT = { opinion = { who = from value = -80 } }
+				opinion = { who = from value = -100 } 
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -30
+				localisation_key = baptism_sponsor_opinion
+				NOT = { opinion = { who = from value = -100 } }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = 10
+				localisation_key = baptism_sponsor_distance
+				NOT = { distance_from_realm = { who = FROM value = 35 } }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -5
+				localisation_key = baptism_sponsor_distance
+				distance_from_realm = { who = FROM value = 50 }
+				NOT = { distance_from_realm = { who = FROM value = 75 } }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -15
+				localisation_key = baptism_sponsor_distance
+				distance_from_realm = { who = FROM value = 75 }
+				NOT = { distance_from_realm = { who = FROM value = 100 } }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -30
+				localisation_key = baptism_sponsor_distance
+				distance_from_realm = { who = FROM value = 100 }
+				NOT = { distance_from_realm = { who = FROM value = 150 } }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -50
+				localisation_key = baptism_sponsor_distance
+				distance_from_realm = { who = FROM value = 150 }
+				NOT = { distance_from_realm = { who = FROM value = 250 } }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -75
+				localisation_key = baptism_sponsor_distance
+				distance_from_realm = { who = FROM value = 250 }
+				NOT = { ROOT = { is_offmap_governor = offmap_china } }
+			}
+			additive_modifier = {
+				value = -35
+				localisation_key = baptism_sponsor_distance
+				distance_from_realm = { who = FROM value = 250 }
+				ROOT = { is_offmap_governor = offmap_china }
+			}
+		}
+	}
+	give_child_special_baptism = {
+		ai_target_filter = court
+		ai_check_interval = 12 #check only every 12 months.
+		is_high_prio = yes
+		from_potential = {
+			has_dlc = "Holy Fury"
+			OR = { 
+				religion_group = christian 
+				religion_group = latter_day_saints 
+				society_member_of = the_satanists
+			}
+			higher_real_tier_than = DUKE
+			NOT = { trait = incapable }
+			NOT = { has_character_flag = flag_baptizing_child }
+			independent = yes
+			is_vice_royalty = no
+			prisoner = no
+		}
+		potential = {
+			prisoner = no
+			religion = FROM
+			is_child_of = FROM
+			NOT = { age = 2 }
+			NOR = { 
+				trait = baptized_by_bishop
+				trait = baptized_by_pope
+				trait = baptized_by_patriarch
+				trait = baptized_by_satan 
+			}
+		}
+		allow = {
+			is_within_diplo_range = FROM
+			prisoner = no
+			NOT = { trait = incapable }
+			custom_tooltip = { 
+				text = tooltip_baptizing_priest_exists
+				hidden_tooltip = { 
+					FROM = { 
+						OR = { #Must qualify for at least one of the special options.
+							AND = { 
+								society_member_of = the_satanists
+								has_society_currency_major_trigger = yes
+							}
+							AND = {
+								NOT = { trait = excommunicated }
+								spouse = { NOT = { trait = excommunicated } }
+								religion_head = { 
+									is_alive = yes 
+									NOT = { block_general_event_trigger = yes }
+									OR = { 
+										has_landed_title = k_papal_state
+										has_landed_title = k_ursuline 
+										has_landed_title = d_quorum_of_the_twelve 
+										has_landed_title = k_evangelical 
+									}
+								}
+							}
+							AND = {
+								NOT = { trait = excommunicated }
+								spouse = { NOT = { trait = excommunicated } }
+								any_realm_character = { 
+									is_theocracy = yes 
+									top_liege = { character = ROOT }
+									religion = ROOT
+									NOT = { block_general_event_trigger = yes }
+									OR = { 
+										higher_tier_than = BARON  
+										has_minor_title = title_cardinal
+										has_minor_title = title_ursuline_cardinal
+										has_minor_title = title_mormon_cardinal
+										any_claim = { title = k_papal_state } #Antipope
+										any_claim = { title = k_ursuline } #Antipope
+										any_claim = { title = d_quorum_of_the_twelve } #Antipope
+										any_claim = { title = k_evangelical } #Antipope
+									}
+									NOT = { has_landed_title = k_papal_state }
+									NOT = { has_landed_title = k_ursuline }
+									NOT = { has_landed_title = d_quorum_of_the_twelve }
+									NOT = { has_landed_title = k_evangelical }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		effect = {
+			hidden_effect = {
+				FROM = { 
+					set_character_flag = flag_baptizing_child
+					character_event = { id = HF.20108 }
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.5
+				trait = greedy
+			}
+			modifier = {
+				factor = 0
+				trait = cynical
+			}
+			modifier = {
+				factor = 2
+				trait = zealous
+			}
+		}
+	}
+}
+
+decisions = {
+	ai_request_sponsored_baptism = { #This decision is only for the AI, which doesn't pick the targeted decision, in order to improve performance.
+		only_independent = yes
+		is_high_prio = yes
+		ai_check_interval = 12 #check only every 12 months.
+		potential = {
+			ai = yes
+			has_dlc = "Holy Fury"
+			prisoner = no
+			has_regent = no
+			is_tribal = yes
+			higher_real_tier_than = COUNT
+			NOT = { trait = incapable }
+			religion_group = pagan_group
+			NOT = { is_reformed_religion = yes }
+			#NOT = { religion = bon }
+			NOT = { has_character_modifier = baptism_request_cooldown }
+			NOT = { has_character_flag = flag_converting_baptism }
+			NOT = { has_character_flag = ai_flag_refuse_conversion }
+			NOT = { society_member_of = secret_religious_cult }
+			independent = yes
+		} 
+		allow = { 
+			war = no
+			prestige = 500
+			any_independent_ruler = {
+				NOT = { has_character_modifier = baptism_request_cooldown }
+				NOT = { religion = ROOT }
+				NOT = { pays_tribute_to = ROOT }
+				NOT = { trait = incapable }
+				NOT = { has_character_flag = flag_sponsoring_baptism }
+				has_regent = no
+				is_tribal = no
+				is_nomadic = no
+				is_theocracy = no
+				higher_real_tier_than = DUKE
+				is_within_diplo_range = ROOT
+				NOT = { is_rival = ROOT }
+				OR = {
+					religion_group = christian
+					religion_group = cult_of_saints
+					religion_group = latter_day_saints
+					religion_group = pacific
+					religion_group = oldworld
+					religion_group = jewish_group
+					religion_group = indian_group
+					AND = {
+						religion_group = pagan_group
+						is_reformed_religion = yes
+					}
+				}
+				wealth = 0 
+				relative_power = { who = ROOT power = 1 }
+				NOT = { lower_tier_than = ROOT } 
+				NOT = { distance_from_realm = { who = ROOT value = 180 } }
+			}
+			custom_tooltip = {
+				text = TT_UNREFORMED_PAGAN
+				hidden_tooltip = {
+					religion_group = pagan_group
+					NOT = { is_reformed_religion = yes }
+					#NOT = { religion = bon }
+				}
+			}
+			primary_title = {
+				OR = { 
+					has_law = tribal_organization_2 
+					has_law = tribal_organization_3 
+					has_law = tribal_organization_4 
+				}  
+			}
+		}
+		effect = {
+				add_character_modifier = {
+					name = baptism_request_cooldown
+					months = 1
+					hidden = yes
+				}
+
+				#Properly handle AI behavior to try and choose the best possible sponsor.
+				#First check for a Player Empire.
+				if = { 
+					limit = {  
+						any_independent_ruler = { 
+							NOT = { has_character_modifier = baptism_request_cooldown }
+							NOT = { religion = ROOT }
+							NOT = { pays_tribute_to = ROOT }
+							is_tribal = no
+							is_nomadic = no
+							is_theocracy = no
+							NOT = { has_character_flag = flag_sponsoring_baptism }
+							NOT = { trait = incapable }
+							has_regent = no
+							higher_real_tier_than = KING
+							ai = no
+							NOT = { is_rival = ROOT }
+							is_within_diplo_range = ROOT
+							OR = {
+								NOT = { religion_group = pagan_group }
+								is_reformed_religion = yes
+							}
+							wealth = 0 
+							relative_power = { who = ROOT power = 1 }
+							NOT = { lower_tier_than = ROOT }
+							NOT = { distance_from_realm = { who = ROOT value = 180 } }
+						}
+					}
+					random = { 
+						chance = 50
+						modifier = { #Less likely if Player is not nearby.
+							factor = 0.25
+							NOT = { any_neighbor_independent_ruler = { character = ROOT } }
+						}
+						random_independent_ruler = { 
+							limit = { 
+								NOT = { has_character_modifier = baptism_request_cooldown }
+								NOT = { religion = ROOT }
+								NOT = { pays_tribute_to = ROOT }
+								is_tribal = no
+								is_nomadic = no
+								is_theocracy = no
+								NOT = { has_character_flag = flag_sponsoring_baptism }
+								NOT = { trait = incapable }
+								has_regent = no
+								higher_real_tier_than = KING
+								ai = no
+								NOT = { is_rival = ROOT }
+								is_within_diplo_range = ROOT
+								OR = {
+									NOT = { religion_group = pagan_group }
+									is_reformed_religion = yes
+								}
+								wealth = 0 
+								relative_power = { who = ROOT power = 1 }
+								NOT = { lower_tier_than = ROOT }
+								NOT = { distance_from_realm = { who = ROOT value = 180 } }
+							}
+							preferred_limit = {
+								any_neighbor_independent_ruler = { character = ROOT }
+							}
+							add_character_modifier = {
+								name = baptism_request_cooldown
+								months = 1
+								hidden = yes
+							}
+							opinion = {
+								modifier = opinion_baptism_sponsor_target
+								years = 20
+								who = ROOT
+								origin_description = EVTTOOLTIPHFA20005
+							}
+							ROOT = {
+								opinion = {
+									modifier = opinion_baptism_sponsor_target
+									years = 20
+									who = PREV
+									origin_description = EVTTOOLTIPHFB20005
+								}
+							}
+							letter_event = { id = HF.20097 }
+						}
+						break = yes 
+					}
+				}
+				#Then check for any Empire.
+				if = { 
+					limit = {  
+						any_independent_ruler = { 
+							NOT = { has_character_modifier = baptism_request_cooldown }
+							NOT = { religion = ROOT }
+							NOT = { pays_tribute_to = ROOT }
+							is_tribal = no
+							is_nomadic = no
+							is_theocracy = no
+							NOT = { has_character_flag = flag_sponsoring_baptism }
+							NOT = { trait = incapable }
+							has_regent = no
+							higher_real_tier_than = KING
+							NOT = { is_rival = ROOT }
+							is_within_diplo_range = ROOT
+							OR = {
+								NOT = { religion_group = pagan_group }
+								is_reformed_religion = yes
+							}
+							wealth = 0 
+							relative_power = { who = ROOT power = 1 }
+							NOT = { lower_tier_than = ROOT }
+							NOT = { distance_from_realm = { who = ROOT value = 180 } }
+						}
+					}
+					random_independent_ruler = { 
+						limit = { 
+							NOT = { has_character_modifier = baptism_request_cooldown }
+							NOT = { religion = ROOT }
+							NOT = { pays_tribute_to = ROOT }
+							is_tribal = no
+							is_nomadic = no
+							is_theocracy = no
+							NOT = { has_character_flag = flag_sponsoring_baptism }
+							NOT = { trait = incapable }
+							has_regent = no
+							higher_real_tier_than = KING
+							NOT = { is_rival = ROOT }
+							is_within_diplo_range = ROOT
+							OR = {
+								NOT = { religion_group = pagan_group }
+								is_reformed_religion = yes
+							}
+							wealth = 0 
+							relative_power = { who = ROOT power = 1 }
+							NOT = { lower_tier_than = ROOT }
+							NOT = { distance_from_realm = { who = ROOT value = 180 } }
+						}
+						preferred_limit = {
+							any_neighbor_independent_ruler = { character = ROOT }
+						}
+						add_character_modifier = {
+							name = baptism_request_cooldown
+							months = 1
+							hidden = yes
+						}
+						opinion = {
+							modifier = opinion_baptism_sponsor_target
+							years = 20
+							who = ROOT
+							origin_description = EVTTOOLTIPHFA20005
+						}
+						ROOT = {
+							opinion = {
+								modifier = opinion_baptism_sponsor_target
+								years = 20
+								who = PREV
+								origin_description = EVTTOOLTIPHFB20005
+							}
+						}
+						letter_event = { id = HF.20097 }
+					}
+					break = yes 
+				}
+				#Then check for a Player Kingdom.
+				if = { 
+					limit = {  
+						any_independent_ruler = { 
+							NOT = { has_character_modifier = baptism_request_cooldown }
+							NOT = { religion = ROOT }
+							NOT = { pays_tribute_to = ROOT }
+							is_tribal = no
+							is_nomadic = no
+							is_theocracy = no
+							NOT = { has_character_flag = flag_sponsoring_baptism }
+							NOT = { trait = incapable }
+							has_regent = no
+							higher_real_tier_than = DUKE
+							ai = no
+							NOT = { is_rival = ROOT }
+							is_within_diplo_range = ROOT
+							OR = {
+								NOT = { religion_group = pagan_group }
+								is_reformed_religion = yes
+							}
+							wealth = 0 
+							relative_power = { who = ROOT power = 1 }
+							NOT = { lower_tier_than = ROOT }
+							NOT = { distance_from_realm = { who = ROOT value = 180 } }
+						}
+					}
+					random = { 
+						chance = 35
+						modifier = { #Less likely if Player is not nearby.
+							factor = 0.25
+							NOT = { any_neighbor_independent_ruler = { character = ROOT } }
+						}
+						random_independent_ruler = { 
+							limit = { 
+								NOT = { has_character_modifier = baptism_request_cooldown }
+								NOT = { religion = ROOT }
+								NOT = { pays_tribute_to = ROOT }
+								is_tribal = no
+								is_nomadic = no
+								is_theocracy = no
+								NOT = { has_character_flag = flag_sponsoring_baptism }
+								NOT = { trait = incapable }
+								has_regent = no
+								higher_real_tier_than = DUKE
+								ai = no
+								NOT = { is_rival = ROOT }
+								is_within_diplo_range = ROOT
+								OR = {
+									NOT = { religion_group = pagan_group }
+									is_reformed_religion = yes
+								}
+								wealth = 0 
+								relative_power = { who = ROOT power = 1 }
+								NOT = { lower_tier_than = ROOT }
+								NOT = { distance_from_realm = { who = ROOT value = 180 } }
+							}
+							preferred_limit = {
+								any_neighbor_independent_ruler = { character = ROOT }
+							}
+							add_character_modifier = {
+								name = baptism_request_cooldown
+								months = 1
+								hidden = yes
+							}
+							opinion = {
+								modifier = opinion_baptism_sponsor_target
+								years = 20
+								who = ROOT
+								origin_description = EVTTOOLTIPHFA20005
+							}
+							ROOT = {
+								opinion = {
+									modifier = opinion_baptism_sponsor_target
+									years = 20
+									who = PREV
+									origin_description = EVTTOOLTIPHFB20005
+								}
+							}
+							letter_event = { id = HF.20097 }
+						}
+						break = yes 
+					}
+				}
+
+			#Otherwise any potential sponsor will do.
+			random_independent_ruler = { 
+				limit = { 
+					NOT = { has_character_modifier = baptism_request_cooldown }
+					NOT = { religion = ROOT }
+					NOT = { pays_tribute_to = ROOT }
+					is_tribal = no
+					is_nomadic = no
+					is_theocracy = no
+					NOT = { has_character_flag = flag_sponsoring_baptism }
+					NOT = { trait = incapable }
+					has_regent = no
+					higher_real_tier_than = DUKE
+					NOT = { is_rival = ROOT }
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					wealth = 0 
+					relative_power = { who = ROOT power = 1 }
+					NOT = { lower_tier_than = ROOT }
+					NOT = { distance_from_realm = { who = ROOT value = 80 } }
+				}
+				preferred_limit = {
+					any_neighbor_independent_ruler = { character = ROOT }
+				}
+				add_character_modifier = {
+					name = baptism_request_cooldown
+					months = 1
+					hidden = yes
+				}
+				opinion = {
+					modifier = opinion_baptism_sponsor_target
+					years = 20
+					who = ROOT
+					origin_description = EVTTOOLTIPHFA20005
+				}
+				ROOT = {
+					opinion = {
+						modifier = opinion_baptism_sponsor_target
+						years = 20
+						who = PREV
+						origin_description = EVTTOOLTIPHFB20005
+					}
+				}
+				letter_event = { id = HF.20097 }
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.15
+				capital_holding = {
+					OR = {
+						AND = {
+							holding_type = tribal
+							has_building = tb_hillfort_4
+						}
+						holding_type = castle
+					}
+				}
+			}
+			modifier = {
+				factor = 1.15
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					NOT = { lower_tier_than = ROOT } 
+					relative_power = { who = ROOT power = 1.5 }
+				}
+			}
+			modifier = {
+				factor = 1.15
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					NOT = { lower_tier_than = ROOT } 
+					relative_power = { who = ROOT power = 2 }
+				}
+			}
+			modifier = {
+				factor = 1.15
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					NOT = { lower_tier_than = ROOT } 
+					relative_power = { who = ROOT power = 3 }
+				}
+			}
+			modifier = {
+				factor = 1.15
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					NOT = { lower_tier_than = ROOT } 
+					relative_power = { who = ROOT power = 4 }
+				}
+			}
+			modifier = {
+				factor = 1.25
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					NOT = { lower_tier_than = ROOT } 
+					relative_power = { who = ROOT power = 5 }
+				}
+			}
+			modifier = {
+				factor = 1.25
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					NOT = { lower_tier_than = ROOT } 
+					relative_power = { who = ROOT power = 10 }
+				}
+			}
+			modifier = {
+				factor = 1.5
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					OR = {
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					NOT = { lower_tier_than = ROOT } 
+					relative_power = { who = ROOT power = 20 }
+				}
+			}
+			modifier = {
+				factor = 9
+				trait = sympathy_christendom
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					religion_group = christian
+					NOT = { lower_tier_than = ROOT } 
+				}
+			}
+			modifier = {
+				factor = 7
+				trait = sympathy_oldworld
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					religion_group = oldworld
+					NOT = { lower_tier_than = ROOT } 
+				}
+			}
+			modifier = {
+				factor = 4
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					religion_group = pagan_group
+					is_reformed_religion = yes
+					has_religion_feature = religion_proselytizing
+					NOT = { lower_tier_than = ROOT } 
+				}
+			}
+			modifier = {
+				factor = 9
+				trait = sympathy_cult_of_saints
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					religion_group = cult_of_saints
+					NOT = { lower_tier_than = ROOT } 
+				}
+			}
+			modifier = {
+				factor = 9
+				trait = sympathy_latter_day_saints
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					religion_group = latter_day_saints
+					NOT = { lower_tier_than = ROOT } 
+				}
+			}
+			modifier = {
+				factor = 1.75
+				trait = sympathy_judaism
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					religion_group = jewish_group
+					is_reformed_religion = yes
+					NOT = { lower_tier_than = ROOT } 
+				}
+			}
+			modifier = {
+				factor = 4
+				any_neighbor_independent_ruler = {
+					NOT = { religion = ROOT }
+					war = no
+					is_tribal = no
+					is_nomadic = no
+					higher_real_tier_than = DUKE
+					is_within_diplo_range = ROOT
+					trait = sympathy_pagans
+					NOT = { lower_tier_than = ROOT } 
+				}
+			}
+			modifier = {
+				factor = 0.001
+				NOT = { year = 800 }
+			}
+			modifier = {
+				factor = 0.05
+				is_hard_to_convert = yes
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { is_hard_to_convert = yes }
+				year = 900
+			}
+			modifier = {
+				factor = 2
+				NOT = { is_hard_to_convert = yes }
+				year = 1000
+			}
+			modifier = {
+				factor = 3
+				NOT = { is_hard_to_convert = yes }
+				year = 1200
+			}
+			modifier = {
+				factor = 1.75
+				NOT = { religion_authority = 0.1 }
+			}
+			modifier = {
+				factor = 1.75
+				NOT = { religion_authority = 0.2 }
+			}
+			modifier = {
+				factor = 1.75
+				NOT = { religion_authority = 0.3 }
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { religion_authority = 0.4 }
+			}
+			modifier = {
+				factor = 1.25
+				NOT = { religion_authority = 0.5 }
+			}
+			#modifier = {
+			#	factor = 1.5
+			#	year = 850
+			#	culture_group = east_slavic
+			#}
+			modifier = {
+				factor = 0.95
+				any_vassal = { 
+				higher_tier_than = BARON
+				count = 5
+					NOT = { 
+						opinion = { who = from value = -20 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0.5
+				any_vassal = { 
+				higher_tier_than = BARON
+				count = 10
+					NOT = { 
+						opinion = { who = from value = -20 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0.85
+				any_vassal = { 
+					tier = COUNT
+					is_powerful_vassal = yes
+					NOT = { 
+						opinion = { who = from value = -40 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0.75
+				any_vassal = { 
+					is_powerful_vassal = yes
+					tier = DUKE
+					NOT = { 
+						opinion = { who = from value = -40 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0.75
+				any_vassal = { 
+					is_powerful_vassal = yes
+					tier = KING
+					NOT = { 
+						opinion = { who = from value = -40 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0.75
+				religion_authority = 0.6
+			}
+			modifier = {
+				factor = 0.1
+				religion_authority = 1.0
+			}
+			modifier = {
+				factor = 0.15
+				trait = zealous
+			}
+			modifier = {
+				factor = 1.25
+				trait = cynical
+			}
+			modifier = {
+				factor = 1.25
+				NOT = { wealth = 0 }
+			}
+			modifier = { #Tiny duchies converting are a bit underwhelming.
+				factor = 0.5
+				NOT = { realm_size = 50 }
+			}
+			modifier = {
+				factor = 1.25
+				realm_size = 75
+				NOT = { realm_size = 150 }
+			}
+			modifier = {
+				factor = 0.75
+				realm_size = 100
+			}
+			modifier = {
+				factor = 0.75
+				tier = EMPEROR
+			}
+			modifier = {
+				factor = 0.15 #Unreformed Pagans not bordering non-Pagans (or reformed Pagans) should be much less likely to convert.
+				NOT = { 
+					any_neighbor_independent_ruler = { 
+						OR = { 
+							NOT = { religion_group = pagan_group }
+							is_reformed_religion = yes
+						}
+					}
+				}
+			}
+			modifier = {
+				factor = 0.5 #Strength in numbers make tribes less likely to convert.
+				lower_tier_than = KING
+				any_neighbor_independent_ruler = { 
+					religion_group = pagan_group
+					is_reformed_religion = no
+					count = 4
+				}
+			}
+			modifier = {
+				factor = 2 #Isolated pagan tribes will convert rather than die.
+				lower_tier_than = KING
+				any_neighbor_independent_ruler = { 
+					higher_real_tier_than = COUNT
+					OR = { 
+						NOT = { religion_group = pagan_group }
+						is_reformed_religion = yes
+					}
+					count = 4
+				}
+			}
+			modifier = {
+				factor = 0.75
+				any_vassal = { 
+					NOT = { 
+						opinion = { who = from value = 0 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0.5
+				any_vassal = { 
+					tier = DUKE
+					NOT = { 
+						opinion = { who = from value = -20 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					any_war = {
+						defender = { character = ROOT }
+						attacker = {
+							NOT = { religion = ROOT }
+							religion_authority = 0.45
+							OR = {
+								NOT = { religion_group = pagan_group }
+								is_reformed_religion = yes
+							}
+						}
+						OR = {
+							using_cb = crusade
+							using_cb = new_crusade
+							using_cb = religious
+							#using_cb = muslim_invasion
+							#using_cb = buddhist_holy_war
+							using_cb = pagan_holy_war
+						}
+						war_score = 50
+						thirdparty_title_scope = {
+							ROOT = {
+								primary_title = {
+									title = PREVPREV
+								}
+							}
+						}
+					}
+				}
+			}
+			modifier = { #I am losing the war, help me Jesus!
+				factor = 10
+				any_war = {
+					defender = { character = ROOT }
+					attacker = {
+						NOT = { religion = ROOT }
+						religion_authority = 0.45
+						OR = {
+							NOT = { religion_group = pagan_group }
+							is_reformed_religion = yes
+						}
+					}
+					OR = {
+						using_cb = crusade
+						using_cb = new_crusade
+						using_cb = religious
+						#using_cb = muslim_invasion
+						#using_cb = buddhist_holy_war
+						using_cb = pagan_holy_war
+					}
+					war_score = -50
+					thirdparty_title_scope = {
+						ROOT = {
+							primary_title = {
+								title = PREVPREV
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

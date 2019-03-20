@@ -1,0 +1,2652 @@
+#Written by Flavio
+
+namespace = HF
+#############################################
+
+# Fired on decade pulse after Crusades have been unlocked. Only happens once.
+# Only for vanilla, no Random World.
+
+#############################################
+
+#Important targets to save: 
+#the Child. 										childrens_crusade_leader
+#The child's Sponsor (only 1, never picked by AI). 	childrens_crusade_sponsor
+
+#children_crusade_forces//children_crusade_heavy_troops: variable checking how big the army will be when the war is declared. (1 point = 5.000 troops// 1 point = 1000 heavy)
+#children_crusade_morale: variable checking how good or bad the morale modifier of the kids will be on start of the crusade.
+#children_crusade_progress: variable checking progress on the children's trip to the holy land.
+
+#Move Crusade from region to region, send events to rulers within that region.
+#Possible starting regions:
+#world_europe_west_iberia
+#world_europe_west_francia
+#world_europe_west_germania
+#world_europe_west_brittania
+#world_europe_north
+#world_europe_south_italy
+#world_europe_east
+
+#Once Crusade starts moving, the path is the following, unless already closer:
+#world_europe_south_italy --> world_europe_south_east (Croatia/Greece) --> world_asia_minor --> WAR BEGINS
+
+#############################################
+
+#Child receives prophetic vision.
+narrative_event = {
+	id = HF.25800
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25800
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+
+	has_global_flag = christian_crusades_unlocked
+	religion = catholic
+	min_age = 8
+	max_age = 16
+
+	trigger = {
+		has_game_rule = {
+			name = childrens_crusade
+			value = on
+		}
+		total_years_played = 50 #Do not let it start immediately after game start, so as to make it less likely to fire together with an official Crusade.
+		OR = { 
+			is_female = no
+			top_liege = { has_law = status_of_women_4 }
+		}
+		top_liege = { 
+			religion = catholic 
+			NOT = { is_nomadic = yes }
+		}
+		liege = { 
+			higher_tier_than = COUNT #Scoping issues when locating starting point.
+			is_landed = yes
+		}
+		religion = catholic
+		is_ruler = no
+		is_married = no
+		is_betrothed = no
+		is_alternate_start = no	
+		has_global_flag = christian_crusades_unlocked
+		NOT = { has_global_flag = childrens_crusade_happened }
+		NOT = { age = 15 }
+		NOT = { trait = incapable }
+		is_inaccessible_trigger = no
+		OR = { 
+			k_columbia = { has_holder = no }
+			k_columbia = { holder_scope = { NOT = { religion_group = christian } } }
+		}
+		c_washington = { holder_scope = { NOT = { religion_group = christian } } }
+
+		NOR = { 
+			is_devil_worshiper_trigger = yes
+			trait = baptized_by_satan
+			trait = possessed
+			trait = lunatic
+			trait = maimed
+			trait = mangled
+			trait = infirm
+			trait = depressed
+			trait = stressed
+			trait = severely_injured
+			trait = eunuch
+			trait = blinded
+		}
+		liege = { location = { region = custom_usa } }
+		liege = { NOR = { location = { region = custom_childrens_crusade_east } } } #Make the travel longer by not letting it start in Eastern Seaboard already.
+
+		#No crusade is already being prepared or has already started against Jerusalem.
+		NOT = { religion_head = { is_preparing_crusade = yes } }
+		NOT = { 
+			religion_head = { 
+				OR = { 
+					any_war = { using_cb = crusade }  
+					any_war = { using_cb = new_crusade } 
+				} 
+			} 
+		}
+		c_washington = { holder_scope = { is_crusade_target = no } }
+	}
+	
+	is_triggered_only = yes
+
+	weight_multiplier = {
+		days = 1
+		modifier = {
+			factor = 0.01
+			 NOT = { total_years_played = 40 }
+		}
+		modifier = {
+			factor = 2
+			trait = brave
+		}
+		modifier = {
+			factor = 2
+			trait = diligent
+		}
+		modifier = {
+			factor = 2
+			trait = idolizer
+		}
+		modifier = {
+			factor = 2
+			trait = rowdy
+		}
+		modifier = {
+			factor = 2
+			trait = zealous
+		}
+		modifier = {
+			factor = 2
+			trait = shrewd
+		}
+		modifier = {
+			factor = 2
+			trait = quick
+		}
+		modifier = {
+			factor = 4
+			trait = genius
+		}
+		modifier = {
+			factor = 2
+			trait = fair
+		}
+		modifier = {
+			factor = 2
+			trait = robust
+		}
+		modifier = {
+			factor = 0.25
+			trait = feeble
+		}
+		modifier = {
+			factor = 0.5
+			trait = sturdy
+		}
+		modifier = {
+			factor = 0.25
+			is_female = yes
+		}
+		modifier = {
+			factor = 0.3
+			trait = dull
+		}
+		modifier = {
+			factor = 0.2
+			trait = slow
+		}
+		modifier = {
+			factor = 0.1
+			trait = imbecile
+		}
+		modifier = {
+			factor = 0.5
+			trait = ugly
+		}
+		modifier = {
+			factor = 0.02
+			trait = inbred
+		}
+		modifier = {
+			factor = 2
+			trait = baptized_by_bishop
+		}
+		modifier = {
+			factor = 3
+			trait = baptized_by_pope
+		}
+		modifier = {
+			factor = 2
+			father_even_if_dead = { lower_tier_than = COUNT } #Was historically from a peasant's child.
+		}
+		modifier = {
+			factor = 2
+			mother_even_if_dead = { lower_tier_than = COUNT }
+		}
+		modifier = {
+			factor = 0.5
+			age = 12
+		}
+		modifier = {
+			factor = 0.2
+			age = 14
+		}
+		modifier = { #"Historically accurate."
+			factor = 1.5
+			culture = chicagoan
+		}
+		modifier = {
+			factor = 1.5
+			culture = riverlander
+		}
+		modifier = {
+			factor = 1.5
+			culture = rostmann
+		}
+		modifier = {
+			factor = 1.5
+			top_liege = { has_landed_title = k_chicagoland }
+		}
+		modifier = {
+			factor = 1.5
+			top_liege = { has_landed_title = e_great_lakes }
+		}
+		modifier = {
+			factor = 1.5
+			top_liege = { has_landed_title = k_iowa }
+		}
+		modifier = {
+			factor = 1.5
+			top_liege = { has_landed_title = e_heartland }
+		}
+		modifier = {
+			factor = 0.25
+			NOT = { year = 900 }
+		}
+		modifier = {
+			factor = 0.35
+			year = 900
+			NOT = { year = 1000 }
+		}
+		modifier = {
+			factor = 0.75
+			year = 900
+			NOT = { year = 1200 }
+			total_years_played = 40 #Prevent race between Pope and Children from being too frequent immediately after start...
+		}
+		modifier = {
+			factor = 2
+			year = 1200
+			NOT = { year = 1300 }
+			total_years_played = 40
+		}
+		modifier = {
+			factor = 0.75
+			year = 1300
+		}
+		modifier = {
+			factor = 1.5
+			liege = { ai = no }
+		}
+	}
+
+	immediate = { 
+		set_global_flag = childrens_crusade_happened
+		health = 2.0 #Reduce chances of the child dying before the Crusade reaches destination.
+		remove_disease_trait_effect = yes #Jesus heals you.
+		add_character_modifier = { name = voice_of_jesus duration = -1 }
+		#Check starting position to determine traveling path.
+		if = {
+			limit = {
+				liege = { 
+					NOR = { 
+						location = { region = custom_childrens_crusade_south }
+						location = { region = custom_childrens_crusade_center }
+						location = { region = custom_childrens_crusade_east }
+					}
+				}
+			}
+			clr_character_flag = flag_children_at_chicago
+			clr_character_flag = flag_children_at_buffalo
+			clr_character_flag = flag_children_at_new_york
+			clr_character_flag = flag_children_at_st_louis
+			set_character_flag = flag_children_at_beginning
+		}
+		else_if = {
+			limit = {
+				liege = { location = { region = custom_childrens_crusade_south } }
+			}
+			clr_character_flag = flag_children_at_st_louis
+			clr_character_flag = flag_children_at_buffalo
+			clr_character_flag = flag_children_at_new_york
+			set_character_flag = flag_children_at_chicago
+		}
+		else_if = {
+			limit = {
+				liege = { location = { region = custom_childrens_crusade_center } }
+			}
+			clr_character_flag = flag_children_at_st_louis
+			clr_character_flag = flag_children_at_chicago
+			clr_character_flag = flag_children_at_new_york
+			set_character_flag = flag_children_at_buffalo
+		}
+		else_if = {
+			limit = {
+				liege = { location = { region = custom_childrens_crusade_east } }
+			}
+			clr_character_flag = flag_children_at_st_louis
+			clr_character_flag = flag_children_at_chicago
+			clr_character_flag = flag_children_at_buffalo
+			set_character_flag = flag_children_at_new_york
+		}
+		if = { #Safety check.
+			limit = {
+				NOR = {
+					has_character_flag = flag_children_at_beginning
+					has_character_flag = flag_children_at_st_louis
+					has_character_flag = flag_children_at_chicago
+					has_character_flag = flag_children_at_buffalo
+					has_character_flag = flag_children_at_new_york
+				}
+			}
+			set_character_flag = flag_children_at_st_louis
+		}
+	}
+
+	option = { 
+		name = EVTOPTAHF25800
+		piety = 150
+		if = {
+			limit = { 
+				liege = { lower_real_tier_than = COUNT } 
+			}
+			liege = { liege = { ROOT = { move_character = PREV } } } #Courtiers of Barons can cause location issues.
+		} 
+		if = {
+			limit = { 
+				NOT = { age = 12 } 
+				NOT = { has_focus = focus_ch_struggle } 
+			}
+			set_focus = focus_ch_struggle
+		} 
+		if = {
+			limit = { 
+				age = 12 
+				NOT = { age = 16 } 
+				NOT = { has_focus = focus_ed_martial } 
+			}
+			set_focus = focus_ed_martial
+		} 
+		if = {
+			limit = { 
+				age = 16 
+				NOT = { has_focus = focus_war } 
+			}
+			set_focus = focus_war
+		} 
+		save_event_target_as = childrens_crusade_leader
+		set_character_flag = special_marshal #Always allow to be in command.
+		liege = {
+			narrative_event = { id = HF.25806 } 
+			primary_title = {
+				create_title = {
+					tier = DUKE
+					name = CHILDRENS_CRUSADE_TEMPORARY
+					landless = yes
+					temporary = yes
+					adventurer = yes
+					custom_created = yes
+					short_name = yes
+					culture = ROOT
+					holder = ROOT
+					base_title = THIS
+					#mercenary = yes
+					ruler = "CHILD_CRUSADER"
+					ruler_female = "CHILD_CRUSADER_FEM"
+					foa = "CHILD_CRUSADER_FOA"
+				}
+			}
+			ROOT = {
+				set_defacto_liege = THIS
+				diplomatic_immunity = yes
+			}
+		}
+		set_character_flag = ai_flag_refuse_conversion
+		set_character_flag = flag_childrens_crusade_leader #Used for on_death events.
+		add_trait = disinherited #Prevent Crusade from being broken by unlucky death of parent.
+		narrative_event = { id = HF.25808 days = 100 random = 100 } #Main hidden tombola.
+		ai_chance = { factor = 100 }
+	}
+}
+
+#on_death: Child died.
+character_event = {
+	id = HF.25801
+	hide_window = yes
+
+	has_character_flag = flag_childrens_crusade_leader
+
+	is_triggered_only = yes
+
+	trigger = {  
+		has_character_flag = flag_childrens_crusade_leader
+	}
+
+	immediate = { 
+		any_courtier = { 
+			limit = {
+				is_ruler = no
+				is_landed = no
+			}
+			death = { death_reason = death_missing }
+		}
+		primary_title = {
+			activate_title = { title = THIS status = no }
+			destroy_landed_title = THIS
+		}
+		any_player = { 
+			limit = {
+				OR = {
+					religion = catholic
+					is_foe = ROOT
+				}
+			}
+			narrative_event = { id = HF.25802 days = 15 } #Notification.
+		}
+	}
+}
+
+#Players informed of death of leader of the children's crusade.
+narrative_event = {
+	id = HF.25802
+	title = EVTTITLEHF25802
+	desc = {
+		text = EVTDESCAHF25802
+		trigger = { 
+			FROM = { 
+				killer = { character = ROOT } 
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25802
+		trigger = { 
+			is_close_relative = FROM
+			NOT = { FROM = { killer = { character = ROOT } } }
+		}
+	}
+	desc = {
+		text = EVTDESCCHF25802
+		trigger = { 
+			NOT = { is_close_relative = FROM }
+			NOT = { FROM = { killer = { character = ROOT } } }
+		}
+	}
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = FROM
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+
+	option = { 
+		name = EVTOPTAHF25802
+		ai_chance = { factor = 100 }
+	}
+}
+
+#on_become_imprisoned_any_reason: Child was imprisoned.
+character_event = {
+	id = HF.25803
+	hide_window = yes
+
+	has_character_flag = flag_childrens_crusade_leader
+
+	is_triggered_only = yes
+
+	immediate = { 
+		diplomatic_immunity = no
+		any_courtier = { 
+			limit = {
+				is_ruler = no
+				is_landed = no
+				host = { character = ROOT }
+			}
+			death = { death_reason = death_missing }
+		}
+		primary_title = {
+			activate_title = { title = THIS status = no }
+			destroy_landed_title = THIS
+		}
+		FROM = { narrative_event = { id = HF.25804 days = 12 } } #Jailer informed and effects applied.
+		any_player = { 
+			limit = {
+				religion = catholic
+				NOT = {
+					character = FROM
+				}
+			}
+			narrative_event = { id = HF.25805 days = 12 } #Notification.
+		}
+	}
+}
+
+#Jailer informed that he stopped the Childrens' Crusade. 
+narrative_event = {
+	id = HF.25804
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25804
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+
+	trigger = { 
+		FROM = {
+			is_alive = yes
+			is_ruler = yes
+		}
+	}
+
+	option = { 
+		name = EVTOPTAHF25804
+		ai_chance = { factor = 100 }
+	}
+}
+
+#People informed that somebody captured the child leader.
+narrative_event = {
+	id = HF.25805
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25805
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25805
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Liege of child receives first event. 
+narrative_event = {
+	id = HF.25806
+	title = EVTTITLEHF25806
+	desc = {
+		text = EVTDESCAHF25806
+		trigger = { 
+			is_close_relative = FROM
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25806
+		trigger = { 
+			NOT = { is_close_relative = FROM }
+		}
+	}
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+
+	immediate = { set_character_flag = flag_visited_by_childrens_crusade } #Prevents to be targeted by event again.
+
+	option = { #Support child as sponsor.
+		name = EVTOPTAHF25806
+		trigger = { 
+			NOT = { trait = cynical } 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } }
+		}
+		custom_tooltip = { text = TT_EVTOPTAHF25806 }
+		if = { 
+			limit = { NOT = { trait = zealous } } 
+			add_trait = zealous
+		}
+		tiered_piety_reward_effect = yes
+		FROM = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_believed_in_me 
+				who = ROOT
+				years = 15
+			} 
+		}
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				save_persistent_event_target = { name = childrens_crusade_sponsor_per scope = ROOT } 
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	option = { #Support child with troops.
+		name = EVTOPTBHF25806
+		trigger = { 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } }
+		}
+		custom_tooltip = { text = TT_EVTOPTBHF25806 }
+		if = { 
+			limit = { trait = cruel } 
+			random = { 
+				chance = 25 
+				remove_trait = cruel 
+			}
+		}
+		if = { 
+			limit = { NOR = { trait = kind trait = cruel } } 
+			random = { 
+				chance = 25 
+				add_trait = kind 
+				hidden_tooltip = { character_event = { id = 38268 } }
+			}
+		}
+		FROM = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_heavy_troops value = 2 }
+			}
+		}
+		tiered_piety_reward_effect = yes
+		capital_scope = { 
+			add_province_modifier = { 
+				name = kid_crusade_pledged_troops
+				duration = 1200
+				stacking = yes
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	option = { #Give some food and send them on their way.
+		name = EVTOPTCHF25806
+		if = { 
+			limit = { trait = cruel } 
+			random = { 
+				chance = 20 
+				remove_trait = cruel 
+			}
+		}
+		if = { 
+			limit = { NOR = { trait = kind trait = cruel } } 
+			random = { 
+				chance = 20 
+				add_trait = kind 
+				hidden_tooltip = { character_event = { id = 38268 } }
+			}
+		}
+
+		hidden_tooltip = { 
+			FROM = { 
+				change_variable = { which = children_crusade_morale value = 2 }
+			}
+		}
+		transfer_scaled_wealth = { to = event_target:childrens_crusade_leader value = 1 min = 50 max = 100 } 
+		ai_chance = { 
+			factor = 10
+			modifier = { 
+				factor = 0
+				NOT = { trait = kind }
+			}
+		}
+	}
+
+	option = { #Sell into slavery - Requires ruler to be deceitful and child leader to be trusting.
+		name = EVTOPTDHF25806
+		trigger = { 
+			trait = deceitful 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } } #Sponsor legitimizes children.
+			FROM = { trait = trusting }
+			NOR = { 
+				dynasty = FROM 
+				is_close_relative = FROM
+			}
+		}
+		tooltip_info = deceitful
+		custom_tooltip = { text = TT_EVTOPTDHF25806 }
+		tiered_piety_negative_effect = yes
+		scaled_wealth = { value = 1 min = 150 max = 300 } 
+		hidden_tooltip = { 
+			FROM = { 
+				any_courtier = { 
+					limit = { is_ruler = no is_adult = no }
+					death = { death_reason = death_slavery }
+				}
+				primary_title = {
+					activate_title = { title = THIS status = no }
+					destroy_landed_title = THIS
+				}
+				death = { death_reason = death_slavery } 
+			} 
+		} 
+		ai_chance = { 
+			factor = 10 
+			modifier = { 
+				factor = 2
+				trait = greedy
+			}
+			modifier = { 
+				factor = 1.5
+				trait = cynical
+			}
+			modifier = { 
+				factor = 2
+				is_rival = FROM
+			}
+			modifier = { #Historical triggers.
+				factor = 2
+				is_merchant_republic = yes
+			}
+		}
+	}
+
+
+	option = { #Set guards on them.
+		name = {
+			text = EVTOPTEHF25806_A
+			trigger = {
+				is_close_relative = FROM
+			}
+		}
+		name = {
+			text = EVTOPTEHF25806_B
+			trigger = {
+				NOT = { is_close_relative = FROM }
+			}
+		}
+		trigger = { trait = cruel }
+		tooltip_info = cruel
+		hidden_tooltip = { 
+			FROM = { 
+				change_variable = { which = children_crusade_morale value = -1 }
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { #Ignore them.
+		name = {
+			text = EVTOPTFHF25806_A
+			trigger = {
+				is_close_relative = FROM
+			}
+		}
+		name = {
+			text = EVTOPTFHF25806_B
+			trigger = {
+				NOT = { is_close_relative = FROM }
+			}
+		}
+		trigger = { NOT = { trait = cruel } }
+		ai_chance = { factor = 100 }
+	}
+
+	after = { 
+		if = { 
+			limit = { FROM = { is_alive = yes } } #If you have not killed him already, you monster.
+			any_player = { 
+				limit = {
+					religion_group = christian
+					NOR = {
+						character = FROM
+						character = ROOT
+					}
+				}
+				narrative_event = { id = HF.25807 days = 12 } #General Notification of the Children's Crusade start.
+			}
+		}
+	}
+}
+
+#All Catholic players get news of the crusade.
+narrative_event = {
+	id = HF.25807
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25807
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25807
+		trigger = { trait = cynical }
+		tooltip_info = cynical
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25807
+		trigger = { trait = zealous }
+		tooltip_info = zealous
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTCHF25807
+		trigger = { NOR = { trait = cynical trait = zealous } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Main umbrella event for the child leader.
+narrative_event = {
+	id = HF.25808
+	hide_window = yes
+
+	is_triggered_only = yes
+	
+	immediate = { 
+		#First, handle the child's growth.
+
+		#Make sure that he always has the correct Military focus.
+		if = {
+			limit = { 
+				NOT = { age = 12 } 
+				NOT = { has_focus = focus_ch_struggle } 
+			}
+			set_focus = focus_ch_struggle
+		} 
+		if = {
+			limit = { 
+				age = 12 
+				NOT = { age = 16 } 
+				NOT = { has_focus = focus_ed_martial } 
+			}
+			set_focus = focus_ed_martial
+		} 
+		if = {
+			limit = { 
+				age = 16 
+				NOT = { has_focus = focus_war } 
+			}
+			set_focus = focus_war
+		}
+
+		#Make sure he has not lost his faith.
+		if = {
+			limit = { 
+				trait = cynical
+			}
+			remove_trait = cynical
+		}
+		if = {
+			limit = { 
+				age = 14
+				NOT = { trait = zealous }
+			}
+			random = { chance = 25 add_trait = zealous }
+		}
+		if = {
+			limit = { 
+				NOT = { religion = catholic }
+			}
+			religion = catholic
+		}
+		if = {
+			limit = { 
+				NOT = { has_character_modifier = voice_of_jesus }
+			}
+			add_character_modifier = { name = voice_of_jesus duration = -1 }
+		}
+		remove_disease_trait_effect = yes #Jesus heals you.
+
+		#Chance for the child to become a slightly better fighter while traveling.
+		if = {
+			limit = { 
+				NOT = { martial = 18 } #Let's not get crazy...
+			}
+			random = { chance = 10 change_martial = 1 }
+		}
+		if = {
+			limit = { 
+				NOT = { combat_rating = 50 } #Let's not get crazy...
+			}
+			random = { chance = 10 add_one_duel_experience_modifier = yes }
+		}
+
+		#Historically reported to be naive.
+		if = {
+			limit = { 
+				NOT = { trait = trusting }
+			}
+			random = { chance = 10 add_trait = trusting }
+		}
+
+		random = { #Chance of kid being more persuasive and gaining more followers.
+			chance = 15
+			modifier = {
+				factor = 1.5
+				martial = 6
+			}
+			modifier = {
+				factor = 1.5
+				martial = 8
+			}
+			modifier = {
+				factor = 1.5
+				martial = 10
+			}
+			modifier = {
+				factor = 1.5
+				martial = 12
+			}
+			modifier = {
+				factor = 1.75
+				piety = 150
+			}
+			modifier = {
+				factor = 1.75
+				piety = 250
+			}
+			modifier = {
+				factor = 1.75
+				piety = 450
+			}
+			modifier = {
+				factor = 1.75
+				piety = 650
+			}
+			modifier = {
+				factor = 1.75
+				wealth = 150
+			}
+			modifier = {
+				factor = 1.75
+				wealth = 350
+			}
+			modifier = {
+				factor = 1.75
+				wealth = 550
+			}
+			modifier = {
+				factor = 1.75
+				prestige = 250
+			}
+			modifier = {
+				factor = 1.75
+				prestige = 500
+			}
+			modifier = {
+				factor = 1.75
+				prestige = 750
+			}
+			modifier = {
+				factor = 1.75
+				prestige = 1000
+			}
+			modifier = {
+				factor = 1.5
+				persistent_event_target:childrens_crusade_sponsor_per = { 
+					is_alive = yes 
+					real_tier = DUKE
+				} 
+			}
+			modifier = {
+				factor = 1.75
+				persistent_event_target:childrens_crusade_sponsor_per = { 
+					is_alive = yes 
+					real_tier = KING
+				} 
+			}
+			modifier = {
+				factor = 2
+				persistent_event_target:childrens_crusade_sponsor_per = { 
+					is_alive = yes 
+					real_tier = EMPEROR
+				} 
+			}
+			change_variable = { which = children_crusade_forces value = 2 } 
+		}
+
+		#Random chance of commanders joining their cause.
+		random_list = {
+			2 = { 
+				spawn_fantastic_commander_effect = yes	
+				clear_event_target = invited_character
+			}
+			15 = { 
+				spawn_good_commander_effect = yes
+				clear_event_target = invited_character
+			}
+			80 = { 
+				modifier = {
+					factor = 0.85
+					martial = 6
+				}
+				modifier = {
+					factor = 0.85
+					martial = 8
+				}
+				modifier = {
+					factor = 0.85
+					martial = 10
+				}
+				modifier = {
+					factor = 0.85
+					martial = 12
+				}
+				modifier = {
+					factor = 0.85
+					piety = 150
+				}
+				modifier = {
+					factor = 0.85
+					piety = 250
+				}
+				modifier = {
+					factor = 0.85
+					piety = 450
+				}
+				modifier = {
+					factor = 0.85
+					piety = 650
+				}
+				modifier = {
+					factor = 0.85
+					wealth = 150
+				}
+				modifier = {
+					factor = 0.85
+					wealth = 350
+				}
+				modifier = {
+					factor = 0.85
+					wealth = 550
+				}
+				modifier = {
+					factor = 0.85
+					prestige = 250
+				}
+				modifier = {
+					factor = 0.85
+					prestige = 500
+				}
+				modifier = {
+					factor = 0.85
+					prestige = 750
+				}
+				modifier = {
+					factor = 0.85
+					prestige = 1000
+				}
+				modifier = {
+					factor = 0.85
+					persistent_event_target:childrens_crusade_sponsor_per = { 
+						is_alive = yes 
+						real_tier = DUKE
+					} 
+				}
+				modifier = {
+					factor = 0.75
+					persistent_event_target:childrens_crusade_sponsor_per = { 
+						is_alive = yes 
+						real_tier = KING
+					} 
+				}
+				modifier = {
+					factor = 0.5
+					persistent_event_target:childrens_crusade_sponsor_per = { 
+						is_alive = yes 
+						real_tier = EMPEROR
+					} 
+				}
+			}
+		}
+
+		#Random list flavor for rulers in the area.
+
+ 		#Check for the Crusaders' location and fire random event for a ruler who lives there.
+		trigger_switch = {
+			on_trigger = has_character_flag
+			flag_children_at_beginning = { 
+				random_playable_ruler = { 
+					limit = { 
+						religion_group = christian
+						capital_scope = { #literally the entire united states minus regions mentioned above
+							region = custom_usa
+							NOT = {
+								region = custom_childrens_crusade_south
+								region = custom_childrens_crusade_center
+								region = custom_childrens_crusade_east
+							}
+						}
+						NOT = { has_character_flag = flag_visited_by_childrens_crusade }
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+						ai = no
+					}
+					preferred_limit = { 
+						ai = no
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+					}
+					set_character_flag = flag_visited_by_childrens_crusade
+					character_event = { id = HF.25809 } #Random list.
+				} 
+			}
+			flag_children_at_st_louis = { 
+				random_playable_ruler = { 
+					limit = { 
+						religion_group = christian
+						capital_scope = { 
+							region = custom_childrens_crusade_south 
+						}
+						NOT = { has_character_flag = flag_visited_by_childrens_crusade }
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+						ai = no
+					}
+					preferred_limit = { 
+						ai = no
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+					}
+					set_character_flag = flag_visited_by_childrens_crusade
+					character_event = { id = HF.25809 } #Random list.
+				} 
+			}
+			flag_children_at_chicago = { 
+				random_playable_ruler = { 
+					limit = { 
+						religion_group = christian
+						capital_scope = { region = custom_childrens_crusade_center }
+						NOT = { has_character_flag = flag_visited_by_childrens_crusade }
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+						ai = no
+					}
+					preferred_limit = { 
+						ai = no
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+					}
+					set_character_flag = flag_visited_by_childrens_crusade
+					character_event = { id = HF.25809 } #Random list.
+				} 
+			}
+			flag_children_at_buffalo = { 
+				random_playable_ruler = { 
+					limit = { 
+						religion_group = christian
+						capital_scope = { region = custom_childrens_crusade_east }
+						NOT = { has_character_flag = flag_visited_by_childrens_crusade }
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+						ai = no
+					}
+					preferred_limit = { 
+						ai = no
+					}
+					preferred_limit = { 
+						any_child = { 
+							age = 8
+							is_adult = no 
+							is_ruler = no
+							is_primary_heir = no
+							host = { character = ROOT }
+						}
+					}
+					set_character_flag = flag_visited_by_childrens_crusade
+					character_event = { id = HF.25809 } #Random list.
+				} 
+			}
+		}
+
+		#Check traveling progress.
+		#Every 3 pulses, move to the next place.
+		if = { 
+			limit = { 
+				check_variable = { which = children_crusade_progress value = 3 }
+			}
+			set_variable =  { which = children_crusade_progress value = 0 }
+			move_childrens_crusade_region_effect = yes 
+		}
+		else_if = { 
+			limit = { 
+				NOT = { check_variable = { which = children_crusade_progress value = 3 } }
+			}
+			change_variable = { which = children_crusade_progress value = 1 } 
+			narrative_event = { id = HF.25808 days = 50 random = 70 } #Fire event again, sending more random flavor to local rulers and increasing progress variable.
+		}
+
+	}
+}
+
+#Second umbrella, firing for random ruler in the region where the kids are at the moment.
+character_event = {
+	id = HF.25809
+	hide_window = yes
+
+	is_triggered_only = yes
+	
+	trigger = { 
+		FROM = { is_alive = yes }
+	}
+	immediate = { 
+		random_list = { 
+			#Children request food.
+			#Children request troops.
+			#Children are upsetting the local priests.
+
+			20 = { 
+				character_event = { id = HF.25810 }
+			}
+			20 = { 
+				character_event = { id = HF.25811 }
+			}
+			20 = { 
+				trigger = { 
+					any_vassal = { 
+						is_theocracy = yes 
+						religion = ROOT 
+					} 
+				}
+				character_event = { id = HF.25812 }
+			}
+		}
+
+		if = { #After the children come, one of yours will join them.
+			limit = { 
+				any_child = { 
+					age = 8
+					is_adult = no 
+					is_ruler = no
+					is_primary_heir = no
+					prisoner = no
+					host = { character = ROOT }
+				}
+			}
+			random_child = { 
+				limit = { 
+					age = 8
+					is_adult = no 
+					is_ruler = no
+					is_primary_heir = no
+					prisoner = no
+					host = { character = ROOT }
+				}
+				preferred_limit = { 
+					OR = { 
+						trait = zealous 
+						trait = idolizer
+						trait = affectionate
+						has_focus = focus_ch_faith
+						has_focus = focus_ed_learning
+					}
+				}
+				character_event = { id = HF.25813 days = 5 } #The child flees, then inform the parent.
+			}
+		}
+		if = { #Or any other close relative, if AI. (mainly to increase the court of the Children's Crusade)
+			limit = { 
+				ai = yes
+				any_close_relative = { 
+					age = 8
+					is_adult = no 
+					is_ruler = no
+					is_primary_heir = no
+					prisoner = no
+					host = { character = ROOT }
+				}
+			}
+			any_close_relative = { 
+				limit = { 
+					age = 6
+					is_adult = no 
+					is_ruler = no
+					is_primary_heir = no
+					prisoner = no
+					host = { character = ROOT }
+				}
+				random = { 
+					chance = 80
+					modifier = { 
+						factor = 1.8
+						OR = { 
+							trait = gregarious
+							trait = zealous 
+							trait = idolizer
+							trait = affectionate
+							has_focus = focus_ch_faith
+							has_focus = focus_ed_learning
+						}
+					}
+					move_character = FROM
+					set_defacto_liege = FROM
+					religion = FROM
+					set_character_flag = no_court_invites
+					add_trait = disinherited 
+				}
+			}
+		}
+		if = { #Finally, pick automatically any underage unimportant courtier to join the crusade.
+			limit = { 
+				any_courtier = { 
+					age = 6
+					is_adult = no 
+					is_ruler = no
+					is_primary_heir = no
+					is_betrothed = no
+					prisoner = no
+					host = { character = ROOT }
+					NOT = { dynasty = ROOT }
+					NOT = { is_close_relative = ROOT }
+					NOT = { num_of_claims = 1 }
+				}
+			}
+			any_courtier = { 
+				limit = { 
+					age = 6
+					is_adult = no 
+					is_ruler = no
+					is_betrothed = no
+					is_primary_heir = no
+					prisoner = no
+					host = { character = ROOT }
+					NOT = { dynasty = ROOT }
+					NOT = { is_close_relative = ROOT }
+					NOT = { num_of_claims = 1 }
+				}
+				random = { 
+					chance = 90
+					modifier = { 
+						factor = 1.8
+						OR = { 
+							trait = zealous 
+							trait = idolizer
+							trait = affectionate
+							has_focus = focus_ch_faith
+							has_focus = focus_ed_learning
+						}
+					}
+					move_character = FROM
+					set_defacto_liege = FROM
+					religion = FROM
+					set_character_flag = no_court_invites
+					add_trait = disinherited 
+				}
+			}
+		}
+	}
+}
+
+#Random Ruler: The Children want food.
+character_event = {
+	id = HF.25810
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25810
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_normal_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { #Support child as sponsor.
+		name = EVTOPTAHF25810
+		trigger = { 
+			NOT = { trait = cynical } 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } }
+		}
+		custom_tooltip = { text = TT_EVTOPTAHF25806 }
+		if = { 
+			limit = { NOT = { trait = zealous } } 
+			add_trait = zealous
+		}
+		tiered_piety_reward_effect = yes
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_believed_in_me 
+				who = ROOT
+				years = 15
+			} 
+		}
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				save_persistent_event_target = { name = childrens_crusade_sponsor_per scope = ROOT } 
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	option = { #Give some food and send them on their way.
+		name = EVTOPTBHF25810
+		if = { 
+			limit = { trait = cruel } 
+			random = { 
+				chance = 20 
+				remove_trait = cruel 
+			}
+		}
+		if = { 
+			limit = { NOR = { trait = kind trait = cruel } } 
+			random = { 
+				chance = 20 
+				add_trait = kind 
+				hidden_tooltip = { character_event = { id = 38268 } }
+			}
+		}
+
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				change_variable = { which = children_crusade_morale value = 2 }
+			}
+		}
+		transfer_scaled_wealth = { to = event_target:childrens_crusade_leader value = 1 min = 50 max = 100 } 
+		ai_chance = { 
+			factor = 10
+			modifier = { 
+				factor = 0
+				NOT = { trait = kind }
+			}
+		}
+	}
+
+	option = { #Sell into slavery - Requires ruler to be deceitful and child leader to be trusting.
+		name = EVTOPTCHF25810
+		trigger = { 
+			trait = deceitful 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } } #Sponsor legitimizes children.
+			event_target:childrens_crusade_leader = { trait = trusting }
+			NOR = { 
+				dynasty = event_target:childrens_crusade_leader 
+				is_close_relative = event_target:childrens_crusade_leader
+			}
+		}
+		tooltip_info = deceitful
+		custom_tooltip = { text = TT_EVTOPTDHF25806 }
+		tiered_piety_negative_effect = yes
+		scaled_wealth = { value = 1 min = 150 max = 300 } 
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				any_courtier = { 
+					limit = { is_ruler = no is_adult = no }
+					death = { death_reason = death_slavery }
+				}
+				primary_title = {
+					activate_title = { title = THIS status = no }
+					destroy_landed_title = THIS
+				}
+				death = { death_reason = death_slavery } 
+			} 
+		} 
+		ai_chance = { 
+			factor = 10 
+			modifier = { 
+				factor = 2
+				trait = greedy
+			}
+			modifier = { 
+				factor = 1.5
+				trait = cynical
+			}
+			modifier = { 
+				factor = 2
+				is_rival = event_target:childrens_crusade_leader
+			}
+			modifier = { #Historical triggers.
+				factor = 2
+				is_merchant_republic = yes
+			}
+		}
+	}
+
+
+	option = { #Set guards on them.
+		name = EVTOPTDHF25810
+		trigger = { trait = cruel }
+		tooltip_info = cruel
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				change_variable = { which = children_crusade_morale value = -1 }
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { #Ignore them.
+		name = EVTOPTEHF25810
+		trigger = { NOT = { trait = cruel } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Random Ruler: The Children want troops.
+character_event = {
+	id = HF.25811
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25811
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_normal_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { #Support child as sponsor.
+		name = EVTOPTAHF25811
+		trigger = { 
+			NOT = { trait = cynical } 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } }
+		}
+		custom_tooltip = { text = TT_EVTOPTAHF25806 }
+		if = { 
+			limit = { NOT = { trait = zealous } } 
+			add_trait = zealous
+		}
+		tiered_piety_reward_effect = yes
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_believed_in_me 
+				who = ROOT
+				years = 15
+			} 
+		}
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				save_persistent_event_target = { name = childrens_crusade_sponsor_per scope = ROOT } 
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	option = { #Support child with troops.
+		name = EVTOPTBHF25811
+		trigger = { 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } }
+		}
+		custom_tooltip = { text = TT_EVTOPTBHF25806 }
+		if = { 
+			limit = { trait = cruel } 
+			random = { 
+				chance = 25 
+				remove_trait = cruel 
+			}
+		}
+		if = { 
+			limit = { NOR = { trait = kind trait = cruel } } 
+			random = { 
+				chance = 25 
+				add_trait = kind 
+				hidden_tooltip = { character_event = { id = 38268 } }
+			}
+		}
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_heavy_troops value = 2 }
+			}
+		}
+		tiered_piety_reward_effect = yes
+		capital_scope = { 
+			add_province_modifier = { 
+				name = kid_crusade_pledged_troops
+				duration = 1200
+				stacking = yes
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	option = { #Allow children to recruit amongst peasants.
+		name = EVTOPTCHF25811
+		if = { 
+			limit = { trait = cruel } 
+			random = { 
+				chance = 20 
+				remove_trait = cruel 
+			}
+		}
+		if = { 
+			limit = { NOR = { trait = kind trait = cruel } } 
+			random = { 
+				chance = 20 
+				add_trait = kind 
+				hidden_tooltip = { character_event = { id = 38268 } }
+			}
+		}
+
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				change_variable = { which = children_crusade_forces value = 2 }
+			}
+		}
+		capital_scope = { 
+			add_province_modifier = { 
+				name = kid_crusade_recruited_peasants
+				duration = 1200
+				stacking = yes
+			}
+		}
+		ai_chance = { 
+			factor = 10
+			modifier = { 
+				factor = 0
+				NOT = { trait = kind }
+			}
+		}
+	}
+
+	option = { #Sell into slavery - Requires ruler to be deceitful and child leader to be trusting.
+		name = EVTOPTDHF25811
+		trigger = { 
+			trait = deceitful 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } } #Sponsor legitimizes children.
+			event_target:childrens_crusade_leader = { trait = trusting }
+			NOR = { 
+				dynasty = event_target:childrens_crusade_leader 
+				is_close_relative = event_target:childrens_crusade_leader
+			}
+		}
+		tooltip_info = deceitful
+		custom_tooltip = { text = TT_EVTOPTDHF25806 }
+		tiered_piety_negative_effect = yes
+		scaled_wealth = { value = 1 min = 150 max = 300 } 
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				any_courtier = { 
+					limit = { is_ruler = no is_adult = no }
+					death = { death_reason = death_slavery }
+				}
+				primary_title = {
+					activate_title = { title = THIS status = no }
+					destroy_landed_title = THIS
+				}
+				death = { death_reason = death_slavery } 
+			} 
+		} 
+		ai_chance = { 
+			factor = 10 
+			modifier = { 
+				factor = 2
+				trait = greedy
+			}
+			modifier = { 
+				factor = 1.5
+				trait = cynical
+			}
+			modifier = { 
+				factor = 2
+				is_rival = event_target:childrens_crusade_leader
+			}
+			modifier = { #Historical triggers.
+				factor = 2
+				is_merchant_republic = yes
+			}
+		}
+	}
+
+
+	option = { #Set guards on them.
+		name = EVTOPTEHF25811
+		trigger = { trait = cruel }
+		tooltip_info = cruel
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				change_variable = { which = children_crusade_morale value = -1 }
+			}
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { #Ignore them.
+		name = EVTOPTFHF25811
+		trigger = { NOT = { trait = cruel } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Random Ruler: The Children are upsetting the local clergy.
+character_event = {
+	id = HF.25812
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25812
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_normal_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	immediate = {
+		random_vassal = {
+			limit = {
+				is_theocracy = yes
+				religion = ROOT
+			}
+			save_event_target_as = child_outraged_priest
+		}
+	}
+	option = { #Support child as sponsor.
+		name = EVTOPTAHF25812
+		trigger = { 
+			NOT = { trait = cynical } 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } }
+		}
+		custom_tooltip = { text = TT_EVTOPTAHF25806 }
+		if = { 
+			limit = { NOT = { trait = zealous } } 
+			add_trait = zealous
+		}
+		tiered_piety_reward_effect = yes
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_believed_in_me 
+				who = ROOT
+				years = 15
+			} 
+		}
+		event_target:child_outraged_priest = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_outraged 
+				who = ROOT
+				years = 15
+			} 
+		}
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				save_persistent_event_target = { name = childrens_crusade_sponsor_per scope = ROOT } 
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+
+	option = { #Sell into slavery - Requires ruler to be deceitful and child leader to be trusting.
+		name = EVTOPTDHF25812
+		trigger = { 
+			trait = deceitful 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } } #Sponsor legitimizes children.
+			event_target:childrens_crusade_leader = { trait = trusting }
+			NOR = { 
+				dynasty = event_target:childrens_crusade_leader 
+				is_close_relative = event_target:childrens_crusade_leader
+			}
+		}
+		tooltip_info = deceitful
+		custom_tooltip = { text = TT_EVTOPTDHF25806 }
+		tiered_piety_negative_effect = yes
+		scaled_wealth = { value = 1 min = 150 max = 300 } 
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				any_courtier = { 
+					limit = { is_ruler = no is_adult = no }
+					death = { death_reason = death_slavery }
+				}
+				primary_title = {
+					activate_title = { title = THIS status = no }
+					destroy_landed_title = THIS
+				}
+				death = { death_reason = death_slavery } 
+			} 
+		} 
+		ai_chance = { 
+			factor = 10 
+			modifier = { 
+				factor = 2
+				trait = greedy
+			}
+			modifier = { 
+				factor = 1.5
+				trait = cynical
+			}
+			modifier = { 
+				factor = 2
+				is_rival = event_target:childrens_crusade_leader
+			}
+			modifier = { #Historical triggers.
+				factor = 2
+				is_merchant_republic = yes
+			}
+		}
+	}
+
+
+	option = { #Set guards on them.
+		name = EVTOPTEHF25812
+		tiered_piety_reward_effect = yes
+		event_target:child_outraged_priest = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_relieved 
+				who = ROOT
+				years = 5
+			} 
+		}
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				change_variable = { which = children_crusade_morale value = -1 }
+			}
+		}
+		ai_chance = { factor = 20 }
+	}
+	option = { #Allow them to keep doing their thing.
+		name = EVTOPTFHF25812
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_relieved 
+				who = ROOT
+				years = 5
+			} 
+		}
+		event_target:child_outraged_priest = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_outraged 
+				who = ROOT
+				years = 5
+			} 
+		}
+		ai_chance = { factor = 80 }
+	}
+}
+
+
+#Random Ruler's child: The call of Jesus.
+character_event = {
+	id = HF.25813
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25813
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_normal_frame_religion
+	portrait =  event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	trigger = {
+		event_target:childrens_crusade_leader = { is_alive = yes }
+		NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_parent_of = ROOT } } }
+		is_ruler = no
+	}
+
+	option = { #Go with Crusade.
+		name = EVTOPTAHF25813
+		trigger = { 
+			NOT = { trait = cynical } 
+		}
+		piety = 25
+		move_character = FROMFROM
+		set_defacto_liege = FROMFROM
+		religion = FROMFROM
+		set_character_flag = no_court_invites
+		add_trait = disinherited 
+		FROM = { character_event = { id = HF.25814 } } #Notify Parent.
+		ai_chance = { factor = 100 }
+	}
+
+	option = { #No.
+		name = EVTOPTBHF25813
+		ai_chance = { 
+			factor = 5 
+			modifier = { 
+				factor = 2
+				trait = timid
+			}
+			modifier = { 
+				factor = 2
+				trait = craven
+			}
+		}
+	}
+}
+
+#Random Ruler: Your child left.
+character_event = {
+	id = HF.25814
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25814
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_normal_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+
+	option = { #Support crusade to increase chances of survival for child.
+		name = EVTOPTAHF25814
+		trigger = { 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } } }
+		}
+		custom_tooltip = { text = TT_EVTOPTAHF25806 }
+		tiered_piety_reward_effect = yes
+		hidden_tooltip = { 
+			event_target:childrens_crusade_leader = { 
+				save_persistent_event_target = { name = childrens_crusade_sponsor_per scope = ROOT } 
+			}
+		}
+		ai_chance = { factor = 0 }
+	}
+	option = { 
+		name = {
+			text = EVTOPTAHF25814_A
+			trigger = {
+				trait = kind
+			}
+		}
+		name = {
+			text = EVTOPTAHF25814_B
+			trigger = {
+				NOR = { trait = kind trait = cruel }
+			}
+		}
+		name = {
+			text = EVTOPTAHF25814_C
+			trigger = {
+				trait = cruel
+			}
+		}
+		if = { 
+			limit = { trait = kind  NOT = { trait = stressed } } 
+			add_trait = stressed
+		}
+		tiered_prestige_negative_effect = yes
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Christian players informed that the Crusade has reached Genoa.
+narrative_event = {
+	id = HF.25815
+	title = EVTTITLEHF25815
+	desc = EVTDESCAHF25815
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	#Sponsor sends troops.
+	#Sponsor sends reinforcements/ships.
+	#Sponsor sends money.
+	#Sponsor does nothing.
+	#Default.
+
+	option = { #Send troops to help/protect.
+		name = EVTOPTAHF25815
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_heavy_troops value = 2 }
+			}
+		}
+		tiered_piety_reward_effect = yes
+		capital_scope = { 
+			add_province_modifier = { 
+				name = kid_crusade_pledged_troops
+				duration = 1200
+				stacking = yes
+			}
+		}
+		ai_chance = { factor = 10 }
+	}
+	option = { #Send reinforcements/ships.
+		name = EVTOPTBHF25815
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_forces value = 2 }
+			}
+		}
+		tiered_piety_reward_effect = yes
+		transfer_scaled_wealth = { to = event_target:childrens_crusade_leader value = 1 min = 150 max = 350 } 
+		ai_chance = { factor = 10 }
+	}
+	option = { #Send money.
+		name = EVTOPTCHF25815
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		transfer_scaled_wealth = { to = event_target:childrens_crusade_leader value = 1 min = 50 max = 100 } 
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 5
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_morale value = 2 }
+			}
+		}
+		ai_chance = { factor = 10 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTDHF25815
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTEHF25815
+		trigger = { NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Christian players informed that the Crusade has shipwrecked into Achaia.
+narrative_event = {
+	id = HF.25816
+	title = EVTTITLEHF25816
+	desc = EVTDESCAHF25816
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	#Sponsor sends supplies to avoid starvation.
+	#Sponsor sends bureaucratic help.
+	#Sponsor uses local connections.
+	#Sponsor does nothing.
+	#Default.
+
+	option = { #Send supplies to avoid starvation.
+		name = EVTOPTAHF25816
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_morale value = 3 }
+			}
+		}
+		scaled_wealth = { value = -1 min = -250 max = -500 } 
+		tiered_piety_reward_effect = yes
+		ai_chance = { factor = 10 }
+	}
+	option = { #Send diplomats to help them.
+		name = EVTOPTBHF25816
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+		}
+		event_target:childrens_crusade_leader = { 
+			prestige = 250
+		}
+		prestige = -250
+		ai_chance = { factor = 10 }
+	}
+	option = { #Use local connections.
+		name = EVTOPTCHF25816
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			prestige = 50
+		}
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 5
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_morale value = 2 }
+			}
+		}
+		tiered_prestige_negative_effect = yes
+		ai_chance = { factor = 10 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTDHF25816
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTEHF25816
+		trigger = { NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Christian players informed that the Crusade has crawled to Nikaea.
+narrative_event = {
+	id = HF.25817
+	title = EVTTITLEHF25817
+	desc = {
+		text = EVTDESCAHF25817
+		trigger = { 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25817
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+	}
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	#Sponsor offers military support in coming war.
+	#Sponsor offers economic support in coming war.
+	#Sponsor offers moral support in coming war.
+	#Sponsor does nothing.
+	#Default.
+
+	option = { #Sponsor offers military support in coming war.
+		name = EVTOPTAHF25817
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_morale value = 3 }
+			}
+		}
+		set_character_flag = flag_childrens_crusade_sponsor_joins_war
+		tiered_piety_reward_effect = yes
+		ai_chance = { factor = 10 }
+	}
+	option = { #Sponsor offers economic support in coming war.
+		name = EVTOPTBHF25817
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 15
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_morale value = 2 }
+				wealth = 100
+				prestige = 150
+			}
+		}
+		add_character_modifier = { name = kid_crusade_economic_support duration = 1200 }
+		ai_chance = { factor = 10 }
+	}
+	option = { #Sponsor offers moral support in coming war.
+		name = EVTOPTCHF25817
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		event_target:childrens_crusade_leader = { 
+			prestige = 50
+			piety = 100
+		}
+		event_target:childrens_crusade_leader = { 
+			show_scope_change = no
+			opinion = { 
+				modifier = opinion_grateful 
+				who = ROOT
+				years = 5
+			} 
+			hidden_tooltip = { 
+				change_variable = { which = children_crusade_morale value = 2 }
+			}
+		}
+		tiered_piety_negative_effect = yes
+		ai_chance = { factor = 10 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTDHF25817
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTEHF25817
+		trigger = { NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Christian players informed that the Crusade has reached Antioch and is ready to engage infidels.
+narrative_event = {
+	id = HF.25818
+	title = EVTTITLEHF25818
+	desc = {
+		text = EVTDESCAHF25818
+		trigger = { 
+			NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25818
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+	}
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { #Join war as promised.
+		name = EVTOPTAHF25818
+		trigger = { has_character_flag = flag_childrens_crusade_sponsor_joins_war }
+		ai_chance = { factor = 100 }
+	}
+	option = { #Join war.
+		name = EVTOPTBHF25818
+		trigger = { 
+			event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			NOT = { has_character_flag = flag_childrens_crusade_sponsor_joins_war } 
+		}
+		tiered_piety_reward_effect = yes
+		set_character_flag = flag_childrens_crusade_sponsor_joins_war
+		join_attacker_wars = event_target:childrens_crusade_leader
+		hidden_tooltip = { join_defender_wars = event_target:childrens_crusade_leader } #Just in case...
+		ai_chance = { factor = 100 }
+	}
+	option = { #Do nothing.
+		name = EVTOPTCHF25818
+		trigger = { 
+			event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			NOT = { has_character_flag = flag_childrens_crusade_sponsor_joins_war }  
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTDHF25818
+		trigger = { NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Christian players informed that the Crusade has failed to start for whatever reason and the children have scattered.
+narrative_event = {
+	id = HF.25819
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25819
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:childrens_crusade_leader
+	sound = crusade_outcome_negative
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25819
+		trigger = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } }
+		tiered_prestige_negative_effect = yes
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25819
+		trigger = { NOT = { event_target:childrens_crusade_leader = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } } } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Crusader Child: Preparing to fire the crusade...
+narrative_event = {
+	id = HF.25820
+	hide_window = yes
+
+	is_triggered_only = yes
+	
+	
+	immediate = { 
+		character_event = { id = HF.25821 }
+		character_event = { id = HF.25822 } #Convert accumulated variables into an army.
+
+		#Translate morale variable into morale modifier.
+		if = { 
+			limit = {  
+				NOT = { check_variable = { which = children_crusade_morale value = -15 } } 
+			}
+			add_character_modifier = { name = children_crusade_morale_0 duration = 1000 }
+		}
+		if = { 
+			limit = {  
+				check_variable = { which = children_crusade_morale value = -15 }
+				NOT = { check_variable = { which = children_crusade_morale value = -7 } } 
+			}
+			add_character_modifier = { name = children_crusade_morale_1 duration = 1000 }
+		}
+		if = { 
+			limit = {  
+				check_variable = { which = children_crusade_morale value = -7 }
+				NOT = { check_variable = { which = children_crusade_morale value = -3 } } 
+			}
+			add_character_modifier = { name = children_crusade_morale_2 duration = 1000 }
+		}
+		if = { 
+			limit = {  
+				check_variable = { which = children_crusade_morale value = -3 }
+				NOT = { check_variable = { which = children_crusade_morale value = 2 } } 
+			}
+			add_character_modifier = { name = children_crusade_morale_3 duration = 1000 }
+		}
+		if = { 
+			limit = {  
+				check_variable = { which = children_crusade_morale value = 2 }
+			}
+			add_character_modifier = { name = children_crusade_morale_4 duration = 1000 }
+		}
+		set_variable = { which = children_crusade_progress value = 0 }
+		set_variable = { which = children_crusade_forces value = 0 }
+		set_variable = { which = children_crusade_heavy_troops value = 0 }
+		set_variable = { which = children_crusade_morale value = 0 }
+
+		c_washington = {
+			holder_scope = {
+				event_target:childrens_crusade_leader = {
+					unsafe_war = {
+						target = PREV
+						casus_belli = childrens_crusade
+						thirdparty_title = PREVPREV
+						tier = KING
+					}
+				}
+			}
+		}
+
+		if = { 
+			limit = {  
+				persistent_event_target:childrens_crusade_sponsor_per = { has_character_flag = flag_childrens_crusade_sponsor_joins_war }
+			}
+			persistent_event_target:childrens_crusade_sponsor_per = { join_attacker_wars = ROOT join_defender_wars = ROOT }
+		}
+	}
+}
+
+#Looping light troop spawning.
+character_event = {
+	id = HF.25821
+	hide_window = yes
+
+	is_triggered_only = yes
+	
+	trigger = { 
+		check_variable = { which = children_crusade_forces value = 1 }
+	}
+
+	immediate = { 
+		spawn_childrens_crusade_light_troops_effect = yes 	#Convert accumulated variables into an army.
+	}
+}
+
+#Looping heavy troop spawning.
+character_event = {
+	id = HF.25822
+	hide_window = yes
+
+	is_triggered_only = yes
+	
+	trigger = { 
+		check_variable = { which = children_crusade_heavy_troops value = 1 }
+	}
+
+	immediate = { 
+		spawn_childrens_crusade_heavy_troops_effect = yes 	#Convert accumulated variables into an army.
+	}
+}
+
+#War was invalidated.
+narrative_event = {
+	id = HF.25823
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25823
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_war
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25823
+		if = { 
+			limit = {  
+				FROM = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			}
+			tiered_prestige_negative_effect = yes
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Infidels notified of crusade's start.
+narrative_event = {
+	id = HF.25824
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25824
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_war
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25824
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Crusade has failed (Christians).
+narrative_event = {
+	id = HF.25825
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25825
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_war
+	sound = crusade_outcome_negative
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25825
+		if = { 
+			limit = {  
+				FROM = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			}
+			tiered_prestige_negative_effect = yes
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Crusade has failed (Infidels).
+narrative_event = {
+	id = HF.25826
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25826
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_war
+	sound = crusade_outcome_negative
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25826
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Crusade has succeeded (Infidels).
+narrative_event = {
+	id = HF.25827
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25827
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_war
+	sound = crusade_outcome_positive
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	option = { 
+		name = EVTOPTAHF25827
+		trigger = { 
+			NOR = { 
+				is_vassal_or_below = FROM
+				religion = FROM
+				has_character_flag = ai_flag_refuse_conversion 
+				trait = zealous
+			}
+			independent = yes
+			capital_scope = {  
+				region = world_northeast
+			}
+			lower_real_tier_than = KING
+		}
+		religion = FROM
+		set_defacto_liege = FROM
+		ai_chance = { 
+			factor = 10 
+			modifier = { 
+				factor = 0
+				trait = cynical
+			}
+		}
+	}
+	option = { #Newly vassalized infidels always convert.
+		name = EVTOPTAHF25827
+		trigger = { vassal_of = FROM }
+		religion = FROM
+		ai_chance = { 
+			factor = 100
+		}
+	}
+	option = { 
+		name = EVTOPTBHF25827
+		trigger = { NOT = { vassal_of = FROM } }
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Crusade has succeeded (Christians).
+narrative_event = {
+	id = HF.25828
+	title = EVTTITLEHF25800
+	desc = EVTDESCAHF25828
+	picture = GFX_evt_childrens_crusade
+	border = GFX_event_narrative_frame_war
+	sound = crusade_outcome_positive
+	hide_new = yes
+
+	is_triggered_only = yes
+	
+	#Sponsor switches to play child king.
+	#Do nothing.
+
+	option = { #Switch to Child.
+		name = EVTOPTAHF25828
+		trigger = { 
+			FROM = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			dynasty = FROM
+			has_character_flag = flag_childrens_crusade_sponsor_joins_war
+			ai = no
+		}
+        custom_tooltip = {
+            text = player_character_TT_HF25828
+        }
+		tiered_piety_reward_effect = yes
+		hidden_tooltip = { set_player_character = FROM }
+		ai_chance = { factor = 0 }
+	}
+	option = {
+		name = EVTOPTBHF25828
+		trigger = { 
+			FROM = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTCHF25828
+		trigger = { 
+			NOT = { 
+				FROM = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			}
+			trait = zealous
+		}
+		tooltip_info = zealous
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTDHF25828
+		trigger = { 
+			NOT = { 
+				FROM = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			}
+			trait = cynical
+		}
+		tooltip_info = cynical
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTEHF25828
+		trigger = { 
+			NOT = { 
+				FROM = { persistent_event_target:childrens_crusade_sponsor_per = { character = ROOT } }
+			}
+			NOR = { trait = zealous trait = cynical }
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+

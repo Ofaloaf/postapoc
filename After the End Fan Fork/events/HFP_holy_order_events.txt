@@ -134,3 +134,243 @@ letter_event = {
 		piety = -50
 	}
 }
+
+# The Ursulines really want to fight off the infidels
+character_event = {
+    id = HFP.44005
+    hide_window = yes
+    is_triggered_only = yes
+    trigger = {
+    	year = 1150
+    	NOT = {
+    		has_global_flag = ursulines_asked_for_land
+    	}
+    }
+
+    immediate = {
+    	FROM = {
+    		letter_event = { id = HFP.44006 }
+    	}
+    	set_global_flag = ursulines_asked_for_land
+    }
+}
+
+# The Ursulines ask for land
+letter_event = {
+	id = HFP.44006
+	desc = EVTDESC_HFP_44006
+	border = GFX_event_letter_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_HFP_44006
+
+		piety = 100
+		scaled_wealth = { value = 2 }
+
+		d_st_ursulas_chosen = {
+			show_scope_change = no
+			holder_scope = {
+				show_scope_change = no
+				opinion = {
+					who = ROOT
+					modifier = opinion_grateful
+					years = 10
+				}
+				opinion = {
+	                modifier = in_non_aggression_pact
+	                years = 10
+	                who = ROOT
+	            }
+            }
+		}
+
+		custom_tooltip = {
+			text = EVTOPTA_HFP_44006_TT
+
+			event_target:holy_order_potential_title = {
+				# Destroy the Duchy title, if there is any
+				if = {
+					limit = {
+						owner = {
+							OR = {
+								character = ROOT
+								any_liege = {
+									character = ROOT
+								}
+							}
+						}
+					}
+					destroy_landed_title = THIS
+				}
+				# Give the Teutonics all the land you hold in the area
+				any_direct_de_jure_vassal_title = {
+					limit = {
+						owner = {
+							OR = {
+								character = ROOT
+								any_liege = {
+									character = ROOT
+								}
+							}
+						}
+					}
+					grant_title_no_opinion = FROM
+					any_direct_de_jure_vassal_title = {
+						limit = {
+							owner = {
+								OR = {
+									character = ROOT
+									any_liege = {
+										character = ROOT
+									}
+								}
+							}
+						}	
+						grant_title_no_opinion = FROM
+					}
+				}
+			}
+			# Upgrade tribal areas into proper feudal areas
+			FROM = {
+				teutonic_order_upgrade_capital_effect = yes
+			}
+			# Give out any unfit land (see cities, temples) to new vassals
+			FROM = {
+				holy_order_distribute_titles_effect = yes
+			}
+			# Refilled holdings and remove province penalties
+			FROM = {
+				character_event = { id = HFP.41090 days = 1 }
+				character_event = { id = HFP.41090 days = 3 }
+			}
+			# Making sure they Teutonics stay proper Holy Orderish
+			FROM = {
+				set_government_type = order_government
+			}
+			# Sending out narrative event to all Catholic rulers
+			if = {
+				limit = {
+					FROM = {
+						any_demesne_title = {
+							tier = COUNT
+						}
+					}
+				}
+				any_playable_ruler = {
+					limit = {
+						religion = FROM
+					}
+					narrative_event = { id = HFP.44007 }
+				}
+				ROOT = {
+					narrative_event = { id = HFP.44007 }
+				}
+			}
+		}
+		ai_chance = {
+			factor = 1
+		}
+	}
+	option = {
+		name = EVTOPTB_HFP_44006
+
+		set_character_flag = refused_to_give_land_to_ursulines
+		ai_chance = {
+			factor = 0
+		}
+	}
+	after = {
+		clr_global_flag = ursulines_asked_for_land
+	}
+}
+
+# The Teutonics has gained new land in the North
+narrative_event = {
+	id = HFP.44007
+	desc = EVTDESC_HFP_44007
+	title = EVTTITLE_HFP_44007
+	picture = GFX_evt_magnificent_castle
+	border = GFX_event_narrative_frame_religion
+	portrait = event_target:the_hochmeister
+
+	is_triggered_only = yes
+
+	immediate = {
+		event_target:holy_order_potential_title = {
+			kingdom = {
+				save_event_target_as = kingdom_title
+			}
+		}
+		d_st_ursulas_chosen = {
+			owner = {
+				save_event_target_as = the_hochmeister
+			}
+		}
+	}
+
+	option = {
+		name = EVTOPTA_HFP_44007
+	}
+}
+
+# The Ursuline State reverts back to St. Ursulas Chosen
+character_event = {
+    id = HFP.44009
+    hide_window = yes
+    is_triggered_only = yes
+    trigger = {
+    	has_landed_title = k_ursuline_state
+    }
+
+    immediate = {
+    	grant_title_no_opinion = d_st_ursulas_chosen
+    	d_st_ursulas_chosen = {
+    		copy_title_history = k_ursuline_state
+    		copy_title_laws = k_ursuline_state
+    	}
+    	unsafe_destroy_landed_title = k_ursuline_state
+    	activate_title = { title = k_ursuline_state status = no}
+
+    	any_playable_ruler = {
+    		narrative_event = { id = HFP.44010 }
+    	}
+    }
+}
+
+# Ursuline State turned into St. Ursula's Chosen announcement
+narrative_event = {
+	id = HFP.44010
+	desc = EVTDESC_HFP_44010
+	title = EVTTITLE_HFP_44010
+	picture = GFX_evt_western_knights_byzantine
+	border = GFX_event_narrative_frame_religion
+	is_triggered_only = yes
+	trigger = {
+
+	}
+
+	option = {
+		name = EVTOPTA_HFP_44010
+		trigger = {
+			religion = FROM
+		}
+	}
+
+	option = {
+		name = EVTOPTB_HFP_44010
+		trigger = {
+			NOT = {
+				religion = FROM
+			}
+			religion_group = FROM
+		}
+	}
+
+	option = {
+		name = EVTOPTC_HFP_44010
+		trigger = {
+			religion_group = FROM
+		}
+	}
+}

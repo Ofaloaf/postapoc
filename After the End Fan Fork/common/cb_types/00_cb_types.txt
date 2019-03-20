@@ -4042,7 +4042,6 @@ new_crusade = {
 				custom_tooltip = {
 					text = ALT_GHW_STARTED
 					has_global_flag = ursuline_crusades_unlocked
-					has_global_flag = liberation_wars_unlocked
 					has_global_flag = mormon_expeditions_unlocked
 					has_global_flag = pagan_ghws_unlocked
 					has_global_flag = christian_crusades_unlocked
@@ -4061,23 +4060,19 @@ new_crusade = {
 					AND = {
 						religion_group = christian
 						NOT = { religion = ursuline }
-						NOT = { religion = angeline }
 						custom_tooltip = {
 							text = CTT_CHRISTIAN_CRUSADES_UNLOCKED
 							has_global_flag = christian_crusades_unlocked
 						}
 					}
 					AND = {
-						OR = {
-							religion = ursuline
-							religion = angeline
-						}
+						religion = ursuline
 						custom_tooltip = {
 							text = CTT_URSULINE_CRUSADES_UNLOCKED
 							has_global_flag = ursuline_crusades_unlocked
 						}
 					}
-				}	
+				}
 			}
 			mercenary = no
 		}
@@ -4093,7 +4088,7 @@ new_crusade = {
 		}
 		
 		FROM = {
-			NOT = { religion = ROOT }
+			NOT = { religion = ROOT}
 			OR = {
 				NOT = { religion_group = ROOT }
 				AND = {
@@ -4103,11 +4098,11 @@ new_crusade = {
 						religion = ROOT
 					}
 				}
-				#AND = {
-				#	has_global_flag = 4th_crusade_official
-				#	has_landed_title = e_byzantium
-				#	NOT = { religion = ROOT }
-				#}
+				AND = {
+					has_global_flag = 4th_crusade_official
+					has_landed_title = k_maritimes
+					NOT = { religion = ROOT }
+				}
 				is_heresy_of = ROOT
 				is_parent_religion = ROOT
 				AND = {
@@ -4117,14 +4112,11 @@ new_crusade = {
 			}
 		}
 		
-		NOT = { # Not if the Canadian Schism has been mended
+		NOR = { # Not if the Schism has been mended
 			AND = {
 				religion = ursuline
 				has_global_flag = canadian_church_unified
 			}
-		}
-		
-		NOT = { # Not if the Schism has been mended
 			AND = {
 				religion = catholic
 				has_global_flag = schism_mended
@@ -4146,7 +4138,7 @@ new_crusade = {
 					title = PREV
 				}
 				PREV = {
-					title = k_columbia	
+					title = k_maritimes	
 				} 
 			}
 		}
@@ -4180,13 +4172,13 @@ new_crusade = {
 
 	on_add = {
 		hidden_tooltip = { fire_haruspicy_event_effect = yes }
-		if = {
-			limit = { defender = { is_offmap_governor = offmap_china } }
-			attacker = {  
-				sound_effect = china_angered_emperor
-				detract_grace_super_huge_effect = yes 
-			}
-		}
+		#if = {
+		#	limit = { defender = { is_offmap_governor = offmap_china } }
+		#	attacker = {  
+		#		sound_effect = china_angered_emperor
+		#		detract_grace_super_huge_effect = yes 
+		#	}
+		#}
 	}
 
 	on_success_title = {
@@ -4568,10 +4560,10 @@ new_crusade = {
 						}
 					}
 				}
-				# Find a logical "Beneficiary" from any playable Catholic/Ursuline ruler, if all else fails
+				# Find a logical "Beneficiary" from any playable Catholic/Fraticelli ruler, if all else fails
 				else = {
 					most_participating_crusader = {
-						# Try to find a Catholic/Ursuline ruler
+						# Try to find a Catholic/Fraticelli ruler
 						if = {
 							limit = {
 								any_playable_ruler = {
@@ -4745,7 +4737,188 @@ new_crusade = {
 					}
 				}
 				# If it is a Fourth Crusade
-				#no
+				else_if = {
+					limit = {
+						has_global_flag = 4th_crusade_official
+						crusade_target_title = {
+							title = k_maritimes
+						}
+						FROM = {
+							religion_group = ROOT
+						}
+						FROM = {
+							NOT = {
+								religion = ROOT
+							}
+						}
+						crusade_target_char = {
+							k_maritimes = {
+								owner = {
+									character = PREVPREV
+								}
+							}
+						}
+					}
+					# Find a King for New Brunswick
+					k_maritimes = {
+						owner = {
+							if = {
+								limit = {
+									NOR = {
+										any_playable_ruler = {
+											has_landed_title = d_petitcodiac
+											has_landed_title = d_miramichi
+											has_landed_title = d_new_brunswick
+											has_landed_title = d_restigouche
+										}
+									}
+								}
+								random_vassal = {
+									limit = {
+										OR = {
+											has_landed_title = d_petitcodiac
+											has_landed_title = d_miramichi
+											has_landed_title = d_new_brunswick
+											has_landed_title = d_restigouche
+										}
+									}
+									preferred_limit = {
+										has_landed_title = d_new_brunswick
+									}
+									grant_title_no_opinion = k_new_brunswick
+								}
+							}
+						}
+					}
+					# Set vassals for New Brunswick
+					k_new_brunswick = {
+						owner = {
+							k_maritimes = {
+								owner = {
+									any_vassal = {
+										limit = {
+											OR = {
+												has_landed_title = d_petitcodiac
+												has_landed_title = d_miramichi
+												has_landed_title = d_new_brunswick
+												has_landed_title = d_restigouche
+												de_jure_liege = d_petitcodiac
+												de_jure_liege = d_miramichi
+												de_jure_liege = d_new_brunswick
+												de_jure_liege = d_restigouche
+											}
+										}
+										set_defacto_liege = PREVPREVPREV
+									}
+								}
+							}
+						}
+					}
+					# Find an Ursuline lord for PEI
+					if = {
+						limit = {
+							c_summerside = {
+								owner = {
+									religion = FROM
+									culture = FROM
+									ai = yes
+								}
+							}
+							c_summerside = {
+								owner = {
+									religion = FROM
+									culture = FROM
+									ai = yes
+								}
+							}
+							k_prince_edward_island = {
+								has_holder = no
+							}
+						}
+						any_crusade_participant = {
+							limit = {
+								ai = yes
+								NOT = {
+									most_participating_crusader = {
+										character = PREV
+									}
+								}
+							}
+							crusade_beneficiary = {
+								grant_title_no_opinion = c_summerside
+								grant_title_no_opinion = c_summerside
+								grant_title_no_opinion = d_prince_edward_island
+								grant_title_no_opinion = k_prince_edward_island
+								set_defacto_liege = THIS
+								character_event = { id = HFP.41090 days = 1 }
+								if = {
+									limit = {
+										NOR = {
+											trait = crusader
+											trait = crusader_king
+											trait = crusader_queen
+										}
+									}
+									add_trait = crusader
+								}
+							}
+							character_event = { id = HFP.41007 }
+						}
+					}
+					distribute_crusade_target_title = yes
+					#The Crusader King becomes king of Acadia and gets a bloodline. (
+					crusader_king = {
+						grant_title_no_opinion = k_acadia
+					}
+					# Find random vassal and make a king out of them (removed due to lack of space)
+					# All Byzantine vassals go independent except those neighboring the old Emperor, and he/she gets an inferior Kingdom title while the Maritimes title is broken
+					k_maritimes = {
+						owner = {
+							any_vassal = {
+								limit = {
+									higher_tier_than = BARON
+								}
+								set_defacto_liege = this
+							}
+							#removed all this stuff due to lack of space
+							any_neighbor_independent_ruler = {
+								limit = {
+									ai = yes
+									culture = PREV
+									religion = PREV
+									lower_tier_than = KING
+								}
+								set_defacto_liege = PREV
+							}
+						}
+					}
+					# Crete is taken by a Merchant Lord (also removed)
+
+					if = {
+						limit = {
+							official_crusade_recipient = {
+								has_character_flag = fourth_crusade_recipient
+							}
+						}
+						official_crusade_recipient = {
+							save_event_target_as = byzantine_refugee
+						}
+					}
+					# Narrative event explaining that Byzantium has been taken out
+					any_character = {
+						narrative_event = { id = HF.49008 }
+					}
+					event_target:byzantine_refugee = {
+						death = {
+							death_reason = death_battle
+							killer = FROM
+						}
+					}
+					# Making sure the Byzantine Empire is destroyed
+					k_maritimes = {
+						unsafe_destroy_landed_title = THIS
+					}
+				}
 				# Otherwise
 				else = {
 					FROM = {
@@ -5101,10 +5274,7 @@ new_crusade = {
 						20 = {
 							modifier = {
 								factor = 0
-								OR = {
-									religion_group = christian
-									religion_group = latter_day_saints
-								}
+								religion_group = christian
 							}
 							give_nickname = nick_the_sword_of_god
 						}
@@ -5177,10 +5347,7 @@ new_crusade = {
 						20 = {
 							modifier = {
 								factor = 0
-								OR = {
-									religion_group = christian
-									religion_group = latter_day_saints
-								}
+								religion_group = christian
 							}
 							give_nickname = nick_the_sword_of_god
 						}
@@ -5267,10 +5434,10 @@ new_crusade = {
 						value = on
 					}
 					ROOT = {
-						religion = ursuline
+						religion = fraticelli
 					}
 				}
-				set_global_flag = ursuline_shepherds_crusade
+				set_global_flag = fraticelli_shepherds_crusade
 			}
 			ROOT = {
 				character_event = { id = HFP.42300 days = 3}
@@ -5319,15 +5486,29 @@ religious = {
 	
 	on_add = {
 		ROOT = {
-			show_scope_change = no
 			if = {
-				limit = {
-					religion = buddhist
+				limit = { NOT = { has_character_flag = the_prophet } }
+				custom_tooltip = {
+					text = holy_war_cooldown_ctt
+					hidden_tooltip = {
+						add_character_modifier = {
+							name = holy_war_cooldown
+							duration = 1825
+						}
+					}
 				}
-				piety = -250
+			}
+			if = {
+				limit = { 
+					NOR = {
+						religion_group = american_native
+						religion_group = pagan_group
+						religion = brethren
+					}
+				}
+				piety = -100
 			}
 		}
-		hidden_tooltip = { fire_haruspicy_event_effect = yes }
 		if = {
 			limit = { defender = { is_offmap_governor = offmap_china } }
 			attacker = {  
@@ -5349,13 +5530,13 @@ religious = {
 				religion = libertarian
 			}
 			NOT = { pacifist = yes }
-			#NAND = { #Reserved for Ursulines
-			#	OR = {
-			#		has_landed_title = k_teutonic_state
-			#		has_landed_title = d_teutonic_order
-			#	}
-			#	has_global_flag = northern_crusades_active
-			#}
+			NAND = { #Reserved for Ursulines
+				OR = {
+					has_landed_title = k_urusline_state
+					has_landed_title = d_st_ursulas_chosen
+				}
+				has_global_flag = northern_crusades_active
+			}
 			NOR = {
 				has_character_flag = currently_reconquering_mexico
 				reconquista_check_trigger = yes
@@ -5583,40 +5764,6 @@ religious = {
 		}
 	}
 	
-	on_add = {
-		ROOT = {
-			if = {
-				limit = { NOT = { has_character_flag = the_prophet } }
-				custom_tooltip = {
-					text = holy_war_cooldown_ctt
-					hidden_tooltip = {
-						add_character_modifier = {
-							name = holy_war_cooldown
-							duration = 1825
-						}
-					}
-				}
-			}
-			if = {
-				limit = { 
-					NOR = {
-						religion_group = american_native
-						religion_group = pagan_group
-						religion = brethren
-					}
-				}
-				piety = -100
-			}
-		}
-		if = {
-			limit = { defender = { is_offmap_governor = offmap_china } }
-			attacker = {  
-				sound_effect = china_angered_emperor
-				detract_grace_super_huge_effect = yes 
-			}
-		}
-	}
-	
 	on_success = {
 		any_attacker = {
 			limit = { NOT = { character = ROOT } }
@@ -5798,6 +5945,25 @@ religious = {
 	}
 	ai_will_do = { 
 		factor = 1
+		
+		modifier = { #Focus on Coronation first.
+			factor = 0.1
+			has_dlc = "Holy Fury"
+			ROOT = {
+				is_feudal = yes
+				OR = {
+					religion = catholic
+					religion = ursuline
+					religion = mormon
+				}
+				NOR = {
+					trait = crowned_by_priest
+					trait = crowned_by_bishop
+					trait = crowned_by_pope
+					trait = crowned_by_myself
+				}
+			}
+		}
 	
 		modifier = {
 			factor = 10
@@ -5819,7 +5985,7 @@ religious = {
 		}
 		modifier = { # This entry is meant to guide the HCC and HCC vassals to only holy war for de jure HCC lands
 			factor = 0.05
-			#NOT = { de_jure_liege_or_above = k_appalachia }
+			NOT = { de_jure_liege_or_above = k_appalachia }
 			NOT = { de_jure_liege_or_above = e_dixie }
 			OR = {
 				ROOT = { has_landed_title = e_dixie }
@@ -5837,10 +6003,10 @@ religious = {
 				ROOT = { liege = { has_landed_title = k_uppland } }
 			}
 		}
-		modifier = { # This entry is meant to preserve Sagrado Corazon lands a bit.
+		modifier = { # This entry is meant to preserve Mormon lands a bit. (Removed protections from Sacred Heart, because they have reconquistas now)
 			factor = 0.5
 			ROOT = { religion = catholic }
-			FROM = { religion = sacred_heart }
+			FROM = { religion = mormon }
 		}
 	}
 }
@@ -8476,17 +8642,17 @@ muslim_invasion = {
 			prestige = 100
 		}
 		FROM = {
-			if = {
-				limit = {
-					has_dlc = "Legacy of Rome"
-					OR = { 
-						has_landed_title = e_byzantium
-						has_landed_title = e_roman_empire
-					}
-					religion_group = christian
-				}
-				hidden_tooltip = { character_event = { id = LoR.30 days = 12 } }
-			}
+			#if = {
+			#	limit = {
+			#		has_dlc = "Legacy of Rome"
+			#		OR = { 
+			#			has_landed_title = e_byzantium
+			#			has_landed_title = e_roman_empire
+			#		}
+			#		religion_group = christian
+			#	}
+			#	hidden_tooltip = { character_event = { id = LoR.30 days = 12 } }
+			#}
 			
 			if = {
 				limit = {
@@ -8538,17 +8704,17 @@ muslim_invasion = {
 					change_variable = { which = strengthen_religion value = 1 }
 				}
 			}
-			if = {
-				limit = { 
-					has_dlc = "Legacy of Rome"
-					OR = { 
-						has_landed_title = e_byzantium
-						has_landed_title = e_roman_empire
-					}
-					religion_group = christian
-				}
-				hidden_tooltip = { character_event = { id = LoR.30 days = 12 } }
-			}
+			#if = {
+			#	limit = { 
+			#		has_dlc = "Legacy of Rome"
+			#		OR = { 
+			#			has_landed_title = e_byzantium
+			#			has_landed_title = e_roman_empire
+			#		}
+			#		religion_group = christian
+			#	}
+			#	hidden_tooltip = { character_event = { id = LoR.30 days = 12 } }
+			#}
 			if = {
 				limit = {
 					has_nickname = no
@@ -11480,17 +11646,17 @@ caliphal_subjugation = {
 		}
 		FROM = {
 			prestige = 100
-			if = {
-				limit = { 
-					has_dlc = "Legacy of Rome"
-					OR = { 
-						has_landed_title = e_byzantium
-						has_landed_title = e_roman_empire
-					}
-					religion_group = christian
-				}
-				hidden_tooltip = { character_event = { id = LoR.30 days = 12 } }
-			}
+			#if = {
+			#	limit = { 
+			#		has_dlc = "Legacy of Rome"
+			#		OR = { 
+			#			has_landed_title = e_byzantium
+			#			has_landed_title = e_roman_empire
+			#		}
+			#		religion_group = christian
+			#	}
+			#	hidden_tooltip = { character_event = { id = LoR.30 days = 12 } }
+			#}
 			participation_scaled_prestige = 100
 		}
 		any_defender = {
@@ -14853,7 +15019,8 @@ tributary_cb = {
 				is_feudal = yes
 				OR = {
 					religion = catholic
-					religion = fraticelli
+					religion = ursuline
+					religion = mormon
 				}
 				NOR = {
 					trait = crowned_by_priest
@@ -15250,7 +15417,8 @@ free_tributary_cb = {
 				is_feudal = yes
 				OR = {
 					religion = catholic
-					religion = fraticelli
+					religion = ursuline
+					religion = mormon
 				}
 				NOR = {
 					trait = crowned_by_priest
@@ -15570,7 +15738,8 @@ nomad_dispute = {
 				is_feudal = yes
 				OR = {
 					religion = catholic
-					religion = fraticelli
+					religion = ursuline
+					religion = mormon
 				}
 				NOR = {
 					trait = crowned_by_priest

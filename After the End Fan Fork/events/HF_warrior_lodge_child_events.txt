@@ -1,0 +1,2022 @@
+# Written by Flavio
+
+namespace = HF
+#############################################
+
+#Fired after inducting a child into a Warrior Lodge.
+
+#############################################
+
+	# Child starts focusing on combat training #
+
+#############################################
+#Hidden random list of events for child.
+character_event = {
+	id = HF.25400
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	trigger = { 
+		has_dlc = "Holy Fury"
+		NOT = { age = 20 }
+		NOT = { trait = incapable }
+		society_member_of = event_target:warrior_lodge_to_join
+		event_target:recruiting_parent = { 
+			same_society_as = ROOT 		#Events will keep firing as long as both parent and child are in the same society and capable.
+			NOT = { trait = incapable }
+		}
+	}
+
+	immediate = {
+		#Child forsakes Learning studies for training.
+		#Child forsakes Stewardship studies for training.
+		#Child forsakes Diplomacy studies for training.
+		#Brawny for Shrewd switch.
+		#Brawny for Groomed switch.
+		#Hero wants to make child brave.
+		#Hero wants to strengthen feeble/sturdy child.
+		#Hero wants to train child. (duel exp).
+
+		#First, check if child wanted to be a warrior in the first place.
+
+		if = {
+			limit = {
+				NOR = {
+					has_education_martial_trigger = yes
+					has_lifestyle_martial_trigger = yes
+					trait = brave
+					trait = rowdy
+					has_focus = focus_ch_struggle
+					has_focus = focus_ed_martial
+					has_focus = focus_war
+					has_focus = focus_hunting
+					has_character_flag = flag_child_is_a_warrior #Only first time.
+				}
+			}
+			random = {
+				chance = 20
+				modifier = {
+					factor = 0.75
+					trait = wroth
+				}
+				modifier = {
+					factor = 0.75
+					trait = haughty
+				}
+				modifier = {
+					factor = 1.5
+					trait = slothful
+				}
+				modifier = {
+					factor = 1.5
+					trait = indolent
+				}
+				modifier = {
+					factor = 1.5
+					trait = fussy
+				}
+				modifier = {
+					factor = 1.75
+					trait = timid
+				}
+				modifier = {
+					factor = 1.5
+					trait = shy
+				}
+				modifier = {
+					factor = 2
+					trait = craven
+				}
+				modifier = {
+					factor = 1.5
+					trait = feeble
+				}
+				modifier = {
+					factor = 1.25
+					trait = sturdy
+				}
+				modifier = {
+					factor = 0.5
+					trait = robust
+				}
+				modifier = {
+					factor = 1.5
+					trait = weak
+				}
+				modifier = {
+					factor = 0.5
+					trait = strong
+				}
+				modifier = {
+					factor = 1.5
+					NOT = { martial = 6 }
+				}
+				modifier = {
+					factor = 1.75
+					NOT = { martial = 3 }
+				}
+				modifier = {
+					factor = 2
+					is_female = yes
+					NOR = { 
+						has_religion_feature = religion_matriarchal
+						has_religion_feature = religion_equal
+						#has_religion_feature = religion_feature_bon
+					}
+				}
+				modifier = {
+					factor = 2
+					is_female = no
+					has_religion_feature = religion_matriarchal
+				}
+				ROOT = { character_event = { id = HF.25425 days = 150 random = 150 } } #Child gets event first this time, just in case it's not an AI.
+				break = yes
+			}
+		}
+		set_character_flag = flag_child_is_a_warrior
+		random_list = {
+			25 = { #Child forsakes Learning studies for training.
+				event_target:recruiting_parent = { character_event = { id = HF.25401 days = 250 random = 150 } }
+			}
+			25 = { #Child forsakes Stewardship studies for training.
+				event_target:recruiting_parent = { character_event = { id = HF.25404 days = 250 random = 150 } }
+			}
+			25 = { #Child forsakes Diplomacy studies for training.
+				event_target:recruiting_parent = { character_event = { id = HF.25407 days = 250 random = 150 } }
+			}
+			15 = { #Brawny for Shrewd switch.
+				trigger = { NOR = { trait = robust trait = sturdy trait = feeble } } #Only if from average physical shape.
+				event_target:recruiting_parent = { character_event = { id = HF.25410 days = 250 random = 150 } }
+			}
+			15 = { #Brawny for Groomed switch.
+				trigger = { NOT = { trait = robust trait = sturdy trait = feeble } }
+				event_target:recruiting_parent = { character_event = { id = HF.25413 days = 250 random = 150 } }
+			}
+			15 = { #Hero wants to make child brave.
+				trigger = { 
+					NOT = { trait = brave } 
+					any_society_member = { #A potential hero teacher exists.
+						same_society_as = ROOT
+						NOT = { trait = incapable }
+						NOT = { trait = craven }
+						society_rank = 4
+						NOT = { event_target:recruiting_parent = { character = PREV } }
+						NOR = { 
+							character = ROOT 
+							is_rival = ROOT
+							is_rival = event_target:recruiting_parent
+						}
+					}
+				}
+				if = { 
+					limit = { 
+						event_target:child_hero_mentor = { 
+							is_alive = yes 
+							same_society_as = ROOT
+							NOT = { trait = incapable }
+							NOT = { trait = craven }
+							society_rank = 4
+							NOT = { event_target:recruiting_parent = { character = PREV } }
+							NOR = { 
+								character = ROOT 
+								is_rival = ROOT
+								is_rival = event_target:recruiting_parent
+							}
+						} 
+					} 
+					#If similar event already picked one in the past and he is still available, do nothing.
+				}
+				else = { #Otherwise save hero as target for training.
+					random_society_member = { #A potential hero teacher exists.
+						limit = {
+							same_society_as = ROOT
+							NOT = { trait = incapable }
+							NOT = { trait = craven }
+							society_rank = 4
+							NOT = { event_target:recruiting_parent = { character = PREV } }
+							NOR = { 
+								character = ROOT 
+								is_rival = ROOT
+								is_rival = event_target:recruiting_parent
+							}
+						}
+						save_event_target_as = child_hero_mentor
+					}
+				}
+				event_target:recruiting_parent = { character_event = { id = HF.25416 days = 350 random = 250 } }
+			}
+			15 = { #Hero wants to strengthen feeble/sturdy child.
+				trigger = { 
+					OR = { 
+						trait = sturdy 
+						trait = feeble 
+					} 
+					any_society_member = { #A potential hero teacher exists.
+						same_society_as = ROOT
+						NOT = { trait = incapable }
+						society_rank = 4
+						NOT = { event_target:recruiting_parent = { character = PREV } }
+						NOR = { 
+							trait = feeble
+							trait = sturdy
+							character = ROOT 
+							is_rival = ROOT
+							is_rival = event_target:recruiting_parent
+						}
+					}
+				}
+				if = { 
+					limit = { 
+						event_target:child_hero_mentor = { 
+							is_alive = yes 
+							same_society_as = ROOT
+							NOT = { trait = incapable }
+							society_rank = 4
+							NOT = { event_target:recruiting_parent = { character = PREV } }
+							NOR = { 
+								trait = feeble
+								trait = sturdy
+								character = ROOT 
+								is_rival = ROOT
+								is_rival = event_target:recruiting_parent
+							}
+						} 
+					} 
+					#If similar event already picked one in the past and he is still available, do nothing.
+				}
+				else = { #Otherwise save hero as target for training.
+					random_society_member = { #A potential hero teacher exists.
+						limit = {
+							same_society_as = ROOT
+							NOT = { trait = incapable }
+							society_rank = 4
+							NOT = { event_target:recruiting_parent = { character = PREV } }
+							NOR = { 
+								trait = feeble
+								trait = sturdy
+								character = ROOT 
+								is_rival = ROOT
+								is_rival = event_target:recruiting_parent
+							}
+						}
+						save_event_target_as = child_hero_mentor
+					}
+				}
+				event_target:recruiting_parent = { character_event = { id = HF.25418 days = 350 random = 250 } }
+			}
+			5 = { #Hero wants to train child (duel exp)
+				trigger = { 
+					any_society_member = { #A potential hero teacher exists.
+						same_society_as = ROOT
+						NOT = { trait = incapable }
+						society_rank = 4
+						NOT = { event_target:recruiting_parent = { character = PREV } }
+						NOR = { 
+							character = ROOT 
+							is_rival = ROOT
+							is_rival = event_target:recruiting_parent
+						}
+					}
+				}
+				if = { 
+					limit = { 
+						event_target:child_hero_mentor = { 
+							is_alive = yes 
+							same_society_as = ROOT
+							NOT = { trait = incapable }
+							society_rank = 4
+							NOT = { event_target:recruiting_parent = { character = PREV } }
+							NOR = { 
+								character = ROOT 
+								is_rival = ROOT
+								is_rival = event_target:recruiting_parent
+							}
+						} 
+					} 
+					#If similar event already picked one in the past and he is still available, do nothing.
+				}
+				else = { #Otherwise save hero as target for training.
+					random_society_member = { #A potential hero teacher exists.
+						limit = {
+							same_society_as = ROOT
+							NOT = { trait = incapable }
+							society_rank = 4
+							NOT = { event_target:recruiting_parent = { character = PREV } }
+							NOR = { 
+								character = ROOT 
+								is_rival = ROOT
+								is_rival = event_target:recruiting_parent
+							}
+						}
+						save_event_target_as = child_hero_mentor
+					}
+				}
+				event_target:recruiting_parent = { character_event = { id = HF.25423 days = 150 random = 150 } }
+			}
+		}
+	}
+}
+
+#Child forsakes Learning studies for training.
+character_event = {
+	id = HF.25401
+	title = EVTTITLEHF25400_CHILDS_TRAINING
+	desc = EVTDESCHF25401
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25401
+		tooltip = {  
+			FROM = {
+				change_martial = 1
+				change_learning = -2
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25402 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25401
+		tooltip = {  
+			FROM = {
+				if = {
+					limit = { trait = stressed }
+					random = {
+						chance = 15
+						health = -1.0
+					}
+				}
+				if = {
+					limit = { NOT = { trait = stressed } }
+					random = {
+						chance = 15
+						add_trait = stressed
+					}
+				}
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25403 } } 
+		}
+		ai_chance = { factor = 10 }
+	}
+}
+
+#Child loses Learning for Martial.
+character_event = {
+	id = HF.25402
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25402
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25402
+		change_martial = 1
+		change_learning = -2
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Conflincted orders stress out child.
+character_event = {
+	id = HF.25403
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25403
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25403
+		if = {
+			limit = { trait = stressed }
+			random = {
+				chance = 15
+				health = -1.0
+			}
+		}
+		if = {
+			limit = { NOT = { trait = stressed } }
+			random = {
+				chance = 15
+				add_trait = stressed
+			}
+		}
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Child forsakes Stewardship studies for training.
+character_event = {
+	id = HF.25404
+	title = EVTTITLEHF25400_CHILDS_TRAINING
+	desc = EVTDESCHF25404
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25404
+		tooltip = {  
+			FROM = {
+				change_martial = 1
+				change_stewardship = -1
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25405 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25404
+		tooltip = {  
+			FROM = {
+				if = {
+					limit = { trait = stressed }
+					random = {
+						chance = 15
+						health = -1.0
+					}
+				}
+				if = {
+					limit = { NOT = { trait = stressed } }
+					random = {
+						chance = 15
+						add_trait = stressed
+					}
+				}
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25406 } } 
+		}
+		ai_chance = { factor = 10 }
+	}
+}
+
+#Child loses Stewardship for Martial.
+character_event = {
+	id = HF.25405
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25405
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25405
+		change_martial = 1
+		change_stewardship = -1
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Conflincted orders stress out child.
+character_event = {
+	id = HF.25406
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25406
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25406
+		if = {
+			limit = { trait = stressed }
+			random = {
+				chance = 15
+				health = -1.0
+			}
+		}
+		if = {
+			limit = { NOT = { trait = stressed } }
+			random = {
+				chance = 15
+				add_trait = stressed
+			}
+		}
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Child forsakes Diplomatic studies for training.
+character_event = {
+	id = HF.25407
+	title = EVTTITLEHF25400_CHILDS_TRAINING
+	desc = EVTDESCHF25407
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25407
+		tooltip = {  
+			FROM = {
+				change_martial = 1
+				change_diplomacy = -1
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25408 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25407
+		tooltip = {  
+			FROM = {
+				if = {
+					limit = { trait = stressed }
+					random = {
+						chance = 15
+						health = -1.0
+					}
+				}
+				if = {
+					limit = { NOT = { trait = stressed } }
+					random = {
+						chance = 15
+						add_trait = stressed
+					}
+				}
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25409 } } 
+		}
+		ai_chance = { factor = 10 }
+	}
+}
+
+#Child loses Diplomacy for Martial.
+character_event = {
+	id = HF.25408
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25408
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25408
+		change_martial = 1
+		change_diplomacy = -1
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Conflincted orders stress out child.
+character_event = {
+	id = HF.25409
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25409
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25409
+		if = {
+			limit = { trait = stressed }
+			random = {
+				chance = 15
+				health = -1.0
+			}
+		}
+		if = {
+			limit = { NOT = { trait = stressed } }
+			random = {
+				chance = 15
+				add_trait = stressed
+			}
+		}
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Child forsaking intellectual activities for physical training.
+character_event = {
+	id = HF.25410
+	title = EVTTITLEHF25400_CHILDS_TRAINING
+	desc = EVTDESCHF25410
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+
+	is_triggered_only = yes
+
+	option = { #A smart fighter is a good fighter.
+		name = EVTOPTAHF25410
+		trigger = { is_smart_trigger = yes }
+		tooltip_info_custom = available_due_to_smart
+		tooltip = {  
+			FROM = {
+				change_martial = 1
+				change_intrigue = 1
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25411 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25410
+		tooltip = {  
+			FROM = {
+				if = { #First remove brains.
+					limit = { trait = dull }
+					change_diplomacy = -1
+					change_stewardship = -1
+					change_intrigue = -1
+					change_learning = -1
+				} 
+				else_if = { 
+					limit = { NOR = { trait = dull trait = shrewd } }
+					add_trait = dull
+				}
+				else_if = { 
+					limit = { trait = shrewd }
+					remove_trait = shrewd
+				}
+
+				if = { #Then add brawn.
+					limit = { trait = robust }
+					health = 0.5 #Safety check, shouldn't fire if already Brawny.
+				} 
+				else_if = { 
+					limit = { NOR = { trait = feeble trait = sturdy trait = robust } }
+					add_trait = robust 
+				} 
+				else_if = { 
+					limit = { trait = feeble }
+					remove_trait = feeble
+				}
+				else_if = { 
+					limit = { trait = sturdy }
+					remove_trait = sturdy
+				}
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25412 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Child learns lesson from smart fighter.
+character_event = {
+	id = HF.25411
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25411
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25411
+		change_martial = 1
+		change_intrigue = 1
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Child is strong but dumb.
+character_event = {
+	id = HF.25412
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25412
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25412
+		if = { #First remove brains.
+			limit = { trait = dull }
+			change_diplomacy = -1
+			change_stewardship = -1
+			change_intrigue = -1
+			change_learning = -1
+		} 
+		else_if = { 
+			limit = { NOR = { trait = dull trait = shrewd } }
+			add_trait = dull
+		}
+		else_if = { 
+			limit = { trait = shrewd }
+			remove_trait = shrewd
+		}
+
+		if = { #Then add brawn.
+			limit = { trait = robust }
+			health = 0.5 #Safety check, shouldn't fire if already Brawny.
+		} 
+		else_if = { 
+			limit = { NOR = { trait = feeble trait = sturdy trait = robust } }
+			add_trait = robust 
+		} 
+		else_if = { 
+			limit = { trait = feeble }
+			remove_trait = feeble
+		}
+		else_if = { 
+			limit = { trait = sturdy }
+			remove_trait = sturdy
+		}
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Child forsaking grooming for physical training.
+character_event = {
+	id = HF.25413
+	title = EVTTITLEHF25400_CHILDS_TRAINING
+	desc = {
+		text = EVTDESCAHF25413
+		trigger = { 
+			FROM = { 
+				is_female = no
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25413
+		trigger = { 
+			FROM = { 
+				is_female = yes
+			}
+		}
+	}
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+
+	is_triggered_only = yes
+
+	option = { #Intolerable.
+		name = EVTOPTAHF25413
+		trigger = { trait = groomed }
+		tooltip_info = groomed
+		tooltip = {  
+			FROM = {
+				if = {
+					limit = { trait = stressed }
+					random = {
+						chance = 15
+						health = -1.0
+					}
+				}
+				if = {
+					limit = { NOT = { trait = stressed } }
+					random = {
+						chance = 15
+						add_trait = stressed
+					}
+				}
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25414 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { #Intolerable.
+		name = EVTOPTAHF25413
+		trigger = { trait = proud NOT = { trait = groomed } }
+		tooltip_info = proud
+		tooltip = {  
+			FROM = {
+				if = {
+					limit = { trait = stressed }
+					random = {
+						chance = 15
+						health = -1.0
+					}
+				}
+				if = {
+					limit = { NOT = { trait = stressed } }
+					random = {
+						chance = 15
+						add_trait = stressed
+					}
+				}
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25414 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25413
+		tooltip = {  
+			FROM = {
+				if = { #First remove looks.
+					limit = { trait = uncouth }
+					change_diplomacy = -3
+					change_intrigue = -1
+				} 
+				else_if = { 
+					limit = { NOR = { trait = uncouth trait = groomed } }
+					add_trait = uncouth
+				}
+				else_if = { 
+					limit = { trait = groomed }
+					remove_trait = groomed
+				}
+
+				if = { #Then add brawn.
+					limit = { trait = robust }
+					health = 0.5 #Safety check, shouldn't fire if already Brawny.
+				} 
+				else_if = { 
+					limit = { NOR = { trait = feeble trait = sturdy trait = robust } }
+					add_trait = robust 
+				} 
+				else_if = { 
+					limit = { trait = feeble }
+					remove_trait = feeble
+				}
+				else_if = { 
+					limit = { trait = sturdy }
+					remove_trait = sturdy
+				}
+			}
+		}
+		hidden_tooltip = { 
+			FROM = { character_event = { id = HF.25415 } } 
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Conflincted orders stress out child.
+character_event = {
+	id = HF.25414
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25414
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25414
+		if = {
+			limit = { trait = stressed }
+			random = {
+				chance = 15
+				health = -1.0
+			}
+		}
+		if = {
+			limit = { NOT = { trait = stressed } }
+			random = {
+				chance = 15
+				add_trait = stressed
+			}
+		}
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Child is strong but uncouth.
+character_event = {
+	id = HF.25415
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25415
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25415
+		if = { #First remove looks.
+			limit = { trait = uncouth }
+			change_diplomacy = -2
+			change_intrigue = -2
+		} 
+		else_if = { 
+			limit = { NOR = { trait = uncouth trait = groomed } }
+			add_trait = uncouth
+		}
+		else_if = { 
+			limit = { trait = groomed }
+			remove_trait = groomed
+		}
+
+		if = { #Then add brawn.
+			limit = { trait = robust }
+			health = 0.5 #Safety check, shouldn't fire if already Brawny.
+		} 
+		else_if = { 
+			limit = { NOR = { trait = feeble trait = sturdy trait = robust } }
+			add_trait = robust 
+		} 
+		else_if = { 
+			limit = { trait = feeble }
+			remove_trait = feeble
+		}
+		else_if = { 
+			limit = { trait = sturdy }
+			remove_trait = sturdy
+		}
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Hero tries to make child brave.
+character_event = {
+	id = HF.25416
+	title = EVTTITLEHF25400_CHILDS_BRAVERY
+	desc = EVTDESCHF25416
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+	#Allow it.
+	#Forbid it.
+
+	option = { 
+		name = EVTOPTAHF25416
+		tooltip = {
+			FROM = {
+				random_list = { 
+					25 = { add_trait = brave }
+					60 = { 
+						if = { 
+							limit = { trait = craven } 
+							remove_trait = craven
+						}
+						add_trait = wounded 
+					}
+					15 = { death = { death_reason = death_accident_generic_beast } }
+				} 
+			} 
+		} 
+		hidden_tooltip = { FROM = { character_event = { id = HF.25417 } } }
+		ai_chance = { factor = 100 }
+	} 
+	option = { 
+		name = EVTOPTBHF25416
+		detract_society_currency_minor_effect = yes
+		hidden_tooltip = { FROM = { character_event = { id = HF.25400 } } } #Umbrella again.
+		ai_chance = { factor = 0 }
+	} 
+}
+
+#Child is left in the wilderness, to build character, obviously.
+character_event = {
+	id = HF.25417
+	title = EVTTITLEHF25400_MY_BRAVERY
+	desc = EVTDESCHF25417
+	picture = GFX_evt_mysterious_forest
+	border = GFX_event_normal_frame_war
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25417
+		random_list = { 
+			25 = { 
+				add_trait = brave 
+				hidden_tooltip = { character_event = { id = 38270 } }
+			}
+			60 = { 
+				if = { 
+					limit = { trait = craven } 
+					remove_trait = craven
+					hidden_tooltip = { character_event = { id = 38296 } }
+				}
+				add_trait = wounded 
+			}
+			15 = { death = { death_reason = death_accident_generic_beast } }
+		}
+		ai_chance = { factor = 0 }
+	} 
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Hero tries to train sturdy/feeble child.
+character_event = {
+	id = HF.25418
+	title = EVTTITLEHF25400_CHILDS_SHAPE
+	desc = {
+		text = EVTDESCAHF25418
+		trigger = { 
+			FROM = { 
+				trait = sturdy
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25418
+		trigger = { 
+			FROM = { 
+				trait = feeble
+			}
+		}
+	}
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+	#Allow it.
+	#Forbid it.
+
+	option = { 
+		name = EVTOPTAHF25418
+		custom_tooltip = { text = TT_EVTOPTAHF25418 }
+		hidden_tooltip = { FROM = { character_event = { id = HF.25419 } } }
+		ai_chance = { factor = 100 }
+	} 
+	option = { 
+		name = EVTOPTBHF25418
+		detract_society_currency_minor_effect = yes
+		hidden_tooltip = { FROM = { character_event = { id = HF.25400 } } } #Umbrella again.
+		ai_chance = { factor = 0 }
+	} 
+}
+
+#Child scolded by hero to get in better shape.
+character_event = {
+	id = HF.25419
+	title = EVTTITLEHF25400_MY_SHAPE
+	desc = {
+		text = EVTDESCAHF25419
+		trigger = { 
+			FROM = { 
+				trait = sturdy
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25419
+		trigger = { 
+			FROM = { 
+				trait = feeble
+			}
+		}
+	}
+	picture = GFX_evt_guardian
+	border = GFX_event_normal_frame_war
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	#Child listens
+	#Child ignores.
+
+	option = { 
+		name = EVTOPTAHF25419
+		if = { 
+			limit = { NOT = { trait = stressed } } 
+			random = { chance = 15 add_trait = stressed } 
+		}
+		if = { 
+			limit = { trait = sturdy } 
+			remove_trait = sturdy
+			hidden_tooltip = { FROM = { character_event = { id = HF.25420 days = 50 } } }
+		}
+		if = { 
+			limit = { trait = feeble } 
+			remove_trait = feeble
+			hidden_tooltip = { FROM = { character_event = { id = HF.25421 days = 50 } } }
+		}
+		ai_chance = { 
+			factor = 50 
+			modifier = { 
+				factor = 1.5
+				has_focus = focus_ch_struggle
+			}
+			modifier = { 
+				factor = 1.75
+				has_focus = focus_ed_martial
+			}
+			modifier = { 
+				factor = 1.75
+				trait = diligent
+			}
+		}
+	} 
+	option = { 
+		name = EVTOPTBHF25419
+		hidden_tooltip = { FROM = { character_event = { id = HF.25422 days = 50 } } }
+		ai_chance = { 
+			factor = 50 
+			modifier = { 
+				factor = 1.5
+				trait = slothful
+			}
+			modifier = { 
+				factor = 1.5
+				trait = indolent
+			}
+			modifier = { 
+				factor = 1.5
+				trait = fussy
+			}
+			modifier = { 
+				factor = 1.75
+				trait = sturdy
+				trait = gluttonous
+			}
+			modifier = { 
+				factor = 1.75
+				trait = feeble
+				trait = temperate
+			}
+			modifier = { 
+				factor = 1.25
+				trait = craven
+			}
+		}
+	}
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+#Parent notified that child is no longer Sturdy.
+character_event = {
+	id = HF.25420
+	title = EVTTITLEHF25400_CHILDS_SHAPE
+	desc = EVTDESCAHF25420
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25420
+		if = { 
+			limit = { same_society_as = FROM } 
+			add_society_currency_trivial_effect = yes
+		}
+		ai_chance = { factor = 0 }
+	} 
+}
+
+#Parent notified that child is no longer Feeble.
+character_event = {
+	id = HF.25421
+	title = EVTTITLEHF25400_CHILDS_SHAPE
+	desc = EVTDESCAHF25420
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25420
+		if = { 
+			limit = { same_society_as = FROM } 
+			add_society_currency_trivial_effect = yes
+		}
+		ai_chance = { factor = 0 }
+	} 
+}
+
+#Child is still Sturdy/Feeble.
+character_event = {
+	id = HF.25422
+	title = EVTTITLEHF25400_CHILDS_SHAPE
+	desc = {
+		text = EVTDESCAHF25422
+		trigger = { 
+			FROM = { 
+				trait = sturdy
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25422
+		trigger = { 
+			FROM = { 
+				trait = feeble
+			}
+		}
+	}
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25422
+		if = { 
+			limit = { same_society_as = FROM } 
+			detract_society_currency_tiny_effect = yes
+		}
+		ai_chance = { factor = 0 }
+	} 
+}
+
+#Hero tries to train child.
+character_event = {
+	id = HF.25423
+	title = EVTTITLEHF25400_CHILDS_TRAINING
+	desc = EVTDESCAHF25423
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	trigger = {
+		has_dlc = "Holy Fury"
+		FROM = { 
+			NOT = { age = 20 }
+			NOT = { trait = incapable }
+			society_member_of = event_target:warrior_lodge_to_join
+			same_society_as = ROOT
+		}
+	}
+	#Allow it.
+	#Forbid it.
+
+	option = { 
+		name = EVTOPTAHF25423
+		tooltip = { 
+			FROM = { 
+				if = { 
+					limit = { NOT = { trait = wounded } } 
+					random = { chance = 25 add_trait = wounded } 
+				}
+				add_one_duel_experience_modifier = yes
+			}
+		}
+		hidden_tooltip = { FROM = { character_event = { id = HF.25424 } } }
+		ai_chance = { factor = 100 }
+	} 
+	option = { 
+		name = EVTOPTBHF25423
+		detract_society_currency_minor_effect = yes
+		hidden_tooltip = { FROM = { character_event = { id = HF.25400 } } } #Umbrella again.
+		ai_chance = { factor = 0 }
+	} 
+}
+
+#Child is given tough training.
+character_event = {
+	id = HF.25424
+	title = EVTTITLEHF25400_MY_TRAINING
+	desc = EVTDESCHF25424
+	picture = GFX_evt_child_sword
+	border = GFX_event_normal_frame_war
+	portrait = event_target:child_hero_mentor
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25424
+		if = { 
+			limit = { NOT = { trait = wounded } } 
+			random = { chance = 25 add_trait = wounded } 
+		}
+		add_one_duel_experience_modifier = yes
+		ai_chance = { factor = 0 }
+	} 
+	after = { hidden_tooltip = { character_event = { id = HF.25400 } } } #Umbrella again.
+}
+
+###################################################################################
+
+# The child was not interested in being a warrior.
+
+character_event = {
+	id = HF.25425
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = {
+		text = EVTDESCAHF25425
+		trigger = { 
+			ROOT = { 
+				has_character_flag = flag_prospective_child_warrior_is_lazy
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25425
+		trigger = { 
+			ROOT = { 
+				has_character_flag = flag_prospective_child_warrior_is_scholar
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCCHF25425
+		trigger = { 
+			ROOT = { 
+				has_character_flag = flag_prospective_child_warrior_is_lady
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCDHF25425
+		trigger = { 
+			ROOT = { 
+				has_character_flag = flag_prospective_child_warrior_is_coward
+			}
+		}
+	}
+
+	picture = GFX_evt_child_reading
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+
+	is_triggered_only = yes
+
+	immediate = {
+		#First determine why is that.
+		random_list = {
+			20 = {
+				trigger = {
+					NOR = {
+						trait = diligent
+						trait = conscientious
+					}
+				}
+				modifier = {
+					factor = 2
+					trait = slothful
+				}
+				modifier = {
+					factor = 2
+					trait = indolent
+				}
+				set_character_flag = flag_prospective_child_warrior_is_lazy
+			}
+			20 = {
+				modifier = {
+					factor = 2
+					has_focus = focus_ed_learning
+				}
+				modifier = {
+					factor = 2
+					trait = diligent
+				}
+				modifier = {
+					factor = 2
+					trait = conscientious
+				}
+				set_character_flag = flag_prospective_child_warrior_is_scholar
+			}
+			20 = {
+				trigger = {
+					OR = {
+						AND = { 
+							is_female = yes
+							NOT = { has_religion_feature = religion_matriarchal }
+						}
+						AND = { 
+							is_female = no
+							has_religion_feature = religion_matriarchal
+						}
+					}
+				}
+				modifier = {
+					factor = 2
+					trait = groomed
+				}
+				modifier = {
+					factor = 2
+					trait = proud
+				}
+				modifier = {
+					factor = 2
+					trait = fussy
+				}
+				modifier = {
+					factor = 0.5
+					trait = uncouth
+				}
+				set_character_flag = flag_prospective_child_warrior_is_lady
+			}
+			20 = {
+				modifier = {
+					factor = 2.5
+					trait = timid
+				}
+				modifier = {
+					factor = 3
+					trait = craven
+				}
+				set_character_flag = flag_prospective_child_warrior_is_coward
+			}
+
+		}
+	} 
+
+	#Complain.
+	#Endure.
+
+	option = { 
+		name = EVTOPTAHF25425
+		hidden_tooltip = { event_target:recruiting_parent = { character_event = { id = HF.25426 } } } #Inducting Parent receives complaint.
+		ai_chance = { factor = 100 }
+	}
+	option = { 
+		name = EVTOPTBHF25425
+		if = { 
+			limit = { NOT = { trait = stressed } } 
+			random = { chance = 25 add_trait = stressed } 
+		}
+		ai_chance = { factor = 0 }
+	}
+}
+
+# Parent receives complaint.
+character_event = {
+	id = HF.25426
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = {
+		text = EVTDESCAHF25426
+		trigger = { 
+			FROM = { 
+				has_character_flag = flag_prospective_child_warrior_is_lazy
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCBHF25426
+		trigger = { 
+			FROM = { 
+				has_character_flag = flag_prospective_child_warrior_is_scholar
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCCHF25426
+		trigger = { 
+			FROM = { 
+				has_character_flag = flag_prospective_child_warrior_is_lady
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCDHF25426
+		trigger = { 
+			FROM = { 
+				has_character_flag = flag_prospective_child_warrior_is_coward
+			}
+		}
+	}
+
+	picture = GFX_evt_child_reading
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+
+	is_triggered_only = yes
+
+	option = { #But thou must.
+		name = EVTOPTAHF25426
+		custom_tooltip = { text = TT_EVTOPTAHF25426 }
+		hidden_tooltip = { FROM = { character_event = { id = HF.25427 } } }
+		ai_chance = { factor = 0 }
+	}
+
+	option = { #Let him go.
+		name = EVTOPTBHF25426
+		trigger = { NOT = { trait = stubborn } } 
+		FROM = { 
+			leave_society = yes 
+			set_character_flag = flag_child_abandoned_lodge
+		} 
+		tiered_prestige_negative_effect = yes
+		detract_society_currency_minor_effect = yes
+		ai_chance = { factor = 0 }
+	} 
+}
+# Son receives denial of parent.
+character_event = {
+	id = HF.25427
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25427
+	picture = GFX_evt_child_reading
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	#Child endures, becomes depressed.
+	#Child flees home, never to return.
+	#Child commits suicide.
+
+	immediate = { 
+		if = { 
+			limit = { 
+				any_independent_ruler = { 
+					is_within_diplo_range = FROM
+					NOR = { 
+						character = ROOT 
+						character = FROM
+						same_society_as = FROM
+						same_society_as = ROOT
+					}
+				}
+			}
+			random_independent_ruler = { 
+				limit = { 
+					is_within_diplo_range = FROM
+					NOR = { 
+						character = ROOT 
+						character = FROM
+						same_society_as = FROM
+						same_society_as = ROOT
+					}
+				}
+				preferred_limit = {
+					is_rival = FROM
+				}
+				preferred_limit = {
+					religion = ROOT
+					culture = ROOT
+				}
+				preferred_limit = {
+					religion = ROOT
+				}
+				save_event_target_as = fleeing_target
+			}
+		}
+	}
+	option = { 
+		name = EVTOPTAHF25427
+		trigger = { NOT = { trait = depressed } }
+		add_trait = depressed
+		hidden_tooltip = { FROM = { character_event = { id = HF.25428 days = 25 } } }
+		clr_character_flag = flag_prospective_child_warrior_is_lazy
+		clr_character_flag = flag_prospective_child_warrior_is_scholar
+		clr_character_flag = flag_prospective_child_warrior_is_lady
+		clr_character_flag = flag_prospective_child_warrior_is_coward
+		ai_chance = { factor = 40 }
+	}
+	option = { 
+		name = EVTOPTBHF25427
+		trigger = { 
+			is_ruler = no 
+			host = { character = FROM } 
+			event_target:fleeing_target = { is_alive = yes } 
+		} 
+		tooltip = { 
+			FROM = { 
+				show_scope_change = no 
+				transfer_scaled_wealth = { to = ROOT value = 0.5 min = 100 max = 250 } 
+			} 
+		} 
+		hidden_tooltip = { FROM = { character_event = { id = HF.25429 } } }
+		hidden_tooltip = { 
+			move_character = event_target:fleeing_target
+			set_character_flag = no_court_invites
+			leave_society = yes 
+			set_character_flag = flag_child_abandoned_lodge
+			character_event = { id = HF.25431 days = 450 random = 250 } #Whatever happened to X?
+		}
+		ai_chance = { 
+			factor = 50
+		}
+	}
+	option = { 
+		name = EVTOPTCHF25427
+		trigger = { age = 16 }
+		death = { death_reason = death_suicide }
+		hidden_tooltip = { FROM = { character_event = { id = HF.25430 } } }
+		ai_chance = { factor = 10 }
+	}
+}
+
+#Parent notified of depression.
+character_event = {
+	id = HF.25428
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25428
+	picture = GFX_evt_child_reading
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = {
+			text = EVTOPTAHF25428_A
+			trigger = {
+				trait = kind
+			}
+		}
+		name = {
+			text = EVTOPTAHF25428_B
+			trigger = {
+				NOT = { trait = kind }
+			}
+		}
+		if = { 
+			limit = { 
+				trait = kind 
+				NOT = { trait = stressed }
+			} 
+			add_trait = stressed
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Parent notified of escape.
+character_event = {
+	id = HF.25429
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25429
+	picture = GFX_evt_spymaster
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = {
+			text = EVTOPTAHF25429_A
+			trigger = {
+				trait = kind
+			}
+		}
+		name = {
+			text = EVTOPTAHF25429_B
+			trigger = {
+				NOT = { trait = kind }
+			}
+		}
+		name = {
+			text = EVTOPTAHF25429_C
+			trigger = {
+				is_evil_trigger = yes
+			}
+		}
+		transfer_scaled_wealth = { to = FROM value = 0.5 min = 100 max = 250 } 
+		if = { 
+			limit = { 
+				trait = kind 
+				NOT = { trait = stressed }
+			} 
+			add_trait = stressed
+		}
+		if = { 
+			limit = { 
+				is_evil_trigger = yes
+				NOR = { 
+					is_rival = FROM 
+					num_of_rivals = 3
+				}
+			} 
+			add_rival = FROM
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Parent notified of suicide.
+character_event = {
+	id = HF.25430
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25430
+	picture = GFX_evt_spymaster
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = {
+			text = EVTOPTAHF25430_A
+			trigger = {
+				trait = kind
+			}
+		}
+		name = {
+			text = EVTOPTAHF25430_B
+			trigger = {
+				NOT = { trait = kind }
+			}
+		}
+		name = {
+			text = EVTOPTAHF25430_C
+			trigger = {
+				is_evil_trigger = yes
+			}
+		}
+		if = { 
+			limit = { 
+				trait = kind 
+				NOT = { trait = depressed }
+			} 
+			add_trait = depressed
+		}
+		ai_chance = { factor = 100 }
+	}
+}
+
+#Child's random future abroad. (courtier event)
+character_event = {
+	id = HF.25431
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	trigger = { 
+		is_ruler = no
+		NOR = {
+			top_liege = { character = FROMFROM }
+			trait = incapable
+		}
+	}
+
+	immediate = { 
+		if = {
+			limit = {
+				has_character_flag = flag_prospective_child_warrior_is_lazy
+			}
+			#Child has become debauched hedonist
+			change_martial = -3
+			add_trait = sturdy
+			add_trait = slothful
+			add_trait = gluttonous
+			add_trait = drunkard
+			FROMFROM = { character_event = { id = HF.25432 } } #Inform parent of disgrace.
+			if = { 
+				limit = { has_nickname = no }
+				random_list = {  
+					25 = { give_nickname = nick_the_merry }
+					25 = { give_nickname = nick_the_drunkard }
+					25 = { give_nickname = nick_the_fat }
+					50 = { }
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_character_flag = flag_prospective_child_warrior_is_scholar
+			}
+			#Child has become frail bookworm
+			change_martial = -3
+			add_trait = feeble
+			add_trait = erudite
+			add_trait = craven
+			add_trait = uncouth
+			FROMFROM = { character_event = { id = HF.25433 } } #Inform parent of disgrace.
+			if = { 
+				limit = { has_nickname = no }
+				random_list = {  
+					25 = { give_nickname = nick_the_frail }
+					25 = { give_nickname = nick_the_recluse }
+					25 = { give_nickname = nick_the_wise }
+					50 = { }
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_character_flag = flag_prospective_child_warrior_is_lady
+			}
+			#Child has become vapid courtier
+			change_martial = -3
+			add_trait = dull
+			add_trait = proud
+			add_trait = content
+			add_trait = groomed
+			FROMFROM = { character_event = { id = HF.25434 } } #Inform parent of disgrace.
+			if = { 
+				limit = { has_nickname = no }
+				random_list = {  
+					25 = { give_nickname = nick_the_frail }
+					25 = { give_nickname = nick_the_fair }
+					25 = { give_nickname = nick_the_gracious }
+					50 = { }
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_character_flag = flag_prospective_child_warrior_is_coward
+			}
+			#Child has become paranoid loner
+			change_martial = -3
+			add_trait = paranoid
+			add_trait = craven
+			add_trait = uncouth
+			add_trait = shy
+			FROMFROM = { character_event = { id = HF.25435 } } #Inform parent of disgrace.
+			if = { 
+				limit = { has_nickname = no }
+				random_list = {  
+					25 = { give_nickname = nick_the_shadow }
+					25 = { give_nickname = nick_the_whisperer }
+					25 = { give_nickname = nick_the_twitchy }
+					50 = { }
+				}
+			}
+		}
+	}
+}
+
+#Parent notified of lazy son. 
+character_event = {
+	id = HF.25432
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25432
+	picture = GFX_evt_spymaster
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25432
+		ai_chance = { factor = 100 }
+	}
+}
+#Parent notified of bookworm son. 
+character_event = {
+	id = HF.25433
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25433
+	picture = GFX_evt_spymaster
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25433
+		ai_chance = { factor = 100 }
+	}
+}
+#Parent notified of vapid son. 
+character_event = {
+	id = HF.25434
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25434
+	picture = GFX_evt_spymaster
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25434
+		ai_chance = { factor = 100 }
+	}
+}
+#Parent notified of coward son. 
+character_event = {
+	id = HF.25435
+	title = EVTTITLEHF25425_NOT_A_FIGHTER
+	desc = EVTDESCAHF25435
+	picture = GFX_evt_spymaster
+	border = GFX_event_normal_frame_war
+	hide_new = yes
+	portrait = FROM
+
+	is_triggered_only = yes
+
+	option = { 
+		name = EVTOPTAHF25435
+		ai_chance = { factor = 100 }
+	}
+}

@@ -405,8 +405,9 @@ religion_nature = {
 	religion_cosmopolitan = {
 		picture = GFX_religion_feature_cosmopolitan
 		trigger = {
-			NOT = {
+			NOR = {
 				has_selected_religion_feature = religion_feature_rust_cultist #Conflicting
+				has_selected_religion_feature = religion_feature_espiritista #Redundant
 			}
 		}
 		effect = {
@@ -922,12 +923,12 @@ religion_doctrine = {
 			}
 		}
 		effect = {
-			custom_tooltip = { text = tooltip_religion_feature_rivermovement }
+			custom_tooltip = { text = tooltip_religion_feature_overseas_county_conquest }
 			custom_tooltip = { text = tooltip_religion_feature_ship_maintenance }
 			custom_tooltip = { text = tooltip_religion_feature_seafaring }
 			hidden_tooltip = {
 				set_seafaring = yes
-				set_allow_rivermovement = yes
+				#set_allow_rivermovement = yes
 				if = {
 					limit = { #Unlock looting for religions which do not have it already.
 						FROM = { 
@@ -986,7 +987,7 @@ religion_doctrine = {
 			NOR = {
 				has_selected_religion_feature = religion_peaceful
 				has_selected_religion_feature = religion_defensive
-				has_selected_religion_feature = religion_feature_thelemic #Redundant
+				has_selected_religion_feature = religion_feature_thelemic
 			}
 		}
 		effect = {
@@ -1029,9 +1030,8 @@ religion_doctrine = {
 	religion_animistic = {
 		picture = GFX_religion_feature_animistic
 		potential = {
-			NOR = {
-				religion = celtic_pagan #Redundant
-				religion = celtic_pagan_reformed #Redundant
+			NOT = {
+				religion_group = afro_syncretic #redundant
 			}
 		}
 		effect = {
@@ -1062,11 +1062,12 @@ religion_doctrine = {
 			}
 		}
 	}
-	religion_beatification = {
+	religion_beatification = { 
 		picture = GFX_religion_feature_beatification
 		trigger = {
 			NOR = {
 				has_selected_religion_feature = religion_no_leader
+				has_selected_religion_feature = religion_feature_espiritista #redundant
 				religion_group = christian #Random World redundancy.
 			}
 		}
@@ -1154,6 +1155,7 @@ religion_doctrine = {
 				has_selected_religion_feature = religion_dogmatic
 				has_selected_religion_feature = religion_meritocratic
 				has_selected_religion_feature = religion_jizya
+				has_selected_religion_feature = religion_no_leader
 			}
 		}
 		effect = {
@@ -1253,6 +1255,7 @@ religion_doctrine = {
 			factor = 50
 		}
 	}
+	
 	religion_feature_celtic = { #Basically the same as Baltic. (We should somehow roll the whole papal succession thing into this if we can, I think.)
 		picture = GFX_religion_feature_celtic
 		potential = {
@@ -1274,6 +1277,50 @@ religion_doctrine = {
 			hidden_tooltip = { 
 				set_hard_to_convert = yes
 			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+	}
+
+	religion_feature_espiritista = { #Combines beatification with cosmopolitan
+		picture = GFX_religion_feature_west_african
+		potential = {
+			has_game_started = yes
+			religion = espiritista_reformed
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+		trigger = {
+			religion = espiritista_reformed
+			NOR = {
+				has_selected_religion_feature = religion_no_leader #prevents sainthood from working properly
+				has_selected_religion_feature = religion_beatification
+				has_selected_religion_feature = religion_cosmopolitan
+			}
+		}
+		effect = {
+			custom_tooltip = { text = tooltip_religion_feature_beatification }
+			custom_tooltip = { text = tooltip_religion_feature_eldership }
+			custom_tooltip = { text = tooltip_religion_feature_cosmopolitan_2 }
+			custom_tooltip = { text = tooltip_religion_feature_crusade }
+			custom_tooltip = { text = tooltip_religion_feature_impotent }
+			custom_tooltip = { text = tooltip_religion_feature_cosmopolitan_1 }
+			hidden_tooltip = {
+				set_pacifist = no
+				set_peace_piety_gain = 0
+				set_raised_vassal_opinion_loss = yes
+				set_peace_prestige_loss = no
+				set_allow_looting = yes
+				set_hard_to_convert = no
+				set_piety_loss_for_attacking_same_religion = no
+				set_convert_other_groups = 0
+				set_convert_same_group = 0
+				set_ai_aggression = 0.5
+			}
+		}
+
 		}
 		ai_will_do = {
 			factor = 50
@@ -1379,9 +1426,11 @@ religion_leadership = {
 			has_game_started = yes
 		}
 		trigger = {
-			NOT = {
+			NOR = {
 				has_selected_religion_feature = religion_dogmatic
+				has_selected_religion_feature = religion_feature_rust_cultist
 				has_selected_religion_feature = religion_beatification
+				has_selected_religion_feature = religion_feature_espiritista
 			}
 		}
 		effect = {

@@ -3886,6 +3886,8 @@ character_event = {
     border = GFX_event_normal_frame_war
     picture = GFX_evt_camaraderie
     desc = EVTDESC_HF_51004
+
+    portrait = event_target:dead_warrior
     
     trigger = {
     	OR = {
@@ -3939,27 +3941,30 @@ character_event = {
     {
         name = EVTOPTA_HF_51004 
         set_character_flag = crucible_steel_axe
+        show_portrait = event_target:weapon_forger
     }
 
     option = # [dead_warrior.GetFirstName] would have wanted a sword in [dead_warrior.GetHerHis] name.
     {
         name = EVTOPTB_HF_51004 
         set_character_flag = crucible_steel_sword
+        show_portrait = event_target:weapon_forger
     }
 
     option = # A mace to crush both my and the old enemies of [dead_warrior.GetFirstName].
     {
         name = EVTOPTC_HF_51004 
         set_character_flag = crucible_steel_mace
+        show_portrait = event_target:weapon_forger
     }
 
     after = {
     	clr_character_flag = decided_to_kidnap
     	clr_character_flag = decided_to_dig_up
     
-    	hidden_tooltip = {
+    	hidden_effect = {
     		random_list= {
-    			50 = { #Bad stuff!
+    			20 = { #Bad stuff!
     				random_list = {
     					30 = {
     						character_event = { id = HF.51005 days = 65 } #Weapon shatters on first use
@@ -3968,19 +3973,17 @@ character_event = {
     						character_event = { id = HF.51006 days = 65 } #Weapon vanishes
     					}
     					30 = {
-    							modifier = {
-    								NOR = {
-    									any_courtier = {
-    										is_adult = no
-    									}
-    								}
-    							factor = 0
-    							}    							
-    							character_event = { id = HF.51007 days = 65 } #Child accident
-    						}
-    					}
+							trigger = {
+								any_courtier = {
+									is_adult = no
+									NOT = { is_inaccessible_or_incapable_trigger = yes }
+								}
+							} 							
+							character_event = { id = HF.51007 days = 65 } #Child accident
+						}
     				}
-    			50 = { #Good stuff!
+    			}
+    			80 = { #Good stuff!
     				random_list = {
     					30 = {
     						character_event = { id = HF.51008 days = 65 } #Good weapon
@@ -4006,12 +4009,18 @@ character_event = {
     picture = GFX_evt_duel_scene
     desc =  EVTDESC_HF_51005
 
+    portrait = event_target:dead_warrior
+
     trigger = {
-    	NOR = {
-    		trait = incapable
-    		prisoner = yes
-    	}
+    	NOT = { is_inaccessible_or_incapable_trigger = yes }
     }
+    fail_trigger_effect = {
+		#Try again later...
+		character_event = {
+			id = HF.51011 # random list of outcomes again
+			days = 65
+		}
+	}
 
     immediate = {
     	#In case the previous weapon forger is dead, get a new one
@@ -4082,12 +4091,18 @@ character_event = {
     picture = GFX_evt_duel_scene
     desc =  EVTDESC_HF_51006
 
+    portrait = event_target:dead_warrior
+
     trigger = {
-    	NOR = {
-    		trait = incapable
-    		prisoner = yes
-    	}
+    	NOT = { is_inaccessible_or_incapable_trigger = yes }
     }
+    fail_trigger_effect = {
+		#Try again later...
+		character_event = {
+			id = HF.51011 # random list of outcomes again
+			days = 65
+		}
+	}
 
     immediate = {
     	#In case the previous weapon forger is dead, get a new one
@@ -4212,16 +4227,22 @@ character_event = {
     picture = GFX_evt_child_play
     desc =  EVTDESC_HF_51007
 
+    portrait = event_target:dead_warrior
+
     trigger = {
-    	NOR = {
-    		trait = incapable
-    		prisoner = yes
-    	}
+    	NOT = { is_inaccessible_or_incapable_trigger = yes }
     	any_courtier = {
     		is_adult = no
-    		block_general_event_trigger = no
+    		NOT = { is_inaccessible_or_incapable_trigger = yes }
     	}
     }
+    fail_trigger_effect = {
+		#Try again later...
+		character_event = {
+			id = HF.51011 # random list of outcomes again
+			days = 65
+		}
+	}
 
     immediate = {
     	#In case the previous weapon forger is dead, get a new one
@@ -4250,39 +4271,33 @@ character_event = {
 	   	any_courtier = {
 	   		limit = {
 	    		is_adult = no
-	    		block_general_event_trigger = no
+	    		NOT = { is_inaccessible_or_incapable_trigger = yes }
 	    	}
     		save_event_target_as = unfortunate_child
     	}
 	}
 
-    option = # This is a cursed weapon that thirsts for blood! Get rid of it!
-    {
+    option = { # This is a cursed weapon that thirsts for blood! Get rid of it!
         name = EVTOPTA_HF_51007
+        event_target:unfortunate_child = { show_scope_change = no add_maimed_trait_effect = yes }
     }
 
-    option = # The weapon is not what injured the child. The blame is on [unfortunate_child.GetFirstName]
-    {
-        name = EVTOPTB_HF_51007 
+    option = { # The weapon is not what injured the child. The blame is on [unfortunate_child.GetFirstName]
+        name = EVTOPTB_HF_51007
 
         if = {
-           limit = {
-              	has_character_flag = crucible_steel_axe 
-            }
+           limit = { has_character_flag = crucible_steel_axe }
             add_artifact = axe_whispering
         }
         if = {
-            limit = {
-              	has_character_flag = crucible_steel_sword 
-            }
+            limit = { has_character_flag = crucible_steel_sword }
             add_artifact = sword_whispering
         }
         if = {
-            limit = {
-              	has_character_flag = crucible_steel_mace 
-              	}
+            limit = { has_character_flag = crucible_steel_mace }
         	add_artifact = mace_whispering
         }
+        event_target:unfortunate_child = { show_scope_change = no add_maimed_trait_effect = yes }
 
         reverse_opinion = {
 			modifier = opinion_horrified
@@ -4294,7 +4309,7 @@ character_event = {
 
 
     after = {
-    	event_target:unfortunate_child = { add_maimed_trait_effect = yes }
+    	#event_target:unfortunate_child = { add_maimed_trait_effect = yes } #Moved into options, because "after" does not show portraits
 
     	clr_character_flag = crucible_steel_axe
     	clr_character_flag = crucible_steel_sword
@@ -4310,12 +4325,18 @@ character_event = {
     picture = GFX_evt_armory
     desc =  EVTDESC_HF_51008
 
+    portrait = event_target:dead_warrior
+
     trigger = {
-    	NOR = {
-    		trait = incapable
-    		prisoner = yes
-    	}
+    	NOT = { is_inaccessible_or_incapable_trigger = yes }
     }
+    fail_trigger_effect = {
+		#Try again later...
+		character_event = {
+			id = HF.51011 # random list of outcomes again
+			days = 65
+		}
+	}
 
     immediate = {
     	#In case the previous weapon forger is dead, get a new one
@@ -4402,12 +4423,18 @@ character_event = {
     picture = GFX_evt_duel_scene
     desc =  EVTDESC_HF_51009
 
+    portrait = event_target:dead_warrior
+
     trigger = {
-    	NOR = {
-    		trait = incapable
-    		prisoner = yes
-    	}
+    	NOT = { is_inaccessible_or_incapable_trigger = yes }
     }
+    fail_trigger_effect = {
+		#Try again later...
+		character_event = {
+			id = HF.51011 # random list of outcomes again
+			days = 65
+		}
+	}
 
     immediate = {
     	#In case the previous weapon forger is dead, get a new one
@@ -4479,12 +4506,18 @@ character_event = {
     picture = GFX_evt_duel_scene
     desc =  EVTDESC_HF_51010
 
+    portrait = event_target:dead_warrior
+
     trigger = {
-    	NOR = {
-    		trait = incapable
-    		prisoner = yes
-    	}
+    	NOT = { is_inaccessible_or_incapable_trigger = yes }
     }
+    fail_trigger_effect = {
+		#Try again later...
+		character_event = {
+			id = HF.51011 # random list of outcomes again
+			days = 65
+		}
+	}
 
     immediate = {
     	#In case the previous weapon forger is dead, get a new one
@@ -4545,6 +4578,51 @@ character_event = {
     	clr_character_flag = crucible_steel_axe
     	clr_character_flag = crucible_steel_sword
     	clr_character_flag = crucible_steel_mace
+    }
+}
+
+
+# Fallback/Gating event for the reward, in case you failed the inaccessible trigger or are in prison...
+character_event = {
+    id = HF.51011
+    is_triggered_only = yes
+    hide_window = yes
+    
+    immediate = {
+    	random_list = {
+    		20 = { #Bad stuff!
+				random_list = {
+					30 = {
+						character_event = { id = HF.51005 } #Weapon shatters on first use
+					}
+					30 = {
+						character_event = { id = HF.51006 } #Weapon vanishes
+					}
+					3000 = {
+						trigger = {
+							any_courtier = {
+								is_adult = no
+								NOT = { is_inaccessible_or_incapable_trigger = yes }
+							}
+						} 							
+						character_event = { id = HF.51007 } #Child accident
+					}
+				}
+			}	
+			80 = { #Good stuff!
+				random_list = {
+					30 = {
+						character_event = { id = HF.51008 } #Good weapon
+					}
+					30 = {
+						character_event = { id = HF.51009 } #Soulbound
+					}
+					30 = {
+						character_event = { id = HF.51010 } #Legendary weapon
+					}
+				}
+			}
+    	}
     }
 }
 

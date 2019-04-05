@@ -336,3 +336,137 @@ character_event = {
 		hidden_tooltip = { character_event = { id = SoA.5090 days = 10 } } # Stay a little longer then go home
 	}
 }
+
+#Falling Star Exposed - Start of Chain
+character_event = { #Find a drunkard across the street from the cathedral
+	id = fallingstar.9
+	desc = EVTDESC_fallingstar_9
+	picture = GFX_evt_drunk
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_fallingstar_9
+		trigger = {
+			NOT = { trait = zealous }
+		}
+		custom_tooltip = { text = EVTOPTA_falling_star_9_tt }
+		wealth = -5
+		hidden_tooltip = { character_event = { id = fallingstar.10 } } # Enter the church...
+	}
+	option = {
+		name = EVTOPTB_fallingstar_9
+		custom_tooltip = { text = EVTOPTB_falling_star_9_tt }
+		hidden_tooltip = { character_event = { id = SoA.5090 days = 10 } } # Stay a little longer then go home
+		#Does nothing
+	}
+}
+
+#Falling Star Exposed - Enter the Church
+character_event = { #Enter the church and proceed underground
+	id = fallingstar.10
+	desc = EVTDESC_fallingstar_10
+	picture = GFX_evt_stone_church
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_fallingstar_10
+		custom_tooltip = { text = EVTOPTA_falling_star_10_tt }
+		hidden_tooltip = { narrative_event = { id = fallingstar.11 } } # Go underground...
+	}
+	
+	option = {
+		name = EVTOPTB_fallingstar_10
+		custom_tooltip = { text = EVTOPTB_falling_star_10_tt }
+		add_trait = stressed
+		
+		clr_character_flag = good_pilgrimage
+		clr_character_flag = abominable_pilgrimage
+		set_character_flag = bad_pilgrimage
+
+		hidden_tooltip = { character_event = { id = SoA.5090 days = 10 } } # Stay a little longer then go home
+	}
+}
+
+#Falling Star Exposed - Go beneath the church, satellite found. (End of event chain)
+narrative_event = {
+	id = fallingstar.11
+	title = EVTTITLE_fallingstar_11
+	desc = EVTDESC_fallingstar_11
+	picture = GFX_evt_great_schism
+	border = GFX_event_narrative_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = { #Convert to Moravianism on the spot
+		name = EVTOPTA_fallingstar_11
+		custom_tooltip = { text = EVTOPTA_fallingstar_11_tt }
+		hidden_tooltip = {
+			religion = moravian
+			remove_trait = cynical
+			add_trait = zealous
+			falling_star = { religion_authority = { modifier = falling_star_exposed } } #Falling Star MA tanks
+			moravian = { religion_authority = { modifier = rise_of_moravian } } #Moravian MA soars
+		
+			clr_character_flag = abominable_pilgrimage
+			clr_character_flag = bad_pilgrimage
+			set_character_flag = good_pilgrimage
+			
+			narrative_event = { id = fallingstar.12 days = 1 } #Notifies world of this happening
+			character_event = { id = SoA.5090 days = 10 } # Stay a little longer then go home
+		}
+	}
+	
+	option = { #Keep it secret!
+		name = EVTOPTB_fallingstar_11
+		custom_tooltip = { text = EVTOPTB_falling_star_11_tt }
+		add_trait = cynical
+		add_trait = stressed
+		add_trait = depressed
+		
+		clr_character_flag = good_pilgrimage
+		clr_character_flag = bad_pilgrimage
+		set_character_flag = abominable_pilgrimage
+		
+		hidden_tooltip = { character_event = { id = SoA.5090 days = 10 } } # Stay a little longer then go home
+	}
+}
+
+#Falling Star Exposed - World Notified
+narrative_event = {
+	id = fallingstar.12
+	title = EVTTITLE_fallingstar_12
+	desc = EVTDESC_fallingstar_12
+	picture = GFX_evt_great_schism
+	border = GFX_event_narrative_frame_religion
+	religion_group = christian
+	is_triggered_only = yes
+	major = yes
+
+	option = { #Moravians very happy
+		name = EVTOPTA_fallingstar_12
+		trigger = {
+			religion = moravian
+		}
+	}
+	
+	option = { #Falling Star horrified
+		name = EVTOPTB_fallingstar_12
+		trigger = {
+			religion = falling_star
+		}
+	}
+	
+	option = { #Everyone else merely interested
+		name = EVTOPTC_fallingstar_12
+		trigger = {
+			NOR = {
+				religion = moravian
+				religion = falling_star
+			}
+		}
+	}
+}

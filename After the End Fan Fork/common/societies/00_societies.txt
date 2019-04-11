@@ -2941,12 +2941,19 @@ banking_society = {
 				is_landed = yes
 				is_patrician = yes
 			}
+			is_tribal = no
+			is_nomadic = no
+			is_theocracy = no
 		}
 		NOT = { trait = incapable }
 		prisoner = no
 		OR = {
 			religion = consumerist
 			religion_group = jewish_group
+			AND = {
+				religion_group = pagan_group
+				has_religion_feature = religion_jizya
+			}
 			is_patrician = yes
 			stewardship = 10
 			trait = greedy
@@ -2955,6 +2962,7 @@ banking_society = {
 		NOR = {
 			is_nomadic = yes
 			is_tribal = yes
+			is_theocracy = yes
 		}
 		hidden_trigger = { mercenary = no }
 		age = 16
@@ -2967,26 +2975,45 @@ banking_society = {
 
 	show_society = {
 		OR = {
-			controls_religion = no			# any secular ruler
 			religion_group = oldworld		# Americanists and Consumerists okay with moneylending
-			religion_group = pagan_group	# reformed pagans also okay with it
+			religion_group = jewish
+			AND = {
+				religion_group = pagan_group
+				has_religion_feature = religion_jizya
+			}
 		}
 		NOT = { has_landed_title = d_electoral_college }
 	}
 	
 	potential = {
-		age = 16
-		NOT = { trait = incapable }
-		prisoner = no
 		OR = {
-			controls_religion = no			# any secular ruler
-			religion_group = oldworld		# Americanists and Consumerists okay with moneylending
-			religion_group = pagan_group	# reformed pagans also okay with it
+			is_landed = yes
+			is_patrician = yes
 		}
+		NOR = {
+			is_nomadic = yes
+			is_tribal = yes
+			is_theocracy = yes
+		}
+		OR = {
+			religion = consumerist
+			religion_group = jewish_group
+			AND = {
+				religion_group = pagan_group
+				has_religion_feature = religion_jizya
+			}
+			is_patrician = yes
+			stewardship = 10
+			trait = greedy
+			trait = cynical
+		}
+		NOR = {
+			is_nomadic = yes
+			is_tribal = yes
+			is_theocracy = yes
+		}
+		mercenary = no
 		NOT = { has_landed_title = d_electoral_college }
-		is_tribal = no
-		is_nomadic = no
-		NOT = { has_character_flag = loan_taken }
 	}
 	
 	society_rank = {
@@ -10329,7 +10356,7 @@ warrior_lodge_celtic = {
 			prisoner = no
 		}
 		OR = {
-			religion_openly_celtic_or_reformed_trigger = yes
+			religion_openly_in_celtic_subgroup_trigger = yes
 			AND = {
 				custom_tooltip = {
 					text = society_has_at_least_10_members_tt
@@ -10348,20 +10375,20 @@ warrior_lodge_celtic = {
 	show_society = {
 		OR = {
 			#You are this religion: will show only this lodge (the other "show_society"'s will make sure)
-			religion_openly_celtic_or_reformed_trigger = yes	
+			religion_openly_in_celtic_subgroup_trigger = yes	
 			AND = {
 				#You are of a religion that doesn't match *any* warrior lodge
 				has_religion_matching_available_warrior_lodge_trigger = no
 				
 				OR = {
 					#You have neighbors, etc, of the correct religion...
-					any_vassal = { religion_openly_celtic_or_reformed_trigger = yes }
-					any_liege = { religion_openly_celtic_or_reformed_trigger = yes }
-					any_neighbor_independent_ruler = { religion_openly_celtic_or_reformed_trigger = yes }
+					any_vassal = { religion_openly_in_celtic_subgroup_trigger = yes }
+					any_liege = { religion_openly_in_celtic_subgroup_trigger = yes }
+					any_neighbor_independent_ruler = { religion_openly_in_celtic_subgroup_trigger = yes }
 				}
 			}
 			NOT = { #Hide if: you don't have a religion that corresponds to this lodge, but there is another society available to you already
-				religion_openly_celtic_or_reformed_trigger = no
+				religion_openly_in_celtic_subgroup_trigger = no
 				has_religion_matching_available_warrior_lodge_trigger = yes
 			}
 			#Always show if: You are already a member. Duh.
@@ -10372,9 +10399,9 @@ warrior_lodge_celtic = {
 
 	potential = { #if you change religion or become zealous while NOT pagan, you are kicked out
 		OR = {
-			religion_openly_celtic_or_reformed_trigger = yes
+			religion_openly_in_celtic_subgroup_trigger = yes
 			AND = {
-				religion_openly_celtic_or_reformed_trigger = no
+				religion_openly_in_celtic_subgroup_trigger = no
 				NOT = { trait = zealous }
 			}
 		}
@@ -11507,8 +11534,8 @@ warrior_lodge_rust_cultist = {
 		OR = {
 			religion_openly_rust_cultist_or_reformed_trigger = yes
 			AND = {
-				NOT = { religion_openly_rust_cultist_or_reformed_trigger = yes }
-				NOT = { religion_openly_rust_cultist_or_reformed_trigger = yes }
+				religion_openly_rust_cultist_or_reformed_trigger = no
+				NOT = { trait = zealous }
 			}
 		}
 	}
@@ -12028,10 +12055,7 @@ is_adult = yes
 			prisoner = no
 		}
 		OR = {
-			religion = americanist
-			religion = hamiltonian
-			religion = jeffersonian
-			religion = libertarian
+			religion_openly_americanist_or_heresy_trigger = yes
 			AND = {
 				custom_tooltip = {
 					text = society_has_at_least_10_members_tt
@@ -12050,10 +12074,7 @@ is_adult = yes
 	show_society = {
 		OR = {
 			#You are this religion: will show only this lodge (the other "show_society"'s will make sure)
-			religion = americanist
-			religion = hamiltonian
-			religion = jeffersonian
-			religion = libertarian
+			religion_openly_americanist_or_heresy_trigger = yes
 			AND = {
 				#You are of a religion that doesn't match *any* warrior lodge
 				has_religion_matching_available_warrior_lodge_trigger = no
@@ -12061,38 +12082,18 @@ is_adult = yes
 				OR = {
 					#You have neighbors, etc, of the correct religion...
 					any_vassal = {
-						OR = {
-							religion = americanist
-							religion = hamiltonian
-							religion = jeffersonian
-							religion = libertarian
-						}
+						religion_openly_americanist_or_heresy_trigger = yes
 					}
 					any_liege = {
-						OR = {
-							religion = americanist
-							religion = hamiltonian
-							religion = jeffersonian
-							religion = libertarian
-						}
+						religion_openly_americanist_or_heresy_trigger = yes
 					}
 					any_neighbor_independent_ruler = {
-						OR = {
-							religion = americanist
-							religion = hamiltonian
-							religion = jeffersonian
-							religion = libertarian
-						}
+						religion_openly_americanist_or_heresy_trigger = yes
 					}
 				}
 			}
 			NOT = { #Hide if: you don't have a religion that corresponds to this lodge, but there is another society available to you already
-				NOR = {
-					religion = americanist
-					religion = hamiltonian
-					religion = jeffersonian
-					religion = libertarian
-				}
+				religion_openly_americanist_or_heresy_trigger = no
 				has_religion_matching_available_warrior_lodge_trigger = yes
 			}
 			#Always show if: You are already a member. Duh.
@@ -12102,17 +12103,9 @@ is_adult = yes
 
 	potential = { #if you change religion or become zealous while NOT pagan, you are kicked out
 		OR = {
-			religion = americanist
-			religion = hamiltonian
-			religion = jeffersonian
-			religion = libertarian
+			religion_openly_americanist_or_heresy_trigger = yes
 			AND = {
-				NOR = {
-					religion = americanist
-					religion = hamiltonian
-					religion = jeffersonian
-					religion = libertarian
-				}
+				religion_openly_americanist_or_heresy_trigger = no
 				NOT = { trait = zealous }
 			}
 		}

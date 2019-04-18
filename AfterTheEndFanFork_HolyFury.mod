@@ -3,6 +3,6 @@ path = "mod/After the End Fan Fork - Holy Fury DLC"
 
 dependencies = { "After the End Fan Fork" }
 
-picture = "After The End Fan Fork - Sunset Invasion DLC.jpg"
+picture = "After The End Fan Fork - Holy Fury DLC.jpg"
 
 tags = { "After the End" "Portrait" }

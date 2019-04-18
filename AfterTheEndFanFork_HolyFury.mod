@@ -1,5 +1,5 @@
-name = "After the End Fan Fork - Sunset Invasion DLC faces"
-path = "mod/After the End Fan Fork - Sunset Invasion DLC"
+name = "After the End Fan Fork - Holy Fury DLC Faces"
+path = "mod/After the End Fan Fork - Holy Fury DLC"
 
 dependencies = { "After the End Fan Fork" }
 

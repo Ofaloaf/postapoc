@@ -59,7 +59,6 @@ Casus bellis from Project Balance
 Titular Empires from CK2+ (old version) by Wiz
 Portraits from Lux Invicta by DarkReborn and others
 Clothing and headgear from AGOT Congenital Overhaul by LancelotLoire
-Dynasty CoAs from ARKOpack
 
 Images:
 Jewish Flags: User:Hosmich for the Yiddish flag, User:Zirland for the background of the Neoladino flag (Simple Andalusian flag), and User:Frater5 for the menorah in the Neoladino flag

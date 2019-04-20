@@ -29,13 +29,14 @@ ObediahTheSlim
 tsf4
 BomberHarris
 Sigiswulf
-Norse_Emperor
+Stormwind/Norse_Emperor
 KoraxTheGhoul
 Nexerus
 Lord Puurple
 Katanasama
 Deds
-123
+mochi/vivyshe
+al-Sayyid/ShiatAli
 
 Original mod team:
 

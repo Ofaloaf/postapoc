@@ -1,7 +1,7 @@
 AFTER THE END FAN FORK
 A fan-made fork of the original post-apocalyptic North America mod for Crusader Kings II
-Version 0.1 (Forked off from After the End v0.9)
-Compatible with CK2 2.8.1 and the Jade Dragon DLC
+Version 0.4 (Forked off from After the End v0.9)
+Compatible with CK2 3.1.0 and the Holy Fury DLC
 
 	INSTALLATION
 1. Delete any previous versions of this mod.

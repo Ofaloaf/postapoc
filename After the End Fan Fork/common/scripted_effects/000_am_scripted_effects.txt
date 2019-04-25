@@ -13790,3 +13790,163 @@ create_crusader_king_crown_effect = { #Applied after Crusade is over, on the Ben
 		}
 	}
 }
+
+move_childrens_crusade_region_effect = {
+	if = { #If at any point during the preparation Jerusalem is no longer a valid target, or a real Crusade starts, stop everything.
+		limit = {
+			OR = {
+				k_columbia = { has_holder = yes holder_scope = { religion_group = christian } }
+				c_washington = { holder_scope = { religion_group = christian } }
+				c_washington = { holder_scope = { is_crusade_target = yes } }
+				religion_head = { is_preparing_crusade = yes }
+				religion_head = { 
+					OR = { 
+						any_war = { using_cb = crusade }  
+						any_war = { using_cb = new_crusade } 
+					} 
+				} 
+			}
+		}
+		any_player = { 
+				limit = {
+				religion_group = christian
+				NOT = {
+					character = ROOT
+				}
+			}
+			narrative_event = { id = HF.25819 days = 30 } #Notify everyone that the crusade has flopped.
+		}
+		primary_title = {
+			activate_title = { title = THIS status = no }
+			destroy_landed_title = THIS
+		}
+		clr_character_flag = flag_childrens_crusade_leader
+		add_trait = lunatic
+		piety = -150
+		remove_trait = disinherited 
+		set_variable = { which = children_crusade_forces value = 0 }
+		set_variable = { which = children_crusade_morale value = 0 }
+		set_variable = { which = children_crusade_heavy_troops value = 0 }
+		any_courtier = { 
+			remove_trait = disinherited
+			clr_character_flag = no_court_invites
+		}
+		break = yes
+	}
+	if = { #Move to St. Louis first.
+		limit = {
+			has_character_flag = flag_children_at_beginning
+		}
+		primary_title = { set_preferred_capital = c_st_louis } #Historically traveled here.
+		change_variable = { which = children_crusade_forces value = 1 }
+		change_variable = { which = children_crusade_morale value = -1 }
+		clr_character_flag = flag_children_at_beginning
+		set_character_flag = flag_children_at_st_louis
+		if = { 
+			limit = {  
+				NOT = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } }
+			}
+			change_variable = { which = children_crusade_morale value = -2 }
+		}
+		any_player = { 
+				limit = {
+				religion_group = christian
+				NOT = {
+					character = ROOT
+				}
+			}
+			narrative_event = { id = HF.25815 days = 30 } #Notify everyone that the crusade has reached Genoa and the sea did not part before them.
+		}
+		narrative_event = { id = HF.25808 days = 50 random = 100 } #Ping back to main event to check travel progress.
+	}
+	else_if = { #Then shipwreck to Achaia.
+		limit = {
+			has_character_flag = flag_children_at_st_louis
+		}
+		primary_title = { set_preferred_capital = c_chicago } 
+		change_variable = { which = children_crusade_morale value = -1 }
+		clr_character_flag = flag_children_at_st_louis
+		set_character_flag = flag_children_at_chicago 
+		any_player = { 
+				limit = {
+				religion_group = christian
+				NOT = {
+					character = ROOT
+				}
+			}
+			narrative_event = { id = HF.25816 days = 30 } #Notify everyone that the crusade has shipwrecked into Achaia.
+		}
+		if = { 
+			limit = {  
+				NOT = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } }
+			}
+			random = { 
+				chance = 25  
+				change_variable = { which = children_crusade_forces value = -1 }
+			} 
+		}
+		narrative_event = { id = HF.25808 days = 50 random = 100 } #Ping back to main event to check travel progress.
+	}
+	else_if = { #Then crawl to Nikaea.
+		limit = {
+			has_character_flag = flag_children_at_chicago
+		}
+		primary_title = { set_preferred_capital = c_buffalo } 
+		clr_character_flag = flag_children_at_chicago
+		set_character_flag = flag_children_at_buffalo
+		change_variable = { which = children_crusade_forces value = 1 } #Base forces score is 3 = circa 15.000 poorly armed troops.
+		any_player = { 
+				limit = {
+				religion_group = christian
+				NOT = {
+					character = ROOT
+				}
+			}
+			narrative_event = { id = HF.25817 days = 30 } #Notify everyone that the crusade has crawled its way to Nikaea.
+		}
+		narrative_event = { id = HF.25808 days = 50 random = 100 } #Ping back to main event to check travel progress.
+	}
+	else_if = { #We actually got there. Start the war.
+		limit = {
+			has_character_flag = flag_children_at_buffalo
+		}
+		primary_title = { set_preferred_capital = c_manhattan } #Where the troops will spawn.
+		clr_character_flag = flag_children_at_buffalo
+		set_character_flag = flag_children_at_new_york
+		narrative_event = { id = HF.25820 days = 25 } #START THE CRUSADE.
+		any_player = { 
+				limit = {
+				religion_group = christian
+				NOT = {
+					character = ROOT
+				}
+			}
+			narrative_event = { id = HF.25818 days = 30 } #Notify everyone that the crusade has actually reached Antioch and is ready to engage.
+		}
+	}
+	else = { #Move directly to New York in case something went wrong.
+		primary_title = { set_preferred_capital = c_new_york } #Historically traveled here.
+		clr_character_flag = flag_children_at_st_louis
+		clr_character_flag = flag_children_at_chicago
+		clr_character_flag = flag_children_at_buffalo
+		set_character_flag = flag_children_at_new_york
+		change_variable = { which = children_crusade_forces value = 1 }
+		change_variable = { which = children_crusade_morale value = -1 }
+		if = { 
+			limit = {  
+				NOT = { persistent_event_target:childrens_crusade_sponsor_per = { is_alive = yes } }
+			}
+			change_variable = { which = children_crusade_morale value = -2 }
+		}
+		narrative_event = { id = HF.25820 days = 25 } #START THE CRUSADE.
+		any_player = { 
+				limit = {
+				religion_group = christian
+				NOT = {
+					character = ROOT
+				}
+			}
+			narrative_event = { id = HF.25818 days = 30 } #Notify everyone that the crusade has actually reached Antioch and is ready to engage.
+		}
+	}
+}

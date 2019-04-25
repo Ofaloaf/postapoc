@@ -72,6 +72,7 @@ Grand Rebbe flag: Credit to oren neu dag for the source image (Chabad Moshiach f
 Candomble event image: André Koehne
 Roraima event image: User/Ixitixel (CC BY-SA 2.0 DE) 
 Amazon River event image: Neil Palmer/CIAT
+Totem Pole event image: User/Husky22
 
 Music:
 "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past"

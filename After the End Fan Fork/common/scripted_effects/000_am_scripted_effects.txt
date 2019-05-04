@@ -4881,14 +4881,17 @@ spawn_fantastic_diplomat_effect = {
 		}
 		if = {
 			limit = {
-				has_global_flag = christian_crusades_unlocked
+				OR = {
+					has_global_flag = christian_crusades_unlocked
+					has_global_flag = ursuline_crusades_unlocked
+				}
 			}
 			random = { 
 				chance = 20 
 				add_trait = crusader
 			}
 		}
-		
+
 		hidden_tooltip = {
 			#if = {
 			#	limit = {
@@ -10647,6 +10650,892 @@ holy_order_distribute_titles_effect = {
 	}
 }
 
+#Crusade (recent import)
+pledge_crusade_effect = {
+	pledge_crusade_participation = yes
+	piety = 100
+	add_character_modifier = {
+		name = recently_pledged_to_crusade_cooldown
+		hidden = yes
+		duration = 45
+	}
+
+        trigger_switch = {
+            on_trigger = tier
+            EMPEROR = { add_to_crusade_prestige_pot = 2000 add_to_crusade_piety_pot = 800 }
+            KING = { add_to_crusade_prestige_pot = 1000 add_to_crusade_piety_pot = 400 }
+            DUKE = { add_to_crusade_prestige_pot = 500 add_to_crusade_piety_pot = 200 }
+            COUNT = { add_to_crusade_prestige_pot = 250 add_to_crusade_piety_pot = 100 }
+            BARON = { add_to_crusade_prestige_pot = 125 add_to_crusade_piety_pot = 100 }
+        }
+
+	random = {
+		chance = 50
+		add_to_crusade_artifact_pot = 1
+	}
+
+	if = {
+		limit = {
+			trait = excommunicated
+		}
+		rightful_religious_head_scope = {
+			character_event = { id = HFP.41056 }
+		}
+	}
+
+	remove_character_modifier = not_pledged_to_crusade
+}
+
+unpledge_crusade_effect = {
+	pledge_crusade_participation = no
+	piety = -300
+	add_character_modifier = {
+		name = recently_unpledged_to_crusade_cooldown
+		hidden = yes
+		duration = 365
+	}
+
+	trigger_switch = {
+		on_trigger = tier
+		EMPEROR = { add_to_crusade_prestige_pot = -2000 add_to_crusade_piety_pot = -800 }
+		KING = { add_to_crusade_prestige_pot = -1000 add_to_crusade_piety_pot = -400 }
+		DUKE = { add_to_crusade_prestige_pot = -500 add_to_crusade_piety_pot = -200 }
+		COUNT = { add_to_crusade_prestige_pot = -250 add_to_crusade_piety_pot = -100 }
+		BARON = { add_to_crusade_prestige_pot = -125 add_to_crusade_piety_pot = -100 }
+	}
+
+	random = {
+		chance = 50
+		add_to_crusade_artifact_pot = -1
+	}
+
+	add_character_modifier = {
+		name = not_pledged_to_crusade
+		years = 3
+	}
+
+	set_character_flag = asked_to_pledge
+}
+
+# Referenced by the "Join Crusade" button in the Crusade defender view for Crusades using the new Crusade system
+defender_pledge_crusade_effect = {
+	pledge_crusade_defense = yes
+}
+
+# Referenced by the "Leave Crusade" button in the Crusade defender view for Crusades using the new Crusade system
+defender_unpledge_crusade_effect = {
+	pledge_crusade_defense = no
+}
+
+# Referenced by the "Contribute to Pot" button in the Crusade view for Crusades using the new Crusade system
+contribute_to_crusade_pot_effect = {
+	character_event = { id = HFP.41088 }
+}
+
+# Referenced by getting artifacts from a Crusade
+crusade_give_artifact_effect = {
+	crusade_target_title = {
+		save_event_target_as = crusade_title
+	}
+
+	if = {
+		limit = {
+			any_province = {
+				OR = {
+					has_province_modifier = tomb_of_a_saint
+					has_province_modifier = pillaged_tomb_of_a_saint
+				}
+			}
+		}
+		random_province = {
+			limit = {
+				OR = {
+					has_province_modifier = tomb_of_a_saint
+					has_province_modifier = pillaged_tomb_of_a_saint
+				}
+			}
+			event_target:province_saint = {
+				save_event_target_as = found_saint
+			}
+		}
+		#set_character_flag = saints_exists
+	}
+
+	random_list = {
+		#Crusade Weapons
+		20 = {
+			modifier = {
+				factor = 0
+				OR = {
+					has_artifact = sword_tier_2_new
+					has_artifact = sword_tier_3_vengeance
+				}
+			}
+			modifier = {
+				factor = 0.05
+				OR = {
+					has_artifact = lance_tier_2_new
+					has_artifact = lance_tier_3_impaler
+					has_artifact = axe_tier_2_new
+					has_artifact = axe_tier_3_ravager
+					has_artifact = mace_tier_2_new
+					has_artifact = mace_tier_3_bone_breaker
+				}
+			}
+			set_character_flag = sword_tier_1
+			if = {
+				limit = {
+					has_character_flag = crusader_king_flag
+				}
+				add_artifact = sword_tier_3_vengeance
+			}
+			else = {
+				add_artifact  = sword_tier_2_new
+			}
+			new_artifact = {
+				set_name = crusade_artifact_name
+				set_description = crusade_artifact_description_sword
+			}
+			clr_character_flag = sword_tier_1
+		}
+		20 = {
+			modifier = {
+				factor = 0
+				OR = {
+					has_artifact = lance_tier_2_new
+					has_artifact = lance_tier_3_impaler
+				}
+			}
+			modifier = {
+				factor = 0.05
+				OR = {
+					has_artifact = sword_tier_2_new
+					has_artifact = sword_tier_3_vengeance
+					has_artifact = axe_tier_2_new
+					has_artifact = axe_tier_3_ravager
+					has_artifact = mace_tier_2_new
+					has_artifact = mace_tier_3_bone_breaker
+				}
+			}
+			set_character_flag = lance_tier_2
+			if = {
+				limit = {
+					has_character_flag = crusader_king_flag
+				}
+				add_artifact = lance_tier_3_impaler
+			}
+			else = {
+				add_artifact  = lance_tier_2_new
+			}
+			new_artifact = {
+				set_name = crusade_artifact_name
+				set_description = crusade_artifact_description_lance
+			}
+			clr_character_flag = lance_tier_2
+		}
+		20 = {
+			modifier = {
+				factor = 0
+				OR = {
+					has_artifact = axe_tier_2_new
+					has_artifact = axe_tier_3_ravager
+				}
+			}
+			modifier = {
+				factor = 0.05
+				OR = {
+					has_artifact = sword_tier_2_new
+					has_artifact = sword_tier_3_vengeance
+					has_artifact = lance_tier_2_new
+					has_artifact = lance_tier_3_impaler
+					has_artifact = mace_tier_2_new
+					has_artifact = mace_tier_3_bone_breaker
+				}
+			}
+			set_character_flag = axe_tier_2
+			if = {
+				limit = {
+					has_character_flag = crusader_king_flag
+				}
+				add_artifact = axe_tier_3_ravager
+			}
+			else = {
+				add_artifact  = axe_tier_2_new
+			}
+			new_artifact = {
+				set_name = crusade_artifact_name
+				set_description = crusade_artifact_description_ax
+			}
+			clr_character_flag = axe_tier_2
+		}
+		20 = {
+			modifier = {
+				factor = 0
+				OR = {
+					has_artifact = mace_tier_2_new
+					has_artifact = mace_tier_3_bone_breaker
+				}
+			}
+			modifier = {
+				factor = 0.05
+				OR = {
+					has_artifact = sword_tier_2_new
+					has_artifact = sword_tier_3_vengeance
+					has_artifact = lance_tier_2_new
+					has_artifact = lance_tier_3_impaler
+					has_artifact = axe_tier_2_new
+					has_artifact = axe_tier_3_ravager
+				}
+			}
+			set_character_flag = mace_tier_2
+			if = {
+				limit = {
+					has_character_flag = crusader_king_flag
+				}
+				add_artifact = mace_tier_3_bone_breaker
+			}
+			else = {
+				add_artifact  = mace_tier_2_new
+			}
+			new_artifact = {
+				set_name = crusade_artifact_name
+				set_description = crusade_artifact_description_mace
+			}
+			clr_character_flag = mace_tier_2
+		}
+		#Random Christian associated artifacts
+		5 = {
+			add_artifact = fragment_of_true_cross
+		}
+		5 = {
+			add_artifact = holy_foreskin
+		}
+		5 = {
+			add_artifact = weeping_statue
+		}
+		#Crusade Armor
+		20 = {
+			modifier = {
+				factor = 0
+				has_artifact = armor_tier_2
+			}
+			set_character_flag = armor_tier_2
+			if = {
+				limit = {
+					has_character_flag = crusader_king_flag
+				}
+				add_artifact = armor_tier_3_champion
+			}
+			else = {
+				add_artifact  = armor_tier_2
+			}
+			new_artifact = {
+				set_name = crusade_artifact_name 
+				set_description = crusade_artifact_description_armor
+			}
+			clr_character_flag = armor_tier_2
+		}
+		#Artifacts based on Saints created throughout the game
+		2 = {
+			trigger = {
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_finger
+			new_artifact = {
+				set_name = crusade_saint_finger_name
+				set_description = crusade_saint_finger_description
+			}
+		}
+		2 = {
+			trigger = {
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_bone
+			new_artifact = {
+				set_name = crusade_saint_bone_name
+				set_description = crusade_saint_bone_description
+			}
+		}
+		2 = {
+			trigger = {
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_skull_tier_1
+			new_artifact = {
+				set_name = crusade_skull_name
+				set_description = crusade_skull_description
+			}
+		}
+		2 = {
+			trigger = {
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_skull_tier_2
+			new_artifact = {
+				set_name = crusade_skull_name
+				set_description = crusade_skull_description
+			}
+		}
+		2 = {
+			trigger = {
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_tongue
+			new_artifact = {
+				set_name = crusade_tongue_name
+				set_description = crusade_tongue_description
+			}
+		}
+		#Artifacts based on placeholder Saints
+		2 = {
+			modifier = {
+				factor = 0.5
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_finger
+			new_artifact = {
+				set_name = crusade_saintly_finger_name_placeholder
+				set_description = crusade_saintly_finger_description_placeholder
+			}
+		}
+		2 = {
+			modifier = {
+				factor = 0.5
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_bone
+			new_artifact = {
+				set_name = crusade_saintly_bone_name_placeholder
+				set_description = crusade_saintly_bone_description_placeholder
+			}
+		}
+		2 = {
+			modifier = {
+				factor = 0.5
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_skull_tier_1
+			new_artifact = {
+				set_name = crusade_saintly_skull_name_placeholder
+				set_description = crusade_saintly_skull_description_placeholder
+			}
+		}
+		2 = {
+			modifier = {
+				factor = 0.5
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_skull_tier_2
+			new_artifact = {
+				set_name = crusade_saintly_skull_name_placeholder
+				set_description = crusade_saintly_skull_description_placeholder
+			}
+		}
+		2 = {
+			modifier = {
+				factor = 0.5
+				has_character_flag = saints_exists
+			}
+			add_artifact = saintly_tongue
+			new_artifact = {
+				set_name = crusade_saintly_tongue_name_placeholder
+				set_description = crusade_saintly_tongue_description_placeholder
+			}
+		}
+	}
+
+	clr_character_flag = saints_exists
+	clr_character_flag = crusader_king_flag
+}
+
+# Referenced by the "Select Receiver Stance" button in the Crusade view for Crusades using the new Crusade system
+select_crusade_receiver_stance_effect = {
+	character_event = { id = HFP.41091 }
+}
+
+# Crusader King/Queen set up 
+setting_up_the_crusader_kingdom_effect = {
+	if = {
+		limit = {
+			can_apply_average_nickname_trigger = yes
+		}
+		random_list = {
+			10 = { give_nickname = nick_the_crusader }
+			10 = { give_nickname = nick_the_holy }
+			10 = { give_nickname = nick_the_pilgrim }
+			10 = { give_nickname = nick_the_protector }
+			10 = { give_nickname = nick_the_guardian }
+			40 = { give_nickname = nick_the_sword_of_god }
+		}
+	}
+	if = {
+		limit = {
+			is_female = no
+		}
+		add_trait = crusader_king
+	}
+	if = {
+		limit = {
+			is_female = yes
+		}
+		add_trait = crusader_queen
+	}
+	character_event = { id = HFP.41090 days = 1 }
+	character_event = { id = HFP.41090 days = 3 }
+
+	if = {
+		limit = {
+			has_dlc = "Holy Fury"
+		}
+		save_persistent_event_target = { 
+			name = coronation_priest_per 
+			scope = ROOT 
+		}
+		add_trait = crowned_by_pope
+	}
+	primary_title = {
+		add_law = {
+			law = succ_primogeniture
+			cooldown = no
+			opinion_effect = no
+		}
+		add_law = {
+			law = centralization_2
+			cooldown = no
+			opinion_effect = no
+		}
+		add_law = {
+			law = cognatic_succession
+			cooldown = no
+			opinion_effect = no
+		}
+		if = {
+			limit = {
+				has_dlc = "Zeus"
+			}
+			add_law = {
+				law = ze_administration_laws_1
+				cooldown = no
+				opinion_effect = no
+			}
+			add_law = {
+				law = out_of_realm_inheritance_law_1
+				cooldown = no
+				opinion_effect = no
+			}
+		}
+		else_if = {
+			limit = {
+				NOT = { has_dlc = "Zeus" }
+			}
+			add_law = {
+				law = crown_authority_3
+				cooldown = no
+				opinion_effect = no
+			}
+		}
+	}
+	any_realm_lord = {
+		limit = {
+			NOR = {
+				government = theocracy_government
+				government = republic_government
+			}
+		}
+		primary_title = {
+			add_law = {
+				law = succ_primogeniture
+				cooldown = no
+				opinion_effect = no
+			}
+			add_law = {
+				law = centralization_2
+				cooldown = no
+				opinion_effect = no
+			}
+			add_law = {
+				law = cognatic_succession
+				cooldown = no
+				opinion_effect = no
+			}
+			if = {
+				limit = {
+					has_dlc = "Zeus"
+				}
+				add_law = {
+					law = ze_administration_laws_1
+					cooldown = no
+					opinion_effect = no
+				}
+			}
+		}
+	}
+	capital_scope = {
+		religion = PREV
+	}
+
+	if = {
+		limit = {
+			NOT = {
+				wealth = 200
+			}
+		}
+		clear_wealth = yes
+		wealth = 200
+	}
+	
+	any_vassal = {
+		limit = {
+			NOT = {
+				religion_group = christian
+			}
+		}
+		set_defacto_liege = THIS
+	}
+}
+
+battle_commander_counter_positive_effect = {
+	crusader_commander_counter_positive_effect = yes
+}
+
+battle_commander_counter_negative_effect = {
+	crusader_commander_counter_negative_effect = yes
+}
+
+# Crusader Commander counter
+crusader_commander_counter_positive_effect = {
+	if = {
+		limit = {
+			OR = {
+				AND = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					has_pledged_crusade_participation = yes
+				}
+				any_liege = {
+					AND = {
+						any_war = {
+							using_cb = new_crusade
+						}
+						has_pledged_crusade_participation = yes
+					}
+				}
+			}
+			event_target:enemy_commander = {
+				OR = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					any_liege = {
+						any_war = {
+							using_Cb = new_crusade
+						}
+					}
+				}
+				NOT = {
+					religion = ROOT
+				}
+			}
+			NOT = {
+				check_variable = { which = crusadeCommander value = 0 }
+			}
+		}
+		change_variable = { which = crusadeCommander value = 1 }
+	}
+	else_if = {
+		limit = {
+			OR = {
+				AND = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					has_pledged_crusade_participation = yes
+				}
+				any_liege = {
+					AND = {
+						any_war = {
+							using_cb = new_crusade
+						}
+						has_pledged_crusade_participation = yes
+					}
+				}
+			}
+			event_target:enemy_commander = {
+				OR = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					any_liege = {
+						any_war = {
+							using_Cb = new_crusade
+						}
+					}
+				}
+				NOT = {
+					religion = ROOT
+				}
+			}
+		}
+		set_variable = { which = crusadeCommander value = 1 }
+	}
+
+	if = {
+		limit = {
+			check_variable = { which = crusadeCommander value = 20 }
+			NOT = {
+				any_owned_bloodline = {
+					has_bloodline_flag = battle_survivor_bloodline
+					ROOT = {
+						is_bloodline_founder_of = PREV
+					}
+				}
+			}
+		}
+		narrative_event = { id = HF.49021 }
+	}
+}
+
+crusader_commander_counter_negative_effect = {
+	if = {
+		limit = {
+			OR = {
+				AND = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					has_pledged_crusade_participation = yes
+				}
+				any_liege = {
+					AND = {
+						any_war = {
+							using_cb = new_crusade
+						}
+						has_pledged_crusade_participation = yes
+					}
+				}
+			}
+			event_target:enemy_commander = {
+				OR = {
+					any_war = {
+						using_cb = new_crusade
+					}
+					any_liege = {
+						any_war = {
+							using_Cb = new_crusade
+						}
+					}
+				}
+				NOT = {
+					religion = ROOT
+				}
+			}
+			NOT = {
+				check_variable = { which = crusadeCommander value = 0 }
+			}
+		}
+		change_variable = { which = crusadeCommander value = -1 }
+	}
+}
+
+alternate_crusade_artifact_distribution_effect = {
+	custom_tooltip = {
+		text = alternate_crusade_artifact_distribution_effect_TT
+
+		random_list = {
+			#Crusade Weapons
+			20 = {
+				modifier = {
+					factor = 0
+					OR = {
+						has_artifact = sword_tier_2_new
+						has_artifact = sword_tier_3_vengeance
+					}
+				}
+				modifier = {
+					factor = 0.05
+					OR = {
+						has_artifact = lance_tier_2_new
+						has_artifact = lance_tier_3_impaler
+						has_artifact = axe_tier_2_new
+						has_artifact = axe_tier_3_ravager
+						has_artifact = mace_tier_2_new
+						has_artifact = mace_tier_3_bone_breaker
+					}
+				}
+				set_character_flag = sword_tier_1
+				if = {
+					limit = {
+						has_character_flag = crusader_king_flag
+					}
+					add_artifact = sword_tier_3_vengeance
+				}
+				else = {
+					add_artifact  = sword_tier_2_new
+				}
+				new_artifact = {
+					set_name = alternate_crusade_artifact_name
+					set_description = alternate_crusade_artifact_description
+				}
+				clr_character_flag = sword_tier_1
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					OR = {
+						has_artifact = lance_tier_2_new
+						has_artifact = lance_tier_3_impaler
+					}
+				}
+				modifier = {
+					factor = 0.05
+					OR = {
+						has_artifact = sword_tier_2_new
+						has_artifact = sword_tier_3_vengeance
+						has_artifact = axe_tier_2_new
+						has_artifact = axe_tier_3_ravager
+						has_artifact = mace_tier_2_new
+						has_artifact = mace_tier_3_bone_breaker
+					}
+				}
+				set_character_flag = lance_tier_2
+				if = {
+					limit = {
+						has_character_flag = crusader_king_flag
+					}
+					add_artifact = lance_tier_3_impaler
+				}
+				else = {
+					add_artifact  = lance_tier_2_new
+				}
+				new_artifact = {
+					set_name = alternate_crusade_artifact_name
+					set_description = alternate_crusade_artifact_description
+				}
+				clr_character_flag = lance_tier_2
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					OR = {
+						has_artifact = axe_tier_2_new
+						has_artifact = axe_tier_3_ravager
+					}
+				}
+				modifier = {
+					factor = 0.05
+					OR = {
+						has_artifact = sword_tier_2_new
+						has_artifact = sword_tier_3_vengeance
+						has_artifact = lance_tier_2_new
+						has_artifact = lance_tier_3_impaler
+						has_artifact = mace_tier_2_new
+						has_artifact = mace_tier_3_bone_breaker
+					}
+				}
+				set_character_flag = axe_tier_2
+				if = {
+					limit = {
+						has_character_flag = crusader_king_flag
+					}
+					add_artifact = axe_tier_3_ravager
+				}
+				else = {
+					add_artifact  = axe_tier_2_new
+				}
+				new_artifact = {
+					set_name = alternate_crusade_artifact_name
+					set_description = alternate_crusade_artifact_description
+				}
+				clr_character_flag = axe_tier_2
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					OR = {
+						has_artifact = mace_tier_2_new
+						has_artifact = mace_tier_3_bone_breaker
+					}
+				}
+				modifier = {
+					factor = 0.05
+					OR = {
+						has_artifact = sword_tier_2_new
+						has_artifact = sword_tier_3_vengeance
+						has_artifact = lance_tier_2_new
+						has_artifact = lance_tier_3_impaler
+						has_artifact = axe_tier_2_new
+						has_artifact = axe_tier_3_ravager
+					}
+				}
+				set_character_flag = mace_tier_2
+				if = {
+					limit = {
+						has_character_flag = crusader_king_flag
+					}
+					add_artifact = mace_tier_3_bone_breaker
+				}
+				else = {
+					add_artifact  = mace_tier_2_new
+				}
+				new_artifact = {
+					set_name = alternate_crusade_artifact_name
+					set_description = alternate_crusade_artifact_description
+				}
+				clr_character_flag = mace_tier_2
+			}
+			#Random Christian associated artifacts
+			5 = {
+				add_artifact = fragment_of_true_cross
+			}
+			5 = {
+				add_artifact = holy_foreskin
+			}
+			5 = {
+				add_artifact = weeping_statue
+			}
+			#Crusade Armor
+			20 = {
+				modifier = {
+					factor = 0
+					has_artifact = armor_tier_2
+				}
+				set_character_flag = armor_tier_2
+				if = {
+					limit = {
+						has_character_flag = crusader_king_flag
+					}
+					add_artifact = armor_tier_3_champion
+				}
+				else = {
+					add_artifact  = armor_tier_2
+				}
+				new_artifact = {
+					set_name = alternate_crusade_artifact_name 
+					set_description = alternate_crusade_artifact_description
+				}
+				clr_character_flag = armor_tier_2
+			}
+			#Artifacts based on placeholder Saints
+			2 = {
+				add_artifact = saintly_finger
+			}
+			2 = {
+				add_artifact = saintly_bone
+			}
+			2 = {
+				add_artifact = saintly_skull_tier_1
+			}
+			2 = {
+				add_artifact = saintly_skull_tier_2
+			}
+			2 = {
+				add_artifact = saintly_tongue
+			}
+		}
+	}
+}
+
 #Reconquista#
 reconquista_win_effect = {
 	ROOT = {
@@ -11358,16 +12247,17 @@ check_if_reconquista_finished_effect = {
 				}
 			}
 		}
-		set_global_flag = reconquista_finished 
-
+		
 		ROOT = {
 			narrative_event = { id = HF.49452 }
 		}
 		any_playable_ruler = {
 			narrative_event = { id = HF.49452 }
 		}
+		set_global_flag = reconquista_finished
 	}
 }
+
 
 check_war_effect = {
 	check_if_reconquista_finished_effect = yes

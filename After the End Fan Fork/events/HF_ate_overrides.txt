@@ -1,5 +1,32 @@
 namespace = HFATE
 
+#Assign horoscope traits at startup. (Not sure why this isn't in vanilla)
+character_event = {
+	id = HFATE.100
+	desc = "Assign Horoscope Traits"
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		OR = {
+			AND = {
+				NOT = { has_alternate_start_parameter = { key = religion_names value = random } }
+				OR = {
+					religion = gaian
+					religion = neomayan
+				}
+			}
+			has_religion_feature = religion_astrology
+			has_religion_feature = religion_feature_occultist
+		}
+	}
+	
+	option = {
+		name = DEBUG
+		add_western_zodiac_trait_effect = yes
+	}
+}
+
 #Hellenic Dedicated Temples.
 #Ruler decides whom to dedicate the temple to.
 #First determine which kind of god you are interested in.
@@ -206,6 +233,50 @@ character_event = {
 			show_scope_change = no
 			set_flag = flag_dedicated_to_jefferson
 			add_building = tp_shrine_jefferson
+		}
+		hidden_tooltip = { 
+			clr_character_flag = flag_dedicating_temple
+			add_character_modifier = { 
+				name = recently_dedicated_temple_cooldown
+				duration = 1250 
+				hidden = yes
+			}
+		}
+	}
+	option = {
+		name = EVTOPT_TEMPLE_BACK_TO_SELECTION
+		custom_tooltip = { text = EVTOPT_TEMPLE_BACK_TO_SELECTION_TT }
+		hidden_effect = { character_event = { id = HFATE.23200 } }
+	}
+}
+
+#Lincoln
+character_event = {
+	id = HFATE.23204
+	desc = EVTDESCHF23204
+	picture = GFX_evt_hellenic_temple
+	border = GFX_event_normal_frame_religion
+	has_dlc = "Holy Fury"
+	is_triggered_only = yes
+	
+	option = { #Lincoln
+		name = EVTOPTAHF23204
+		ROOT = { 
+			if = { 
+				limit = { ai = no }
+				wealth = -250 
+			}
+			piety = -200
+			add_character_modifier = { 
+				name = dedicated_to_demeter
+				duration = 3650
+				stacking = yes #In case a player invests enough money to dedicate multiple temples within a lifetime.
+			} 
+		}
+		event_target:scoped_temple_barony = { 
+			show_scope_change = no
+			set_flag = flag_dedicated_to_lincoln
+			add_building = tp_shrine_lincoln
 		}
 		hidden_tooltip = { 
 			clr_character_flag = flag_dedicating_temple

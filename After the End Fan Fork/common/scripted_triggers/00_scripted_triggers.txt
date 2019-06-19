@@ -2783,6 +2783,15 @@ is_devil_worshiper_trigger = {
 	}
 }
 
+has_positive_congenital_trigger = {
+	OR = {
+		trait = strong
+		trait = fair
+		trait = quick
+		trait = genius
+	}
+}
+
 has_negative_congenital_trigger = {
 	OR = {
 		trait = ugly
@@ -4079,6 +4088,23 @@ higher_society_rank_than_prev_trigger = {
 	}
 }
 
+higher_society_rank_than_root_trigger = {
+	OR = {
+		AND = {
+			ROOT = { society_rank == 1 }
+			society_rank > 1
+		}
+		AND = {
+			ROOT = { society_rank == 2 }
+			society_rank > 2
+		}
+		AND = {
+			ROOT = { society_rank == 3 }
+			society_rank > 3
+		}
+	}
+}
+
 #returns true if scoped character already likes ROOT and could be physically attracted to them
 possibly_romantically_interested_in_ROOT_trigger = {
 	NOT = { is_rival = ROOT }
@@ -4559,23 +4585,79 @@ looting_artifact_event_religious_artifacts_trigger = {
 
 can_be_asked_to_leave_court_trigger = {
 	NOR = {
+		custom_tooltip = { #To avoid double negation
+			text = is_a_child_tt
+			is_adult = no
+		}
+		prisoner = yes
+		trait = incapable
 		is_ruler = yes
-		is_landed = yes
 		has_job_title = yes
-		has_minor_title = title_regent
-		has_minor_title = title_appointed_regent
-		has_minor_title = title_commander
-		has_minor_title = title_court_physician
-		dynasty = FROM
-		is_married = FROM
-		is_consort = FROM
-		is_adult = no
-		is_close_relative = FROM
-		has_character_flag = eternal_life_mystic
-		has_character_flag = immortal_rival
-		has_character_flag = flag_special_event_character
-		trait = horse
-		has_character_modifier = in_seclusion
+
+		#custom tooltip for minor titles
+		custom_tooltip = {
+			text = is_regent_commander_or_physician_tt
+			OR = {
+				has_minor_title = title_regent
+				has_minor_title = title_appointed_regent
+				has_minor_title = title_commander
+				has_minor_title = title_court_physician
+			}
+		}
+
+		custom_tooltip = {
+			text = is_spouse_consort_or_of_your_dynasty
+			OR = {
+				is_married = FROM
+				is_consort = FROM
+				is_close_relative = FROM
+				sibling = FROM
+			}
+		}
+
+		is_primary_heir = yes
+
+		#trigger_if has Reaper's Due
+		trigger_if = {
+			limit = { has_dlc = "Reapers"}
+			in_seclusion = yes
+		}
+		custom_tooltip = {
+			text = is_inaccessible_tt
+			OR = {
+				has_character_flag = flag_holding_great_tribal_festival
+				trait = in_hiding
+				trait = on_hajj
+				trait = on_pilgrimage
+				trait = on_indian_pilgrimage
+				trait = kow_tow_travels
+				trait = travelling
+				trait = troubled_pregnancy
+				trait = pregnancy_finishing
+				has_character_modifier = mother_minor_rest
+				has_character_modifier = in_meditation
+				has_character_modifier = doing_penance
+				has_character_modifier = out_traveling
+			}
+		}
+
+		#Special circumstances
+		custom_tooltip = {
+			text = is_character_in_important_chain_of_events_tt
+			has_character_flag = eternal_life_mystic
+			has_character_flag = immortal_rival
+			has_character_flag = flag_special_event_character
+			has_character_flag = is_death
+			is_immune_to_pruning = yes
+			historical = yes
+		}
+
+		trigger_if = {
+			limit = {
+				trait = horse
+			}
+			trait = horse
+		}
 	}
 }
 
@@ -4867,7 +4949,7 @@ is_born_under_Capricorn_trigger = {
 		}
 		AND = {
 			is_born_in_january_trigger = yes
-			NOT = { day_of_birth = 20 }
+			NOT = { day_of_birth = 19 }
 		}
 	}
 }
@@ -5983,6 +6065,7 @@ is_any_kinslayer_trigger = {
 		trait = kinslayer
 		trait = familial_kinslayer
 		trait = dynastic_kinslayer
+		trait = tribal_kinslayer
 	}
 }
 
@@ -6366,6 +6449,53 @@ current_scope_and_root_make_sense_as_rivals_trigger = {
 	root_potentially_interested_in_rivaling_this_trigger = yes
 }
 
+#checks whether the current scope has one of the following opinion modifiers against PREV
+this_has_friendly_opinion_modifier_of_prev_trigger = {
+	OR = {
+		has_opinion_modifier = { who = PREV modifier = opinion_budding_friendship }
+		has_opinion_modifier = { who = PREV modifier = opinion_was_praised }
+		has_opinion_modifier = { who = PREV modifier = opinion_charmed }
+		has_opinion_modifier = { who = PREV modifier = opinion_honorable }
+		has_opinion_modifier = { who = PREV modifier = opinion_was_rewarded }
+		has_opinion_modifier = { who = PREV modifier = nice_adventure }
+		has_opinion_modifier = { who = PREV modifier = great_adventure }
+		has_opinion_modifier = { who = PREV modifier = epic_adventure }
+		has_opinion_modifier = { who = PREV modifier = opinion_accomplice }
+		has_opinion_modifier = { who = PREV modifier = opinion_mediator }
+		has_opinion_modifier = { who = PREV modifier = opinion_poet_pen_pal }
+		has_opinion_modifier = { who = PREV modifier = opinion_calmed }
+		has_opinion_modifier = { who = PREV modifier = opinion_cheered_up }
+		has_opinion_modifier = { who = PREV modifier = opinion_teach_virtue }
+		has_opinion_modifier = { who = PREV modifier = opinion_no_cat }
+		has_opinion_modifier = { who = PREV modifier = opinion_feels_appreciated }
+		has_opinion_modifier = { who = PREV modifier = opinion_amused }
+		has_opinion_modifier = { who = PREV modifier = opinion_swayed_3 }
+	}
+}
+			
+#checks whether PREV has one of the following opinion modifiers against the currently scoped character
+prev_has_friendly_opinion_modifier_of_this_trigger = {
+	OR = {
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_budding_friendship }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_was_praised }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_charmed }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_honorable }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_was_rewarded }
+		reverse_has_opinion_modifier = { who = PREV modifier = nice_adventure }
+		reverse_has_opinion_modifier = { who = PREV modifier = great_adventure }
+		reverse_has_opinion_modifier = { who = PREV modifier = epic_adventure }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_accomplice }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_mediator }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_poet_pen_pal }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_calmed }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_cheered_up }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_teach_virtue }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_no_cat }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_feels_appreciated }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_amused }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_swayed_3 }
+	}
+}
 
 #checks whether the current scope has one of the following opinion modifiers against ROOT
 this_has_friendly_opinion_modifier_of_root_trigger = {
@@ -6446,6 +6576,54 @@ root_potentially_platonically_interested_in_this_trigger = {
 current_scope_and_root_make_sense_as_friendlies_trigger = {
 	potentially_platonically_interested_in_root_trigger = yes
 	root_potentially_platonically_interested_in_this_trigger = yes
+}
+
+#checks whether the current scope has one of the following opinion modifiers against PREV
+this_has_friendly_opinion_modifier_of_prev_trigger = {
+	OR = {
+		has_opinion_modifier = { who = PREV modifier = opinion_budding_friendship }
+		has_opinion_modifier = { who = PREV modifier = opinion_was_praised }
+		has_opinion_modifier = { who = PREV modifier = opinion_charmed }
+		has_opinion_modifier = { who = PREV modifier = opinion_honorable }
+		has_opinion_modifier = { who = PREV modifier = opinion_was_rewarded }
+		has_opinion_modifier = { who = PREV modifier = nice_adventure }
+		has_opinion_modifier = { who = PREV modifier = great_adventure }
+		has_opinion_modifier = { who = PREV modifier = epic_adventure }
+		has_opinion_modifier = { who = PREV modifier = opinion_accomplice }
+		has_opinion_modifier = { who = PREV modifier = opinion_mediator }
+		has_opinion_modifier = { who = PREV modifier = opinion_poet_pen_pal }
+		has_opinion_modifier = { who = PREV modifier = opinion_calmed }
+		has_opinion_modifier = { who = PREV modifier = opinion_cheered_up }
+		has_opinion_modifier = { who = PREV modifier = opinion_teach_virtue }
+		has_opinion_modifier = { who = PREV modifier = opinion_no_cat }
+		has_opinion_modifier = { who = PREV modifier = opinion_feels_appreciated }
+		has_opinion_modifier = { who = PREV modifier = opinion_amused }
+		has_opinion_modifier = { who = PREV modifier = opinion_swayed_3 }
+	}
+}
+			
+#checks whether PREV has one of the following opinion modifiers against the currently scoped character
+prev_has_friendly_opinion_modifier_of_this_trigger = {
+	OR = {
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_budding_friendship }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_was_praised }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_charmed }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_honorable }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_was_rewarded }
+		reverse_has_opinion_modifier = { who = PREV modifier = nice_adventure }
+		reverse_has_opinion_modifier = { who = PREV modifier = great_adventure }
+		reverse_has_opinion_modifier = { who = PREV modifier = epic_adventure }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_accomplice }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_mediator }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_poet_pen_pal }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_calmed }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_cheered_up }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_teach_virtue }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_no_cat }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_feels_appreciated }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_amused }
+		reverse_has_opinion_modifier = { who = PREV modifier = opinion_swayed_3 }
+	}
 }
 
 # Hardcoded trigger for Pagan baptism. Only used (except where referenced in script) for the Pagan baptism tooltip in the religion window
@@ -7240,6 +7418,7 @@ this_has_lame_nickname_trigger = {
 		has_nickname = nick_the_fair
 		has_nickname = nick_the_hideous
 		has_nickname = nick_the_frog
+		has_nickname = nick_the_tenacious
 		has_nickname = nick_the_repulsive
 		has_nickname = nick_the_mad
 		has_nickname = nick_the_fat
@@ -7433,6 +7612,9 @@ this_has_average_nickname_trigger = {
 		has_nickname = nick_the_guide
 		has_nickname = nick_the_elder
 		has_nickname = nick_the_knight_of_turnips
+		has_nickname = nick_the_festive
+		has_nickname = nick_the_burden
+		has_nickname = nick_the_snake
 	}
 }
 this_has_cool_nickname_trigger = {
@@ -8149,6 +8331,7 @@ has_any_astrology_trait_trigger = {
 
 dlc_religion_check_trigger = {
 	OR = {
+		religion_group = christian
 		AND = {
 			religion_group = muslim
 			has_dlc = "The Sword of Islam"
@@ -8163,6 +8346,10 @@ dlc_religion_check_trigger = {
 				has_dlc = "The Old Gods"
 				has_dlc = "Holy Fury"
 			}
+		}
+		AND = {
+			religion_group = pagan_group
+			has_dlc = "The Old Gods"
 		}
 		AND = {
 			OR = {

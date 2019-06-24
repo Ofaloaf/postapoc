@@ -53,6 +53,31 @@ character_event = {
 		#	}
 
 		################## CLEAN UP EVENTS ####################
+			100 = { #You or your target have separately gone into Seclusion (somehow), clear target.
+				trigger = { 
+					OR = {
+						AND = { #They're in Seclusion, but you are not...
+							in_seclusion = no
+							persistent_event_target:antagonize_target = { in_seclusion = yes }
+						}
+						AND = { #You're in Seclusion, but they are not (and they are not at your location)...
+							in_seclusion = yes
+							persistent_event_target:antagonize_target = {
+								in_seclusion = no
+								NOT = { at_location = ROOT } # (Just in case you somehow kicked them out of your own Seclusion)
+							}
+						}
+						AND = { #You're in Seclusion at the same time, separately...
+							in_seclusion = yes
+							persistent_event_target:antagonize_target = {
+								in_seclusion = yes
+								NOT = { at_location = ROOT }
+							}
+						}
+					}
+				}
+				character_event = { id = HF.22006 }
+			}
 			100 = { #Imprisoned, clear event target.
 				modifier = { 
 					factor = 0
@@ -902,6 +927,83 @@ character_event = {
 		ai_chance = { factor = 0 }
 	}
 }
+
+
+#Appeaser: you or your target has gone into Seclusion, Antagonizing is canceled
+character_event = {
+	id = HF.22006
+	picture = GFX_evt_woman_at_window_hf
+	portrait = persistent_event_target:antagonize_target
+	
+	is_triggered_only = yes
+
+	trigger = {
+		OR = {
+			AND = { #They're in Seclusion, but you are not...
+				in_seclusion = no
+				persistent_event_target:antagonize_target = { in_seclusion = yes }
+			}
+			AND = { #You're in Seclusion, but they are not (and they are not at your location)...
+				in_seclusion = yes
+				persistent_event_target:antagonize_target = {
+					in_seclusion = no
+					NOT = { at_location = ROOT } # (Just in case you somehow kicked them out of your own Seclusion)
+				}
+			}
+			AND = { #You're in Seclusion at the same time, separately...
+				in_seclusion = yes
+				persistent_event_target:antagonize_target = {
+					in_seclusion = yes
+					NOT = { at_location = ROOT }
+				}
+			}
+		}
+	}
+
+	fail_trigger_effect = {	#You are secluded together, antagonizing continues as normal
+		character_event = { id = HF.22000 days = 30 random = 30 } # Send main tombola again...
+	}
+
+	desc = {
+		text = EVTDESCHFP22006_A #They are in Seclusion
+		trigger = {
+			in_seclusion = no
+			persistent_event_target:antagonize_target = { in_seclusion = yes }
+		}
+	}
+	desc = {
+		text = EVTDESCHFP22006_B #I am in Seclusion (without them)
+		trigger = {
+			in_seclusion = yes
+			persistent_event_target:antagonize_target = {
+				in_seclusion = no
+				NOT = { at_location = ROOT } #Just in case you somehow kicked them out of your own Seclusion
+			}
+		}
+	}
+	desc = {
+		text = EVTDESCHFP22006_A_B #I am in Seclusion, and they are too (separately)
+		trigger = {
+			in_seclusion = yes
+			persistent_event_target:antagonize_target = {
+				in_seclusion = yes
+				NOT = { at_location = ROOT }
+			}
+		}
+	}
+
+	option = {
+		name = EVTOPTAHFP22006
+		custom_tooltip = { text = tooltip_stop_antagonizing }
+
+		hidden_effect = { 
+			persistent_event_target:antagonize_target = { clr_character_flag = flag_character_being_antagonized }
+			remove_special_interest = persistent_event_target:antagonize_target
+			clear_persistent_event_target = antagonize_target
+		}
+	}
+}
+
 
 #Antagonized: became incapable, hidden event to ping to Antagonizer and clear event target.
 character_event = {

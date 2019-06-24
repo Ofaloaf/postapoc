@@ -54,7 +54,13 @@ letter_event = {
     option = { 
         name = EVTOPTA_MNM_44511
 
-        FROM = { ROOT = { join_prev_monastic_order_society = yes } }
+       FROM = {
+			show_scope_change = no
+			ROOT = {
+				show_scope_change = no
+				join_prev_monastic_order_society = yes
+			}
+		}
 		
 		scaled_wealth = -0.25
 
@@ -3276,9 +3282,11 @@ character_event = {
 		FROM = {
 			holding_type = temple
 		}
+		NOT = { has_character_flag = monastic_orders_temple_construction_ongoing } #flag to avoid doubling of letter events when finishing two buildings at the same time
 	}
 	
 	immediate = {
+		set_character_flag = monastic_orders_temple_construction_ongoing
 		random_society_member = {
 			limit = {
 				same_society_as = ROOT
@@ -3319,7 +3327,20 @@ letter_event = {
 		clr_quest = monastic_orders_temple_construction
 		sound_effect = monastic_orders_build_temple_holding
 		hidden_effect = { monastic_order_purity_effect = yes }
-		add_society_currency_major_effect = yes
+		if = {
+			limit = {
+				any_owned_bloodline = {
+					has_bloodline_flag = monastic_saintly_bloodline
+				}
+			}
+			add_society_currency_large_effect = yes
+		}
+		else = {
+			add_society_currency_major_effect = yes		
+		}
+	}
+	after = {
+		clr_character_flag = monastic_orders_temple_construction_ongoing
 	}
 }
 

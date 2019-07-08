@@ -3033,3 +3033,377 @@ reconquista_huasteca = {
 		factor = 100
 	}
 }
+
+cetic_holy_war = { #Adapted from Buddhist holy war
+	name = CB_NAME_RELIGIOUS
+	war_name = WAR_NAME_RELIGIOUS
+	sprite = 9
+	truce_days = 3650
+	is_permanent = yes
+	is_holy_war = yes
+	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+
+	allowed_to_target_tributaries = no
+	
+	sort_priority = 800
+	
+	can_use_gui = {
+		ROOT = {
+			OR = {
+				NOT = { has_character_modifier = holy_war_cooldown }
+				has_game_rule = { name = holy_war_cooldown_rule value = off }
+			}
+		}
+	}
+	
+	can_use = { #American Natives no longer have access to the Holy War CB, are given County Conquest CB instead.
+		ROOT = {
+			is_nomadic = no
+			NOT = { same_realm = FROM }
+			OR = {
+				NOT = { religion = FROM }
+				AND = {
+					religion = FROM
+					FROM = {
+						has_character_modifier = known_satanist
+					}
+					NOT = {
+						has_character_modifier = known_satanist
+					}
+				}
+			}
+			top_liege = {
+				religion = ROOT
+				OR = {
+					NOT = { religion = FROM }
+					AND = {
+						religion = FROM
+						FROM = {
+							has_character_modifier = known_satanist
+						}
+						NOT = {
+							has_character_modifier = known_satanist
+						}
+						ROOT = {
+							NOT = {
+								has_character_modifier = known_satanist
+							}
+						}
+					}
+				}
+			}
+			mercenary = no
+		}
+	}
+	
+	can_use_title = {
+		# The attacker needs at least one county in the target kingdom, or a border, or be only two sea zones away from one of your counties
+		any_direct_de_jure_vassal_title = {
+			OR = {
+				holder_scope = {
+					OR = {
+						character = ROOT
+						is_liege_or_above = ROOT
+					}
+				}
+				location = {
+					region = custom_california
+					any_neighbor_province = {
+						region = custom_california
+						OR = {
+							AND = {
+								has_owner = yes
+								owner = {
+									OR = {
+										character = ROOT
+										is_liege_or_above = ROOT
+									}
+								}
+							}
+							AND = {
+								is_land = no
+								any_neighbor_province = {
+									region = custom_california
+									OR = {
+										AND = {
+											has_owner = yes
+											owner = {
+												OR = {
+													character = ROOT
+													is_liege_or_above = ROOT
+												}
+											}
+										}
+										AND = {
+											is_land = no
+											any_neighbor_province = {
+												region = custom_california
+												owner = {
+													OR = {
+														character = ROOT
+														is_liege_or_above = ROOT
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	is_valid = {
+		ROOT = {
+			religion = cetic
+			NOT = { same_realm = FROM }
+			OR = {
+				NOT = { religion = FROM }
+				AND = {
+					religion_group = FROM
+					FROM = {
+						has_character_modifier = known_satanist
+					}
+					NOT = {
+						has_character_modifier = known_satanist
+					}
+				}
+			}
+			top_liege = {
+				OR = {
+					NOT = { religion = FROM }
+					AND = {
+						religion_group = FROM
+						FROM = {
+							has_character_modifier = known_satanist
+						}
+						NOT = {
+							has_character_modifier = known_satanist
+						}
+						ROOT = {
+							NOT = {
+								has_character_modifier = known_satanist
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_add = {
+		hidden_tooltip = { fire_haruspicy_event_effect = yes }
+		ROOT = {
+			if = {
+				limit = {
+					has_game_rule = { name = holy_war_cooldown_rule value = on }
+				}
+				custom_tooltip = {
+					text = holy_war_cooldown_ctt
+					hidden_tooltip = {
+						add_character_modifier = {
+							name = holy_war_cooldown
+							duration = 1825
+						}
+					}
+				}
+			}
+		}
+		if = {
+			limit = { defender = { is_offmap_governor = offmap_china } }
+			attacker = {  
+				sound_effect = china_angered_emperor
+				detract_grace_super_huge_effect = yes 
+			}
+		}
+	}
+	
+	on_success = {
+		any_attacker = {
+			hidden_tooltip = {
+				if = {
+					limit = {
+						has_ambition = obj_strengthen_religion
+					}
+					change_variable = { which = strengthen_religion value = 1 }
+				}
+			}
+		}
+		
+		ROOT = {
+			hidden_tooltip = {
+				if = {
+					limit = {
+						has_ambition = obj_strengthen_religion
+					}
+					change_variable = { which = strengthen_religion value = 1 }
+				}
+			}
+		}
+	}
+
+	on_success_title = {
+		if = {
+			limit = {
+				holder_scope = {
+					tier = count
+					NOT = { num_of_count_titles = 2 }
+					lower_tier_than = ROOT
+				}
+			}
+
+			holder_scope = {
+				set_defacto_liege = ROOT
+			}
+		}
+
+		if = {
+			limit = {
+				holder_scope = {
+					OR = {
+						higher_tier_than = count
+						num_of_count_titles = 2
+						NOT = { lower_tier_than = ROOT }
+					}
+				}
+			}
+
+			usurp_title_plus_barony_if_unlanded = { target = ROOT type = holy_war }
+			any_de_jure_vassal_title = { # take all baronies under the one we're fighting for
+				limit = {
+					has_holder = yes
+					NOT = {
+						de_facto_liege = PREV
+					}
+					holder_scope = {
+						OR = {
+							character = FROM
+							is_liege_or_above = FROM
+						}
+					}
+				}
+
+				usurp_title_plus_barony_if_unlanded = { target = ROOT type = holy_war }
+			}
+		}
+		ROOT = {
+			participation_scaled_prestige = 100
+		}
+		any_attacker = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+	}
+
+	on_fail_title = {
+		ROOT = {
+			prestige = -100
+		}
+		FROM = {
+			participation_scaled_prestige = 50
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 50 }
+		}
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			prestige = -200
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+		FROM = {
+			participation_scaled_prestige = 100
+			hidden_tooltip = {
+				if = {
+					limit = {
+						has_ambition = obj_strengthen_religion
+					}
+					change_variable = { which = strengthen_religion value = 1 }
+				}
+			}
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+			hidden_tooltip = {
+				if = {
+					limit = {
+						has_ambition = obj_strengthen_religion
+					}
+					change_variable = { which = strengthen_religion value = 1 }
+				}
+			}
+		}
+	}
+	
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+	
+	ai_will_do = { 
+		factor = 1
+		
+		modifier = {
+			factor = 0
+			FROM = {
+				is_nomadic = yes
+			}
+			ROOT = {
+				is_nomadic = no
+				NOT = {
+					is_tribal = yes
+				}
+			}
+			NOT = {
+				any_direct_de_jure_vassal_title = {
+					any_direct_de_jure_vassal_title = {
+						OR = {
+							holding_type = castle
+							holding_type = city
+						}
+					}
+				}
+			}
+		}
+		modifier = {
+			factor = 0
+			FROM = {
+				is_nomadic = yes
+			}
+			ROOT = {
+				is_tribal = yes
+			}
+			NOT = {
+				any_direct_de_jure_vassal_title = {
+					any_direct_de_jure_vassal_title = {
+						OR = {
+							holding_type = castle
+							holding_type = city
+							holding_type = tribal
+						}
+					}
+				}
+			}
+		}
+	}
+}

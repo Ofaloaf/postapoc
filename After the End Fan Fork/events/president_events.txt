@@ -28,10 +28,10 @@ character_event = {
 			limit = { religion = americanist }
 			character_event = { id = prez.3 }
 		}
-		d_electoral_college = {
+		k_papal_state = {
 			holder_scope = {
-				diplomatic_immunity = yes
-				add_trait = electoral_college
+				#diplomatic_immunity = yes
+				#add_trait = electoral_college
 				set_variable = { which = num_candidates value = 0 }
 				character_event = { id = prez.7 days = 30 } # End candidate declaration period
 				#d_americanist = { grant_title = PREV }
@@ -56,8 +56,8 @@ character_event = {
 	hide_window = yes
 	
 	trigger = {
+		has_landed_title = k_papal_state
 		d_americanist = { has_holder = no }
-		has_landed_title = d_electoral_college
 	}
 	
 	option = {
@@ -149,7 +149,12 @@ character_event = {
 	is_triggered_only = yes # triggered from prez.1
 	hide_window = yes
 	
-	immediate = {
+	option = {
+		name = DEBUG
+		trigger = {
+			check_variable = { which = num_candidates value = 0.1 }
+			has_global_flag = pres_election
+		}
 		clr_global_flag = declare_candidacy
 		any_playable_ruler = {
 			limit = { religion = americanist }
@@ -160,6 +165,15 @@ character_event = {
 	
 	option = {
 		name = DEBUG
+		trigger = {
+			OR = {
+				NOT = { check_variable = { which = num_candidates value = 0.1 } }
+				NOT = { has_global_flag = pres_election }
+			}
+		}
+		character_event = { id = prez.7 }
+		
+		set_global_flag = declare_candidacy
 	}
 }
 
@@ -176,7 +190,7 @@ character_event = {
 	
 	immediate = {
 		remove_trait = on_campaign
-		d_electoral_college = { holder_scope = { change_variable = { which = num_candidates value = -1 } } }
+		k_papal_state = { holder_scope = { change_variable = { which = num_candidates value = -1 } } }
 		any_playable_ruler = { # Inform players
 			limit = { religion = americanist }
 			character_event = { id = prez.5 days = 1 }
@@ -249,6 +263,7 @@ character_event = {
 				NOT = { has_global_flag = pres_election }
 			}
 		}
+		set_global_flag = pres_voting #once 4 or less candidates have been selected, you can no longer drop out of the race via decision.
 	}
 }
 
@@ -273,7 +288,7 @@ character_event = {
 			}
 			modifier = {
 				factor = 2
-				d_electoral_college = { holder_scope = { check_variable = { which = num_candidates value = 8 } } }
+				k_papal_state = { holder_scope = { check_variable = { which = num_candidates value = 8 } } }
 			}
 		}
 		character_event = { id = prez.8 }
@@ -981,9 +996,10 @@ character_event = {
 	immediate = {
 		clr_global_flag = pres_election
 		clr_global_flag = declare_candidacy
-		d_electoral_college = { holder_scope = {
-			diplomatic_immunity = no
-			remove_trait = electoral_college
+		clr_global_flag = pres_voting
+		k_papal_state = { holder_scope = {
+			#diplomatic_immunity = no
+			#remove_trait = electoral_college
 			set_variable = { which = num_candidates value = 0 }
 		} }
 		any_independent_ruler = {
@@ -2396,6 +2412,7 @@ narrative_event = {
 	id = prez.301
 	title = EVTNAME_presidency_restored
 	desc = EVTDESC_presidency_restored
+	border = GFX_event_narrative_frame_religion
 	picture = GFX_evt_coronation
 	is_triggered_only = yes
 	
@@ -2413,6 +2430,7 @@ narrative_event = {
 			limit = { NOT = { dynasty = none } }
 			give_nickname = nick_lastname
 		}
+		add_trait = president
 	}
 	
 	option = {

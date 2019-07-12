@@ -8,6 +8,7 @@
 # 14	your liege has refused to convert
 # 15	your advisor has succeeded in disrupting the revival
 # 16	your advisor has failed to disrupt the revival
+# 17 	the AEC is formed
 
 # should a decision to get blessed as an adult be added?
 #100	atomicist child is born, prepare for the blessing
@@ -21,7 +22,7 @@
 #122	the ritual has gone well for your child (send to mom & dad)
 #123	the ritual has gone poorly for your child (send to mom & dad)
 
-#200	the AEC is formed
+#200	First Strike Launched
 
 namespace = event_atomicist
 
@@ -512,7 +513,7 @@ narrative_event = {
 	id = event_atomicist.120
 	title = EVTNAME_atom_birth_ritual
 	desc = EVTDESC_atom_birth_ritualgood
-	picture = GFX_evt_birth
+	picture = GFX_evt_atom_blessing
 	is_triggered_only = yes
 	
 	immediate = {
@@ -538,7 +539,7 @@ narrative_event = {
 	id = event_atomicist.121
 	title = EVTNAME_atom_birth_ritual
 	desc = EVTDESC_atom_birth_ritualbad
-	picture = GFX_evt_birth
+	picture = GFX_evt_atom_blessing
 	is_triggered_only = yes
 	
 	immediate = {
@@ -569,7 +570,7 @@ narrative_event = {
 	id = event_atomicist.122
 	title = EVTNAME_atom_birth_ritual
 	desc = EVTDESC_atom_birth_ritualgoodparent
-	picture = GFX_evt_birth
+	picture = GFX_evt_atom_blessing
 	is_triggered_only = yes
 	
 	option = {
@@ -581,7 +582,7 @@ narrative_event = {
 	id = event_atomicist.123
 	title = EVTNAME_atom_birth_ritual
 	desc = EVTDESC_atom_birth_ritualbadparent
-	picture = GFX_evt_birth
+	picture = GFX_evt_atom_blessing
 	is_triggered_only = yes
 	
 	option = {
@@ -890,6 +891,95 @@ narrative_event = {
 		trigger = {
 			religion_group = oldworld
 			NOT = { religion = atomicist }
+		}
+	}
+}
+
+# ATOMICIST FIRST STRIKE
+# Called from 'on_crusade_creation'
+# new_character is the targetted enemy
+# ROOT is the religious head
+# FROM is the attacked kingdom title
+narrative_event = {
+	id = event_atomicist.200
+	title = EVTNAME200
+	picture = GFX_evt_battle
+	border = GFX_event_narrative_frame_war
+	
+	desc = {
+		text = EVTDESC_first_strike
+		trigger = {
+			OR = {
+				new_character = {
+					NOT = { religion_group = christian }
+					NOT = { religion_group = pagan_group }
+				}
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+	}
+	desc = {
+		text = EVTDESC_first_strike_pagan
+		trigger = {
+			new_character = {
+				religion_group = pagan_group
+			}
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+	}
+	desc = {
+		text = EVTDESC_first_strike_christ
+		trigger = {
+			new_character = {
+				religion_group = christian
+			}
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	major = yes
+	show_ROOT = yes
+	hide_new = yes
+	
+	trigger = {
+		can_call_crusade = yes
+		ROOT = { religion = atomicist }
+	}
+	
+	option = {
+		name = EVTOPTA324 # For [God Name]!
+		trigger = { religion = ROOT }
+	}
+	option = {
+		name = EVTOPTB200 # No concern of ours
+		trigger = {
+			NOT = { religion = ROOT }
+			new_character = {
+				NOT = { religion = PREV }
+				NOT = { character = PREV }
+			}
+		}
+	}
+	option = {
+		name = EVTOPTD200 # To Arms!
+		trigger = {
+			new_character = {
+				character = PREV
+			}
+		}
+	}
+	option = {
+		name = EVTOPTE200 # Terrible News!
+		trigger = {
+			new_character = {
+				religion = PREV
+				NOT = { character = PREV }
+			}
 		}
 	}
 }

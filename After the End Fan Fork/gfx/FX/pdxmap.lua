@@ -406,7 +406,9 @@ float4 main( VS_OUTPUT_TERRAIN Input ) : COLOR
 	
 	float4 sample = tex2Dlod( TerrainDiffuse, sample_terrain( IndexU.w, IndexV.w, vTileRepeat, vMipTexels, lod ) );
 
-	float3 terrain_color = tex2D( ProvinceColorMap, Input.uv ).rgb;
+	float4 terrain_color = tex2D( ProvinceColorMap, Input.uv ).rgba;
+	
+	float3 terrain_normal = tex2Dlod( TerrainNormal, sample_terrain( IndexU.w, IndexV.w, vTileRepeat, vMipTexels, lod ) ).rbg - 0.5f;
 	
 	if ( vAllSame < 1.0f && vBorderLookup_HeightScale_UseMultisample_Unused.z < 8.0f )
 	{
@@ -417,8 +419,8 @@ float4 main( VS_OUTPUT_TERRAIN Input ) : COLOR
 		float3 terrain_colorRD = tex2D( ProvinceColorMap, Input.uv + vOffsets.yx ).rgb;
 		float3 terrain_colorLU = tex2D( ProvinceColorMap, Input.uv + vOffsets.xy ).rgb;
 		float3 terrain_colorRU = tex2D( ProvinceColorMap, Input.uv + vOffsets.yy ).rgb;
-
-	float2 vFrac = frac( float2( Input.uv.x * vMapSize.x - 0.5f, Input.uv.y * vMapSize.y - 0.5f ) );
+		
+		float2 vFrac = frac( float2( Input.uv.x * vMapSize.x - 0.5f, Input.uv.y * vMapSize.y - 0.5f ) );
 		
 		float vAlphaFactor = 10.0f;
 
@@ -438,16 +440,44 @@ float4 main( VS_OUTPUT_TERRAIN Input ) : COLOR
 			lerp( ColorRU, ColorLU, vBlendFactors.x ),
 			lerp( ColorRD, sample, vBlendFactors.y ), 
 			vBlendFactors.z );
+		
+		if ( terrain_color.a < 1.0f )
+		{
+			float3 terrain_normalRD = tex2Dlod( TerrainNormal, sample_terrain( IndexU.x, IndexV.x, vTileRepeat, vMipTexels, lod ) ).rbg - 0.5f;
+			float3 terrain_normalLU = tex2Dlod( TerrainNormal, sample_terrain( IndexU.y, IndexV.y, vTileRepeat, vMipTexels, lod ) ).rbg - 0.5f;
+			float3 terrain_normalRU = tex2Dlod( TerrainNormal, sample_terrain( IndexU.z, IndexV.z, vTileRepeat, vMipTexels, lod ) ).rbg - 0.5f;
+			
+			terrain_normal = 
+				( terrain_normalRU * ( 1.0f - vBlendFactors.x ) + terrain_normalLU * vBlendFactors.x ) * ( 1.0f - vBlendFactors.z ) +
+				( terrain_normalRD * ( 1.0f - vBlendFactors.y ) + terrain_normal   * vBlendFactors.y ) * vBlendFactors.z;
+		}
 	}
 	
-	float3 TerrainColor = tex2D( TerrainColorTint, Input.uv2 ).rgb;	
-	sample.rgb = GetOverlay( sample.rgb, TerrainColor, 0.5f );
+	float3 TerrainColor = tex2D( TerrainColorTint, Input.uv2 ).rgb;
+	float3 vOut;
 	
-	float2 vBlend = float2( 0.45f, 0.55f );
-	float3 vOut = ( dot(sample.rgb, GREYIFY) * vBlend.x + terrain_color.rgb * vBlend.y );
-	
-	vOut = CalculateLighting( vOut, normal );
+	if ( terrain_color.a < 1.0f )
+	{
+		terrain_normal = normalize( terrain_normal );
+
+		normal = normal.yxz * terrain_normal.x
+			+ normal.xyz * terrain_normal.y
+			+ normal.xzy * terrain_normal.z;
+		
+		sample.rgb = GetOverlay( sample.rgb, TerrainColor, 0.85f );
+		vOut = sample.rgb;
+		float4 vFoWColor = GetFoWColor( Input.prepos, FoWTexture);
+		vOut = ApplySnow( vOut, Input.prepos, normal, vFoWColor, FoWDiffuse );
+	}
+	else
+	{
+		sample.rgb = GetOverlay( sample.rgb, TerrainColor, 0.5f );
+		float2 vBlend = float2( 0.45f, 0.55f );
+		vOut = ( dot(sample.rgb, GREYIFY) * vBlend.x + terrain_color.rgb * vBlend.y );
+	}
+
 	vOut = calculate_secondary( Input.uv, vOut, Input.prepos.xz );
+	vOut = CalculateLighting( vOut, normal );
 	vOut = ApplyDistanceFog( vOut, Input.prepos, FoWTexture, FoWDiffuse );
 
 	return float4( ComposeSpecular( vOut, 0.0f ), 1.0f );

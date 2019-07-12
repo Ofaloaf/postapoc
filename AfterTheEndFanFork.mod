@@ -1,6 +1,7 @@
-name = "After the End Fan Fork v0.3"
+name = "After the End Fan Fork"
 path = "mod/After the End Fan Fork"
 user_dir = "After the End Fan Fork"
+supported_checksums = { ABCD EFGH }
 
 replace_path = "history/characters"
 replace_path = "history/provinces"

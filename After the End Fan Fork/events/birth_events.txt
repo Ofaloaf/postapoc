@@ -129,7 +129,7 @@ character_event = {
 			break = yes
 		}
 		
-		random_courtier = {
+		any_courtier = {
 			limit = {
 				is_pregnant = no
 				prisoner = no
@@ -164,6 +164,10 @@ character_event = {
 				}
 				
 				is_valid_romance_target = ROOT
+			}
+			score_value = { #Prioritizes selecting an interesting courtier...
+				value = 10
+				interesting_courtier_selection_score = yes
 			}
 			character_event = { id = 450 }
 		}
@@ -634,7 +638,7 @@ character_event = {
 	
 	immediate = {
 		liege = {
-			random_courtier = {
+			any_courtier = {
 				limit = {
 					is_ruler = no
 					has_lover = no
@@ -718,7 +722,10 @@ character_event = {
 						}
 					}
 				}
-				
+				score_value = { #Prioritizes selecting an interesting courtier...
+					value = 10
+					interesting_courtier_selection_score = yes
+				}
 				character_event = { id = 457 }
 			}
 		}
@@ -1276,7 +1283,7 @@ character_event = {
 				limit = {
 					ai = no
 					NOT = { any_courtier = { has_minor_title = title_appointed_regent } 
-					has_global_flag = pregnancy_regent_warning } 
+					has_dynasty_flag = pregnancy_regent_warning } 
 					}
 				character_event = { id = HFP.20400 } 
 			}
@@ -1427,7 +1434,7 @@ character_event = {
 				limit = {
 					ai = no
 					NOT = { any_courtier = { has_minor_title = title_appointed_regent } 
-					has_global_flag = pregnancy_regent_warning } 
+					has_dynasty_flag = pregnancy_regent_warning } 
 					}
 				character_event = { id = HFP.20400 } 
 			}
@@ -2643,7 +2650,18 @@ character_event = {
 				}
 			}
 			
-			father_of_unborn = { character_event = { id = 413 tooltip = EVTTOOLTIP413 } }
+			if = {
+				limit = {
+					father_of_unborn = { is_lover = ROOT }		
+				}
+				custom_tooltip = { text = EVTTOOLTIP413 }
+			}
+			else = {
+				father_of_unborn = {
+					show_scope_change = no
+					character_event = { id = 413 tooltip = EVTTOOLTIP413 }
+				}
+			}
 		}
 	}
 }
@@ -3460,7 +3478,7 @@ character_event = {
 					OR = { 
 						has_character_flag = gabriel_baby
 						has_character_flag = lucifer_baby
-						has_character_flag = iblis_baby
+						#has_character_flag = iblis_baby
 						has_character_flag = thor_baby
 						has_character_flag = loki_baby
 						has_character_flag = tengri_baby
@@ -3486,7 +3504,7 @@ character_event = {
 					OR = { 
 						has_character_flag = gabriel_baby
 						has_character_flag = lucifer_baby
-						has_character_flag = iblis_baby
+						#has_character_flag = iblis_baby
 						has_character_flag = thor_baby
 						has_character_flag = loki_baby
 						has_character_flag = tengri_baby
@@ -3550,46 +3568,42 @@ character_event = {
 		name = OK
 		trigger = { 
 			NOT = { 
-				mother = { trait = troubled_pregnancy }
+				trait = troubled_pregnancy
 			} 
 		}
 		ai_chance = {
-			factor = 80
+			factor = 70
 			modifier = {
-				factor = 2.0
-				mother = {
-					health = 6
-				}
+				factor = 0.7
+				trait = hard_pregnancy
+			}
+			modifier = {
+				factor = 0.7
+				is_ill = yes
 			}
 			modifier = {
 				factor = 2.0
-				mother = {
-					health = 7
-				}
+				health = 6
 			}
 			modifier = {
 				factor = 2.0
-				mother = {
-					num_of_children = 3
-				}
+				health = 7
+			}
+			modifier = {
+				factor = 2.0
+				num_of_children = 3
 			}
 			modifier = {
 				factor = 0.85
-				mother = {
-					age = 20
-				}
+				age = 20
 			}
 			modifier = {
 				factor = 0.85
-				mother = {
-					age = 25
-				}
+				age = 25
 			}
 			modifier = {
 				factor = 0.85
-				mother = {
-					age = 30
-				}
+				age = 30
 			}
 		}
 	}
@@ -3597,31 +3611,25 @@ character_event = {
 		name = OK
 		trigger = { 
 			NOT = { 
-				mother = { trait = troubled_pregnancy }
+				trait = troubled_pregnancy
 			} 
 			NOT = { 
-				mother = { is_ill = yes }
+				is_ill = yes
 			} 
 		}
 		ai_chance = {
 			factor = 4
 			modifier = {
 				factor = 2
-				mother = {
-					trait = hard_pregnancy
-				}
+				trait = hard_pregnancy
 			}
 			modifier = {
 				factor = 2.0
-				mother = {
-					NOT = { health = 4.1 }
-				}
+				NOT = { health = 4.1 }
 			}
 			modifier = {
 				factor = 1.5
-				mother = {
-					NOT = { num_of_children = 2 }
-				}
+				NOT = { num_of_children = 2 }
 			}
 		}
 		
@@ -3633,9 +3641,9 @@ character_event = {
 		name = OK
 		trigger = { 
 			OR = { 
-				mother = { trait = troubled_pregnancy }
-				mother = { is_ill = yes }
-				mother = { check_variable = { which = troubled_pregnancy_variable value = 1 } }
+				trait = troubled_pregnancy
+				is_ill = yes
+				check_variable = { which = troubled_pregnancy_variable value = 1 }
 			} 
 		}
 		ai_chance = {
@@ -3643,51 +3651,35 @@ character_event = {
 			
 			modifier = {
 				factor = 2.0
-				mother = {
-					NOT = { health = 4.1 }
-				}
+				NOT = { health = 4.1 }	
 			}
 			modifier = {
 				factor = 6.0
-				mother = {
-					NOT = { health = 3.1 }
-				}
+				NOT = { health = 3.1 }
 			}
 			modifier = {
 				factor = 1.5
-				mother = {
-					NOT = { num_of_children = 2 }
-				}
+				NOT = { num_of_children = 2 }
 			}
 			modifier = {
 				factor = 1.5
-				mother = {
-					check_variable = { which = troubled_pregnancy_variable value = 2 }
-				}
+				check_variable = { which = troubled_pregnancy_variable value = 2 }
 			}
 			modifier = {
 				factor = 1.5
-				mother = {
-					check_variable = { which = troubled_pregnancy_variable value = 3 }
-				}
+				check_variable = { which = troubled_pregnancy_variable value = 3 }
 			}
 			modifier = {
 				factor = 2
-				mother = {
-					check_variable = { which = troubled_pregnancy_variable value = 4 }
-				}
+				check_variable = { which = troubled_pregnancy_variable value = 4 }
 			}
 			modifier = {
 				factor = 3
-				mother = {
-					check_variable = { which = troubled_pregnancy_variable value = 5 }
-				}
+				check_variable = { which = troubled_pregnancy_variable value = 5 }
 			}
 		}
 		
-		mother = {
-				character_event = { id = 316 } #Troubled pregnancy gets worse.
-		}
+		character_event = { id = 316 } #Troubled pregnancy gets worse.
 	}
 	#no longer used
 }

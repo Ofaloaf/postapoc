@@ -1,7 +1,7 @@
 # 1		letter: character receives a loan
 # 2		char: loan comes due
 # 10	char: stop banking and cash out
-# 11	[hidden] char: forced to cash out due to regent, prison, etc.
+# 11	[deprecated] char: forced to cash out due to regent, prison, etc.
 # 15	char: notify nearby bankers of a loan default
 # 20	[hidden] char: banker died, pass banking capital to heir
 # 21	deprecated
@@ -323,34 +323,6 @@ character_event = {
 }
 
 character_event = {
-	id = bank.11
-	hide_window = yes
-	
-	trigger = {
-		OR = {
-			society_member_of = banking_society
-			trait = banker
-		}
-		OR = {
-			prisoner = yes
-			trait = incapable
-			trait = zombi
-			trait = inbred
-			NOT = { age = 16 }
-		}
-	}
-	
-	mean_time_to_happen = {
-		months = 1
-	}
-	
-	immediate = {
-		leave_society = yes
-		character_event = { id = bank.10 }
-	}
-}
-
-character_event = {
 	id = bank.15
 	desc = EVTDESC_bank_deadbeat
 	picture = GFX_evt_council
@@ -436,61 +408,6 @@ character_event = {
 		}
 	}
 	option = { }
-}
-
-character_event = {
-	id = bank.21
-	desc = EVTDESC_bank_inherit
-	picture = GFX_evt_council
-	is_triggered_only = yes
-	
-	trigger = {
-		dynasty = FROM
-	}
-	
-	option = {
-		name = EVTOPT_bank_inherit_greedy
-		trigger = {
-			NOT = { has_dlc = "Mystics" }
-			NOT = { trait = banker }
-			trait = greedy
-			prisoner = no
-			NOT = { trait = incapable }
-			age = 16
-		}
-		tooltip_info = greedy
-		prestige = 10
-		add_trait = banker
-		hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
-	}
-	
-	option = {
-		name = EVTOPT_bank_inherit
-		trigger = {
-			NOT = { trait = banker }
-			prisoner = no
-			NOT = { trait = incapable }
-			age = 16
-		}
-		add_trait = banker
-		hidden_tooltip = { set_variable = { which = "years_banking" value = 1 } }
-	}
-	
-	option = {
-		name = EVTOPT_bank_cashout
-		trigger = {
-			NOT = { trait = banker }
-		}
-		character_event = { id = bank.10 }
-	}
-	
-	option = {
-		name = EVTOPT_bank_double
-		trigger = {
-			trait = banker
-		}
-		wealth = 450
-	}
 }
 
 character_event = {
@@ -1606,9 +1523,11 @@ character_event = {
 		FROM = {
 			holding_type = CITY
 		}
+		NOT = { has_character_flag = banking_society_city_construction_ongoing } #flag to avoid doubling of letter events when finishing two buildings at the same time
 	}
 	
 	immediate = {
+		set_character_flag = banking_society_city_construction_ongoing
 		random_society_member = {
 			limit = {
 				same_society_as = ROOT
@@ -1649,6 +1568,7 @@ letter_event = {
 		clr_quest = quest_banking_society_city_construction
 		sound_effect = monastic_orders_build_temple_holding
 		add_society_currency_major_effect = yes
+		clr_character_flag = banking_society_city_construction_ongoing #we really gotta incorporate bloodlines and shit into this
 	}
 }
 

@@ -1,0 +1,638 @@
+decisions = {
+
+
+	# Wonder Retinue
+	recruit_wonder_guard = {
+		only_independent = yes
+		is_high_prio = yes
+		ai_check_interval = 12
+
+		potential = {
+			is_playable = yes
+			NOT = { has_earmarked_regiments = wonder_guard }
+			any_realm_wonder_upgrade = {
+				has_wonder_upgrade = upgrade_retinue
+				is_active = yes
+			}
+		}
+		allow = {
+			wealth = 100
+		}
+		effect = {
+			wealth = -100
+			random_realm_wonder_upgrade = {
+				limit = {
+					has_wonder_upgrade = upgrade_retinue
+					is_active = yes
+				}
+				wonder = { save_event_target_as = the_wonder }
+			}
+			event_target:the_wonder = {
+				show_scope_change = no
+				location = {
+					show_scope_change = no
+					PREVPREV = {
+						show_scope_change = no 
+						spawn_unit = {
+							owner = ROOT
+							province = PREV
+							home = PREV
+							earmark = wonder_guard
+							troops = {
+								light_infantry = { 1000 1000 }
+								heavy_infantry = { 500 500 }
+							}
+							attrition = 1.0
+							maintenance_multiplier = 0.5
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				NOT = {
+					any_war = {
+						OR = {
+							defender = { character = ROOT }
+							attacker = { character = ROOT }
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	# Training Academy Hero
+	recruit_academy_hero = {
+		only_independent = yes
+		is_high_prio = yes
+
+
+		potential = {
+			is_playable = yes
+			any_realm_wonder_upgrade = {
+				has_wonder_upgrade = upgrade_training_academy
+				is_active = yes
+			}			
+		}
+		allow = {
+			is_inaccessible_trigger = no
+			custom_tooltip = {
+				text = has_not_recruited_in_5_years_TT
+				hidden_tooltip = {
+					OR = {
+						NOT = { has_character_flag = recruited_academy_hero }
+						had_character_flag = { flag = recruited_academy_hero days = 1825 }
+					}
+				}
+			}
+		}
+
+		effect = {
+			random_realm_wonder_upgrade = {
+				limit = {
+					has_wonder_upgrade = upgrade_training_academy
+					is_active = yes
+				}
+				save_event_target_as = train_academy
+				wonder = { save_event_target_as = wonder_target }
+			}
+			hidden_effect = { 
+				set_character_flag = recruited_academy_hero	
+
+				spawn_good_commander_effect = yes	
+
+				new_character = {
+					random_list = {
+						10 = { add_artifact = lance_tier_1_new }
+						10 = { add_artifact = sword_tier_1_new }
+						10 = { add_artifact = scimitar_tier_1_new }
+						10 = { add_artifact = axe_tier_1_new }
+						10 = { add_artifact = mace_tier_1_new }
+					}	
+
+					add_trait = gladiator
+					random_list = {
+						10 = { add_trait = robust } 
+						10 = { add_trait = duelist }
+						10 = { add_trait = impaler }
+					}
+					
+					remove_trait = misguided_warrior
+					remove_trait = tough_soldier
+					remove_trait = skilled_tactician
+					remove_trait = brilliant_strategist			
+
+					random_list = {
+						45 = { add_trait = misguided_warrior }
+						40 = { add_trait = tough_soldier }
+						10 = { add_trait = skilled_tactician }
+						5 = { add_trait = brilliant_strategist }
+					}
+					random_list = {
+						10 = { add_trait = aggressive_leader }
+						10 = { add_trait = defensive_leader }
+						10 = { add_trait = experimenter }
+						10 = { add_trait = unyielding_leader }
+						10 = { add_trait = flat_terrain_leader }
+					}
+				}
+				character_event = { id = NE.1 }
+			}
+			custom_tooltip = { text = gladiator_commander_TT }
+		}
+
+		revoke_allowed = {
+			always = no
+  		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
+
+
+	drink_from_fountain_of_youth = {
+		only_independent = yes
+		is_high_prio = yes
+		ai_check_interval = 6
+
+		potential = {
+			is_playable = yes
+			any_realm_wonder_upgrade = {
+				has_wonder_upgrade = upgrade_fountain_of_youth
+				is_active = yes
+			}
+			NOT = {
+				has_game_rule = {
+					name = supernatural_events
+					value = off
+				}
+			}
+		}
+		allow = {
+			is_inaccessible_trigger = no
+			age = 18
+			custom_tooltip = {
+				text = has_not_chugged_in_10_years_TT
+				hidden_tooltip = {
+					NOT = { has_character_modifier = drank_from_fountain_cooldown }
+				}
+			}
+		}
+		effect = {
+			hidden_effect = {
+				add_character_modifier = {
+					name = drank_from_fountain_cooldown
+					years = 10
+					hidden = yes
+				}
+				character_event = { id = LT.60201 }
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.5 # slow down if you're young
+				age < 50
+			}
+		}
+	}
+
+
+	store_relic_in_wonder = {
+		only_independent = yes
+		is_high_prio = yes
+		ai_check_interval = 6
+
+		potential = {
+			is_playable = yes
+			any_realm_wonder_upgrade = {
+				has_wonder_upgrade_flag = stores_relic
+				is_active = no
+				NOT = { has_wonder_upgrade_flag = is_storing_relic }
+				is_building_wonder_upgrade = no
+				wonder = { is_active = yes }
+			}
+			any_artifact = { always = yes }
+		}
+		allow = {
+			is_inaccessible_trigger = no
+			custom_tooltip = {
+				text = any_artifact_relic_TT
+				hidden_tooltip = {
+					any_artifact = {
+						has_artifact_flag = religious
+						is_artifact_active = yes
+					}
+				}
+			}
+			NOT = { has_character_flag = taking_relic_decision }
+		}
+
+		effect = {
+			if = { #Since the decision updates every 6 month this check is to make sure you actually still have an artifact!
+				limit = {
+					any_artifact = { always = yes }
+				}
+				random_realm_wonder_upgrade = {
+					limit = {
+						has_wonder_upgrade_flag = stores_relic
+						is_active = no
+						is_building_wonder_upgrade = no
+					}
+					save_event_target_as = target_upgrade
+					wonder = { save_event_target_as = target_wonder }
+				}
+				random_artifact = {
+					limit = { 
+						has_artifact_flag = religious
+						is_artifact_active = yes
+					}
+					set_artifact_flag = target_artifact_1
+					save_event_target_as = target_artifact_1
+				}
+				random_artifact = {
+					limit = { 
+						has_artifact_flag = religious
+						is_artifact_active = yes
+						NOT = { artifact = event_target:target_artifact_1 }
+					}
+					set_artifact_flag = target_artifact_2
+					save_event_target_as = target_artifact_2
+				}
+				random_artifact = {
+					limit = { 
+						has_artifact_flag = religious
+						is_artifact_active = yes
+						NOT = { artifact = event_target:target_artifact_1 }
+						NOT = { artifact = event_target:target_artifact_2 }
+					}
+					set_artifact_flag = target_artifact_3
+					save_event_target_as = target_artifact_3
+				}
+				random_artifact = {
+					limit = { 
+						has_artifact_flag = religious
+						is_artifact_active = yes
+						NOT = { artifact = event_target:target_artifact_1 }
+						NOT = { artifact = event_target:target_artifact_2 }
+						NOT = { artifact = event_target:target_artifact_3 }
+					}
+					set_artifact_flag = target_artifact_4
+					save_event_target_as = target_artifact_4
+				}
+
+				hidden_effect = { set_character_flag = taking_relic_decision }
+
+				character_event = { id = LT.20601 }
+
+				custom_tooltip = { text = store_relic_TT }
+			}
+		}
+
+		revoke_allowed = {
+			always = no
+  		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	repair_wonder_decision = {
+		potential = {
+			any_realm_wonder_upgrade = {
+				has_wonder_upgrade_flag = repairable
+					
+			}
+		}
+		
+		allow = {
+			wealth = 400
+		}
+		
+		effect = {
+			wealth = -400
+			any_realm_wonder_upgrade = {
+			
+				limit = {
+					has_wonder_upgrade_flag = repairable
+				} #TO DO make this only happen once.
+				destroy_wonder_upgrade = yes
+			}
+		}
+		
+		ai_will_do = {
+			factor = 10
+		}
+	}
+
+
+}
+
+targetted_decisions = {  
+    alcohol_gift_decision = { #Given Alcohol gift
+        only_playable = yes
+        ai = no
+        potential = {
+            NOT = { 
+                character = FROM
+                has_character_modifier = recently_recieved_alcohol_gift
+				
+            }
+				
+            ROOT = {
+				is_alive = yes
+				is_within_diplo_range = FROM
+			}
+            FROM = {
+                is_ruler = yes
+				any_realm_wonder_upgrade = {
+					has_wonder_upgrade_flag = produces_alcohol
+				}
+            }
+            
+        }
+        
+        allow = {
+            is_adult = yes
+            prisoner = no
+            FROM = {
+                NOT = { 
+					has_character_modifier = recently_sent_alcohol_gift
+				
+				}
+            }
+            custom_tooltip = {
+				text = not_recently_sent_alcohol_tooltip
+            }
+        }
+        
+        effect = {
+        	if = {
+        		limit = {
+					religion_group = latter_day_saints
+					OR = {
+						trait = zealous
+						has_job_title = job_spiritual 
+					}	
+        		}
+        		opinion = {
+					who = FROM
+	    	        modifier = opinion_disrespects_me
+	    	    }
+        	}
+        	else = {
+				if = {
+					limit = { trait = drunkard }
+					opinion = {
+						who = FROM
+		    	        modifier = opinion_gifted_alcohol_drunkard
+		    	    }
+				} 
+				else = {  
+		    	    opinion = {
+						who = FROM
+		    	        modifier = opinion_gifted_alcohol
+		    	    }
+				}
+        	}
+			hidden_tooltip = {
+				add_character_modifier = {
+					name = recently_recieved_alcohol_gift
+					duration = 365
+					hidden = yes	
+				}
+			}
+            
+			hidden_tooltip = {
+				FROM = {
+					add_character_modifier = {
+						name = recently_sent_alcohol_gift
+						duration = 365
+						hidden = yes	
+					}    
+				}
+			}
+        }
+    }
+	
+
+
+	use_scary_upgrade = {
+		only_playable = yes
+		
+		ai_target_filter = realm
+		ai_check_interval = 60
+
+		from_potential = {
+			is_playable = yes
+			is_adult = yes
+			NOT = { trait = incapable }
+			any_realm_wonder_upgrade = {
+    			is_active = yes
+    			has_wonder_upgrade_flag = scary
+    		}
+		}
+
+		potential = {
+			NOT = { character = FROM }
+			age = 8
+			OR = {
+				FROM = { ai = yes } # Only checks realm, so by definition in range
+				same_realm = FROM
+			}
+		}
+
+		allow = {
+			prisoner = no
+			is_inaccessible_trigger = no
+			NOR = {
+				has_opinion_modifier = {
+					modifier = opinion_scared_into_submission
+					who = FROM
+				}
+				has_opinion_modifier = {
+					modifier = opinion_threatened_me
+					who = FROM
+				}
+			}
+			FROM = { 
+				is_inaccessible_trigger = no
+				custom_tooltip = {
+					text = use_scary_upgrade_cooldown_tt
+					hidden_trigger = {
+						NOT = {
+							has_character_modifier = used_scary_upgrade_cd
+						}
+					}
+				}
+			}
+		}
+
+		effect = {
+			FROM = {
+				random_realm_wonder_upgrade = {
+    				limit = {
+    					is_active = yes
+    					has_wonder_upgrade_flag = scary
+    				}
+    				save_event_target_as = target_upgrade
+    				wonder = { save_event_target_as = target_wonder }
+    			}
+    		}
+    		save_event_target_as = target_character
+
+			custom_tooltip = {
+				text = use_scary_upgrade_tt
+				hidden_effect = {
+					FROM = {
+						character_event = { id = LT.20301 days = 1} 
+						add_character_modifier = {
+							name = used_scary_upgrade_cd
+							hidden = yes
+							years = 2
+						}
+					}
+				}
+			}
+		}
+
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.5 # slow down
+			}
+			modifier = {
+				FROM = { is_benevolent_trigger = yes }
+				factor = 0.1
+			}
+			modifier = {
+				FROM = { is_evil_trigger = yes }
+				factor = 2
+			}
+			modifier = {
+				OR = {
+					is_friend = FROM
+					is_lover = FROM
+					is_liege_of = FROM
+				}
+				factor = 0
+			}
+		}
+	}
+
+
+	use_secluded_upgrade = {
+		only_playable = yes
+		
+		ai_target_filter = realm
+		ai_check_interval = 60
+
+		from_potential = {
+			is_playable = yes
+			is_adult = yes
+			NOT = { trait = incapable }
+			any_realm_wonder_upgrade = {
+    			is_active = yes
+    			has_wonder_upgrade_flag = secluded
+    		}
+		}
+
+		potential = {
+			NOT = { character = FROM }
+			is_adult = yes
+			OR = {
+				FROM = { ai = yes } # Only checks realm, so by definition in range
+				same_realm = FROM
+			}
+		}
+
+		allow = {
+			prisoner = no
+			is_inaccessible_trigger = no
+			NOR = {
+				has_opinion_modifier = {
+					modifier = opinion_afraid
+					who = FROM
+				}
+				has_opinion_modifier = {
+					modifier = opinion_threatened_me
+					who = FROM
+				}
+			}
+			FROM = { 
+				is_inaccessible_trigger = no
+				custom_tooltip = {
+					text = use_secluded_upgrade_cooldown_tt
+					hidden_trigger = {
+						NOT = { has_character_modifier = used_secluded_upgrade_cd }
+					}
+				}
+			}
+		}
+
+		effect = {
+			FROM = {
+				random_realm_wonder_upgrade = {
+    				limit = {
+    					is_active = yes
+    					has_wonder_upgrade_flag = secluded
+    				}
+    				save_event_target_as = target_upgrade
+    				wonder = { save_event_target_as = target_wonder }
+    			}
+    		}
+    		save_event_target_as = target_character
+
+			custom_tooltip = {
+				text = use_secluded_upgrade_tt
+				hidden_effect = {
+					character_event = { id = LT.20405 days = 7} #invitation
+					FROM = {
+						add_character_modifier = {
+							name = used_secluded_upgrade_cd
+							hidden = yes
+							months = 6
+						}
+					}
+				}
+			}
+		}
+
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 1
+#			modifier = {
+#				factor = 0.5 # slow down
+#			}
+			modifier = {
+				FROM = { diplomacy = 10 }
+				factor = 2
+			}
+#			modifier = {
+#				OR = {
+#					is_friend = FROM
+#					is_lover = FROM
+#					NOR = {
+#						liege = { character = FROM }
+#						is_liege_of = FROM
+#					}
+#				}
+#				factor = 0
+#			}
+		}
+	}
+
+
+
+
+
+}
+

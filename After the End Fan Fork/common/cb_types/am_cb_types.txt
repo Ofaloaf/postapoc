@@ -3223,17 +3223,40 @@ cetic_holy_war = { #Adapted from Buddhist holy war
 	
 	on_success = {
 		any_attacker = {
-			hidden_tooltip = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = { 
+				participation_scaled_piety = 100
+				participation_scaled_prestige = 50
 				if = {
 					limit = {
-						has_ambition = obj_strengthen_religion
+						uses_decadence = yes
 					}
-					change_variable = { which = strengthen_religion value = 1 }
+					participation_scaled_decadence = -10
+				}
+				hidden_tooltip = {
+					if = {
+						limit = {
+							has_ambition = obj_strengthen_religion
+						}
+						change_variable = { which = strengthen_religion value = 1 }
+					}
 				}
 			}
 		}
 		
-		ROOT = {
+		ROOT = { 
+			participation_scaled_piety = 100
+			participation_scaled_prestige = 50
+			if = {
+				limit = {
+					uses_decadence = yes
+				}
+				participation_scaled_decadence = -10
+			}
+			religion_authority = {
+				modifier = won_holy_war
+				years = 20
+			}
 			hidden_tooltip = {
 				if = {
 					limit = {
@@ -3243,96 +3266,114 @@ cetic_holy_war = { #Adapted from Buddhist holy war
 				}
 			}
 		}
+		FROM = { 
+			if = {
+				limit = {
+					NOT = {
+						has_character_modifier = known_satanist
+					}
+				}
+				religion_authority = {
+					modifier = lost_holy_war
+					years = 20
+				}		
+			}		
+		}
+		FROM = { piety = -100 }
+		FROM = { prestige = -50 }
 	}
 
 	on_success_title = {
-		if = {
-			limit = {
-				holder_scope = {
-					tier = count
-					NOT = { num_of_count_titles = 2 }
-					lower_tier_than = ROOT
-				}
-			}
-
-			holder_scope = {
-				set_defacto_liege = ROOT
-			}
-		}
-
-		if = {
-			limit = {
-				holder_scope = {
-					OR = {
-						higher_tier_than = count
-						num_of_count_titles = 2
-						NOT = { lower_tier_than = ROOT }
+		custom_tooltip = {
+			text = religious_cb_succ_tip
+			hidden_tooltip = {
+				ROOT = {
+					vassalize_or_take_under_title = {
+						title = PREV
+						enemy = FROM
+						same_religion = yes # Only vassalize rulers of my religion
+						is_religious = yes
+						type = holy_war
 					}
 				}
 			}
-
-			usurp_title_plus_barony_if_unlanded = { target = ROOT type = holy_war }
-			any_de_jure_vassal_title = { # take all baronies under the one we're fighting for
-				limit = {
-					has_holder = yes
-					NOT = {
-						de_facto_liege = PREV
-					}
-					holder_scope = {
-						OR = {
-							character = FROM
-							is_liege_or_above = FROM
-						}
-					}
-				}
-
-				usurp_title_plus_barony_if_unlanded = { target = ROOT type = holy_war }
-			}
-		}
-		ROOT = {
-			participation_scaled_prestige = 100
-		}
-		any_attacker = {
-			limit = { NOT = { character = ROOT } }
-			hidden_tooltip = { participation_scaled_prestige = 100 }
 		}
 	}
 
-	on_fail_title = {
-		ROOT = {
+	on_fail = {
+		ROOT = { 
+			piety = -50 
 			prestige = -100
-		}
-		FROM = {
-			participation_scaled_prestige = 50
-		}
-		any_defender = {
-			limit = { NOT = { character = FROM } }
-			hidden_tooltip = { participation_scaled_prestige = 50 }
 		}
 	}
 
 	on_reverse_demand = {
 		ROOT = {
-			prestige = -200
 			transfer_scaled_wealth = {
 				to = FROM
 				value = 4.0
 			}
+			piety = -75
+			prestige = -150
 		}
 		FROM = {
+			participation_scaled_piety = 200
 			participation_scaled_prestige = 100
-			hidden_tooltip = {
-				if = {
-					limit = {
-						has_ambition = obj_strengthen_religion
-					}
-					change_variable = { which = strengthen_religion value = 1 }
+			if = {
+				limit = {
+					uses_decadence = yes
 				}
+				participation_scaled_decadence = -10
 			}
 		}
 		any_defender = {
 			limit = { NOT = { character = FROM } }
-			hidden_tooltip = { participation_scaled_prestige = 100 }
+			hidden_tooltip = { 
+				participation_scaled_piety = 200
+				participation_scaled_prestige = 100
+				if = {
+					limit = {
+						uses_decadence = yes
+					}
+					participation_scaled_decadence = -10
+				}
+				hidden_tooltip = {
+					if = {
+						limit = {
+							has_ambition = obj_strengthen_religion
+						}
+						change_variable = { which = strengthen_religion value = 1 }
+					}
+				}
+			}
+		}
+		any_attacker = {
+			limit = {
+				character = ROOT
+				uses_decadence = yes
+			}
+			participation_scaled_decadence = 20
+		}
+		any_attacker = {
+			limit = {
+				NOT = { character = ROOT }
+				uses_decadence = yes
+			}
+			hidden_tooltip = { 
+				participation_scaled_decadence = 20
+			}
+		}
+		ROOT = { 
+			religion_authority = {
+				modifier = lost_holy_war
+				years = 20
+			}
+		}
+		FROM = { 
+			religion_authority = {
+				modifier = won_holy_war
+				years = 20
+			}
 			hidden_tooltip = {
 				if = {
 					limit = {

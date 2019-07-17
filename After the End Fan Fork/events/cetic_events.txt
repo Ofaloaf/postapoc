@@ -34,6 +34,10 @@
 # 56	char: inform cetic character of terrible writings
 # 60	letter: emperor requests military aid
 # 61	narr: notify cetic ruler of californian imperialism
+# 100	imperial claim war begins, rulers asked to choose a side
+# 101	imperial claim war ends, claimant wins
+# 102	imperial claim war ends, white peace
+# 103	imperial claim war ends, emperor wins
 
 namespace = cetic
 
@@ -2423,6 +2427,400 @@ letter_event = {
 			modifier = { factor = 4 war = yes }
 			modifier = { factor = 3 trait = cynical }
 			modifier = { factor = 2 trait = craven }
+		}
+	}
+}
+
+# Imperial Claim War
+narrative_event = {
+	id = cetic.100
+	title = EVTTITLE_cetic_imperial_war
+	desc = EVTDESC_cetic_imperial_war
+	picture = GFX_evt_china_civil_war
+	border = GFX_event_normal_frame_war
+	major = yes
+	show_root = yes
+	is_triggered_only = yes
+	hide_from = yes
+	hide_new = yes
+	
+	immediate = {
+		set_global_flag = imperial_claim_war
+	}
+	
+	option = {
+		name = EVTOPT_current_emperor
+		trigger = {
+			has_landed_title = e_california
+		}
+		prestige = -500
+	}
+	
+	option = {
+		name = EVTOPT_imperial_claimant
+		trigger = {
+			has_character_flag = imperial_claimant
+		}
+	}
+	
+	option = {
+		name = EVTOPT_support_emperor
+		trigger = {
+			religion = cetic
+			de_jure_liege = e_california
+			NOT = { de_facto_liege = e_california }
+		}
+		set_character_flag = supported_emperor_imperial_war
+		join_defender_wars = persistent_event_target:current_emperor
+		
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 4
+				has_character_modifier = imperial_censure
+			}
+			modifier = {
+				factor = 2
+				is_friend = persistent_event_target:imperial_claimant
+			}
+			modifier = {
+				factor = 2
+				is_rival = persistent_event_target:current_emperor
+			}
+			modifier = {
+				factor = 0 # alliances WILL be upheld
+				AND = {
+					is_allied_with = persistent_event_target:imperial_claimant
+					NOT = { is_allied_with = persistent_event_target:current_emperor }
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_imperial_neutral
+		trigger = {
+			religion = cetic
+			de_jure_liege = e_california
+			NOT = { de_facto_liege = e_california }
+		}
+		prestige = -250
+		set_character_flag = stayed_neutral_imperial_war
+		
+		ai_chance = {
+			factor = 5
+			modifier = {
+				factor = 2
+				has_character_modifier = imperial_censure
+			}
+			modifier = {
+				factor = 2
+				has_character_modifier = imperial_favor
+			}
+			modifier = {
+				factor = 0
+				is_friend = persistent_event_target:imperial_claimant
+			}
+			modifier = {
+				factor = 0
+				is_rival = persistent_event_target:current_emperor
+			}
+			modifier = {
+				factor = 0 # alliances WILL be upheld
+				is_allied_with = persistent_event_target:imperial_claimant
+				NOT = { is_allied_with = persistent_event_target:current_emperor }
+			}
+			modifier = {
+				factor = 0 # alliances WILL be upheld
+				is_allied_with = persistent_event_target:current_emperor
+				NOT = { is_allied_with = persistent_event_target:imperial_claimant }
+			}
+			modifier = {
+				factor = 100 # alliances WILL be upheld
+				is_allied_with = persistent_event_target:imperial_claimant
+				is_allied_with = persistent_event_target:current_emperor
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPT_support_claimant
+		trigger = {
+			religion = cetic
+			de_jure_liege = e_california
+			NOT = { de_facto_liege = e_california }
+		}
+		join_attacker_wars = persistent_event_target:imperial_claimant
+		set_character_flag = supported_claimant_imperial_war
+		
+		ai_chance = {
+			factor = 5
+			modifier = {
+				factor = 2
+				has_character_modifier = imperial_favor
+			}
+			modifier = {
+				factor = 0
+				is_friend = persistent_event_target:current_emperor
+			}
+			modifier = {
+				factor = 0
+				is_rival = persistent_event_target:imperial_claimant
+			}
+			modifier = {
+				factor = 0 # alliances WILL be upheld
+				is_allied_with = persistent_event_target:current_emperor
+				NOT = { is_allied_with = persistent_event_target:imperial_claimant }
+			}
+		}
+	}
+	
+	option = { #direct imperial vassal, presumed neutral
+		name = EVTOPT_direct_imperial_vassal
+		trigger = {
+			religion = cetic
+			de_jure_liege = e_california
+			de_facto_liege = e_california
+		}
+		set_character_flag = stayed_neutral_imperial_war
+	}
+	
+	option = {
+		name = EVTOPT_other
+		trigger = {
+			NAND = {
+				religion = cetic
+				de_jure_liege = e_california
+				de_jure_liege = e_california
+			}
+		}
+	}
+}
+
+# Imperial Claim War Won By Claimant
+narrative_event = {
+	id = cetic.101
+	title = EVTTITLE_cetic_imperial_war_success
+	desc = EVTDESC_cetic_imperial_war_success
+	picture = GFX_evt_china_golden_age
+	border = GFX_event_normal_frame_diplomacy
+	major = yes
+	show_root = yes
+	is_triggered_only = yes
+	hide_from = yes
+	hide_new = yes
+	
+	immediate = {
+		clr_global_flag = imperial_claim_war
+		clear_persistent_event_target = imperial_claimant
+		clear_persistent_event_target = current_emperor
+	}
+	
+	option = {
+		name = EVTOPT_successful_claimant
+		trigger = {
+			has_character_flag = imperial_claimant
+		}
+		clr_character_flag = imperial_claimant
+	}
+	
+	option = {
+		name = EVTOPT_deposed_emperor
+		trigger = {
+			has_character_flag = deposed_emperor
+		}
+		prestige = -1000
+	}
+	
+	option = {
+		name = EVTOPT_supported_emperor_101
+		trigger = {
+			has_character_flag = supported_emperor_imperial_war
+		}
+		clr_character_flag = supported_emperor_imperial_war
+		prestige = -250
+	}
+	
+	option = {
+		name = EVTOPT_stayed_neutral_101
+		trigger = {
+			has_character_flag = stayed_neutral_imperial_war
+		}
+		clr_character_flag = stayed_neutral_imperial_war
+	}
+	
+	option = {
+		name = EVTOPT_supported_claimant_101
+		trigger = {
+			has_character_flag = supported_claimant_imperial_war
+		}
+		clr_character_flag = supported_claimant_imperial_war
+		prestige = 250
+	}
+	
+	option = {
+		name = EVTOPT_other_101
+		trigger = {
+			NOR = {
+				has_character_flag = imperial_claimant
+				has_character_flag = deposed_emperor
+				has_character_flag = supported_emperor_imperial_war
+				has_character_flag = stayed_neutral_imperial_war
+				has_character_flag = supported_claimant_imperial_war
+			}
+		}
+	}
+}
+
+# Imperial Claim War Won By Emperor (White Peace)
+narrative_event = {
+	id = cetic.102
+	title = EVTTITLE_cetic_imperial_war_failure
+	desc = EVTDESC_cetic_imperial_war_failure
+	picture = GFX_evt_china_stable
+	border = GFX_event_normal_frame_diplomacy
+	major = yes
+	show_root = yes
+	is_triggered_only = yes
+	hide_from = yes
+	hide_new = yes
+	
+	immediate = {
+		clr_global_flag = imperial_claim_war
+		clear_persistent_event_target = imperial_claimant
+		clear_persistent_event_target = current_emperor
+	}
+	
+	option = {
+		name = EVTOPT_failed_claimant
+		trigger = {
+			has_character_flag = failed_imperial_claimant
+		}
+		prestige = -500
+	}
+	
+	option = {
+		name = EVTOPT_successful_emperor
+		trigger = {
+			has_character_flag = restored_emperor
+		}
+		prestige = 500
+		clr_character_flag = restored_emperor
+	}
+	
+	option = {
+		name = EVTOPT_supported_emperor_102
+		trigger = {
+			has_character_flag = supported_emperor_imperial_war
+		}
+		clr_character_flag = supported_emperor_imperial_war
+		prestige = 250
+	}
+	
+	option = {
+		name = EVTOPT_stayed_neutral_102
+		trigger = {
+			has_character_flag = stayed_neutral_imperial_war
+		}
+		clr_character_flag = stayed_neutral_imperial_war
+	}
+	
+	option = {
+		name = EVTOPT_supported_claimant_102
+		trigger = {
+			has_character_flag = supported_claimant_imperial_war
+		}
+		clr_character_flag = supported_claimant_imperial_war
+		prestige = -250
+	}
+	
+	option = {
+		name = EVTOPT_other_102
+		trigger = {
+			NOR = {
+				has_character_flag = imperial_claimant
+				has_character_flag = deposed_emperor
+				has_character_flag = supported_emperor_imperial_war
+				has_character_flag = stayed_neutral_imperial_war
+				has_character_flag = supported_claimant_imperial_war
+			}
+		}
+	}
+}
+
+# Imperial Claim War Won By Emperor (Figurehead Removed)
+narrative_event = {
+	id = cetic.103
+	title = EVTTITLE_cetic_imperial_war_utter_failure
+	desc = EVTDESC_cetic_imperial_war_utter_failure
+	picture = GFX_evt_china_golden_age
+	border = GFX_event_normal_frame_diplomacy
+	major = yes
+	show_root = yes
+	is_triggered_only = yes
+	hide_from = yes
+	hide_new = yes
+	
+	immediate = {
+		clr_global_flag = imperial_claim_war
+		clear_persistent_event_target = imperial_claimant
+		clear_persistent_event_target = current_emperor
+	}
+	
+	option = {
+		name = EVTOPT_failed_claimant_103
+		trigger = {
+			has_character_flag = failed_imperial_claimant
+		}
+		prestige = -15000
+	}
+	
+	option = {
+		name = EVTOPT_restored_emperor
+		trigger = {
+			has_character_flag = restored_emperor
+		}
+		prestige = 1500
+		clr_character_flag = restored_emperor
+	}
+	
+	option = {
+		name = EVTOPT_supported_emperor_103
+		trigger = {
+			has_character_flag = supported_emperor_imperial_war
+		}
+		clr_character_flag = supported_emperor_imperial_war
+		prestige = 500
+	}
+	
+	option = {
+		name = EVTOPT_stayed_neutral_103
+		trigger = {
+			has_character_flag = stayed_neutral_imperial_war
+		}
+		clr_character_flag = stayed_neutral_imperial_war
+		prestige = -250
+	}
+	
+	option = {
+		name = EVTOPT_supported_claimant_103
+		trigger = {
+			has_character_flag = supported_claimant_imperial_war
+		}
+		clr_character_flag = supported_claimant_imperial_war
+		prestige = -500
+	}
+	
+	option = {
+		name = EVTOPT_other_103
+		trigger = {
+			NOR = {
+				has_character_flag = imperial_claimant
+				has_character_flag = deposed_emperor
+				has_character_flag = supported_emperor_imperial_war
+				has_character_flag = stayed_neutral_imperial_war
+				has_character_flag = supported_claimant_imperial_war
+			}
 		}
 	}
 }

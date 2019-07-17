@@ -3448,3 +3448,144 @@ cetic_holy_war = { #Adapted from Buddhist holy war
 		}
 	}
 }
+
+imperial_claim_war = { #Special CB used for imperial claims
+	name = CB_NAME_IMPERIAL_CLAIM
+	war_name = WAR_NAME_IMPERIAL_CLAIM
+	sprite = 1
+	truce_days = 3650
+	hostile_against_others = no
+	is_permanent = no
+	can_ask_to_join_war = no
+	is_claim_all = yes
+	can_call_allies = no # mano e mano
+	
+	infamy_modifier = 1.5
+	
+	sort_priority = 1000
+	
+	can_use_title = {
+		FROM = { #???
+			has_landed_title = e_california
+		}
+	}
+	
+	is_valid_title = {
+		FROM = { #???
+			has_landed_title = e_california
+		}
+	}
+	
+	on_add = {
+		hidden_tooltip = { fire_haruspicy_event_effect = yes }
+		if = {
+			limit = { defender = { is_offmap_governor = offmap_china } }
+			attacker = {  
+				sound_effect = china_angered_emperor
+				detract_grace_super_huge_effect = yes 
+			}
+		}
+	}
+	
+	on_success = {
+		ROOT = {
+			show_scope_change = no
+			any_claim = {
+				show_scope_change = no
+				limit = {
+					holder_scope = {
+						OR = {
+							character = FROM
+							is_liege_or_above = FROM
+						}
+					}
+					ROOT = { has_strong_claim = PREV }
+				}
+				usurp_title_plus_barony_if_unlanded = { target = ROOT type = claim }
+				if = {
+					limit = {
+						higher_tier_than = BARON
+						NOT = { culture = ROOT }
+					}
+					hidden_tooltip = { conquest_culture = ROOT }
+				}
+			}
+			imprison = FROM
+			narrative_event = { id = cetic.101 } # Successful Challenge
+		}
+		FROM = {
+			set_character_flag = deposed_emperor
+			set_defacto_liege = ROOT
+		}
+		any_attacker = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+		
+		hidden_tooltip = {
+			check_if_reconquista_finished_effect = yes
+			FROM = {
+				landless_pope_effect = yes
+			}
+		}
+	}
+	
+	on_fail = {
+		ROOT = {
+			prestige = -2000
+			piety = -2000
+			clr_character_flag = imperial_claimant
+			set_character_flag = failed_imperial_claimant
+			any_claim = {
+				limit = {
+					holder_scope = {
+						OR = {
+							character = FROM
+							is_liege_or_above = FROM
+						}
+					}
+					ROOT = { has_strong_claim = PREV }
+				}
+				ROOT = { show_scope_change = no remove_claim = PREV }
+			}
+		}
+		FROM = {
+			set_character_flag = restored_emperor
+			prestige = 2000
+			piety = 2000
+			imprison = ROOT
+			narrative_event = { id = cetic.102 } # White Peace
+		}
+	}
+	
+	on_reverse_demand = {
+		FROM = {
+			remove_trait = figurehead # oh yeah
+			set_character_flag = restored_emperor
+			prestige = 3000
+			piety = 3000
+			imprison = ROOT
+			narrative_event = { id = cetic.103 } # Imperial Power Restored
+		}
+		ROOT = {
+			prestige = -3000
+			piety = -3000
+			clr_character_flag = imperial_claimant
+			set_character_flag = failed_imperial_claimant
+			any_claim = {
+				limit = {
+					holder_scope = {
+						OR = {
+							character = FROM
+							is_liege_or_above = FROM
+						}
+					}
+					ROOT = { has_strong_claim = PREV }
+				}
+				ROOT = { show_scope_change = no remove_claim = PREV }
+			}
+			abdicate = yes
+		}
+	}
+}
+			

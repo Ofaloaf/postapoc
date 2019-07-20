@@ -802,5 +802,80 @@ decisions = {
 			factor = 1
 		}
 	}
+	
+	claim_imperial_throne = { # this decision immediately starts a war with the emperor, so be careful
+		only_independent = yes
+		is_high_prio = yes
+		religion = cetic
+		min_age = 20
+		
+		potential = {
+			e_california = { # requires figurehead emperor
+				holder_scope = {
+					trait = figurehead
+				}
+			}
+			tier = KING
+			NOT = { has_character_flag = failed_imperial_claimant }
+			NOT = { has_character_flag = imperial_claimant }
+		}
+		allow = {
+			war = no # both of you have to be at peace
+			e_california = {
+				holder_scope = {
+					war = no
+				}
+			}
+			num_of_king_titles = 2
+			OR = { # can declare at any time with these traits, else have to wait until emperor publishes unenlightened teachings
+				trait = ambitious
+				trait = proud
+				trait = brave
+				custom_tooltip = {
+					text = TXT_unenlightened_emperor
+					hidden_tooltip = {
+						any_realm_province = {
+							has_province_modifier = unenlightened_emperor
+						}
+					}
+				}
+			}
+			NOR = { # can't do at all with any of these traits
+				trait = content
+				trait = humble
+				trait = craven
+			}
+			prestige = 1500
+			piety = 1000
+			wealth = 500
+		}
+		effect = {
+			prestige = -1000
+			piety = -500
+			wealth = -500
+			add_claim = e_california # claim to kingdom title not added because you already have 2 kingdom titles and I don't want to force you to destroy one
+			add_claim = d_sacramento
+			add_claim = c_sacramento
+			e_california = { # for later events
+				save_persistent_event_target = {
+					name = current_emperor
+					scope = owner
+				}
+			}
+			add_rival = persistent_event_target:current_emperor
+			set_character_flag = imperial_claimant # for later events
+			save_persistent_event_target = { name = imperial_claimant scope = ROOT } # for later events
+			custom_tooltip = {
+				text = TXT_imperial_war
+				hidden_tooltip = {
+					war = {
+						target = event_target:current_emperor
+						casus_belli = imperial_claim_war
+					}
+					narrative_event = { id = cetic.100 } # war declared, vassals forced to pick sides
+				}
+			}
+		}
+	}
 }
 	

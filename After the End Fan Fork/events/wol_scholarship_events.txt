@@ -140,15 +140,8 @@ character_event = {
 		if = {
 			limit = {
 				OR = {
-					religion_group = american_native
-					religion = gaian
-					religion = norse_pagan
-					religion = norse_pagan_reformed
-					religion = revelationist
-					religion = revelationist_reformed
-					religion = occultist
-					religion = occultist_reformed
-					religion_group = mesoamerican_gods
+					religion_group = christian
+					religion_group = latter_day_saints
 				}
 			}
 			if = {
@@ -260,7 +253,7 @@ character_event = {
 						is_adult = yes
 						trait = zealous
 						at_location = ROOT
-						OR = {
+						NOR = {
 							religion_group = american_native
 							religion = gaian
 							religion = norse_pagam
@@ -293,13 +286,8 @@ character_event = {
 				is_adult = yes
 				trait = zealous
 				at_location = ROOT
-				OR = {
-					religion_group = american_native
+				NOR = {
 					religion = gaian
-					religion = norse_pagan
-					religion = norse_pagan_reformed
-					religion = revelationist
-					religion = revelationist_reformed
 					religion = occultist
 					religion = occultist_reformed
 					religion_group = mesoamerican_gods
@@ -496,13 +484,8 @@ character_event = {
 			limit = {
 				religion_head = { is_alive = yes }
 				religion_head = { ai = yes }
-				OR = {
-					religion_group = american_native
+				NOR = {
 					religion = gaian
-					religion = norse_pagan
-					religion = norse_pagan_reformed
-					religion = revelationist
-					religion = revelationist_reformed
 					religion = occultist
 					religion = occultist_reformed
 					religion_group = mesoamerican_gods
@@ -645,13 +628,8 @@ character_event = {
 				10 = {
 					modifier = {
 						factor = 0
-						NOR = {
-							religion_group = american_native
+						OR = {
 							religion = gaian
-							religion = norse_pagan
-							religion = norse_pagan_reformed
-							religion = revelationist
-							religion = revelationist_reformed
 							religion = occultist
 							religion = occultist_reformed
 							religion_group = mesoamerican_gods
@@ -663,13 +641,8 @@ character_event = {
 		}
 		if = {
 			limit = {
-				OR = {
-					religion_group = american_native
+				NOR = {
 					religion = gaian
-					religion = norse_pagan
-					religion = norse_pagan_reformed
-					religion = revelationist
-					religion = revelationist_reformed
 					religion = occultist
 					religion = occultist_reformed
 					religion_group = mesoamerican_gods
@@ -689,13 +662,8 @@ character_event = {
 							is_priest = yes
 							trait = zealous
 						}
-						OR = {
-							religion_group = american_native
+						NOR = {
 							religion = gaian
-							religion = norse_pagan
-							religion = norse_pagan_reformed
-							religion = revelationist
-							religion = revelationist_reformed
 							religion = occultist
 							religion = occultist_reformed
 							religion_group = mesoamerican_gods
@@ -729,13 +697,8 @@ character_event = {
 	option = {
 		name = EVTOPTD_WoL_6170 # This is heretical - I must burn it!
 		trigger = {
-			OR = {
-				religion_group = american_native
+			NOR = {
 				religion = gaian
-				religion = norse_pagan
-				religion = norse_pagan_reformed
-				religion = revelationist
-				religion = revelationist_reformed
 				religion = occultist
 				religion = occultist_reformed
 				religion_group = mesoamerican_gods
@@ -782,7 +745,13 @@ character_event = {
 	option = {
 		name = EVTOPTA_WoL_6300
 		if = {
-			limit = { NOT = { trait = paranoid } }
+			limit = {
+				NOT = { trait = paranoid }
+				NOR = {
+					religion = occultist
+					religion = occultist_reformed
+				}
+			}
 			add_trait = paranoid
 		}
 		if = {
@@ -869,6 +838,10 @@ character_event = {
 						ai = yes
 						trait = zealous
 						at_location = ROOT
+						NOR = {
+							religion = occultist
+							religion = occultist_reformed
+						}
 						OR = {
 							mother = { character = ROOT }
 							father = { character = ROOT }
@@ -1043,9 +1016,29 @@ narrative_event = {
 		}
 		culture_techpoints = 30
 		wealth = -100
-		add_artifact = necronomicon
-		new_artifact = {
-			set_creation_date = 1.1.1
+		if = {
+			limit = {
+				NOR = {
+					religion = occultist
+					religion = occultist_reformed
+				}
+			}
+			add_artifact = necronomicon
+			new_artifact = {
+				set_creation_date = 1.1.1
+			}
+		}
+		else_if = {
+			limit = {
+				OR = {
+					religion = occultist
+					religion = occultist_reformed
+				}
+			}
+			add_artifact = necronomicon_occultist
+			new_artifact = {
+				set_creation_date = 1.1.1
+			}
 		}
 		clr_character_flag = do_not_disturb
 		hidden_tooltip = { character_event = { id = WoL.6340 days = 180 } }
@@ -1070,11 +1063,25 @@ character_event = {
 	is_triggered_only = yes
 	
 	trigger = {
-		has_artifact = necronomicon
+		OR = {
+			has_artifact = necronomicon
+			has_artifact = necronomicon_occultist
+		}
 	}
 
 	immediate = {
-		destroy_artifact = necronomicon
+		if = {
+			limit = {
+				has_artifact = necronomicon
+			}
+			destroy_artifact = necronomicon
+		}
+		else_if = {
+			limit = {
+				has_artifact = necronomicon_occultist
+			}
+			destroy_artifact = necronomicon_occultist
+		}
 		current_heir = {
 			character_event = { id = WoL.6336 days = 7 }
 		}
@@ -1137,7 +1144,10 @@ character_event = {
 			}
 		}
 		if = {
-			limit = { has_artifact = necronomicon }
+			OR = {
+				limit = { has_artifact = necronomicon }
+				limit = { has_artifact = necronomicon_occultist }
+			}
 			hidden_tooltip = { character_event = { id = WoL.6350 days = 180 } }
 			break = yes
 		}
@@ -1226,7 +1236,10 @@ character_event = {
 				10 = {
 					modifier = {
 						factor = 0
-						NOT = { religion_group = christian }
+						NOR = {
+							religion_group = christian
+							religion_group = latter_day_saints
+						}
 					}
 					give_nickname = nick_the_black
 				}

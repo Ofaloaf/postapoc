@@ -1,0 +1,1073 @@
+namespace = native
+
+# Invite vassals to hunt
+character_event = {
+	id = native.1
+	desc = EVTDESC_native_1
+	picture = GFX_evt_throne_room
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_1
+		any_vassal = {
+			limit = {
+				prisoner = no
+				war = no
+				in_command = no
+				NOT = { trait = incapable }
+				age = 16
+				NOT = { has_character_flag = do_not_disturb }
+			}
+			letter_event = {
+				id = native.2
+				tooltip = TXT_native_1
+			}
+		}
+		hidden_tooltip = { character_event = { id = native.5 days = 12 } } # Hunt begins
+		hidden_tooltip = { character_event = { id = native.6 days = 42 } } # Hunt ends
+	}
+}
+
+# Vassal receives invitation to hunt
+letter_event = {
+	id = native.2
+	desc = EVTDESC_native_2
+	
+	is_triggered_only = yes
+
+	trigger = { NOT = { is_inaccessible_trigger = yes } }
+	
+	option = {
+		name = EVTOPTA_native_2 # Go
+		ai_chance = {
+			factor = 2
+			modifier  = {
+				factor = 5
+				has_focus = focus_hunting
+			}
+			modifier  = {
+				factor = 0.1
+				is_inaccessible_trigger = yes
+			}
+			modifier  = {
+				factor = 2
+				opinion = { who = from value = -30 }
+			}
+			modifier  = {
+				factor = 5
+				opinion = { who = from value = -15 }
+			}
+			modifier  = {
+				factor = 5
+				opinion = { who = from value = 0 }
+			}
+		}
+		set_character_flag = do_not_disturb
+
+		hidden_tooltip = { character_event = { id = native.4 days = 12 } } # Hidden - arrives to hunt
+		hidden_tooltip = { character_event = { id = native.9 days = 43 } } # Safety event for clearing all flags
+		custom_tooltip = { text = TXT_native_2 }
+	}
+	option = {
+		name = EVTOPTB_native_2
+		ai_chance = {
+			factor = 1
+			modifier  = {
+				factor = 0
+				opinion = { who = from value = 25 }
+				NOT = { is_inaccessible_trigger = yes }
+			}
+		}
+		FROM = {
+			letter_event = {
+				id = native.3
+				days = 3
+				tooltip = TXT_native_2
+			}
+		}
+	}
+}
+
+# Vassal refuses to come to the hunt
+letter_event = {
+	id = native.3
+	desc = EVTDESC_native_3
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_3
+		opinion = {
+			modifier = opinion_dislike
+			who = FROM
+			years = 2
+		}
+	}
+}
+
+###########################################
+# Hunt begins and ends                    #
+###########################################
+
+
+# Vassal arrives to hunt
+character_event = {
+	id = native.4
+	desc = EVTDESC_native_4
+	picture = GFX_evt_native_horseback
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_4
+		set_character_flag = hunting_buffalo
+		add_character_modifier = {
+			name = hunt_timer
+			duration = 395
+			hidden = yes
+		}
+		hidden_tooltip = {
+			random_list = { # Check for social events
+				10 = { character_event = { id = native.10 days = 7 random = 5 } } # Gain friend
+				10 = { character_event = { id = native.12 days = 7 random = 5 } } # Gain rival
+				10 = { character_event = { id = native.14 days = 7 random = 5 } } # Plays cards
+				10 = { character_event = { id = native.18 days = 10 } } # Finds lover
+				10 = { character_event = { id = native.20 days = 10 } } # Has vision (peyotist only)
+				50 = {} # No social event
+			}
+			random_list = { # Check for buffalo events
+				10 = { character_event = { id =  days = 18 random = 7 } } # Buffalo surprises hunter
+				10 = { character_event = { id =  days = 18 random = 7 } } # Finds large buffalo herd
+				10 = {} # No buffalo event
+			}
+		}
+	}
+}
+
+# Hunt begins
+character_event = {
+	id = native.5
+	desc = EVTDESC_native_5
+	picture = GFX_evt_native_horseback
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_5
+		set_character_flag = hunting_buffalo
+		add_character_modifier = {
+			name = hunt_timer
+			duration = 395
+			hidden = yes
+		}
+		hidden_tooltip = {
+			random_list = { # Check for social events
+				10 = { character_event = { id = native.10 days = 10 } } # Gain friend
+				10 = { character_event = { id = native.12 days = 10 } } # Gain rival
+				10 = { character_event = { id = native.14 days = 10 } } # Plays cards
+				10 = { character_event = { id = native.18 days = 10 } } # Finds lover
+				10 = { character_event = { id = native.20 days = 10 } } # Has vision (peyotist only)
+				50 = {} # No social event
+			}
+			random_list = { # Check for buffalo events
+				10 = { character_event = { id = native.23 days = 10 } } # Buffalo surprises hunter
+				10 = { character_event = { id = native.27 days = 10 } } # Buffalo surprises hunter
+				10 = {} # No buffalo event
+			}
+		}
+	}
+}
+
+# Hunt ends
+character_event = {
+	id = native.6
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = { has_character_flag = killed_buffalo }
+			character_event = { id = native.7 }
+			any_vassal = {
+				limit = { has_character_flag = killed_buffalo }
+				character_event = { id = native.7 }
+			}
+			break = yes
+		}
+		if = {
+			limit = { NOT = { has_character_flag = killed_buffalo } }
+			character_event = { id = native.8 }
+			any_vassal = {
+				limit = { has_character_flag = hunting_buffalo }
+				character_event = { id = native.8 }
+			}
+		}
+	}
+}
+
+# Got buffalo personally
+character_event = {
+	id = native.7
+	desc = EVTDESC_native_7
+	picture = GFX_evt_tipi
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_7
+		prestige = 200
+		clr_character_flag = holding_buffalo_hunt
+		clr_character_flag = killed_buffalo
+		clr_character_flag = killed_buffalo_herd
+		clr_character_flag = hunting_buffalo
+		clr_character_flag = do_not_disturb
+		add_character_modifier = {
+			name = good_hunt
+			days = 180
+		}
+	}
+}
+
+# Didn't get buffalo
+character_event = {
+	id = native.8
+	desc = EVTDESC_native_8
+	picture = GFX_evt_throne_room
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_8
+		prestige = -100
+		clr_character_flag = holding_buffalo_hunt
+		clr_character_flag = hunting_buffalo
+		clr_character_flag = do_not_disturb
+	}
+}
+
+###########################################
+# Flag management events                  #
+###########################################
+
+# Clear all character flags and modifiers
+character_event = {
+	id = native.9
+
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = holding_buffalo_hunt
+		clr_character_flag = killed_buffalo
+		clr_character_flag = hunting_buffalo
+		clr_character_flag = do_not_disturb
+	}
+}
+
+###########################################
+# Random events during hunt               #
+###########################################
+
+# Makes a friend (not gonna include the getting drunk part)
+character_event = {
+	id = native.10
+	desc = EVTDESC_native_10
+	picture = GFX_evt_feast
+
+	is_triggered_only = yes
+	
+	trigger = {
+		NOT = {
+			trait = shy
+		}
+		NOT = { num_of_friends = 5 }
+		any_realm_character = {
+			ai = yes
+			has_character_flag = hunting_buffalo
+			OR = {
+				is_liege_of = ROOT
+				liege = { is_liege_of = ROOT }
+				ROOT = { is_liege_of = THIS }
+			}
+			NOT = { is_friend = ROOT }
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_native_10
+		random_realm_character = {
+			limit = {
+				ai = yes
+				has_character_flag = hunting_buffalo
+				OR = {
+					is_liege_of = ROOT
+					liege = { is_liege_of = ROOT }
+					ROOT = { is_liege_of = THIS }
+				}
+				NOT = { is_friend = ROOT }
+			}
+			add_friend = ROOT
+			hidden_tooltip = { character_event = { id = native.11 } }
+		}
+	}
+}
+
+# New friend
+character_event = {
+	id = native.11
+	desc = EVTDESC_native_11
+	picture = GFX_evt_feast
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_11
+		add_friend = FROM
+	}
+}
+	
+# Makes an enemy (not gonna include the getting drunk part)
+character_event = {
+	id = native.12
+	desc = EVTDESC_native_12
+	picture = GFX_evt_feast
+	
+	is_triggered_only = yes
+
+	trigger = {
+		NOT = { num_of_rivals = 5 }
+		OR = {
+			trait = wroth
+			trait = paranoid
+			trait = envious
+			trait = cruel
+		}
+		any_realm_character = {
+			has_character_flag = hunting_buffalo
+			ai = yes
+			OR = {
+				is_liege_of = ROOT
+				liege = { is_liege_of = ROOT }
+				ROOT = { is_liege_of = THIS }
+			}
+			NOT = { is_rival = ROOT }
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_native_12
+		random_realm_character = {
+			limit = {
+				ai = yes
+				has_character_flag = hunting_buffalo
+				OR = {
+					is_liege_of = ROOT
+					liege = { is_liege_of = ROOT }
+					ROOT = { is_liege_of = THIS }
+				}
+			}
+			add_rival = ROOT
+			opinion = {
+				modifier = grievously_offended
+				who = ROOT
+				years = 10
+			}
+			ROOT = {
+				opinion = {
+					modifier = grievously_offended
+					who = PREV
+					years = 10
+				}
+			}
+			hidden_tooltip = { character_event = { id = native.13 } }
+		}
+	}
+}
+
+# New enemy
+character_event = {
+	id = native.13
+	desc = EVTDESC_native_13
+	picture = GFX_evt_feast
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_13
+		tooltip = { add_rival = FROM }
+	}
+}
+	
+# Plays cards
+character_event = {
+	id = native.14
+	desc = EVTDESC_native_14
+	picture = GFX_evt_feast
+	
+	is_triggered_only = yes
+
+	trigger = {
+		ai = no
+	}
+
+	option = { # Play high stakes
+		name = EVTOPTA_native_14
+		set_character_flag = cards_high_stakes
+		hidden_tooltip = {
+			if = {
+				limit = {
+					OR = {
+						trait = imbecile
+						trait = inbred
+					}
+				}
+				character_event = { id = native.15 } # Always loses
+			}
+			if = {
+				limit = { 
+					OR = {
+						trait = slow
+						trait = dull
+					} 
+				}
+				random_list = {
+					50 = { character_event = { id = native.15 } } # Loses
+					50 = { character_event = { id = native.16 } } # Breaks even
+				}
+			}
+			if= {
+				limit = {
+					is_dumb_trigger = no
+					NOT = { trait = inbred }
+					is_smart_trigger = no
+				}
+				random_list = {
+					33 = { character_event = { id = native.15 } } # Loses
+					33 = { character_event = { id = native.16 } } # Breaks even
+					33 = { character_event = { id = native.17 } } # Wins
+				}
+			}
+			if = {
+				limit = { 
+					OR = {
+						trait = quick
+						trait = shrewd
+						AND = {
+							trait = gamer
+							NOT = { trait = genius }
+						}
+					}
+				}
+				random_list = {
+					10 = { character_event = { id = native.15 } } # Loses
+					30 = { character_event = { id = native.16 } } # Breaks even
+					60 = { character_event = { id = native.17 } } # Wins
+				}
+			}
+			if = {
+				limit = { trait = genius }
+				random_list = {
+					30 = { character_event = { id = native.16 } } # Breaks even
+					70 = { character_event = { id = native.17 } } # Wins
+				}
+			}
+		}
+	}
+	option = { # Play low stakes
+		name = EVTOPTB_native_14
+		set_character_flag = cards_low_stakes
+		hidden_tooltip = {
+			if = {
+				limit = {
+					OR = {
+						trait = imbecile
+						trait = inbred
+					}
+				}
+				character_event = { id = native.15 } # Always loses
+			}
+			if = {
+				limit = { 
+					OR = {
+						trait = slow
+						trait = dull
+					}
+				}
+				random_list = {
+					50 = { character_event = { id = native.15 } } # Loses
+					50 = { character_event = { id = native.16 } } # Breaks even
+				}
+			}
+			if= {
+				limit = {
+					NOT = { trait = inbred }
+					is_dumb_trigger = no
+					is_smart_trigger = no
+				}
+				random_list = {
+					33 = { character_event = { id = native.15 } } # Loses
+					33 = { character_event = { id = native.16 } } # Breaks even
+					33 = { character_event = { id = native.17 } } # Wins
+				}
+			}
+			if = {
+				limit = { 
+					OR = {
+						trait = quick
+						trait = shrewd
+						AND = {
+							trait = gamer
+							NOT = { trait = genius }
+						}
+					} 
+				}
+				random_list = {
+					10 = { character_event = { id = native.15 } } # Loses
+					30 = { character_event = { id = native.16 } } # Breaks even
+					60 = { character_event = { id = native.17 } } # Wins
+				}
+			}
+			if = {
+				limit = { trait = genius }
+				random_list = {
+					30 = { character_event = { id = native.16 } } # Breaks even
+					70 = { character_event = { id = native.17 } } # Wins
+				}
+			}
+		}
+	}
+	option = { # Refuse to play
+		name = EVTOPTC_native_14
+	}
+}
+
+# Loses at cards
+character_event = {
+	id = native.15
+	desc = EVTDESC_native_15
+	picture = GFX_evt_bad_news
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_15
+		if = {
+			limit = { has_character_flag = cards_high_stakes }
+			scaled_wealth = -0.5
+		}
+		if = {
+			limit = { has_character_flag = cards_low_stakes }
+			scaled_wealth = -0.2
+		}
+	}
+}
+
+# Breaks even at cards
+character_event = {
+	id = native.16
+	desc = EVTDESC_native_16
+	picture = GFX_evt_throne_room
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_16
+	}
+}
+
+# Wins at cards
+character_event = {
+	id = native.17
+	desc = EVTDESC_native_17
+	picture = GFX_evt_throne_room
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_17
+		if = {
+			limit = { has_character_flag = cards_high_stakes }
+			scaled_wealth = 0.5
+		}
+		if = {
+			limit = { has_character_flag = cards_low_stakes }
+			scaled_wealth = 0.2
+		}
+	}
+}
+
+# Finds a lover
+character_event = {
+	id = native.18
+	desc = EVTDESC_native_18
+	picture = GFX_evt_feast
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						is_female = no
+						NOT = { trait = homosexual }
+					}
+					AND = {
+						is_female = yes
+						trait = homosexual
+					}
+				}
+				set_character_flag = buffalo_female_lover
+			}
+		}
+		if = {
+			limit = {
+				OR = {
+					AND = {
+						is_female = yes
+						NOT = { trait = homosexual }
+					}
+					AND = {
+						is_female = no
+						trait = homosexual
+					}
+				}
+				set_character_flag = buffalo_male_lover
+			}
+		}
+	}				
+
+	trigger = {
+		NOT = { num_of_lovers = 4 }
+		NOT = { trait = chaste }
+		NOT = { trait = celibate }
+		OR = {
+			trait = lustful
+			trait = hedonist
+			trait = seducer
+			trait = seductress
+		}
+		any_realm_character = {
+			has_character_flag = hunting_buffalo
+			ai = yes
+			OR = {
+				AND = {
+					female = yes
+					OR = {
+						is_liege_of = ROOT
+						liege = { is_liege_of = ROOT }
+						ROOT = { is_liege_of = THIS }
+					}
+					ROOT = { has_character_flag = buffalo_female_lover }
+				}
+				AND = {
+					female = no
+					OR = {
+						is_liege_of = ROOT
+						liege = { is_liege_of = ROOT }
+						ROOT = { is_liege_of = THIS }
+					}
+					ROOT = { has_character_flag = buffalo_male_lover }
+				}
+			}
+			NOT = { is_lover = ROOT }
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_native_18
+		trigger = { has_character_flag = buffalo_female_lover }
+		random_realm_character = {
+			limit = {
+				ai = yes
+				female = yes
+				has_character_flag = hunting_buffalo
+				OR = {
+					is_liege_of = ROOT
+					liege = { is_liege_of = ROOT }
+					ROOT = { is_liege_of = THIS }
+				}
+			}
+			add_lover = ROOT
+			opinion = {
+				modifier = grievously_offended
+				who = ROOT
+				years = 10
+			}
+			ROOT = {
+				opinion = {
+					modifier = grievously_offended
+					who = PREV
+					years = 10
+				}
+			}
+			hidden_tooltip = { character_event = { id = native.19 } }
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_native_18
+		trigger = { has_character_flag = buffalo_male_lover }
+		random_realm_character = {
+			limit = {
+				ai = yes
+				female = no
+				has_character_flag = hunting_buffalo
+				OR = {
+					is_liege_of = ROOT
+					liege = { is_liege_of = ROOT }
+					ROOT = { is_liege_of = THIS }
+				}
+			}
+			add_lover = ROOT
+			opinion = {
+				modifier = grievously_offended
+				who = ROOT
+				years = 10
+			}
+			ROOT = {
+				opinion = {
+					modifier = grievously_offended
+					who = PREV
+					years = 10
+				}
+			}
+			hidden_tooltip = { character_event = { id = native.19 } }
+		}
+	}
+}
+
+# New lover
+character_event = {
+	id = native.19
+	desc = EVTDESC_native_19
+	picture = GFX_evt_feast
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_native_19
+		tooltip = { add_lover = FROM }
+	}
+}
+
+# Has vision
+character_event = {
+	id = native.20
+	desc = EVTDESC_native_20
+	picture = GFX_evt_vision_quest
+	
+	is_triggered_only = yes
+
+	trigger = {
+		ai = no
+		religion = peyotist
+		NOT = { #immersion-breaking
+			has_alternate_start_parameter = { key = religion_names value = random }
+		}
+	}
+
+	option = { # Determine vision outcome
+		name = EVTOPTA_native_20
+		hidden_tooltip = {
+			if = {
+				limit = {
+					NOT = { trait = mystic }
+					random_list = {
+						50 = { character_event = { id = native.21 } } # Positive outcome
+						50 = { character_event = { id = native.22 } } # Negative outcome
+					}
+				}
+			}
+			if = {
+				limit = {
+					trait = zealous
+					random_list = {
+						30 = { character_event = { id = native.21 } } # Positive outcome
+						70 = { character_event = { id = native.22 } } # Negative outcome
+					}
+				}
+			}
+			if = {
+				limit = {
+					trait = mystic
+					random_list = {
+						10 = { character_event = { id = native.21 } } # Positive outcome
+						90 = { character_event = { id = native.22 } } # Negative outcome
+					}
+				}
+			}
+		}
+	}
+}
+
+# Positive vision
+character_event = {
+	id = native.21
+	desc = EVTDESC_native_21
+	picture = GFX_evt_religious_exultation
+	
+	is_triggered_only = yes
+
+	trigger = {
+		ai = no
+		religion = peyotist
+		NOT = { #immersion-breaking
+			has_alternate_start_parameter = { key = religion_names value = random }
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_native_21
+		piety = 100
+	}
+}
+
+# Negative vision
+character_event = {
+	id = native.22
+	desc = EVTDESC_native_22
+	picture = GFX_evt_bad_news
+	
+	is_triggered_only = yes
+
+	trigger = {
+		ai = no
+		religion = peyotist
+		NOT = { #immersion-breaking
+			has_alternate_start_parameter = { key = religion_names value = random }
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_native_22
+		piety = -50
+	}
+}
+
+# Buffalo surprises hunters
+character_event = {
+	id = native.23
+	
+	hide_window = yes
+	
+	is_triggered_only = yes
+
+	trigger = {
+		NOT = { trait = hunter }
+	}
+	
+	immediate = {
+		random_list = {
+			30 = {
+				character_event = { id = native.24 } # Buffalo is killed by you
+			}
+			10 = {
+				character_event = { id = native.25 } # Buffalo kills servant
+			}
+			10 = {
+				character_event = { id = native.26 }  # Buffalo kills AI character
+			}
+		}
+	}
+}
+
+# Buffalo charges hunters - you kill the buffalo
+character_event = {
+	id = native.24
+	desc = EVTDESC_native_24
+	#picture = GFX_evt_buffalo_hunt
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_24
+		prestige = 20
+		set_character_flag = killed_buffalo
+	}
+}
+
+# Buffalo charges hunters - buffalo kills servant
+character_event = {
+	id = native.25
+	desc = EVTDESC_native_25
+	#picture = GFX_evt_buffalo_hunt
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_25
+		prestige = -10
+	}
+}
+
+# Buffalo surprises hunters - buffalo gores AI character
+character_event = {
+	id = native.26
+	desc = EVTDESC_native_26
+	#picture = GFX_evt_buffalo_hunt
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_26
+		random_realm_character = {                            # Buffalo gores AI character
+			limit = {
+				ai = yes
+				has_character_flag = hunting_buffalo
+				OR = {
+					is_liege_of = ROOT
+					liege = { is_liege_of = ROOT }
+					ROOT = { is_liege_of = THIS }
+				}
+			}
+			mangle_effect = yes
+		}
+	}
+}
+
+# Party finds buffalo herd
+character_event = {
+	id = native.27
+	desc = EVTDESC_native_27
+	#picture = GFX_evt_buffalo_hunt
+	
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_27 # Drive them over myself
+		trigger = {
+			NOT = { trait = wounded }
+			NOT = { is_maimed_trigger = yes }
+			NOT = { trait = craven }
+		}
+		hidden_tooltip = {
+			if = {
+				limit = {
+					OR = {
+						trait = hunter
+						trait = strategist
+						is_smart_trigger = yes
+						trait = diligent
+					}
+				}
+				random_list = {
+					60 = { character_event = { id = native.28 } } # Drives herd over
+					30 = { character_event = { id = native.29 } } # Fails to drive herd over
+					10 = { character_event = { id = native.30 } } # Wounded trying to drive herd over
+				}
+			}
+			if = {
+				limit = {
+					NOT = { trait = hunter }
+					NOT = { trait = strategist }
+					is_smart_trigger = no
+					NOT = { trait = diligent }
+					
+				}
+				random_list = {
+					30 = { character_event = { id = native.28 } } # Drives herd over
+					60 = { character_event = { id = native.29 } } # Fails to drive herd over
+					10 = { character_event = { id = native.30 } } # Wounded trying to drive herd over
+				}
+			}
+		}
+	}
+	option = {
+		name = EVTOPTB_native_27 # Organize fellow hunters to do it
+		hidden_tooltip = {
+			random_list = {
+				80 = { character_event = { id = native.31 } } # Group drives herd over
+				20 = { character_event = { id = native.32 } } # Group fails to drive herd over
+			}
+		}
+	}
+}
+
+# Drives herd over
+character_event = {
+	id = native.28
+	desc = EVTDESC_native_28
+	picture = GFX_evt_buffalo_hunt
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_28
+		prestige = 30
+		if = {
+			limit = {
+				NOT = { lifestyle_traits = 1 }
+				NOT = { has_dlc = "Way of Life" }
+			}
+			add_trait = hunter
+		}
+		set_character_flag = killed_buffalo
+		add_blood_splatter_effect = yes
+	}
+}
+
+# Fails to drive herd over
+character_event = {
+	id = native.29
+	desc = EVTDESC_native_29
+	picture = GFX_evt_buffalo_hunt
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_29
+		prestige = -20
+	}
+}
+
+# Is wounded trying to drive herd over
+character_event = {
+	id = native.30
+	desc = EVTDESC_native_30
+	picture = GFX_evt_buffalo_hunt
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_30
+		prestige = -30
+		random_list = {
+			90 = { add_trait = wounded }
+			10 = { add_maimed_trait_effect = yes }
+		}
+	}
+}
+
+# Hunters drive buffalo over
+character_event = {
+	id = native.31
+	desc = EVTDESC_native_31
+	picture = GFX_evt_buffalo_hunt
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_31
+		prestige = 10
+		set_character_flag = killed_buffalo
+	}
+}
+
+# Hunters fail to drive buffalo over
+character_event = {
+	id = native.32
+	desc = EVTDESC_native_32
+	picture = GFX_evt_buffalo_hunt
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_native_32
+		prestige = -10
+	}
+}	

@@ -33,6 +33,8 @@
 # 91	the pilgrimage has succeeded, gain some benefits
 # 92	clean up flags
 
+# 100-106	Thanksgiving events (reusing this file because pilgrims)
+
 namespace = america_pilgrim
 
 narrative_event = {
@@ -2018,3 +2020,208 @@ character_event = {
 	}
 }
 
+## Thanksgiving ##
+
+# Invitations Sent
+character_event = {
+	id = america_pilgrim.100
+	desc = EVTDESC_america_pilgrim_100
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	hide_from = yes
+	
+	option = {
+		name = EVTOPTA_america_pilgrim_100
+		any_vassal = {
+			limit = {
+				OR = { # a time when everyone comes together
+					religion = americanist
+					religion = hamiltonian
+					religion = jeffersonian
+					religion = libertarian
+				}
+				age = 16
+				prisoner = no
+				war = no
+				NOT = { trait = incapable }
+			}
+			character_event = { id = america_pilgrim.101 days = 2 tooltip = EVTTOOLTIP_america_pilgrim_101 }
+		}
+		custom_tooltip = { text = thanksgiving_invitations_sent }
+		hidden_tooltip = { character_event = { id = america_pilgrim.103 days = 10 } }
+		hidden_tooltip = { character_event = { id = america_pilgrim.104 days = 12 } }
+	}
+}
+
+# Invitation Received
+character_event = {
+	id = america_pilgrim.101
+	desc = EVTDESC_america_pilgrim_101
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+
+	trigger = { NOT = { is_inaccessible_trigger = yes } }
+	
+	option = {
+		name = EVTOPTA_america_pilgrim_101
+		ai_chance = {
+			factor = 80
+			modifier = {
+				factor = 0
+				NOT = {	opinion = { who = ROOT value = -20 } }
+			}
+		}
+		custom_tooltip = { text = thanksgiving_accepted }
+		set_character_flag = attending_thanksgiving
+		set_character_flag = do_not_disturb
+		hidden_tooltip = { character_event = { id = america_pilgrim.103 days = 8 } }
+		hidden_tooltip = { character_event = { id = america_pilgrim.106 days = 20 } } # Safety catch flag clearing
+	}
+	option = {
+		name = EVTOPTB_america_pilgrim_101
+		ai_chance = {
+			factor = 20
+		}
+		FROM = {
+			opinion = {
+				modifier = opinion_dislike
+				who = ROOT
+			}
+		}
+		custom_tooltip = { text = thanksgiving_declined }
+		hidden_tooltip = {
+			FROM = { character_event = { id = america_pilgrim.102 } }
+		}
+	}
+}
+
+# Invitation Refused
+character_event = {
+	id = america_pilgrim.102
+	desc = EVTDESC_america_pilgrim_102
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_america_pilgrim_102
+		opinion = {
+			modifier = opinion_dislike
+			who = FROM
+		}
+	}
+}
+
+# Thanksgiving Feast Begins
+character_event = {
+	id = america_pilgrim.103
+	desc = EVTDESC_america_pilgrim_103
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	
+	hide_from = yes
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_america_pilgrim_103
+		gain_weight_small_effect = yes
+	}
+}
+
+# Thanksgiving Feast Ends (Host)
+character_event = {
+	id = america_pilgrim.104
+	desc = EVTDESC_america_pilgrim_104
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	
+	hide_from = yes
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = {
+			text = EVTOPTA_america_pilgrim_104
+			trigger = {
+				NOT = { religion = libertarian }
+			}
+		}
+		name = {
+			text = EVTOPTB_america_pilgrim_104
+			trigger = {
+				religion = libertarian
+			}
+		}
+		any_vassal = {
+			limit = { has_character_flag = attending_thanksgiving }
+			opinion = {
+				modifier = opinion_enjoyed_feast
+				who = ROOT
+			}
+		}
+		hidden_tooltip = {
+			any_vassal = {
+				limit = { has_character_flag = attending_thanksgiving }
+				character_event = { id = america_pilgrim.105 }
+			}
+		}
+		add_character_modifier = {
+			name = held_thanksgiving_timer
+			duration = 1095
+			hidden = yes
+		}
+		prestige = 75
+		piety = 75
+		clr_character_flag = holding_thanksgiving
+		clr_character_flag = do_not_disturb
+	}
+}
+
+# Thanksgiving Feast Ends (Guest)
+character_event = {
+	id = america_pilgrim.105
+	desc = EVTDESC_america_pilgrim_105
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = {
+			text = EVTOPTA_america_pilgrim_104
+			trigger = {
+				NOT = { religion = libertarian }
+			}
+		}
+		name = {
+			text = EVTOPTB_america_pilgrim_104
+			trigger = {
+				religion = libertarian
+			}
+		}
+		clr_character_flag = attending_thanksgiving
+		clr_character_flag = do_not_disturb
+	}
+}
+
+# Safety catch - clears character flags and modifiers
+character_event = {
+	id = america_pilgrim.106
+
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = do_not_disturb
+		clr_character_flag = holding_thanksgiving
+		clr_character_flag = attending_thanksgiving
+	}
+}

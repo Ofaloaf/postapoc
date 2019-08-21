@@ -2,7 +2,7 @@ namespace = consumer
 
 # RISE OF CONSUMERISM
 narrative_event = {
-	id = consumer.1
+	id = consumer.001
 	title = EVTNAMECONSUMER1
 	desc = EVTDESCCONSUMER1
 	picture = GFX_evt_consumerist_uprising
@@ -78,6 +78,10 @@ narrative_event = {
 			year = 2700
 		}
 		modifier = {
+			factor = 0.75
+			year = 2800
+		}
+		modifier = {
 			factor = 10.0
 			ai = no
 		}
@@ -107,7 +111,8 @@ narrative_event = {
 			}
 			ROOT = {
 				create_character = {
-					set_dynasty_name = "Rockefeller"
+					name="Davison"
+					dynasty = culture
 					religion = consumerist
 					culture = ROOT
 					female = no
@@ -138,45 +143,45 @@ narrative_event = {
 				new_character = {
 					random_list = { # Random chance to be given a fitting name
 						10 = {
-							name = "Accounts-Receivable"
+							set_dynasty_name = "Accounts-Receivable"
 						}
 						10 = {
-							name = "Capital-Gains"
+							set_dynasty_name = "Capital-Gains"
 						}
 						10 = {
-							name = "Free-Enterprise"
+							set_dynasty_name = "Free-Enterprise"
 						}
 						10 = {
-							name = "Free-Trade"
+							set_dynasty_name = "Free-Trade"
 						}
 						10 = {
-							name = "Gold-Standard"
+							set_dynasty_name = "Gold-Standard"
 						}
 						10 = {
-							name = "Greenback"
+							set_dynasty_name = "Greenback"
 						}
 						10 = {
-							name = "Monopoly"
+							set_dynasty_name = "Monopoly"
 						}
 						10 = {
-							name = "Profit-Margin"
+							set_dynasty_name = "Profit-Margin"
 						}
 						10 = {
-							name = "Trickle-Down"
+							set_dynasty_name = "Trickle-Down"
 						}
 						10 = {
-							name = "Venture-Capital"
+							set_dynasty_name = "Venture-Capital"
 						}
 					}
+					set_character_flag = consumerist_prophet
+					set_character_flag = the_prophet # for conversion events
+					save_global_event_target_as = consumerist_prophet
 					give_nickname = nick_the_prophet
 					character_event = { id = misc.3 } # Diversity
 					#Prophet will always be in good shape
 					wealth = 5000
 					prestige = 500
 					add_artifact = old_world_money
-					set_character_flag = consumerist_prophet
-					set_character_flag = the_prophet # for conversion events
-					save_global_event_target_as = consumerist_prophet
 					create_title = {
 						tier = DUKE
 						landless = yes
@@ -513,12 +518,15 @@ narrative_event = {
 	
 	option = {
 		name = "EVTOPTBCONSUMER1"
+		trigger = {
+			NOT = { has_character_flag = consumerist_revolt } 
+		}
 	}
 }
 
 # Prophet converts province to Consumerism
 province_event = {
-	id = consumer.2
+	id = consumer.002
 	desc = consumer.2.desc
 	picture = GFX_evt_bishop
 	border = GFX_event_normal_frame_religion
@@ -559,7 +567,7 @@ province_event = {
 
 # Prophet gives title to investor
 character_event = {
-	id = consumer.3
+	id = consumer.003
 	desc = EVTDESC_consumer_give_title
 	picture = GFX_evt_council
 	border = GFX_event_normal_frame_religion
@@ -630,7 +638,7 @@ character_event = {
 # ROOT is the religious head
 # FROM is the attacked kingdom title
 narrative_event = {
-	id = consumer.4
+	id = consumer.004
 	title = EVTNAME200
 	picture = GFX_evt_battle
 	border = GFX_event_narrative_frame_war
@@ -710,5 +718,231 @@ narrative_event = {
 				NOT = { character = PREV }
 			}
 		}
+	}
+}
+
+# Death of the Prophet
+narrative_event = {
+	id = consumer.005 # He's dead
+	title = EVTNAMECONSUMER5
+	picture = GFX_evt_death
+	border = GFX_event_narrative_frame_religion
+	desc = {
+		trigger = { religion = consumerist }
+		text = EVTDESC_PROPHET_DIES_FAITHFUL_A # "Our Holy Prophet has died! /sad noises"
+	}
+	desc = {
+		trigger = {
+			religion_group = oldworld
+			NOT = { religion = consumerist }
+		}
+		text = EVTDESC_PROPHET_DIES_FAITHFUL_B # "Their Prophet has died. Will the Dollar Protect them?"
+	}
+	desc = {
+		trigger = {
+			NOT = { religion_group = oldworld }
+		}
+		text = EVTDESC_PROPHET_DIES_INFIDEL # "The demonic infidel false prophet has died! /happy noises"
+	}
+	
+	major = yes
+	show_root = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_landed_title = d_consumerist
+		NOT = { has_global_flag = consumerist_prophet_dead } # this should do it
+	}
+	major_trigger = {
+		capital_scope = { region = custom_usa }
+	}
+	
+	immediate = {
+		set_global_flag = consumerist_prophet_dead
+	}
+	
+	option = {
+		name = EVTOPT_PROPHET_DIES_FAITHFUL_A # "He left no instructions, just a legacy to protect."
+		trigger = { religion = consumerist }
+	}
+	option = {
+		name = EVTOPT_PROPHET_DIES_FAITHFUL_B # "Will the Dollar protect them? Or will the join the true fold?"
+		trigger = {
+			religion_group = oldworld
+			NOT = { religion = consumerist }
+		}
+	}
+	option = {
+		name = EVTOPTC_PROPHET_DIES_INFIDEL # "Who cares what those heathens do next?"
+		trigger = {
+			NOT = { religion_group = oldworld }
+		}
+	}
+	
+	after = {
+		set_global_flag = monetarist_grumbles
+	}
+}
+
+narrative_event = {
+	id = consumer.006 # Monetarist heresy appears, given to an Investor
+	title = EVTNAMECONSUMER6
+	picture = GFX_evt_rival_rulers
+	border = GFX_event_narrative_frame_religion
+	desc = EVTDESC_MONETARIST_6 # "An Investor, one of the companions to the Prophet of Profit, has declared what they claim is truthful doctrine: save, don't spend."
+	major = yes
+	major_trigger = {
+		capital_scope = { region = custom_usa }
+	}
+	has_character_flag = investor_ping
+	
+	trigger = {
+		has_global_flag = monetarist_grumbles
+		NOT = { has_global_flag = monetarist_heresy }
+		has_trait = investor
+	}
+	
+	mean_time_to_happen = {
+		months = 12
+	}
+	
+	immediate = {
+		hidden_tooltip = {
+			activate_title = { title = d_monetarist status = yes }
+			d_monetarist = { grant_title = ROOT }
+			clr_global_flag = monetarist_grumbles
+			set_global_flag = monetarist_heresy
+		}
+	}
+	
+	option = {
+		trigger = { religion_group = consumerist }
+		name = EVTOPT_MONETARIST_A # Are his words true?
+		ai_chance = 1
+	}
+	option = {
+		trigger = { religion_group = oldworld }
+		name = EVTOPT_MONETARIST_B # I wonder what this means ...
+		ai_chance = 1
+	}
+	option = {
+		trigger = { 
+			NOT = { religion_group = oldworld }
+		}
+		name = EVTOPT_MONETARIST_C # So the infidels fight among themselves?
+		ai_chance = 1
+	}
+	
+	after = {
+		hidden_tooltip = {
+			character_event = { id = consumer.007 } # ROOT Investor rivalry with the holder of d_consumerist
+		}
+	}
+}
+
+character_event = {
+	id = consumer.007 # ping event so FROM in rivalry event is holder of d_monetarist
+	hide_window = yes
+	is_triggered_only = yes
+	option = {
+		ai_chance = 1
+		d_consumerist = {
+			holder_scope = {
+				character_event = { id = consumer.8 }
+			}
+		}
+	}
+}
+
+character_event = { # rivalry event. I think I coded this right. FROM should be the holder of d_monetarist because of ping event 006
+	id = consumer.008
+	is_triggered_only = yes
+	desc = EVTDESC_MONETARIST_8
+	border = GFX_event_normal_frame_diplomacy
+	option = {
+		name = EVTOPTA_consumer_8
+		ai_chance = 1
+		add_rival = FROM
+	}
+}
+	
+	
+# Convert or Not?
+character_event = {
+	id = consumer.009
+	desc = EVTDESC_MONETARIST_9
+	picture = GFX_evt_bishop_preaching_from_pulpit_muslim
+	only_playable = yes
+	only_capable = yes
+	prisoner = no
+	religion = consumerist
+	
+	trigger = { 
+		has_global_flag = monetarist_heresy
+		NOT = {
+			has_character_flag = monetarist_chosen_side
+		}
+	}
+	
+	immediate = {
+		character_event = { id = consumer.10 years = 2 }
+	}
+	
+	mean_time_to_happen = { days = 90 }
+	
+	option = { # Yes
+		name = EVTOPTA_consumer_9
+		ai_chance = {
+			factor = 25
+			modifier = { #Cynical characters more likely to flip
+				factor = 35
+				trait = cynical
+			}
+			modifier = { #Zealous characters will never flip
+				factor = 0
+				trait = zealous
+			}
+		}
+		religion = monetarist
+		any_courtier = {
+			limit = {
+				religion = consumerist
+				liege = { character = ROOT }
+			}
+			religion = monetarist
+		}
+		capital_scope = {
+			religion = monetarist
+		}
+		hidden_tooltip = {
+			set_character_flag = monetarist_chosen_side
+		}
+	}
+	option = { # No
+		name = EVTOPTB_consumer_9
+		ai_chance = {
+			factor = 75
+		}
+		hidden_tooltip = {
+			set_character_flag = monetarist_chosen_side
+		}
+	}
+}
+
+character_event = { # clean up and remove monetarist_heresy flag
+	id = consumer.010
+	hide_window = yes
+	only_playable = yes
+	only_capable = yes
+	prisoner = no
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = monetarist_heresy
+	}
+
+	option = {
+		clr_global_flag = monetarist_heresy
+		ai_chance = 1
 	}
 }

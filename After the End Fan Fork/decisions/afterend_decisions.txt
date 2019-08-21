@@ -29,6 +29,19 @@ decisions = {
 					id = america_pilgrim.1
 				}
 			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
+				}
+			}
 		}
 		revoke_allowed = {
 			always = no
@@ -72,6 +85,19 @@ decisions = {
 			hidden_tooltip = {
 				character_event = {
 					id = salvage.1
+				}
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
 				}
 			}
 		}
@@ -243,7 +269,7 @@ decisions = {
 				religion_group = american_native
 				religion_group = mesoamerican_gods
 				religion_group = afro_syncretic #potentially redundant, needs testing
-				religion = atomicist
+				#religion = atomicist
 				religion = revelationist_reformed
 				religion = revelationist
 				religion = occultist_reformed
@@ -263,7 +289,7 @@ decisions = {
 					limit = {
 						OR = {
 							culture_group = plains
-							culture_group = plateau
+							culture_group = southwestern
 							religion_group = american_native
 						}
 					}
@@ -274,7 +300,7 @@ decisions = {
 				if = {
 					limit = {
 						NOT = { culture_group = plains }
-						NOT = { culture_group = plateau }
+						NOT = { culture_group = southwestern }
 						religion_group = mesoamerican_gods
 					}
 					narrative_event = { id = vision.2 }
@@ -284,7 +310,7 @@ decisions = {
 				if = {
 					limit = {
 						NOT = { culture_group = plains }
-						NOT = { culture_group = plateau }
+						NOT = { culture_group = southwestern }
 						religion_group = afro_syncretic
 					}
 					narrative_event = { id = vision.3 }
@@ -294,7 +320,7 @@ decisions = {
 				if = {
 					limit = {
 						NOT = { culture_group = plains }
-						NOT = { culture_group = plateau }
+						NOT = { culture_group = southwestern }
 						OR = {
 							religion = atomicist
 							religion = revelationist_reformed
@@ -310,6 +336,19 @@ decisions = {
 				
 				character_event = { id = vision.10 days = 2 }
 				character_event = { id = vision.11 days = 9 random = 6 }
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
+				}
 			}
 		}
 		revoke_allowed = {
@@ -417,6 +456,19 @@ decisions = {
 		}
 		effect = {
 			add_character_modifier = { name = intense_writing duration = -1 }
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 4 }
+						}
+					}
+				}
+			}
 		}
 		revoke_allowed = {
 			always = no
@@ -585,6 +637,19 @@ decisions = {
 			hidden_tooltip = {
 				character_event = {
 					id = oregon.1
+				}
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
 				}
 			}
 		}
@@ -802,5 +867,525 @@ decisions = {
 			factor = 1
 		}
 	}
-}
+	
+	claim_imperial_throne = { # this decision immediately starts a war with the emperor, so be careful
+		only_independent = yes
+		is_high_prio = yes
+		religion = cetic
+		min_age = 20
+		
+		potential = {
+			religion = cetic
+			e_california = { # requires figurehead emperor
+				holder_scope = {
+					trait = figurehead
+				}
+			}
+			tier = KING
+			NOT = { has_character_flag = failed_imperial_claimant }
+			NOT = { has_character_flag = imperial_claimant }
+		}
+		allow = {
+			war = no # both of you have to be at peace
+			e_california = {
+				holder_scope = {
+					war = no
+				}
+			}
+			num_of_king_titles = 2
+			OR = { # can declare at any time with these traits, else have to wait until emperor publishes unenlightened teachings
+				trait = ambitious
+				trait = proud
+				trait = brave
+				custom_tooltip = {
+					text = TXT_unenlightened_emperor
+					hidden_tooltip = {
+						any_realm_province = {
+							has_province_modifier = unenlightened_emperor
+						}
+					}
+				}
+			}
+			NOR = { # can't do at all with any of these traits
+				trait = content
+				trait = humble
+				trait = craven
+			}
+			prestige = 1500
+			piety = 1000
+			wealth = 500
+		}
+		effect = {
+			prestige = -1000
+			piety = -500
+			wealth = -500
+			add_claim = e_california # claim to kingdom title not added because you already have 2 kingdom titles and I don't want to force you to destroy one
+			add_claim = d_sacramento
+			add_claim = c_sacramento
+			e_california = { # for later events
+				save_persistent_event_target = {
+					name = current_emperor
+					scope = owner
+				}
+			}
+			add_rival = persistent_event_target:current_emperor
+			set_character_flag = imperial_claimant # for later events
+			save_persistent_event_target = { name = imperial_claimant scope = ROOT } # for later events
+			custom_tooltip = {
+				text = TXT_imperial_war
+				hidden_tooltip = {
+					war = {
+						target = event_target:current_emperor
+						casus_belli = imperial_claim_war
+					}
+					narrative_event = { id = cetic.100 } # war declared, vassals forced to pick sides
+				}
+			}
+		}
+	}
+	
+	mayan_pilgrimage = { #Available to both Neomayans and Uahomche
+		only_playable = yes
+		ai_check_interval = 120
+		
+		potential = {
+			OR = {
+				NOT = { has_dlc = "Way of Life" }
+				has_focus = focus_theology
+			}
+			OR = {
+				religion = neomayan
+				religion = uahomche
+			}
+			is_playable = yes
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+			NOT = { has_character_modifier = recent_mayan_pilgrimage }
+			NOT = { trait = travelling }
+			NOT = { trait = on_pilgrimage }
+		}
+		
+		allow = {
+			war = no
+			in_command = no
+			custom_tooltip = {
+				text = UNOCCUPIED_DEMESNE_TITLE
+				hidden_tooltip = {
+					any_demesne_title = {
+						NOT = { higher_tier_than = count }
+						is_occupied = no
+					}
+				}
+			}
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			scaled_wealth = 0.2
+			piety = 0 #can't have negative piety
+			age = 16
+			custom_tooltip = {
+				text = health_travel_condition
+				hidden_tooltip = {
+					NOT = {	trait = pregnant }
+					NOT = {	trait = incapable }
+					NOT = {	trait = blinded }
+					NOT = {	trait = has_tuberculosis }
+					NOT = {	trait = has_typhoid_fever }
+					NOT = {	trait = has_typhus }
+					NOT = {	trait = has_bubonic_plague }
+					NOT = {	trait = has_measles }
+					NOT = {	trait = has_small_pox }
+					NOT = {	trait = has_aztec_disease }
+				}
+			}
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+			}
+		}
+		
+		effect = {
+			#scaled_wealth = -0.2
+			set_character_flag = on_pilgrimage
+			set_character_flag = do_not_disturb
+			hidden_tooltip = {
+				character_event = { 
+					id = mesoamerica.1
+				}
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.2             # Only a minority ever go on a pilgrimage
+			}
+			modifier = {
+				factor = 3
+				trait = zealous
+			}
+			modifier = {
+				factor = 0
+				NOT = { wealth = 100 }
+			}			
+		}
+	}
+	
+	organize_ulama_game = { #ritual ballgame. ruler selects a side to support, outcome is random
+		only_playable = yes
+		ai_check_interval = 120
+		
+		potential = {
+			religion_group = mesoamerican_gods
+			is_playable = yes
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+			NOT = { has_character_modifier = recent_ritual_ballgame }
+		}
+		allow = {
+			war = no
+			in_command = no
+			scaled_wealth = 0.5
+			prestige = 25
+			custom_tooltip = {
+				text = UNOCCUPIED_DEMESNE_TITLE
+				hidden_tooltip = {
+					any_demesne_title = {
+						NOT = { higher_tier_than = count }
+						is_occupied = no
+					}
+				}
+			}
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			NOT = {	trait = incapable }
+			is_adult = yes
+		}
+		effect = {
+			scaled_wealth = -0.5
+			set_character_flag = do_not_disturb
+			set_character_flag = recent_minor_decision
+			hidden_tooltip = { 
+				character_event = { id = mesoamerica.200 } 
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				NOT = {
+					scaled_wealth = 5
+				}
+			}
+			modifier = {
+				factor = 0.5
+				trait = shy
+			}
+		}
+	}
+	
+	hold_buffalo_hunt = {
+		only_playable = yes
+		ai_check_interval = 12
+
+		potential = {
+			is_playable = yes
+			age = 16
+			prisoner = no
+			NOT = {	trait = incapable }
+			NOT = { religion = gaian }
+			num_of_vassals = 1
+			AND = {
+				culture_group = plains
+				OR = {
+					capital_scope = {
+						region = world_great_plains
+					}
+					capital_scope = {
+						region = world_western_canada
+					}
+				}
+			}
+			NOT = { has_alternate_start_parameter = { key = culture_names value = random } }
+		}
+		allow = {
+			war = no
+			custom_tooltip = {
+				text = UNOCCUPIED_DEMESNE_TITLE
+				hidden_tooltip = {
+					any_demesne_title = {
+						NOT = { higher_tier_than = count }
+						is_occupied = no
+					}
+				}
+			}
+			NOT = {	health_traits = 1 }
+			NOT = { month = 10 }
+			prestige = 50
+			scaled_wealth = 0.2
+			NOT = { is_inaccessible_trigger = yes }
+			prisoner = no
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { 
+					NOT = { has_character_flag = do_not_disturb } 
+					NOT = { has_character_flag = holding_buffalo_hunt }
+					NOT = { has_character_modifier = hunt_timer }
+				}
+			}
+		}
+		effect = {
+			wealth = -25
+			set_character_flag = holding_buffalo_hunt
+			set_character_flag = recent_minor_decision
+			set_character_flag = do_not_disturb
+			hidden_tooltip = { 
+				character_event = { id = native.1 }
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				NOT = { scaled_wealth = 0.4 }
+			}
+			modifier = {
+				factor = 0
+				NOT = { scaled_wealth = 1.5 }
+				NOT = { has_focus = focus_hunting }
+			}
+			modifier = {
+				factor = 0
+				NOT = { martial = 10 }
+				NOT = { has_focus = focus_hunting }
+			}
+			modifier = {
+				factor = 0
+				has_character_flag = recent_minor_decision
+				NOT = {
+					had_character_flag = {
+						flag = recent_minor_decision
+						days = 730
+					}
+				}
+			}				
+		}
+	}
+	
+	celebrate_thanksgiving = {
+		only_playable = yes
+		is_high_prio = yes
+		ai_check_interval = 3
+		potential = {
+			is_playable = yes
+			is_adult = yes
+			prisoner = no
+			OR = {
+				religion = americanist
+				religion = hamiltonian
+				religion = jeffersonian
+				religion = libertarian
+			}
+			NOT = { has_character_modifier = held_thanksgiving_timer }
+			NOT = {	has_character_flag = holding_thanksgiving }
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+		allow = {
+			war = no
+			custom_tooltip = {
+				text = UNOCCUPIED_DEMESNE_TITLE
+				hidden_tooltip = {
+					any_demesne_title = {
+						NOT = { higher_tier_than = count }
+						is_occupied = no
+					}
+				}
+			}
+			month = 10
+			wealth = 25
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+			}
+		}
+		effect = {
+			wealth = -25
+			set_character_flag = holding_thanksgiving
+			set_character_flag = recent_minor_decision
+			set_character_flag = do_not_disturb
+			hidden_tooltip = { character_event = { id = america_pilgrim.106 days = 150 } } # Safety catch flag clearing
+			custom_tooltip = {
+				text = thanksgiving_feast
+				hidden_tooltip = { 
+					character_event = { id = america_pilgrim.100 } 
+				}
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				NOT = {
+					wealth = 300
+				}
+			}
+			modifier = {
+				factor = 0
+				trait = shy
+			}
+			modifier = {
+				factor = 0
+				NOT = { diplomacy = 10 }
+			}	
+			modifier = {
+				factor = 0
+				has_character_flag = recent_minor_decision
+				NOT = {
+					had_character_flag = {
+						flag = recent_minor_decision
+						days = 730
+					}
+				}
+			}
+		}
+	}
+	
+	neognostic_become_perfectus = {
+		only_playable = yes
+		is_high_prio = yes
+		ai_check_interval = 3
+		
+		potential = {
+			is_ruler = yes
+			prisoner = no
+			religion = neognostic
+		}
+		
+		allow = {
+			age = 40
+			piety = 1000
+			learning = 10
+			OR = {
+				trait = humble
+				trait = zealous
+				trait = content
+				trait = theologian
+				trait = scholar
+				trait = mystic
+			}
+			NOR = {
+				trait = proud
+				trait = ambitious
+				trait = cynical
+				trait = stubborn
+				trait = envious
+				trait = greedy
+				trait = lustful
+			}
+			NOT = { #immersion-breaking
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+		effect = {
+			custom_tooltip = { text = TXT_neognostic_become_perfectus }
+			hidden_tooltip = { narrative_event = { id = flavor.60 } }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				NOT = { piety = 2000 }
+			}
+			modifier = {
+				factor = 0
+				NOT = { learning = 15 }
+			}
+			modifier = {
+				factor = 0
+				trait = gregarious
+			}
+			modifier = {
+				factor = 0
+				trait = possessed
+			}
+			modifier = {
+				factor = 0
+				trait = shrewd
+			}
+			modifier = {
+				factor = 0
+				trait = quick
+			}
+			modifier = {
+				factor = 0
+				trait = genius
+			}
+			modifier = {
+				factor = 0
+				trait = genius
+			}
+		}
+	}
+}	
 	

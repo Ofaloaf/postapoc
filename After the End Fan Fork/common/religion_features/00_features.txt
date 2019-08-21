@@ -28,7 +28,10 @@ religion_nature = {
 				factor = 0.01
 				FROM = {
 					character = yes 
-					NOT = { religion = celtic_pagan } 
+					NOR = {
+						religion = celtic_pagan
+						religion = midewiwin
+					} 
 				}
 			}
 			modifier = { #Handles feature randomization in AltStart to make unreformed pagans still have "paganish" features.
@@ -44,6 +47,10 @@ religion_nature = {
 	}
 	religion_warlike = {
 		picture = GFX_religion_feature_warlike
+		trigger = {
+			NOT = { has_selected_religion_feature = religion_feature_raven_tales_1 }
+			NOT = { has_selected_religion_feature = religion_feature_raven_tales_2 }
+		}
 		effect = {
 			custom_tooltip = { text = tooltip_religion_feature_war_levies }
 			custom_tooltip = { text = tooltip_religion_feature_crusade }
@@ -71,6 +78,7 @@ religion_nature = {
 					OR = { 
 						religion = revelationist
 						religion = occultist
+						religion = midewiwin
 					}
 				}
 			}
@@ -127,6 +135,10 @@ religion_nature = {
 	}
 	religion_defensive = {
 		picture = GFX_religion_feature_defensive
+		trigger = {
+			NOT = { has_selected_religion_feature = religion_feature_raven_tales_2 }
+			NOT = { has_selected_religion_feature = religion_feature_raven_tales_1 }
+		}
 		effect = {
 			custom_tooltip = { text = tooltip_religion_feature_defensive }
 			custom_tooltip = { text = tooltip_religion_feature_hard_conversion }
@@ -174,7 +186,7 @@ religion_nature = {
 					character = yes 
 					OR = { 
 						religion = norse_pagan
-						religion = celtic_pagan
+						religion = raven_tales 
 					}
 				}
 			}
@@ -348,6 +360,7 @@ religion_nature = {
 					NOR = { 
 						religion = occultist
 						religion = thelemic
+						religion = raven_tales
 					}
 				}
 			}
@@ -562,7 +575,7 @@ religion_doctrine = {
 	religion_stable = {
 		picture = GFX_religion_feature_stable
 		trigger = {
-			#
+			NOT = { has_selected_religion_feature = religion_feature_raven_tales_2 }
 		}
 		effect = {
 			custom_tooltip = { text = tooltip_religion_feature_stable }
@@ -652,7 +665,6 @@ religion_doctrine = {
 					character = yes 
 					OR = { 
 						religion = celtic_pagan
-						#religion = revelationist
 						religion = occultist
 					}
 				}
@@ -705,6 +717,7 @@ religion_doctrine = {
 			NOR = {
 				has_selected_religion_feature = religion_matriarchal
 				has_selected_religion_feature = religion_equal
+				has_selected_religion_feature = religion_feature_midewiwin
 				has_selected_religion_feature = religion_meritocratic
 			}
 		}
@@ -747,6 +760,7 @@ religion_doctrine = {
 			NOR = {
 				has_selected_religion_feature = religion_matriarchal
 				has_selected_religion_feature = religion_patriarchal
+				has_selected_religion_feature = religion_feature_midewiwin
 				trigger_if = {
 					limit = { has_game_started = yes }
 					FROM = { 
@@ -794,6 +808,7 @@ religion_doctrine = {
 			NOR = {
 				has_selected_religion_feature = religion_patriarchal
 				has_selected_religion_feature = religion_equal
+				has_selected_religion_feature = religion_feature_midewiwin
 				has_selected_religion_feature = religion_meritocratic
 				trigger_if = {
 					limit = { has_game_started = yes }
@@ -889,7 +904,7 @@ religion_doctrine = {
 				factor = 1.5
 				FROM = { 	
 					character = yes 
-					religion = celtic_pagan
+					religion = raven_tales
 				}
 			}
 		}
@@ -935,7 +950,7 @@ religion_doctrine = {
 				factor = 1.5
 				FROM = { 
 					character = yes 
-					religion = celtic_pagan
+					religion = raven_tales
 				}
 			}
 			modifier = { 	
@@ -966,6 +981,7 @@ religion_doctrine = {
 				has_selected_religion_feature = religion_peaceful
 				has_selected_religion_feature = religion_defensive
 				has_selected_religion_feature = religion_feature_thelemic
+				has_selected_religion_feature = religion_feature_raven_tales_1
 			}
 		}
 		effect = {
@@ -1010,6 +1026,8 @@ religion_doctrine = {
 		potential = {
 			NOT = {
 				religion_group = afro_syncretic #redundant
+				has_selected_religion_feature = religion_feature_midewiwin
+				has_selected_religion_feature = religion_feature_celtic
 			}
 		}
 		effect = {
@@ -1191,7 +1209,7 @@ religion_doctrine = {
 		}
 	}
 	
-	religion_feature_celtic = { #Basically the same as Baltic. (We should somehow roll the whole papal succession thing into this if we can, I think.)
+	religion_feature_celtic = { #Basically the same as Baltic, but adds Animism
 		picture = GFX_religion_feature_celtic
 		potential = {
 			has_game_started = yes
@@ -1204,13 +1222,20 @@ religion_doctrine = {
 			religion = celtic_pagan_reformed
 			NOR = { 
 				has_selected_religion_feature = religion_meritocratic
+				has_selected_religion_feature = religion_animistic
 			}
 		}
 		effect = {
 			custom_tooltip = { text = tooltip_religion_feature_hard_conversion }
 			custom_tooltip = { text = tooltip_religion_feature_eldership }
+			custom_tooltip = { text = tooltip_religion_feature_land_morale }
+			custom_tooltip = { text = tooltip_religion_feature_adulthood_rite }
 			hidden_tooltip = { 
 				set_hard_to_convert = yes
+				set_unit_modifier = { 
+					land_morale = 0.05
+					key = "ANIMISTIC_RELIGION"
+				}
 			}
 		}
 		ai_will_do = {
@@ -1260,6 +1285,155 @@ religion_doctrine = {
 		}
 	}
 	
+	religion_feature_midewiwin = { # Combines equality and animism. Also requires picking the autonomous religion head doctrine
+		picture = GFX_religion_feature_slavic # placeholder
+		potential = {
+			has_game_started = yes
+			religion = midewiwin_reformed
+		}
+		trigger = {
+			religion = midewiwin_reformed
+			NOT = { has_selected_religion_feature = religion_equal }
+			NOT = { has_selected_religion_feature = religion_animistic }
+			NOT = { has_selected_religion_feature = religion_temporal_head }
+			NOT = { has_selected_religion_feature = religion_autocephaly }
+			NOT = { has_selected_religion_feature = religion_animistic }
+		}
+		effect = {
+			custom_tooltip = { text = tooltip_religion_feature_cognatic }
+			custom_tooltip = { text = tooltip_religion_feature_feminist }
+			custom_tooltip = { text = tooltip_religion_feature_land_morale }
+			custom_tooltip = { text = tooltip_religion_feature_adulthood_rite }
+			hidden_tooltip = { 
+				set_allows_matrilineal_marriage = yes
+				set_feminist = yes
+				set_women_can_take_consorts = yes
+				set_men_can_take_consorts = yes
+				set_female_temple_holders = yes
+				set_male_temple_holders = yes
+				#FROM = { any_demesne_title = { add_law = status_of_women_4 } } 
+				set_unit_modifier = { 
+					land_morale = 0.05
+					key = "ANIMISTIC_RELIGION"
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+	}
+	
+	religion_feature_raven_tales_1 = { # Combines Warmongering with Unrelenting
+		picture = GFX_religion_feature_aztec # placeholder
+		potential = {
+			has_game_started = yes
+			religion = raven_tales_reformed
+		}
+		trigger = {
+			religion = raven_tales_reformed
+			NOT = { has_selected_religion_feature = religion_warlike }
+			NOT = { has_selected_religion_feature = religion_relentless }
+			NOT = { has_selected_religion_feature = religion_feature_raven_tales_2 }
+		}
+		effect = {
+			custom_tooltip = { text = tooltip_religion_feature_adventuring }
+			custom_tooltip = { text = tooltip_religion_feature_war_levies }
+			custom_tooltip = { text = tooltip_religion_feature_crusade }
+			custom_tooltip = { text = tooltip_religion_feature_warlike }
+			custom_tooltip = { text = tooltip_religion_feature_prestige_loss }
+			hidden_tooltip = {
+				set_pacifist = no
+				enable_prepared_invasion = yes
+				set_allow_looting = yes
+				set_hard_to_convert = no
+				set_peace_piety_gain = 0
+				set_raised_vassal_opinion_loss = no
+				set_piety_loss_for_attacking_same_religion = no
+				set_peace_prestige_loss = yes
+				set_convert_other_groups = 0
+				set_convert_same_group = 1
+				set_ai_aggression = 2.0
+				set_ignores_defensive_attrition = yes
+				set_unit_modifier = { 
+					light_infantry_offensive = 0.1
+					heavy_infantry_offensive = 0.1
+					light_cavalry_offensive = 0.1 
+					knights_offensive = 0.1 
+					pikemen_offensive = 0.1 
+					archers_offensive = 0.1
+					horse_archers_offensive = 0.1
+					camel_cavalry_offensive = 0.1
+					war_elephants_offensive = 0.1
+					key = "RELENTLESS_RELIGION"
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 25 #unlikely
+		}
+	}
+	
+	religion_feature_raven_tales_2 = { # Combines Stability with Unyielding
+		picture = GFX_religion_feature_slavic # placeholder
+		potential = {
+			has_game_started = yes
+			religion = raven_tales_reformed
+		}
+		trigger = {
+			religion = raven_tales_reformed
+			NOT = { has_selected_religion_feature = religion_stable }
+			NOT = { has_selected_religion_feature = religion_defensive }
+			NOT = { has_selected_religion_feature = religion_feature_raven_tales_1 }
+		}
+		effect = {
+			custom_tooltip = { text = tooltip_religion_feature_stable }
+			custom_tooltip = { text = tooltip_religion_feature_meliorism } 
+			custom_tooltip = { text = tooltip_religion_feature_defensive }
+			custom_tooltip = { text = tooltip_religion_feature_hard_conversion }
+			custom_tooltip = { text = tooltip_religion_feature_crusade }
+			hidden_tooltip = { 
+				set_short_reign_opinion_year_mult = 0
+				set_pacifist = no
+				set_peace_piety_gain = 0
+				enable_prepared_invasion = no
+				set_allow_looting = no
+				set_raised_vassal_opinion_loss = yes
+				set_piety_loss_for_attacking_same_religion = no
+				set_peace_prestige_loss = no
+				set_allow_looting = yes
+				set_hard_to_convert = yes
+				set_convert_other_groups = 1
+				set_convert_same_group = 1
+				set_ai_aggression = 0.5
+				set_unit_modifier = {		
+					garrison_size = 0.3
+					levy_size = 0.2
+					
+					key = "DEF_RELIGION"
+				}
+				set_unit_home_modifier = {
+					land_morale = 0.8
+					light_infantry_defensive = 0.8
+					heavy_infantry_defensive = 0.8
+					pikemen_defensive = 0.8
+					light_cavalry_defensive = 0.8
+					knights_defensive = 0.8
+					archers_defensive = 0.8
+					horse_archers_defensive = 0.8
+					camel_cavalry_defensive = 0.8
+					war_elephants_defensive = 0.8
+					
+					garrison_size = 0.4
+					
+					key = "DEF_RELIGION_HOME_TERRITORY"
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 50 #likely
+		}
+	}
+			
 	religion_feature_pyramids = {
 		picture = GFX_religion_feature_pyramids
 		potential = {
@@ -1282,6 +1456,7 @@ religion_leadership = {
 		picture = GFX_religion_feature_temporal_head
 		potential = {
 			has_game_started = yes
+			NOT = { has_selected_religion_feature = religion_feature_midewiwin }
 		}
 		trigger = {
 			FROM = {
@@ -1308,12 +1483,19 @@ religion_leadership = {
 					}
 				}
 			}
+			modifier = {
+				factor = 0
+				FROM = {
+					religion_group = american_native
+				}
+			}
 		}
 	}
 	religion_theocratic_head = {
 		picture = GFX_religion_feature_theocratic_head
 		potential = {
 			has_game_started = yes
+			NOT = { has_selected_religion_feature = religion_feature_midewiwin }
 		}
 		effect = {
 			custom_tooltip = { text = tooltip_religion_feature_theocratic_head }
@@ -1335,12 +1517,19 @@ religion_leadership = {
 					}
 				}
 			}
+			modifier = {
+				factor = 0
+				FROM = {
+					religion_group = american_native
+				}
+			}
 		}
 	}
 	religion_autocephaly = {
 		picture = GFX_religion_feature_autocephaly
 		potential = {
 			has_game_started = yes
+			NOT = { has_selected_religion_feature = religion_feature_midewiwin }
 		}
 		effect = {
 			custom_tooltip = { text = tooltip_religion_feature_autocephaly }
@@ -1359,8 +1548,14 @@ religion_leadership = {
 				FROM = { 
 					character = yes 
 					NOT = {
-						religion = celtic_pagan
+						religion = espiritista_reformed
 					}
+				}
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					religion_group = american_native
 				}
 			}
 		}

@@ -1153,6 +1153,7 @@ character_event = {
 	immediate = {
 		random_list = {
 			100 = { # China won!
+				#trigger = { always = no }
 				modifier = {
 					factor = 3
 					FROM = {
@@ -1186,10 +1187,10 @@ character_event = {
 						has_offmap_news_enabled = FROM
 						is_within_diplo_range = ROOT
 					}
-					narrative_event = { id = JD.50161 }
+					narrative_event = { id = JD.50201 }
 				}
 			}
-			100 = { # Mongols won!
+			100 = { # Amazonians won!
 				modifier = {
 					factor = 3
 					FROM = {
@@ -1200,20 +1201,6 @@ character_event = {
 						}
 					}
 				}
-				modifier = { # The Borjigins are more likely to win
-					factor = 5
-					NOT = {
-						has_global_flag = borjigin_china
-					}
-					any_independent_ruler = {
-						OR = {
-							dynasty = 11100
-							dynasty = 1051210
-						}
-						has_landed_title = e_mongol_empire
-						ai = yes
-					}
-				}
 				
 				FROM = {
 					set_offmap_flag = no_status_news
@@ -1221,7 +1208,6 @@ character_event = {
 					set_offmap_flag = china_had_unrest
 					clr_offmap_flag = no_status_news
 				
-					set_offmap_flag = china_expansionist_trend # Likely for the new ruler to pick Expansionist policy
 					clr_offmap_flag = china_badly_beaten_3
 					clr_offmap_flag = china_badly_beaten_2
 					clr_offmap_flag = china_badly_beaten_1
@@ -1256,553 +1242,96 @@ character_event = {
 					set_offmap_flag = no_succession_news
 				}
 				
-				if = { # If the Borjigin's are around, it's guaranteed to be a Borjigin emperor
-					limit = {
-						NOT = {
-							has_global_flag = borjigin_china
-						}
-						any_independent_ruler = {
-							OR = {
-								dynasty = 11100
-								dynasty = 1051210
-							}
-							has_landed_title = e_mongol_empire
-							ai = yes
-						}
-					}
-					random_independent_ruler = {
-						limit = {
-							OR = {
-								dynasty = 11100
-								dynasty = 1051210
-							}
-							has_landed_title = e_mongol_empire
-							ai = yes
-						}
-						save_event_target_as = mongol_china_invader
-					}
-				}
-				
 				# A new ruler ascends to the Dragon Throne. The fallout is handled by JD.10005 and JD.50000 (from 'on_offmap_ruler_changed')
+				create_character = { #The father
+					age = 60
+					random_traits = yes
+					female = no
+					religion = THIS
+					culture = amazonense
+					dynasty = THIS
+				}
+				new_character = {
+					PREV = { set_father = PREV }
+					death = { death_reason = death_in_china_historic }
+				}
 				random_list = {
-					100 = {
-						modifier = {
-							factor = 2
-							year = 1200
+					0 = {
+						additive_modifier = {
+							value = 50
+							has_game_rule = {
+								name = gender
+								value = all
+							}
 						}
-						if = { # Borjigin Emperor if they are around
-							limit = {
-								NOT = {
-									has_global_flag = borjigin_china
-								}
-								event_target:mongol_china_invader = {
-									is_alive = yes
-								}
-							}
-							random_list = {
-								0 = {
-									additive_modifier = {
-										value = 50
-										has_game_rule = {
-											name = gender
-											value = all
-										}
-									}
-									create_character = {
-										age = 20
-										random_traits = yes
-										female = yes
-										religion = event_target:mongol_china_invader
-										culture = event_target:mongol_china_invader
-										dynasty = event_target:mongol_china_invader
-										trait = brilliant_strategist
-										martial = 10
-									}
-								}
-								50 = {
-									create_character = {
-										age = 20
-										random_traits = yes
-										female = no
-										religion = event_target:mongol_china_invader
-										culture = event_target:mongol_china_invader
-										dynasty = event_target:mongol_china_invader
-										trait = brilliant_strategist
-										martial = 10
-									}
-								}
-							}
-							new_character = {
-								if = {
-									limit = {
-										event_target:mongol_china_invader = {
-											age = 36
-										}
-									}
-									set_father = event_target:mongol_china_invader
-								}
-								else_if = {
-									limit = {
-										event_target:mongol_china_invader = {
-											NOT = { age = 36 }
-											father_even_if_dead = {
-												age = 36
-											}
-										}
-									}
-									event_target:mongol_china_invader = {
-										father_even_if_dead = {
-											save_event_target_as = mongol_china_invader_father
-										}
-									}
-									set_father = event_target:mongol_china_invader_father
-								}
-								else = {
-									create_character = {
-										age = 60
-										random_traits = yes
-										female = no
-										religion = event_target:mongol_china_invader
-										culture = event_target:mongol_china_invader
-										dynasty = event_target:mongol_china_invader
-									}
-									new_character = {
-										death = { death_reason = death_in_china_historic }
-										save_event_target_as = new_china_ruler_father
-									}
-									set_father = event_target:new_china_ruler_father
-								}
-								FROM = {
-									set_offmap_holder = PREV
-								}
-							}
-							offmap_china = { # Mongols take all western protectorate lands for themselves
-								governor = {
-									any_vassal = {
-										set_defacto_liege = event_target:mongol_china_invader
-									}
-									any_demesne_title = {
-										limit = {
-											NOT = {
-												tier = EMPEROR
-											}
-										}
-										grant_title = event_target:mongol_china_invader
-									}
-								}
-							}
-							event_target:mongol_china_invader = { # The Borjigin who invaded China gets a bunch of Grace, Prestige, Gold, a Peace Deal and a few Siege Engineers when winning
-								wealth = 1000
-								prestige = 1000
-								add_offmap_currency = {
-									offmap = offmap_china
-									value = 5000
-								}
-								add_character_modifier = {
-									inherit = yes
-									name = peace_deal_with_china
-									years = 50
-								}
-								create_random_soldier = {
-									age = 30
-									dynasty = actually_culture
-									religion = ROOT
-									culture = ROOT
-									female = no
-									random_traits = yes
-									attributes = {
-										diplomacy = 2
-										learning = 2
-										stewardship = 2
-										intrigue = 2
-										martial = 12
-									}
-								}
-								new_character = {
-									set_character_flag = originated_from_chinese_court
-									set_character_flag = no_court_invites
-									set_character_flag = taught_chinese_strategy
-									
-									remove_trait = weak
-									remove_trait = slow
-									remove_trait = imbecile
-									remove_trait = dull
-									remove_trait = craven
-									
-									add_trait = sapper
-								}
-								create_random_soldier = {
-									age = 30
-									dynasty = actually_culture
-									religion = ROOT
-									culture = ROOT
-									female = no
-									random_traits = yes
-									attributes = {
-										diplomacy = 2
-										learning = 2
-										stewardship = 2
-										intrigue = 2
-										martial = 12
-									}
-								}
-								new_character = {
-									set_character_flag = originated_from_chinese_court
-									set_character_flag = no_court_invites
-									set_character_flag = taught_chinese_strategy
-									
-									remove_trait = weak
-									remove_trait = slow
-									remove_trait = imbecile
-									remove_trait = dull
-									remove_trait = craven
-									
-									add_trait = sapper
-								}
-								create_random_soldier = {
-									age = 30
-									dynasty = actually_culture
-									religion = ROOT
-									culture = ROOT
-									female = no
-									random_traits = yes
-									attributes = {
-										diplomacy = 2
-										learning = 2
-										stewardship = 2
-										intrigue = 2
-										martial = 12
-									}
-								}
-								new_character = {
-									set_character_flag = originated_from_chinese_court
-									set_character_flag = no_court_invites
-									set_character_flag = taught_chinese_strategy
-									
-									remove_trait = weak
-									remove_trait = slow
-									remove_trait = imbecile
-									remove_trait = dull
-									remove_trait = craven
-									
-									add_trait = sapper
-								}
-							}
-							set_global_flag = borjigin_china
-						}
-						else = { # If no Borjigins, business as usual
-							random_list = {
-								0 = {
-									additive_modifier = {
-										value = 50
-										has_game_rule = {
-											name = gender
-											value = all
-										}
-									}
-									create_character = {
-										age = 35
-										random_traits = yes
-										female = yes
-										religion = apostolic # A bit strange, but necessary
-										culture = amazonense
-										dynasty = actually_culture
-										trait = brilliant_strategist
-										martial = 10
-									}
-								}
-								50 = {
-									create_character = {
-										age = 35
-										random_traits = yes
-										female = no
-										religion = apostolic # A bit strange, but necessary
-										culture = amazonense
-										dynasty = actually_culture
-										trait = brilliant_strategist
-										martial = 10
-									}
-								}
-							}
-							new_character = {
-								create_character = {
-									age = 60
-									random_traits = yes
-									female = no
-									religion = THIS
-									culture = THIS
-									dynasty = THIS
-								}
-								new_character = {
-									death = { death_reason = death_in_china_historic }
-									save_event_target_as = new_china_ruler_father
-								}
-								set_father = event_target:new_china_ruler_father
-								FROM = {
-									set_offmap_holder = PREV
-								}
-								random_list = {
-									100 = {
-									
-									}
-									10 = {
-										religion = espiritista
-									}
-									10 = {
-										religion = gracia_divina
-									}
-									5 = {
-										religion = hindu
-									}
-									5 = {
-										religion = candomble
-									}
-								}
-							}
+						create_character = {
+							age = 30
+							random_traits = yes
+							female = yes
+							religion = candomble
+							culture = amazonense
+							dynasty = actually_culture
+							trait = brilliant_strategist
+							martial = 10
 						}
 					}
-					35 = {
-						modifier = {
-							factor = 3
-							NOT = { year = 1200 }
-						}
-						modifier = {
-							factor = 0
-							event_target:mongol_china_invader = {
-								is_alive = yes
-							}
-						}
-						random_list = {
-							0 = {
-								additive_modifier = {
-									value = 50
-									has_game_rule = {
-										name = gender
-										value = all
-									}
-								}
-								create_character = {
-									age = 35
-									random_traits = yes
-									female = yes
-									religion = apostolic # A bit strange, but necessary
-									culture = baiano
-									dynasty = actually_culture
-									trait = brilliant_strategist
-									martial = 10
-								}
-							}
-							50 = {
-								create_character = {
-									age = 35
-									random_traits = yes
-									female = no
-									religion = apostolic # A bit strange, but necessary
-									culture = baiano
-									dynasty = actually_culture
-									trait = brilliant_strategist
-									martial = 10
-								}
-							}
-						}
-						new_character = {
-							create_character = {
-								age = 60
-								random_traits = yes
-								female = no
-								religion = THIS
-								culture = THIS
-								dynasty = THIS
-							}
-							new_character = {
-								death = { death_reason = death_in_china_historic }
-								save_event_target_as = new_china_ruler_father
-							}
-							set_father = event_target:new_china_ruler_father
-							FROM = {
-								set_offmap_holder = PREV
-							}
-							random_list = {
-								100 = {
-								
-								}
-								10 = {
-									religion = espiritista
-								}
-								10 = {
-									religion = gracia_divina
-								}
-								5 = {
-									religion = hindu
-								}
-								5 = {
-									religion = candomble
-								}
-							}
-						}
-					}
-					25 = {
-						modifier = {
-							factor = 0
-							event_target:mongol_china_invader = {
-								is_alive = yes
-							}
-						}
-						random_list = {
-							0 = {
-								additive_modifier = {
-									value = 50
-									has_game_rule = {
-										name = gender
-										value = all
-									}
-								}
-								create_character = {
-									age = 35
-									random_traits = yes
-									female = yes
-									religion = apostolic # A bit strange, but necessary
-									culture = baiano
-									dynasty = actually_culture
-									trait = brilliant_strategist
-									martial = 10
-								}
-							}
-							50 = {
-								create_character = {
-									age = 35
-									random_traits = yes
-									female = no
-									religion = apostolic # A bit strange, but necessary
-									culture = baiano
-									dynasty = actually_culture
-									trait = brilliant_strategist
-									martial = 10
-								}
-							}
-						}
-						new_character = {
-							create_character = {
-								age = 60
-								random_traits = yes
-								female = no
-								religion = THIS
-								culture = THIS
-								dynasty = THIS
-							}
-							new_character = {
-								death = { death_reason = death_in_china_historic }
-								save_event_target_as = new_china_ruler_father
-							}
-							set_father = event_target:new_china_ruler_father
-							FROM = {
-								set_offmap_holder = PREV
-							}
-							random_list = {
-								100 = {
-								
-								}
-								10 = {
-									religion = espiritista
-								}
-								10 = {
-									religion = gracia_divina
-								}
-								5 = {
-									religion = hindu
-								}
-								5 = {
-									religion = candomble
-								}
-							}
-						}
-					}
-					25 = {
-						modifier = {
-							factor = 0
-							event_target:mongol_china_invader = {
-								is_alive = yes
-							}
-						}
-						random_list = {
-							0 = {
-								additive_modifier = {
-									value = 50
-									has_game_rule = {
-										name = gender
-										value = all
-									}
-								}
-								create_character = {
-									age = 35
-									random_traits = yes
-									female = yes
-									religion = apostolic # A bit strange, but necessary
-									culture = baiano
-									dynasty = actually_culture
-									trait = brilliant_strategist
-									martial = 10
-								}
-							}
-							50 = {
-								create_character = {
-									age = 35
-									random_traits = yes
-									female = no
-									religion = apostolic # A bit strange, but necessary
-									culture = baiano
-									dynasty = actually_culture
-									trait = brilliant_strategist
-									martial = 10
-								}
-							}
-						}
-						new_character = {
-							create_character = {
-								age = 60
-								random_traits = yes
-								female = no
-								religion = THIS
-								culture = THIS
-								dynasty = THIS
-							}
-							new_character = {
-								death = { death_reason = death_in_china_historic }
-								save_event_target_as = new_china_ruler_father
-							}
-							set_father = event_target:new_china_ruler_father
-							FROM = {
-								set_offmap_holder = PREV
-							}
-							random_list = {
-								100 = {
-								
-								}
-								10 = {
-									religion = espiritista
-								}
-								10 = {
-									religion = gracia_divina
-								}
-								5 = {
-									religion = hindu
-								}
-								5 = {
-									religion = candomble
-								}
-							}
+					50 = {
+						create_character = {
+							age = 30
+							random_traits = yes
+							female = no
+							religion = candomble
+							culture = amazonense
+							dynasty = actually_culture
+							trait = brilliant_strategist
+							martial = 10
 						}
 					}
 				}
-				
+				new_character = {
+					create_character = {
+						age = 60
+						random_traits = yes
+						female = no
+						religion = THIS
+						culture = THIS
+						dynasty = THIS
+					}
+					new_character = {
+						death = { death_reason = death_in_china_historic }
+						save_event_target_as = new_china_ruler_father
+					}
+					set_father = event_target:new_china_ruler_father
+					FROM = {
+						set_offmap_holder = PREV
+					}
+					random_list = {
+						100 = {
+						
+						}
+						10 = {
+							religion = apostolic
+						}
+						10 = {
+							religion = charismatic
+						}
+						5 = {
+							religion = candomble
+						}
+						5 = {
+							religion = espiritista
+						}
+					}
+				}
+  			
 				any_player = {
 					limit = {
 						has_offmap_news_enabled = FROM
 						is_within_diplo_range = ROOT
 					}
-					narrative_event = { id = JD.50162 }
+					narrative_event = { id = JD.50202 }
 				}
-
+				
 				random_list = {
 					50 = {
 						# modifier = {
@@ -1815,7 +1344,7 @@ character_event = {
 						character_event = { id = JD.10113 days = 15 } #Spawns a Displaced Prince adventurer...
 						set_character_flag = spawning_a_displaced_royal
 						log = "China Logging:"
-						log = "Attempting to spawn a Displaced Prince, as aftermath to event JD.50160 (end of Being Invaded by Mongols). Character should spawn in 15 days."
+						log = "Attempting to spawn a Displaced Prince, as aftermath to event JD.50200 (end of Being Invaded by Jurchens). Character should spawn in 15 days."
 					}
 					50 = {
 						# modifier = {
@@ -1828,7 +1357,7 @@ character_event = {
 						character_event = { id =  JD.10109 days = 15 } #Spawns a Jurchen tribe leader...
 						set_character_flag = spawning_a_jurchen_invader
 						log = "China Logging:"
-						log = "Attempting to spawn a Jurchen Invader, as aftermath to event JD.50160 (end of Being Invaded by Mongols). Character should spawn in 15 days."
+						log = "Attempting to spawn a Jurchen Invader, as aftermath to event JD.50200 (end of Being Invaded by Mongols). Character should spawn in 15 days."
 					}
 				}
 			}

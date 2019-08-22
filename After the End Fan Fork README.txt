@@ -1,7 +1,7 @@
 AFTER THE END FAN FORK
 A fan-made fork of the original post-apocalyptic North America mod for Crusader Kings II
-Version 0.4b (Forked off from After the End v0.9)
-Compatible with CK2 3.1.0 and the Holy Fury DLC
+Version 0.5 (Forked off from After the End v0.9)
+Compatible with CK2 3.2.1 and the Holy Fury DLC
 
 	INSTALLATION
 1. Delete any previous versions of this mod.
@@ -75,6 +75,7 @@ Roraima event image: User/Ixitixel (CC BY-SA 2.0 DE)
 Amazon River event image: Neil Palmer/CIAT
 Totem Pole event image: User/Husky22
 Colorado River flag: User/Xasartha
+Easter Egg CoA: Wagner51
 
 Music:
 "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past"

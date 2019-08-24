@@ -35,6 +35,8 @@ Katanasama
 Deds
 mochi/vivyshe
 al-Sayyid/ShiatAli
+Shadeoses/BoneLorde
+Lord_Iggy/KaYoS
 
 Original mod team:
 

@@ -1,7 +1,7 @@
 name = "After the End Fan Fork"
 path = "mod/After the End Fan Fork"
 user_dir = "After the End Fan Fork"
-supported_checksums = { BMAR }
+supported_checksums = { RFTX }
 
 replace_path = "history/characters"
 replace_path = "history/provinces"

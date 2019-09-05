@@ -2049,7 +2049,7 @@ female_can_hold_minor_title_trigger = {
 						religion = gaian
 						religion = bickertonite
 						religion = strangite
-						religion = neomyan
+						religion = neomayan
 						religion = americanist
 						religion = libertarian
 					}
@@ -2576,7 +2576,124 @@ ROOTs_religion_is_playable_trigger = { #For targeted decision where FROM is the 
 			}
 		}
 	}
+}ROOTs_secret_religion_is_playable_trigger = { 
+# To block players from getting a game over if they don't own all DLCs
+	hidden_tooltip = {
+		OR = {
+			secret_religion_group  = christian
+			AND = {
+				secret_religion_group  = jewish_group
+				has_dlc = "Sons of Abraham"
+			}
+			AND = {
+				secret_religion_group  = muslim
+				has_dlc = "The Sword of Islam" 
+			}
+			AND = {
+				secret_religion_group  = indian_group
+				has_dlc = "Rajas of India" 
+			}
+			AND = {
+				OR = {
+					secret_religion = taoist
+					secret_religion = bon
+					secret_religion = bon_reformed
+					secret_religion = khurmazta 
+				}
+				has_dlc = "Jade Dragon" 
+			}
+			AND = {
+				secret_religion_group = pagan_group
+				OR = {
+					has_dlc = "The Old Gods" 
+					has_dlc = "Holy Fury" 
+				}
+			}
+			AND = {
+				secret_religion_group = zoroastrian_group
+				has_dlc = "The Old Gods"
+			}
+		}	
+	}
+
+	trigger_if = {
+		limit = {
+			secret_religion_group  = jewish_group
+			NOT = { has_dlc = "Sons of Abraham" }
+		}
+		AND = {
+			secret_religion_group  = jewish_group
+			has_dlc = "Sons of Abraham"
+		}
+	}
+	trigger_if = {
+		limit = {
+			secret_religion_group  = muslim
+			NOT = { has_dlc = "The Sword of Islam" }
+		}
+		AND = {
+			secret_religion_group  = muslim
+			has_dlc = "The Sword of Islam" 
+		}
+	}
+	trigger_if = {
+		limit = {
+			secret_religion_group  = indian_group
+			NOT = { has_dlc = "Rajas of India" }
+		}
+		AND = {
+			secret_religion_group  = indian_group
+				has_dlc = "Rajas of India" 
+		}
+	}
+	trigger_if = {
+		limit = {
+			OR = {
+				secret_religion = taoist
+				secret_religion = bon
+				secret_religion = bon_reformed
+				secret_religion = khurmazta 
+			}
+			NOT = { has_dlc = "Jade Dragon" }
+		}
+		AND = {
+			OR = {
+				secret_religion = taoist
+				secret_religion = bon 
+				#reformed bön prints out as 'bön' and there's no need to display 'bön' twice in the tooltip
+				secret_religion = khurmazta 
+			}
+			has_dlc = "Jade Dragon" 
+		}
+	}
+	trigger_if = {
+		limit = {
+			secret_religion_group  = pagan_group
+			NOR = { 
+				has_dlc = "The Old Gods" 
+				has_dlc = "Holy Fury"
+			}
+		}
+		AND = {
+			secret_religion_group = pagan_group
+			OR = {
+				has_dlc = "The Old Gods" 
+				has_dlc = "Holy Fury" 
+			}
+		}
+	}
+	trigger_if = {
+		limit = {
+			secret_religion_group  = pagan_group
+			NOT = { has_dlc = "The Old Gods" }
+		}
+		AND = {
+			secret_religion_group = zoroastrian_group
+			has_dlc = "The Old Gods"
+		}
+	}
 }
+
 ###Use the actual is_<family member>_of = scope triggers now
 family_of_root_trigger = { #use is_blood_relative_of_root_trigger for all relatives
 	OR = {
@@ -4043,39 +4160,19 @@ has_trollcrafters_prerequisites = {
 
 has_cult_of_kali_prerequisites = {
 	has_common_devilworship_prerequisites = yes
-	OR = {
-		religion = hindu
-	}
+	religion = hindu
 }
 
 has_plaguebringers_prerequisites = {
 	has_common_devilworship_prerequisites = yes
-	OR = {
-		religion_group = american_native
-	}
+	religion_group = american_native
 }
 
 has_illuminati_prerequisites = {
 	has_common_devilworship_prerequisites = yes
-	OR = {
-		religion = americanist
-		religion = hamiltonian
-		religion = jeffersonian
-		religion = libertarian
-		religion = consumerist
-		religion = monetarist
-	}
+	religion_group = oldworld
 	NOT = { trait = legendary }
 }
-
-#has_epa_prerequisites = {
-#	has_common_devilworship_prerequisites = yes
-#	OR = {
-#		religion = rust_cultist
-#		religion = rust_cultist_reformed
-#		religion = atomicist
-#	}
-#}
 
 has_cult_of_cortez_prerequisites = {
 	has_common_devilworship_prerequisites = yes
@@ -4084,9 +4181,7 @@ has_cult_of_cortez_prerequisites = {
 
 has_bohemian_grove_prerequisites = {
 	has_common_devilworship_prerequisites = yes
-	OR = {
-		religion_group = pacific
-	}
+	religion_group = pacific
 }
 
 has_davy_jones_mates_prerequisites = {
@@ -4101,8 +4196,6 @@ has_starry_wisdom_prerequisites = {
 		religion = occultist_reformed
 		religion = thelemic
 		religion = thelemic_reformed
-		religion = celtic_pagan
-		religion = celtic_pagan_reformed
 	}
 }
 
@@ -6016,6 +6109,7 @@ likes_southern = { #Southern US, includes Cajun
 			NOT = { culture = beltway }
 		}
 		culture = cajun
+		culture = creole
 	}
 }
 likes_yank = {
@@ -6028,12 +6122,6 @@ likes_yank = {
 	NOT = {
 		culture = maritimer
 		culture = newfie
-	}
-}
-likes_afroanglo = {
-	OR = {
-		culture_group = afroanglo
-		culture = creole
 	}
 }
 likes_native_americans = { #ALL Native American culture groups
@@ -6563,30 +6651,6 @@ this_has_friendly_opinion_modifier_of_prev_trigger = {
 		has_opinion_modifier = { who = PREV modifier = opinion_feels_appreciated }
 		has_opinion_modifier = { who = PREV modifier = opinion_amused }
 		has_opinion_modifier = { who = PREV modifier = opinion_swayed_3 }
-	}
-}
-			
-#checks whether PREV has one of the following opinion modifiers against the currently scoped character
-prev_has_friendly_opinion_modifier_of_this_trigger = {
-	OR = {
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_budding_friendship }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_was_praised }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_charmed }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_honorable }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_was_rewarded }
-		reverse_has_opinion_modifier = { who = PREV modifier = nice_adventure }
-		reverse_has_opinion_modifier = { who = PREV modifier = great_adventure }
-		reverse_has_opinion_modifier = { who = PREV modifier = epic_adventure }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_accomplice }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_mediator }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_poet_pen_pal }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_calmed }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_cheered_up }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_teach_virtue }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_no_cat }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_feels_appreciated }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_amused }
-		reverse_has_opinion_modifier = { who = PREV modifier = opinion_swayed_3 }
 	}
 }
 

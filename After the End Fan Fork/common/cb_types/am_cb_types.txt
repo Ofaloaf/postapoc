@@ -3596,3 +3596,209 @@ imperial_claim_war = { #Special CB used for imperial claims
 		}
 	}
 }
+maghrebjihad = {
+	name = CB_NAME_COLONIZATION
+	war_name = WAR_NAME_COLONIZATION
+	sprite = 9
+	truce_days = 3650
+	is_permanent = yes
+	hostile_against_others = yes
+	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+
+	can_use = {
+		ROOT = {
+			has_character_flag = revivalistconqueror
+		}
+	}
+	
+	can_use_title = {
+		FROM = {
+			any_realm_province = {
+				port = yes
+				de_jure_liege_or_above = PREVPREV
+				any_province_holding = { holding_type = castle }
+			}
+		}
+	}
+	
+	on_add = {
+		if = {
+			limit = { defender = { is_offmap_governor = offmap_china } }
+			attacker = {  
+				sound_effect = china_angered_emperor
+				detract_grace_super_huge_effect = yes
+			}
+		}
+	}
+
+	#is_valid = {
+	#	always = yes
+	#}
+	
+	#is_valid_title = {
+	#	always = yes
+	#}
+	
+	on_success = {
+		ROOT = { 
+			prestige = 250
+			hidden_tooltip = {
+				clr_character_flag = revivalistconqueror
+				if = {
+					limit = { has_landed_title = d_revivalist }
+					narrative_event = { id = revivalist.3 days = 1 } # Victorious
+				}
+			}
+		}
+		FROM = {
+			prestige = -250 
+		}
+	}
+
+	on_success_title = {
+		custom_tooltip = {
+			text = tribal_invasion_succ_tip
+			hidden_tooltip = {
+				FROM = {
+					random_realm_province = {
+						limit = {
+							port = yes
+							de_jure_liege_or_above = PREVPREV
+							any_province_holding = { holding_type = castle }
+							#OR = {
+							#	NOT = { culture = ROOT }
+							#	NOT = { religion = ROOT }
+							#}
+						}
+						culture = ROOT
+						religion = ROOT
+						
+						county = { grant_title = ROOT }
+						duchy = { grant_title = ROOT }
+						# Give them the old capital too
+						any_province_holding = {
+							limit = { same_realm = FROM }
+							grant_title = ROOT
+						}
+					}
+				}
+				ROOT = {
+					occupy_minors_of_occupied_settlements = FROM
+					gain_all_occupied_titles = FROM
+					vassalize_or_take_under_title_destroy_duchies = {
+						title = PREV
+						enemy = FROM
+						type = invasion
+					}
+					
+					# Settle the colonists
+					any_demesne_title = {
+						limit = { tier = BARON }
+						remove_holding_modifier = recently_conquered
+						refill_holding_levy = yes
+					}
+				}
+			}
+		}
+		
+	}
+
+	on_fail = {
+		FROM = {
+			prestige = 100
+		}
+		ROOT = {
+			imprison = FROM 
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = revivalistconqueror
+			}
+		}
+	
+		ROOT = { prestige = -100 }
+		
+		random = {
+			chance = 40
+			if = {
+				limit = { ROOT = { has_landed_title = d_revivalist } }
+				narrative_event = { id = revivalist.4 days = 1 } # Defeated
+			}
+		}
+		if = {
+			limit = { ROOT = { has_landed_title = d_revivalist } }
+			activate_title = { title = d_revivalist status = no }
+		}
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+		
+		FROM = {
+			prestige = 200
+		}
+		
+		ROOT = {
+			imprison = FROM
+			prestige = -200
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = revivalistconqueror
+			}
+		}
+		
+		random = {
+			chance = 40
+			if = {
+				limit = { ROOT = { has_landed_title = d_revivalist } }
+				narrative_event = { id = revivalist.4 days = 1 } # Defeated
+			}
+		}
+		if = {
+			limit = { ROOT = { has_landed_title = d_revivalist } }
+			activate_title = { title = d_revivalist status = no }
+		}
+	}
+	
+	on_attacker_leader_death = {
+		ROOT = {
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = revivalistconqueror
+			}
+		}
+		end_war = invalid
+		
+		random = {
+			chance = 40
+			if = {
+				limit = { ROOT = { has_landed_title = d_revivalist } }
+				narrative_event = { id = col.4 days = 1 } # Defeated
+			}
+		}
+		if = {
+			limit = { ROOT = { has_landed_title = d_revivalist } }
+			activate_title = { title = d_revivalist status = no }
+		}
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}

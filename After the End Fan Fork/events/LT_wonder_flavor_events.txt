@@ -3860,6 +3860,445 @@ character_event = {
 	}
 }
 
+# Hagia Sophia conversion event
+
+character_event = {
+	id = LT.20900
+	title = wonder_basilica_guadalupe
+	picture = GFX_evt_hagia_sofia #placeholder
+	desc = {
+		trigger = { event_target:target_chaplain = { always = yes } }
+		text = EVTDESC_LT_20900_chaplain
+	}
+	desc = {
+		trigger = { NOT =  { event_target:target_chaplain = { always = yes } } }
+		text = EVTDESC_LT_20900
+	}
+
+	trigger = {
+		OR = {
+			AND = {
+				any_realm_wonder = {
+					NOT = { has_wonder_flag = Guadalupe_catholic_cult }
+					OR = {
+						has_wonder_flag = Guadalupe_sacred_heart_cult
+						has_wonder_flag = Guadalupe_mictlantec_cult
+						has_wonder_flag = Guadalupe_sol_invicta_cult
+					}
+				}
+				religion = catholic
+			}
+			AND = {
+				any_realm_wonder = {
+					NOT = { has_wonder_flag = Guadalupe_sacred_heart_cult }
+					OR = {
+						has_wonder_flag = Guadalupe_catholic_cult
+						has_wonder_flag = Guadalupe_mictlantec_cult
+						has_wonder_flag = Guadalupe_sol_invicta_cult
+					}
+				}
+				religion = sacred_heart
+			}
+			AND = {
+				any_realm_wonder = {
+					NOT = { has_wonder_flag = Guadalupe_mictlantec_cult }
+					OR = {
+						has_wonder_flag = Guadalupe_sacred_heart_cult
+						has_wonder_flag = Guadalupe_catholic_cult
+						has_wonder_flag = Guadalupe_sol_invicta_cult
+					}
+				}
+				religion = mictlantec
+			}
+			AND = {
+				any_realm_wonder = {
+					NOT = { has_wonder_flag = Guadalupe_sol_invicta_cult }
+					OR = {
+						has_wonder_flag = Guadalupe_sacred_heart_cult
+						has_wonder_flag = Guadalupe_catholic_cult
+						has_wonder_flag = Guadalupe_mictlantec_cult
+					}
+				}
+				religion = sol_invicta
+			}
+		}
+   	}
+	border = GFX_event_normal_frame_religion
+
+    is_triggered_only = yes
+
+    only_independent = yes
+
+    immediate = {
+    	random_realm_wonder = {
+    		limit = {
+    			has_wonder = wonder_basilica_guadalupe
+    		}
+    		save_event_target_as = target_wonder
+    	}
+    	job_spiritual = {
+    		save_event_target_as = target_chaplain
+    	}
+    	if = {
+    		limit = {
+    			OR = {
+    				event_target:target_wonder = {
+    					has_wonder_flag = Guadalupe_catholic_cult
+    					location = { religion = catholic }
+    				}
+    				event_target:target_wonder = {
+    					has_wonder_flag = Guadalupe_sacred_heart_cult
+    					location = { religion = sacred_heart }
+    				}
+    				event_target:target_wonder = {
+    					has_wonder_flag = Guadalupe_mictlantec_cult
+    					location = { religion = mictlantec }
+    				}
+					event_target:target_wonder = {
+    					has_wonder_flag = Guadalupe_sol_invicta_cult
+    					location = { religion = sol_invicta }
+    				}
+    			}
+    		}
+    		event_target:target_wonder = { location = { set_province_flag = people_had_hagia_sophia } }
+    	}
+    }
+
+    option = { #Convert
+		name = EVTOPTA_LT_20900
+		event_target:target_wonder = { clear_flags_with_prefix = Guadalupe_ }
+		if = {
+			limit = { religion = catholic }
+			event_target:target_wonder = {
+				set_wonder_flag = Guadalupe_catholic_cult
+				set_wonder_model = wonder_cathedral
+			}
+			
+		}
+		else_if = {
+			limit = { religion = sacred_heart }
+			event_target:target_wonder = {
+				set_wonder_flag = Guadalupe_sacred_heart_cult
+				set_wonder_model = wonder_cathedral
+			}
+		}
+		else_if = {
+			limit = { religion = mictlantec }
+			event_target:target_wonder = {
+				set_wonder_flag = Guadalupe_mictlantec_cult
+				set_wonder_model = wonder_cathedral
+			}
+		}
+		else_if = {
+			limit = { religion = sol_invicta }
+			event_target:target_wonder = {
+				set_wonder_flag = Guadalupe_sol_invicta_cult
+				set_wonder_model = wonder_cathedral
+			}
+		}
+		piety = 200
+		reverse_opinion = {
+			modifier = opinion_religious_tract
+			who = event_target:target_chaplain
+			years = 5
+		}
+		event_target:target_wonder = {
+			show_scope_change = no
+			location = {
+				show_scope_change = no
+				if = {
+					limit = { has_province_flag = people_had_hagia_sophia }
+				}
+				add_province_modifier = { modifier = religious_tension years = 5 }
+			}
+		}
+	}
+    option = { #Not Convert
+		name = EVTOPTB_LT_20900
+		piety = -50
+		reverse_opinion = {
+			modifier = opinion_angry
+			who = event_target:target_chaplain
+			years = 5
+		}
+		event_target:target_wonder = {
+			show_scope_change = no
+			location = {
+				show_scope_change = no
+				if = {
+					limit = { has_province_flag = people_had_hagia_sophia }
+				}
+				add_province_modifier = { modifier = religious_tolerance years = 10 }
+			}
+			
+		}
+	}
+}
+
+# After a Siege, things might get out of control and a sack occur. Similar to HL.4813, but weaker. Triggered as random event from on_action on_siege_won_leader
+character_event = { 
+	id = LT.21000
+	desc = EVTDESC_LT_21000.1
+	desc = EVTDESC_LT_21000.2
+	picture = GFX_evt_siege
+	border = GFX_event_normal_frame_war
+	portrait = event_target:top_liege_target
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		NOT = { is_nomadic = yes }  #Nomads get their own event ( HL.4813 )
+		FROM = {
+			OR = {
+				holding_type = city
+				holding_type = temple
+				holding_type = castle
+				holding_type = tribal
+			}
+			num_of_buildings = 4
+			location = {
+				NOT = {
+					has_province_modifier = recently_burnt_the_land_not_owner
+				}
+			}
+		}
+		NOT = { has_character_flag = disciplinary_commander }
+		is_allowed_to_loot = no # A little bit of a too harsh block. Could be expanded upon.
+	}
+	weight_multiplier = {
+		modifier = {
+			factor = 0
+			has_character_modifier = strong_leader_modifier
+		}
+		modifier = {
+			factor = 1.5
+			has_character_modifier = weak_leader_modifier
+		}
+		modifier = {
+			factor = 1.5
+			FROM = { is_capital = yes }
+		}
+		modifier = {
+			factor = 3
+			has_character_modifier = plundering_leader_modifier
+		}
+	}
+	
+	immediate = {
+		holder_scope = {
+			save_event_target_as = holder_target
+			top_liege = {
+				save_event_target_as = top_liege_target
+			}
+		}
+		FROM = {
+			location = {
+				add_province_modifier = {
+					name = recently_burnt_the_land_not_owner
+					years = 10
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_LT_21000
+		
+		show_portrait = event_target:holder_target
+		show_portrait = event_target:top_liege_target
+		
+		ai_chance = {
+			factor = 40
+		}
+		trigger_switch = {
+			on_trigger = prestige
+			1000 = { prestige = -200 }
+			500 = { prestige = -100 }
+			100 = { prestige = -50 }
+			0 = { prestige = -20 }
+		}
+				
+		FROM = {
+			destroy_random_building = THIS
+			location = {
+				show_scope_change = no
+				if = {
+					limit = { has_wonder = yes }
+					random = {
+						chance = 30
+						wonder = { set_wonder_damaged = yes }
+					}
+				}
+			}
+			holder_scope = {
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_furious
+					who = ROOT
+					years = 3
+				}
+				top_liege = {
+				show_scope_change = no
+					opinion = {
+						modifier = opinion_furious
+						who = ROOT
+						years = 3
+					}
+					hidden_effect = {
+						any_realm_character = {
+							show_scope_change = no
+							limit = {
+								NOR = {
+									trait = cruel
+								}
+							}
+							opinion = {
+								modifier = opinion_dishonorable
+								who = ROOT
+								years = 10
+							}
+						}
+					}
+					custom_tooltip = { text = EVTOPTA_LT_21000_DISHONORABLE_TT }
+				}
+			}
+		}
+		add_character_modifier = { name = plundering_leader_modifier years = 2 }
+	}
+
+	option = {
+		name = EVTOPTB_LT_21000
+		
+		show_portrait = event_target:holder_target
+		show_portrait = event_target:top_liege_target
+		
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5 trait = cruel }
+			modifier = { factor = 5 trait = wroth }
+		}
+		
+		if = {
+			limit = { NOT = { FROM = { holding_type = tribal } } }
+			wealth = 10
+		}
+		if = {
+			limit = { FROM = { holding_type = tribal } }
+			wealth = 5
+		}
+		trigger_switch = {
+			on_trigger = prestige
+			1000 = { prestige = -400 }
+			500 = { prestige = -200 }
+			100 = { prestige = -80 }
+			0 = { prestige = -40 }
+		}
+		random = { chance = 50 add_trait_wroth_effect = yes }
+		random = { chance = 50 add_trait_cruel_effect = yes }
+
+		FROM = {
+			destroy_random_building = THIS
+			location = {
+				show_scope_change = no
+				if = {
+					limit = { has_wonder = yes }
+					wealth = 30
+					random = {
+						chance = 30
+						wonder = { set_wonder_damaged = yes }
+					}
+				}
+			}
+
+			holder_scope = {
+				show_scope_change = no
+				opinion = {
+					modifier = opinion_furious
+					who = ROOT
+					years = 3
+				}
+				top_liege = {
+				show_scope_change = no
+					opinion = {
+						modifier = opinion_furious
+						who = ROOT
+						years = 3
+					}
+					hidden_effect = {
+						any_realm_character = {
+							show_scope_change = no
+							limit = {
+								NOR = {
+									trait = cruel
+								}
+							}
+							opinion = {
+								modifier = opinion_dishonorable
+								who = ROOT
+								years = 10
+							}
+						}
+					}
+					custom_tooltip = { text = EVTOPTA_LT_21000_DISHONORABLE_TT }
+				}
+			}
+		}
+		hidden_effect = {
+			remove_character_modifier = plundering_leader_modifier
+		}
+		add_character_modifier = { name = plundering_leader_modifier years = 2 }
+	}
+	
+	option = {
+		name = EVTOPTC_LT_21000
+		trigger = {
+			NOR = {
+				has_character_modifier = strong_leader_modifier
+				has_character_modifier = weak_leader_modifier
+			}
+		}
+		ai_chance = {
+			factor = 50
+		}
+		random_list = {
+			50 = {
+				modifier = { factor = 0.5 martial < 2}
+				modifier = { factor = 0.7 martial < 4}
+				modifier = { factor = 0.8 martial < 6}
+				modifier = { factor = 0.9 martial < 8}
+				modifier = { factor = 0.9 martial < 10}
+				modifier = { factor = 1.2 martial > 12}
+				modifier = { factor = 1.2 martial > 14}
+				modifier = { factor = 1.3 martial > 16}
+				modifier = { factor = 1.4 martial > 18}
+				custom_tooltip = { text = EVTOPTC_LT_21000_CONTROL_TT }
+				any_controlled_unit = { troops = -0.05 }
+				prestige = 50
+				hidden_effect = {
+					remove_character_modifier = plundering_leader_modifier
+				}
+				add_character_modifier = { name = strong_leader_modifier years = 10 }
+			}
+			50 = {
+				custom_tooltip = { text = EVTOPTC_LT_21000_NO_CONTROL_TT }
+				FROM = {
+					destroy_random_building = THIS
+					location = { 
+						show_scope_change = no
+						if = {
+							limit = { has_wonder = yes }
+							wonder = { set_wonder_damaged = yes }
+						}
+					}
+				}
+				hidden_effect = {
+					remove_character_modifier = plundering_leader_modifier
+				}
+				add_character_modifier = { name = weak_leader_modifier years = 10 }
+			}
+		}
+	}
+}
 
 
 

@@ -1,0 +1,237 @@
+check_holy_order_donation_effect = {
+	hidden_tooltip = {
+		save_event_target_as = holy_order_potential_title
+
+		if = { # Checking if it is a Duchy that St. Ursula's Chosen could be interested in
+			limit = {
+				# Checking that ROOT has the whole Duchy
+				NOT = {
+					any_direct_de_jure_vassal_title = {
+						NOT = {
+							owner = {
+								OR = {
+									character = ROOT
+									any_liege = {
+										character = ROOT
+									}
+								}
+							}
+						}
+					}
+				}
+				# Checking that Ursula is active
+				is_title_active = d_st_ursulas_chosen
+				# Checking that Root is the same religion as Ursula
+				d_st_ursulas_chosen = {
+					owner = {
+						religion = ROOT
+					}
+				}
+				# Checking that Root don't already own the associated Kingdom of that title
+				kingdom = {
+					OR = {
+						owner = {
+							NOT = {
+								character = ROOT
+							}
+						}
+						NOT = {
+							owner = {
+								always = yes
+							}
+						}
+					}
+				}
+				# Checking that the Teutonics don't already have a Duchy
+				d_st_ursulas_chosen = {
+					owner = {
+						NOT = {
+							any_demesne_title = {
+								tier = COUNT
+							}
+						}
+					}
+				}
+				# Checking that the Teutonics aren't already in a Northern Crusade
+				d_st_ursulas_chosen = {
+					owner = {
+						NOT = {
+							any_war = {
+								using_cb = northern_crusade_war
+							}
+						}
+					}
+				}
+				# Checking the ROOT 
+				ROOT = {
+					is_heretic = no
+					NOT = {
+						has_character_flag = refused_to_give_land_to_teutonics
+					}
+				}
+				# Duke tier 
+				tier = DUKE
+				# Somewhere in the north
+				OR = {
+					region = world_rustlands
+					region = world_norselands
+				}
+				OR = {
+					# Is by water
+					any_direct_de_jure_vassal_title = {
+						location = {
+							port = yes
+						}
+						owner = {
+							OR = {
+								character = FROM
+								any_liege = {
+									character = FROM
+								}
+							}
+						}
+					}
+					# Is the neighbor to another Catholic realm
+					any_direct_de_jure_vassal_title = {
+						location = {
+							any_neighbor_province = {
+								OR = {
+									religion = ROOT
+									owner = {
+										religion = ROOT
+									}
+									owner = {
+										any_liege = {
+											religion = ROOT
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				# Is adjacent to infidels
+				any_direct_de_jure_vassal_title = {
+					location = {
+						any_neighbor_province = {
+							owner = {
+								OR = {
+									NOT = {
+										religion_group = ROOT
+									}
+									any_liege = {
+										NOT = {
+											religion_group = ROOT
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			d_st_ursulas_chosen = {
+				owner = {
+					character_event = { id = HFP.44005 days = 1}
+				}
+			}
+		}
+	}
+}
+
+holy_order_set_law_effect = {
+	add_law = revoke_title_law_2
+	add_law = ze_administration_laws_1
+	add_law = law_voting_power_0
+	add_law = war_voting_power_0
+	add_law = revoke_title_voting_power_0
+	add_law = imprison_voting_power_0
+	add_law = grant_title_voting_power_0
+	add_law = banish_voting_power_0
+	add_law = execution_voting_power_0
+	add_law = succession_voting_power_0	
+	add_law = centralization_3
+}
+
+teutonic_order_upgrade_capital_effect = {
+	any_demesne_title = {
+		limit = {
+			OR = {
+				tier = BARON
+				tier = COUNT
+			}
+			holding_type = TRIBAL
+		}
+		convert_to = CASTLE
+		if = {
+			limit = {
+				location = {
+					num_of_empty_holdings = 2
+				}
+				NOT = {
+					any_direct_de_jure_vassal_title = {
+						holding_type = city
+					}
+				}
+			}
+			location = {
+				build_holding = {
+					type = CITY
+				}
+			}
+		}
+		if = {
+			limit = {
+				location = {
+					num_of_empty_holdings = 2
+				}
+				NOT = {
+					any_direct_de_jure_vassal_title = {
+						holding_type = TEMPLE
+					}
+				}
+			}
+			location = {
+				build_holding = {
+					type = TEMPLE
+				}
+			}
+		}
+	}
+}
+
+holy_order_distribute_titles_effect = {
+	any_demesne_title = {
+		limit = {
+			NOT = {
+				holding_type = CASTLE
+			}
+			lower_tier_than = DUKE
+		}
+		if = {
+			limit = {
+				holding_type = CITY
+			}
+			create_random_steward = {
+				random_traits = yes
+				dynasty = random
+			}
+		}
+		else_if = {
+			limit = {
+				holding_type = TEMPLE
+			}
+			create_random_priest = {
+				random_traits = yes
+				dynasty = random
+			}
+		}
+		else = {
+			create_random_soldier = {
+				random_traits = yes
+				dynasty = random
+			}
+		}
+		grant_title_no_opinion = new_character
+	}
+}

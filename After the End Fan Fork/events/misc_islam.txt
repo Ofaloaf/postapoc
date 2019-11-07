@@ -1993,6 +1993,7 @@ character_event = {
 	trigger = {
 		year = 2700 #30 years after game start, more or less
 		NOT = { has_global_flag = wahhab_himself }
+		NOT = { has_global_flag = muslim_revival_in_progress }
 		capital_scope = {
 			region = custom_atlantic
 			port = yes
@@ -2009,6 +2010,7 @@ character_event = {
 		
 	immediate = {
 		set_global_flag = wahhab_himself
+		set_global_flag = muslim_revival_in_progress
 	}
 	
 	option = {
@@ -2021,9 +2023,13 @@ character_event = {
 character_event = {	
 	id = islamate.41
 	desc = EVTDESC_revivalist_2
-	picture = GFX_evt_throne_room_arabic
+	picture = GFX_evt_council_speaker
 	border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
 	
 	option = {
 		name = EVTOPTA_revivalist_2
@@ -2052,7 +2058,8 @@ character_event = {
 		new_character = {
 			character_event = { id = misc.3 } # Diversity
 			character_event = { id = misc.4 } # Physique
-			save_event_target_as = wahhab_himself
+			save_persistent_event_target = wahhab_himself
+			set_character_flag = wahhab_himself #used for on_death event which cancels all future events
 			set_secret_religion = revivalist
 			remove_trait = socializer
 			remove_trait = gamer
@@ -2075,7 +2082,7 @@ character_event = {
 	option = {
 		name = EVTOPTB_revivalist_2
 		custom_tooltip = { text = TXT_EVTOPTB_revivalist_2 }
-		hidden_tooltip = { character_event = { id = islamate. months = 5 } } #cuts straight to uprising event
+		hidden_tooltip = { narrative_event = { id = islamate.48 months = 5 } } #cuts straight to uprising event
 	}
 }
 
@@ -2085,6 +2092,10 @@ character_event = {
 	picture = GFX_evt_council_arabic
 	border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = set_global_flag = muslim_revival_in_progress
+	}
 	
 	option = {
 		name = EVTOPTA_revivalist_3
@@ -2099,6 +2110,10 @@ character_event = {
 	picture = GFX_evt_eavesdropping
 	border = GFX_event_normal_frame_diplomacy
 	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
 	
 	option = {
 		name = EVTOPTA_revivalist_4
@@ -2118,11 +2133,183 @@ character_event = {
 			clear_secret_religion = revivalist
 			religion = revivalist
 			add_trait = zealous
-			imprison = ROOT
+			death = {
+				death_reason = death_execution
+				killer = ROOT
+			}
 		}
 		custom_tooltip = { text = TXT_EVTOPTC_revivalist_4 }
-		hidden_tooltip = { narrative_event = { id = islamate. months = 1 } } #message of revival, will be narrative event
 	}
 }
 
-#this event file left unfinished, because i am hungry
+#Classical Knowledge
+character_event = {
+	id = islamate.44
+	desc = EVTDESC_revivalist_5
+	picture = GFX_evt_council_speaker
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
+	
+	option = {
+		name = EVTOPTA_revivalist_5
+		custom_tooltip = { text = TXT_EVTOPTA_revivalist_5 }
+		hidden_tooltip = { remove_random_sin_effect = yes }
+		hidden_tooltip = { character_event = { id = islamate.45 } }
+	}
+}
+
+character_event = {
+	id = islamate.45
+	desc = EVTDESC_revivalist_6
+	picture = GFX_evt_council_speaker
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = set_global_flag = muslim_revival_in_progress
+	}
+	
+	option = {
+		name = EVTOPTA_revivalist_6
+		custom_tooltip = { text = TXT_EVTOPTA_revivalist_6 }
+		if = {
+			limit = {
+				NOT = { trait = brave }
+			}
+			add_trait = brave
+		}
+		else_if = {
+			limit = {
+				trait = brave
+				NOT = { trait = zealous }
+			}
+			add_trait = zealous
+		}
+		else_if = {
+			limit = {
+				trait = brave
+				trait = zealous
+				NOT = { trait = ambitious }
+			}
+			add_trait = ambitious
+		}
+		else_if = {
+			limit = {
+				trait = brave
+				trait = zealous
+				trait = ambitious
+			}
+			prestige = 50
+		}
+		hidden_tooltip = { character_event = { id = islamate.46 months = 1 } }
+	}
+}
+
+#An Islamic Revival
+character_event = {
+	id = islamate.46
+	desc = EVTDESC_revivalist_7
+	picture = GFX_evt_council_speaker
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
+	
+	option = {
+		name = EVTOPTA_revivalist_7
+		event_target:wahhab_himself = { add_friend = ROOT } #abdullah becomes your friend!
+		custom_tooltip = { text = TXT_EVTOPTB_revivalist_7 }
+		hidden_tooltip = { character_event = { id = islamate.47 months = 3 } }
+	}
+	
+	option = {
+		name = EVTOPTB_revivalist_7
+		custom_tooltip = { text = TXT_EVTOPTB_revivalist_7 }
+		hidden_tooltip = { character_event = { id = islamate.47 months = 3 } }
+	}
+	
+	option = {
+		name = EVTOPTC_revivalist_7
+		event_target:wahhab_himself = { banish = yes }
+		custom_tooltip = { text = TXT_EVTOPTC_revivalist_7 }
+		hidden_tooltip = { narrative_event = { id = islamate.48 months = 3 } }
+	}
+}
+
+#Trade Post Seized
+character_event = {
+	id = islamate.47
+	desc = EVTDESC_revivalist_8
+	picture = GFX_evt_trade_post_republic
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
+	
+	option = {
+		name = EVTOPTA_revivalist_8
+		hidden_tooltip = { narrative_event = { id = islamate.48 months = 1 } }
+	}
+	
+	option = {
+		name = EVTOPTB_revivalist_8
+		hidden_tooltip = { narrative_event = { id = islamate.48 months = 1 } }
+	}
+}
+
+#Message of the Revival
+narrative_event = {
+	id = islamate.48
+	title = EVTTITLE_revivalist_9
+	desc = EVTDESC_revivalist_9
+	picture = GFX_evt_imam
+	border = GFX_event_narrative_frame_religion
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
+	
+	immediate = {
+		event_target:wahhab_himself = {
+			clear_secret_religion = revivalist
+			remove_trait = trsunni
+			religion = revivalist
+			add_trait = zealous
+			add_trait = heresiarch
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_revivalist_9 #embrace revivalism
+		religion = revivalist
+		remove_trait = trtrad
+		remove_trait = trsunni
+		remove_trait = trshia
+		if = {
+			limit = {
+				NOT = { trait = zealous }
+			}
+			add_trait = zealous
+		}
+		random_demesne_province = {
+			religion = revivalist
+		}
+		random_demesne_province = {
+			religion = revivalist
+		}
+		event_target:wahhab_himself = { add_friend = ROOT } #abdullah becomes your friend!
+		hidden_tooltip = { clr_global_flag = muslim_revival_in_progress } #the revivalist train has no brakes
+		hidden_tooltip = { narrative_event = { id = islamate.49 days = 1 } #adds jihads, also acts as a major narrative event for non-revivalists
+	}
+	#there should be a hidden event before this point that spawns Abdullah if he doesn't already exist
+	#ending this here because I have an exam in less than an hour and the coding after this point gets into CBs and all sorts of fucked up shit
+}

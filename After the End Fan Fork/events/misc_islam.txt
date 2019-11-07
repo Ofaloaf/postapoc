@@ -1979,3 +1979,683 @@ character_event = {
 		}
 	}
 }
+
+##################################
+# Rise of the hijolly
+##################################
+
+# HiJolly distinguishes himself in west anglo court
+character_event = {
+	id = islamate.70
+	desc = "renovator.1.desc"
+	
+	picture = GFX_evt_mongols
+	border = GFX_event_normal_frame_war
+	
+	only_men = yes
+	capable_only = yes
+	prisoner = no
+	ai = yes
+	trigger = {
+		NOT = {
+			has_game_rule = {
+				name = renovator_invasion
+				value = off
+			}
+			1093 = { # Tampa
+				owner = {
+					religion = orientalist 
+				}
+			}
+		}
+		OR = {
+			AND = {
+				NOT = {
+					has_game_rule = {
+						name = renovator_invasion
+						value = random
+					}
+				}
+				year = 2800
+				NOT = { year = 2850 }
+			}
+			AND = {
+				has_game_rule = {
+					name = renovator_invasion
+					value = random
+				}
+				year = 2700
+				NOT = { year = 3100 }
+			}
+		}
+		is_landed = no
+		is_ruler = no
+		OR = {
+			culture_group = west_anglo
+		}
+		NOT = { has_disease = yes }
+		OR = {
+			martial = 13
+			diplomacy = 13
+		}
+		location = {is_island = no}
+		liege = {
+			primary_title = { holy_order = no }
+		}
+		NOT = { has_global_flag = hijolly_spawned }
+	}
+	
+	mean_time_to_happen = {
+		months = 1
+	}
+	
+	immediate = {		
+		religion = orientalist
+		culture = neomoor		
+		health = 9
+		fertility = 0.8
+		trait = brilliant_strategist
+		remove_trait = humble
+		remove_trait = cynical
+		trait = proud
+		trait = adventurer
+		trait = zealous
+		character_event = {
+			id = islamate.71
+			days = 100
+		}
+		set_character_flag = is_special_character
+		set_character_flag = hijolly_himself
+		set_character_flag = do_not_disturb
+		set_character_flag = ai_flag_refuse_conversion
+	}
+	
+	option = { # A most capable young man
+		name = "renovator.1.optA"
+		
+		set_global_flag = hijolly_spawned
+		set_global_flag = hijolly_spawned_by_event
+	}
+}
+
+# Hi Jolly and his men consider starting an adventure
+character_event = {
+	id = islamate.71
+	desc = "renovator.2.desc"
+	
+	picture = GFX_evt_mongols
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	prisoner = no
+	only_capable = yes
+	
+	trigger = {
+		is_alive = yes
+		NOT = { trait = blinded }
+		NOT = { trait = eunuch }
+		NOT = { trait = infirm }
+		lower_tier_than = king
+		NOT = { has_disease = yes }
+		OR = {
+			1093 = { # Tampa
+				owner = {
+					NOT = { same_realm = ROOT }
+					NOT = { realm = { temporary = yes }}
+				}
+			}
+		}
+	}
+	
+	option = { #Tampa
+		name = EVTOPTA60201
+		trigger = {
+			3137 = { # Tuxtla Gutierrez
+				owner = {
+					NOT = { same_realm = ROOT }
+					NOT = { realm = { temporary = yes }}
+				}
+			}
+		}
+		
+		ai_chance = {
+			factor = 100
+		}
+		
+		1093 = {
+			province_event = {
+				id = islamate.72
+				days = 2
+			}
+		}
+		
+		clr_character_flag = do_not_disturb
+	}
+}
+
+# Ping the target province
+province_event = {
+	id = islamate.72
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				FROM = {
+					is_ruler = yes
+					primary_title = { holy_order = no }
+				}
+			}
+			FROM = {
+				character_event = {
+					id = islamate.74
+				}
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					is_ruler = no					
+				}
+			}
+			FROM = {
+				character_event = {
+					id = islamate.73
+				}
+			}
+		}
+		#Cleanup in case something goes wrong
+		if = {
+			limit = {
+				FROM = {
+					primary_title = { holy_order = yes }
+				}
+			}
+			clr_character_flag = hijolly_himself
+			clr_global_flag = hijolly_spawned
+			clr_global_flag = hijolly_spawned_by_event
+		}
+	}
+}
+
+# The landless Renovator and his men start an adventure
+character_event = {
+	id = islamate.73
+	hide_window = yes
+	
+	is_triggered_only = yes
+	
+	prisoner = no
+	only_capable = yes
+	is_sick = no
+	
+	trigger = {
+		is_alive = yes
+		NOT = { trait = blinded }
+		NOT = { trait = eunuch }
+		NOT = { trait = infirm }
+		lower_tier_than = king
+	}
+	
+	immediate = {
+		wealth = 500
+		religion = orientalist		
+
+		any_liege = {
+			character_event = {
+				id = islamate.75
+				days = 1
+			}
+		}
+		
+		liege = {
+			capital_scope = {
+				FROM = {
+					owner = {
+						top_liege = {
+							ROOT = {
+								set_defacto_liege = ROOT
+								create_title = {
+									tier = DUKE
+									landless = yes
+									temporary = yes
+									culture = ROOT
+									name = "CLAIMANT_ADVENTURE"
+									holder = ROOT
+								}
+								
+								set_character_flag = duchy_adventurer
+							
+								spawn_unit = {
+									province = PREVPREVPREVPREV
+									home = PREVPREVPREVPREV
+									owner = THIS
+									match_character = PREV
+									match_mult = 0.5									
+									match_min = 500
+									match_max = 2000
+									attrition = 0.25
+								}
+								spawn_unit = {
+									province = PREVPREVPREVPREV
+									home = PREVPREVPREVPREV
+									owner = THIS
+									match_character = PREV
+									match_mult = 0.5									
+									match_min = 500
+									match_max = 2000
+									attrition = 0.25
+								}
+								spawn_unit = {
+									province = PREVPREVPREVPREV
+									home = PREVPREVPREVPREV
+									owner = THIS
+									match_character = PREV
+									match_mult = 0.5									
+									match_min = 500
+									match_max = 2000
+									attrition = 0.25
+								}
+								spawn_unit = {
+									province = PREVPREVPREVPREV
+									home = PREVPREVPREVPREV
+									owner = THIS
+									match_character = PREV
+									match_mult = 0.5									
+									match_min = 500
+									match_max = 2000
+									attrition = 0.25
+								}
+								spawn_unit = {
+									province = PREVPREVPREVPREV
+									home = PREVPREVPREVPREV
+									owner = THIS
+									match_character = PREV
+									match_mult = 0.5									
+									match_min = 500
+									match_max = 2000
+									attrition = 0.25
+								}
+								spawn_unit = {
+									province = PREVPREVPREVPREV
+									home = PREVPREVPREVPREV
+									owner = THIS
+									match_character = PREV
+									match_mult = 0.5									
+									match_min = 500
+									match_max = 2000
+									attrition = 0.25
+								}
+								
+								war = {
+									target = PREV
+									casus_belli = hijolly_adventure
+									thirdparty_title = PREVPREVPREV
+									tier = KING
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		religion = orientalist
+		
+		# Create some characters
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 30
+		}
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 25
+		}
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 22
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 16
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 17
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 18
+		}
+		
+	}
+}
+
+# The landed HiJolly and his men start an adventure
+character_event = {
+	id = islamate.74
+	desc = EVTDESC60204
+	
+	picture = GFX_evt_mongols
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	prisoner = no
+	only_capable = yes
+	
+	trigger = {
+		is_alive = yes
+		NOT = { trait = blinded }
+		NOT = { trait = eunuch }
+		NOT = { trait = infirm }
+		lower_tier_than = king
+		NOT = { has_disease = yes }
+	}
+	
+	immediate = {
+		religion = orientalist		
+
+		if = {
+			limit = {
+				tier = BARON
+			}
+			abdicate = yes
+			character_event = { id = islamate.73 }
+			break = yes
+		}
+		wealth = 500
+		
+		any_liege = {
+			character_event = {
+				id = islamate.75
+				days = 1
+			}
+		}
+		
+		FROM = {
+			owner = {
+				top_liege = {
+					ROOT = {
+						capital_scope = {
+							ROOT = {
+								set_character_flag = duchy_adventurer
+								spawn_unit = {
+									province = PREV
+									home = PREV
+									owner = THIS
+									#leader = THIS
+									match_character = PREVPREVPREV
+									match_mult = 0.5
+									match_min = 500
+									match_max = 2000
+									attrition = 0.2
+								}
+								spawn_unit = {
+									province = PREV
+									home = PREV
+									owner = THIS
+									match_character = PREVPREVPREV
+									match_mult = 0.5
+									match_min = 500
+									match_max = 2000
+									attrition = 0.2
+								}
+								spawn_unit = {
+									province = PREV
+									home = PREV
+									owner = THIS
+									match_character = PREVPREVPREV
+									match_mult = 0.5
+									match_min = 500
+									match_max = 2000
+									attrition = 0.2
+								}
+								spawn_unit = {
+									province = PREV
+									home = PREV
+									owner = THIS
+									match_character = PREVPREVPREV
+									match_mult = 0.5
+									match_min = 500
+									match_max = 2000
+									attrition = 0.2
+								}
+								spawn_unit = {
+									province = PREV
+									home = PREV
+									owner = THIS
+									match_character = PREVPREVPREV
+									match_mult = 0.5
+									match_min = 500
+									match_max = 2000
+									attrition = 0.2
+								}
+								spawn_unit = {
+									province = PREV
+									home = PREV
+									owner = THIS
+									match_character = PREVPREVPREV
+									match_mult = 0.5
+									match_min = 500
+									match_max = 2000
+									attrition = 0.2
+								}								
+							}
+						}
+						
+						war = {
+							target = PREV
+							casus_belli = hijolly_adventure
+							thirdparty_title = PREVPREVPREV
+							tier = KING
+						}
+					}
+				}
+			}
+		}
+		
+		religion = orientalist
+		
+		# Create some characters
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 30
+		}
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 25
+		}
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 22
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 16
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 17
+		}
+		create_character = {
+			random_traits = yes
+			dynasty = none
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 18
+		}
+		
+	}
+	
+	option = {
+		name = EVTOPTA60204
+	}
+}
+
+# Notify HiJollys old liege
+character_event = {
+	id = islamate.75
+	desc = "hijolly.5.desc"
+	picture = GFX_evt_mongols
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		FROM = { is_ruler = yes } # The DoW worked and the adventurer has a temporary title
+	}
+	
+	option = {
+		name = "renovator.5.optA"
+	}
+}
+
+# Renovator is successful!
+# Fired from the duchy_adventure CB
+narrative_event = {
+	id = islamate.76
+	title = "hijolly.6.title"
+	desc = "hijolly.6.desc"
+	picture = GFX_evt_battle_byzantine
+	border = GFX_event_narrative_frame_war
+	
+	is_triggered_only = yes
+	
+	major = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				OR = {
+					independent = yes
+					liege = {
+						ai = yes
+					}
+				}
+			}
+			set_defacto_liege = ROOT
+			activate_title = { title = e_neomoor status = yes }
+			e_neomoor = {
+				grant_title = ROOT
+				succession = feudal_elective
+			}
+		}		
+		
+		prestige = 1000
+		capital_scope = {
+			ROOT = {
+				spawn_unit = {
+					province = PREV
+					home = PREV
+					owner = THIS
+					troops = {
+						light_infantry = { 4250 4250 }
+						light_cavalry = { 2000 2000 }
+						horse_archers = { 500 500 }
+						knights = { 50 50 }
+					}
+				}
+				spawn_unit = {
+					province = PREV
+					home = PREV
+					owner = THIS
+					troops = {
+						light_infantry = { 4250 4250 }
+						light_cavalry = { 2000 2000 }
+						horse_archers = { 500 500 }
+						knights = { 50 50 }
+					}
+				}
+				spawn_unit = {
+					province = PREV
+					home = PREV
+					owner = THIS
+					troops = {
+						light_infantry = { 4250 4250 }
+						light_cavalry = { 2000 2000 }
+						horse_archers = { 500 500 }
+						knights = { 50 50 }
+					}
+				}
+				any_realm_province = {
+					religion = orientalist
+				}
+			}
+			
+		}
+		
+	}
+	
+	option = {
+		name = "hijolly.6.optA"
+		trigger = {
+			has_character_flag = hijolly_himself
+		}
+	}
+	option = {
+		name = "hijolly.6.optB"
+		trigger = {
+			NOT = { has_character_flag = hijolly_himself }
+			religion_group = muslim
+		}
+	}
+	option = {
+		name = "renovator.6.optC"
+		trigger = {
+			NOT = { has_character_flag = hijolly_himself }
+			NOT = { religion_group = muslim }
+		}
+		ai_chance = {
+			factor = 10		
+		}
+	}
+}

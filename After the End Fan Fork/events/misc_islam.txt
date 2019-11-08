@@ -2010,7 +2010,6 @@ character_event = {
 		
 	immediate = {
 		set_global_flag = wahhab_himself
-		set_global_flag = muslim_revival_in_progress
 	}
 	
 	option = {
@@ -2028,7 +2027,7 @@ character_event = {
 	is_triggered_only = yes
 	
 	trigger = {
-		has_global_flag = muslim_revival_in_progress
+		has_global_flag = wahhab_himself
 	}
 	
 	option = {
@@ -2077,12 +2076,13 @@ character_event = {
 			remove_trait = mystic
 		}
 		hidden_tooltip = { character_event = { id = islamate.42 months = 1 } }
+		hidden_tooltip = { set_character_flag = muslim_revival_in_progress }
 	}
 	
 	option = {
 		name = EVTOPTB_revivalist_2
 		custom_tooltip = { text = TXT_EVTOPTB_revivalist_2 }
-		hidden_tooltip = { narrative_event = { id = islamate.48 months = 5 } } #cuts straight to uprising event
+		hidden_tooltip = { character_event = { id = islamate.48 months = 5 } } #spawns him later
 	}
 }
 
@@ -2238,7 +2238,7 @@ character_event = {
 		name = EVTOPTC_revivalist_7
 		event_target:wahhab_himself = { banish = yes }
 		custom_tooltip = { text = TXT_EVTOPTC_revivalist_7 }
-		hidden_tooltip = { narrative_event = { id = islamate.48 months = 3 } }
+		hidden_tooltip = { narrative_event = { id = islamate.49 months = 3 } }
 	}
 }
 
@@ -2256,18 +2256,77 @@ character_event = {
 	
 	option = {
 		name = EVTOPTA_revivalist_8
-		hidden_tooltip = { narrative_event = { id = islamate.48 months = 1 } }
+		hidden_tooltip = { narrative_event = { id = islamate.49 months = 1 } }
 	}
 	
 	option = {
 		name = EVTOPTB_revivalist_8
-		hidden_tooltip = { narrative_event = { id = islamate.48 months = 1 } }
+		hidden_tooltip = { narrative_event = { id = islamate.49 months = 1 } }
 	}
 }
 
+#Hidden event that spawns the Revivalist guy if he wasn't around earlier
+character_event = {
+	id = islamate.48
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = wahhab_himself
+	}
+	
+	immediate = {
+		set_global_flag = muslim_revival_in_progress
+		create_character = {
+			random_traits = no
+			name = "Abdullah"
+			culture = moroccan
+			dynasty = 1666097
+			religion = traditionalist
+			female = no
+			age = 40
+			trait = masterful_theologian
+			trait = trsunni
+			trait = ugly
+			trait = shrewd
+			trait = quick
+			trait = mystic
+			trait = physician
+			trait = hafiz
+			trait = brave
+			attributes = {
+				learning = 10
+			}
+			flag = ai_flag_refuse_conversion
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			save_persistent_event_target = wahhab_himself
+			set_character_flag = wahhab_himself #used for on_death event which cancels all future events
+			set_secret_religion = revivalist
+			remove_trait = socializer
+			remove_trait = gamer
+			remove_trait = hedonist
+			remove_trait = duelist
+			remove_trait = hunter
+			remove_trait = strategist
+			remove_trait = administrator
+			remove_trait = architect
+			remove_trait = gardener
+			remove_trait = schemer
+			remove_trait = impaler
+			remove_trait = seductress
+			remove_trait = scholar
+			remove_trait = mystic
+		}
+		narrative_event = { id = islamate.49 }
+	}
+}
+	
 #Message of the Revival
 narrative_event = {
-	id = islamate.48
+	id = islamate.49
 	title = EVTTITLE_revivalist_9
 	desc = EVTDESC_revivalist_9
 	picture = GFX_evt_imam
@@ -2291,6 +2350,10 @@ narrative_event = {
 	option = {
 		name = EVTOPTA_revivalist_9 #embrace revivalism
 		religion = revivalist
+		activate_title = { title = d_revivalist status = yes }
+		d_revivalist = {
+			grant_title = ROOT
+		}
 		remove_trait = trtrad
 		remove_trait = trsunni
 		remove_trait = trshia
@@ -2308,8 +2371,365 @@ narrative_event = {
 		}
 		event_target:wahhab_himself = { add_friend = ROOT } #abdullah becomes your friend!
 		hidden_tooltip = { clr_global_flag = muslim_revival_in_progress } #the revivalist train has no brakes
-		hidden_tooltip = { narrative_event = { id = islamate.49 days = 1 } #adds jihads, also acts as a major narrative event for non-revivalists
+		hidden_tooltip = { narrative_event = { id = islamate.50 days = 1 } } #adds jihads, also acts as a major narrative event for non-revivalists
 	}
-	#there should be a hidden event before this point that spawns Abdullah if he doesn't already exist
-	#ending this here because I have an exam in less than an hour and the coding after this point gets into CBs and all sorts of fucked up shit
+	
+	option = {
+		name = EVTOPTB_revivalist_9
+		event_target:wahhab_himself = { banish = yes }
+		random_realm_province = {
+			religion = revivalist # no heretic modifiers because that'll fuck things up later on
+			set_province_flag = revivalist_province
+			save_persistent_event_target = revivalist_province
+		}
+		hidden_tooltip = {
+			ROOT = { save_persistent_event_target = jihad_target }
+		}
+		hidden_tooltip = {  #needed to push this up so the wahhab is less likely to randomly die.
+			# hopefully this works as intended...
+			character_event = { id = islamate.51 days = 7 }
+		}
+	}
+	
+	option = {
+		name = EVTOPTC_revivalist_9
+		event_target:wahhab_himself = {
+			death = {
+				death_reason = death_execution
+				killer = ROOT
+			}
+		}
+		hidden_tooltip = { character_event = { id = islamate.52 days = 1 } } #makes two provinces revivalist and adds religious unrest and heretic stronghold modifiers
+		
+		#add_province_modifier = religious_tension
+		#add_province_modifier = heretic_stronghold
+	}
 }
+
+narrative_event = { # Informs everyone that the Revivalist Caliph has risen
+	id = islamate.50
+	title = EVTTITLE_revivalist_10
+	desc = {
+		text = EVTDESCA_revivalist_10
+		trigger = {
+			has_landed_title = d_revivalist
+		}
+	}
+	desc = {
+		text = EVTDESCB_revivalist_10
+		trigger = {
+			religion = revivalist
+			NOT = { has_landed_title = d_revivalist }
+		}
+	}
+	desc = {
+		text = EVTDESCC_revivalist_10
+		trigger = {
+			religion_group = muslim
+			NOT = { religion = revivalist }
+			NOT = { has_landed_title = d_revivalist }
+		}
+	}
+	desc = {
+		text = EVTDESCD_revivalist_10
+		trigger = {
+			NOT = { religion_group = muslim }
+		}
+	}
+	picture = GFX_evt_imam
+	border = GFX_event_narrative_frame_religion
+	is_triggered_only = yes
+	
+	major = yes	
+	only_playable = yes
+	show_root = yes
+	
+	immediate = {
+		set_global_flag = muslim_revival_finished
+	}
+	
+	option = {
+		name = EVTOPTA_revivalist_10
+		trigger = { has_landed_title = d_revivalist }
+		prestige = 500
+		piety = 500
+	}
+	
+	option = {
+		name = EVTOPTB_revivalist_10
+		trigger = {
+			religion = revivalist
+			NOT = { has_landed_title = d_revivalist }
+		}
+		prestige = 50
+		piety = 50
+	}
+	
+	option = {
+		name = EVTOPTC_revivalist_10
+		trigger = {
+			religion_group = muslim
+			NOT = { religion = revivalist }
+			NOT = { has_landed_title = d_revivalist }
+		}
+	}
+	
+	option = {
+		name = EVTOPTD_revivalist_10
+		trigger = {
+			NOT = { religion_group = muslim }
+		}
+	}
+}
+
+character_event = {
+	id = islamate.51
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
+	
+	#You're going to love this. Trust me.
+	#What you're seeing now is my normal code writing.
+	
+	immediate = {
+	
+		event_target:revivalist_province = { #This is an event target.
+			county = { 
+				grant_title = event_target:wahhab_himself 
+				event_target:wahhab_himself  = {  
+					gain_settlements_under_title = { #And this...
+						title = PREV
+						enemy = event_target:wahhab_himself 
+					}
+				}
+			}
+		}
+
+		d_revivalist = { # This is what is known as an event target that has ascended past an event target. Or, you can just call this an Event Target 2.
+			grant_title = event_target:wahhab_himself
+		}
+		
+		# Ho hum. What a useless bit of code. You've used a target, so what?
+		# *chuckles* Just wait. 
+		# Has he really found a way to surpass an ascended event target? Is that possible?
+		# He must be bluffing. I mean, what would that make it? Double ascended?
+		# And this...
+		# What's he doing?
+		# ...is... to go... EVEN FURTHER... BEYOND!
+		
+		spawn_unit = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			province = event_target:revivalist_province
+			home = event_target:revivalist_province
+			owner = event_target:wahhab_himself
+			match_character = ROOT
+			match_mult = 0.5									
+			match_min = 500
+			match_max = 2000
+			attrition = 0.25
+		}
+		
+		spawn_unit = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			province = event_target:revivalist_province
+			home = event_target:revivalist_province
+			owner = event_target:wahhab_himself
+			match_character = ROOT
+			match_mult = 0.5									
+			match_min = 500
+			match_max = 2000
+			attrition = 0.25
+		}
+		
+		# No, stop it 9K! If you do this now, it's going to drain away all the time you have left as a modder!
+		# And I say you need every second of it as it is!
+		
+		spawn_unit = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			province = event_target:revivalist_province
+			home = event_target:revivalist_province
+			owner = event_target:wahhab_himself
+			match_character = ROOT
+			match_mult = 0.5									
+			match_min = 500
+			match_max = 2000
+			attrition = 0.25
+		}
+		
+		# It's... unreal! How is he copying that much from vanilla events?
+		# Do it, dev!
+		# It's... too much!
+		
+		spawn_unit = { 	# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			province = event_target:revivalist_province
+			home = event_target:revivalist_province
+			owner = event_target:wahhab_himself
+			match_character = ROOT
+			match_mult = 0.5									
+			match_min = 500
+			match_max = 2000
+			attrition = 0.25
+		}
+		
+		# Huh? What's... going on?
+		# AtE's dev is putting out even more energy than before!
+		# I-I should go. I don't want to get yelled at again.
+		
+		spawn_unit = { 	# AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			province = event_target:revivalist_province
+			home = event_target:revivalist_province
+			owner = event_target:wahhab_himself
+			match_character = ROOT
+			match_mult = 0.5									
+			match_min = 500
+			match_max = 2000
+			attrition = 0.25
+		}
+		
+		# *screaming from community*
+		
+		create_random_soldier = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			random_traits = yes
+			dynasty = none
+			religion = revivalist
+			culture = ROOT
+			female = no
+			age = 30
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			employer = {
+				character = event_target:wahhab_himself
+			}
+		}
+		
+		# *code base begins collapsing*
+		
+		create_random_soldier = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			random_traits = yes
+			dynasty = none
+			religion = revivalist
+			culture = ROOT
+			female = no
+			age = 25
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			employer = {
+				character = event_target:wahhab_himself
+			}
+		}
+		
+		# It feels like the whole mod is shaking apart! What's 9K doing? If he doesn't stop this, everything is going to be destroyed!
+		
+		# Please, somebody make it stop!
+		
+		create_random_soldier = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			random_traits = yes
+			dynasty = none
+			religion = revivalist
+			culture = ROOT
+			female = no
+			age = 22
+		}
+		new_character = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			employer = {
+				character = event_target:wahhab_himself
+			}
+		}
+		create_character = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+
+			random_traits = yes
+			dynasty = none
+			religion = revivalist
+			culture = ROOT
+			female = yes
+			age = 16
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			employer = {
+				character = event_target:wahhab_himself
+			}
+		}
+		
+		# Stop it! Stop it now, 9K!
+		
+		create_character = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+
+			random_traits = yes
+			dynasty = none
+			religion = revivalist
+			culture = ROOT
+			female = yes
+			age = 17
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			employer = {
+				character = event_target:wahhab_himself
+			}
+		}
+		create_character = { # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+			random_traits = yes
+			dynasty = none
+			religion = revivalist
+			culture = ROOT
+			female = yes
+			age = 18
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			employer = {
+				character = event_target:wahhab_himself
+			}
+		}
+		
+		# Huh?!?!?!
+		
+		event_target:wahhab_himself = { # I'm sorry that took so much longer than the others.
+			unsafe_war = {
+				target = event_target:jihad_target # This is what I call an Event Target 3.
+				casus_belli = crusade
+				tier = KING
+			}
+		}
+		
+		character_event = { id = islamate.52 } # Notification event for the war that was just declared.
+	}
+}
+
+
+
+character_event = {
+	id = islamate.52
+	desc = EVTDESC_revivalist_9
+	picture = GFX_evt_imam
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+	
+	trigger = {
+		has_global_flag = muslim_revival_in_progress
+	}
+	
+	immediate = {
+		clr_global_flag = muslim_revival_in_progress
+		set_global_flag = muslim_revival_finished
+	}
+	
+	option = {
+		name = EVTOPTA_revivalist_9
+		custom_tooltip = { text = TXT_EVTOPTA_revivalist_9 }
+	}
+}
+	
+
+	
+	

@@ -657,6 +657,41 @@ character_event = {
 	}
 }
 
+#Fallback for if the emissary dies
+character_event = {
+	id = LT.20011
+	title = EVT_TITLE_LT_20011
+	desc = EVTDESC_LT_20011
+	picture = GFX_evt_emissary
+	border = GFX_event_normal_frame_religion
+	hide_new = yes
+	portrait = event_target:emissary
+	
+	is_triggered_only = yes
+
+	immediate = {
+		export_to_variable = { 
+			which = money_left
+			value = stewardship
+			who = event_target:emissary
+		}
+	}
+
+	option = {
+		name = EVTOPTA_LT_20011
+		treasury = money_left
+	}
+
+	after = {
+		hidden_effect = {
+			clr_character_flag = looking_for_a_book
+			clear_flags_with_prefix = book_theme_
+			clear_flags_with_prefix = book_author_
+			set_variable = { which = money_left value = 0 }
+		}
+	}
+}
+
 #The book does not exist
 character_event = {
 	id = LT.20020
@@ -679,12 +714,19 @@ character_event = {
 		if = {
 			limit = {
 				is_alive = yes
+				event_target:emissary = { is_alive = yes }
 				OR = { 
 					is_inaccessible_trigger = yes
 					#war = yes
 				}
 			}
 			repeat_event = { id = LT.20020 days = 100 random = 10 }
+		}
+		if = {
+			limit = {
+				NOT = { event_target:emissary = { is_alive = yes } }
+			}
+			character_event = { id = LT.20011 days = 3 }
 		}
 	}
 
@@ -736,12 +778,20 @@ letter_event = {
 		if = {
 			limit = {
 				is_alive = yes
+				event_target:emissary = { is_alive = yes }
 				OR = { 
 					is_inaccessible_trigger = yes
 					war = yes
 				}
 			}
 			repeat_event = { id = LT.20030 days = 100 random = 10 }
+		}
+
+		if = {
+			limit = {
+				NOT = { event_target:emissary = { is_alive = yes } }
+			}
+			character_event = { id = LT.20011 days = 3 }
 		}
 	}
 
@@ -770,15 +820,15 @@ letter_event = {
 						}
 					}
 					modifier = {
-	  					factor = 10
-						event_target:emissary = {
+      					factor = 10
+				    	event_target:emissary = {
 							opinion = { who = ROOT value < -10 }	
 						}
-					}
-					modifier = {
-	  					factor = 10
-						trait = deceitful
-					}
+				    }
+				    modifier = {
+      					factor = 10
+				    	trait = deceitful
+				    }
 					character_event = { id = LT.20035 days = 50 random = 20 }
 				}
 				20 = { #It was just a rumor
@@ -833,12 +883,19 @@ character_event = {
 		if = {
 			limit = {
 				is_alive = yes
+				event_target:emissary = { is_alive = yes }
 				OR = { 
 					is_inaccessible_trigger = yes
 					#war = yes
 				}
 			}
 			repeat_event = { id = LT.20035 days = 200 random = 10 }
+		}
+		if = {
+			limit = {
+				NOT = { event_target:emissary = { is_alive = yes } }
+			}
+			character_event = { id = LT.20011 days = 3 }
 		}
 	}
 
@@ -916,12 +973,19 @@ character_event = {
 		if = {
 			limit = {
 				is_alive = yes
+				event_target:emissary = { is_alive = yes }
 				OR = { 
 					is_inaccessible_trigger = yes
 					#war = yes
 				}
 			}
 			repeat_event = { id = LT.20035 days = 20 random = 2 }
+		}
+		if = {
+			limit = {
+				NOT = { event_target:emissary = { is_alive = yes } }
+			}
+			character_event = { id = LT.20011 days = 3 }
 		}
 	}
 
@@ -931,10 +995,10 @@ character_event = {
 				70 = {
 					trigger = { is_alive = yes }
 					modifier = {
-	  					factor = 2
-						ROOT = { intrigue = 25 }
-					}
-					death = { death_reason = death_murder_unknown killer = ROOT }
+      					factor = 2
+				    	ROOT = { intrigue = 25 }
+				    }
+				    death = { death_reason = death_murder_unknown killer = ROOT }
 				}
 				30 = {
 					trigger = { is_alive = yes }
@@ -962,7 +1026,6 @@ character_event = {
 	}
 }
 
-
 #book found!
 character_event = {
 	id = LT.20040
@@ -985,12 +1048,19 @@ character_event = {
 		if = {
 			limit = {
 				is_alive = yes
+				event_target:emissary = { is_alive = yes }
 				OR = { 
 					is_inaccessible_trigger = yes
 					war = yes
 				}
 			}
 			repeat_event = { id = LT.20040 days = 200 random = 10 }
+		}
+		if = {
+			limit = {
+				NOT = { event_target:emissary = { is_alive = yes } }
+			}
+			character_event = { id = LT.20011 days = 3 }
 		}
 	}
 
@@ -2553,8 +2623,22 @@ character_event = { #What happens at the meeting
 		trigger = {
 			NOT = { is_lover = FROM }
 		}
+
+		if = {
+			limit = {
+				OR = {
+					has_religion_feature = religion_holy_family
+					NOT = { is_close_relative = FROM }
+					FROM = { any_spouse = { character = ROOT } }
+				}
+			}
+			custom_tooltip = { text = EVTOPTB_LT_20410_TT }
+		}
+		else = {
+			custom_tooltip = { text = EVTOPTB_LT_20410_TT_unlikely }
+		}
+
 		FROM = { character_event = { id = LT.20431 days = 1 } }
-		custom_tooltip = { text = EVTOPTB_LT_20410_TT }
 		FROM = { clr_character_flag = dummy } #For portrait to appear in option
 	}
 
@@ -2582,7 +2666,7 @@ character_event = { #What happens at the meeting
 				reverse_opinion = { modifier = opinion_budding_romance who = FROM }
 			}
 		}
-		#custom_tooltip = { text = EVTOPTD_LT_20410_TT }
+		custom_tooltip = { text = EVTOPTD_LT_20410_TT }
 		FROM = { clr_character_flag = dummy } #For portrait to appear in option
 	}
 
@@ -2741,8 +2825,11 @@ character_event = { #Seduction reaction
 	is_triggered_only = yes
 
 
-	option = { # Kiss back
+	option = { # I want you too!
 		name = EVTOPTA_LT_20431
+		custom_tooltip = {
+			text = EVTOPTC_LT_20431_TT
+		}
 		FROM = { character_event = { id = LT.20432 days = 1 } }
 		tooltip = {
 			add_lover = FROM
@@ -2786,12 +2873,71 @@ character_event = { #Seduction reaction
 				}
 			}
 		}
+		trigger = {
+			OR = {
+				FROM = { has_religion_feature = religion_holy_family }
+				NOT = { is_close_relative = FROM }
+				any_spouse = { character = FROM }
+				ai = no
+			}
+		}
 	}
+	option = { # I'm not looking for anything "serious"
+		name = EVTOPTA_LT_20431_no_love
+		set_character_flag = not_serious_romance
+		custom_tooltip = {
+			text = EVTOPTC_LT_20431_TT_not_serious_romance
+		}
+		FROM = { character_event = { id = LT.20432 days = 1 } }
+		tooltip = {
+			reverse_opinion = {
+				modifier = opinion_seduced_attracted
+				who = FROM
+			}
+		}
+		ai_chance = {
+			trigger = { 
+				FROM = { event_target:target_character = { attacted_to_prev_trigger = yes } }
+			}
+			modifier = { 
+				factor = 5
+				OR = {
+					trait = seducer
+					trait = seductress
+				}
+			}
+			modifier = { 
+				factor = 5
+				OR = {
+					trait = hedonist
+					trait = lustful
+				}
+			}
+			modifier = { 
+				factor = 1.5
+				has_lover = yes
+			}
+			modifier = { 
+				factor = 0.1
+				trait = chaste
+			}
+		}
+		trigger = {
+			OR = {
+				FROM = { has_religion_feature = religion_holy_family }
+				NOT = { is_close_relative = FROM }
+				any_spouse = { character = FROM }
+				ai = no
+			}
+		}
+	}
+
 	option = { #refuse
 		name = EVTOPTB_LT_20431
 		FROM = { character_event = { id = LT.20434 days = 1} }
 		FROM = { clr_character_flag = dummy } #For portrait to appear in option
 	}
+
 	option = { #Try to Murder
 		name = EVTOPTC_LT_20431
 		trigger = { 
@@ -2817,20 +2963,56 @@ character_event = { #Seduction reaction
 
 character_event = { #We are lovers now
 	id = LT.20432
-	desc = EVTDESC_LT_20432
-
 	picture = GFX_evt_lovers
 	border = GFX_event_normal_frame_intrigue
 
 	is_triggered_only = yes
 
-	option = {  # ok
-		name = EVTOPTA_LT_20432
-		add_lover = FROM
-		reverse_opinion = {
-			modifier = opinion_seduced_attracted
-			who = FROM
+	desc = {
+		text = EVTDESC_LT_20432_A
+		trigger = {
+			FROM = { has_character_flag = not_serious_romance }
 		}
+	}
+	desc = {
+		text = EVTDESC_LT_20432_B
+		trigger = {
+			FROM = { NOT = { has_character_flag = not_serious_romance } }
+		}
+	}
+
+	option = {  	
+		name = {
+			text = EVTOPTA_LT_20432_A # I just want them more
+			trigger = {
+				FROM = { has_character_flag = not_serious_romance }
+			}
+		}
+		name = {
+			text = EVTOPTA_LT_20432_B # life is good
+			trigger = {
+				FROM = { NOT = { has_character_flag = not_serious_romance } }
+			}
+		}
+
+
+		if = {
+			limit = {
+				FROM = { has_character_flag = not_serious_romance }
+			}
+			reverse_opinion = {
+				modifier = opinion_seduced_attracted
+				who = FROM
+			}	
+		}
+		else = {
+			add_lover = FROM
+			reverse_opinion = {
+				modifier = opinion_seduced_attracted
+				who = FROM
+			}
+		}
+		FROM = { clr_character_flag = not_serious_romance }
 	}
 }
 
@@ -3677,6 +3859,14 @@ character_event = {
 character_event = {
 	id = LT.20805
 	desc = EVTDESC_LT_20805
+	picture = GFX_evt_end_of_days
+	border = GFX_event_normal_frame_war
+
+    is_triggered_only = yes
+
+    only_independent = yes
+
+
 	trigger = {
 		NOT = { has_character_flag = looted_wonder_artifact }
 		event_target:target_wonder = { 
@@ -3686,14 +3876,11 @@ character_event = {
 				character = ROOT
 			}
 		}
+		any_courtier = {
+    		is_inaccessible_or_incapable_trigger = no
+	    }
 	}
-	picture = GFX_evt_end_of_days
-	border = GFX_event_normal_frame_war
-
-	is_triggered_only = yes
-
-	only_independent = yes
-
+	
 	immediate = { 
 		set_character_flag = looted_wonder_artifact
 		event_target:target_wonder = {
@@ -3866,6 +4053,7 @@ character_event = {
 	id = LT.20900
 	title = wonder_basilica_guadalupe
 	picture = GFX_evt_hagia_sofia #placeholder
+	
 	desc = {
 		trigger = { event_target:target_chaplain = { always = yes } }
 		text = EVTDESC_LT_20900_chaplain
@@ -3874,6 +4062,12 @@ character_event = {
 		trigger = { NOT =  { event_target:target_chaplain = { always = yes } } }
 		text = EVTDESC_LT_20900
 	}
+	
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	only_independent = yes
 
 	trigger = {
 		OR = {
@@ -3923,16 +4117,17 @@ character_event = {
 			}
 		}
    	}
-	border = GFX_event_normal_frame_religion
-
-	is_triggered_only = yes
-
-	only_independent = yes
+	
 
 	immediate = {
-		random_realm_wonder = {
+		any_realm_wonder = {
 			limit = {
-				has_wonder = wonder_basilica_guadalupe
+				OR = {
+					has_wonder_flag = Guadalupe_sacred_heart_cult
+					has_wonder_flag = Guadalupe_catholic_cult
+					has_wonder_flag = Guadalupe_mictlantec_cult
+					has_wonder_flag = Guadalupe_sol_invicta_cult
+				}
 			}
 			save_event_target_as = target_wonder
 		}
@@ -3966,7 +4161,12 @@ character_event = {
 
 	option = { #Convert
 		name = EVTOPTA_LT_20900
-		event_target:target_wonder = { clear_flags_with_prefix = Guadalupe_ }
+		event_target:target_wonder = {
+			clr_wonder_flag = Guadalupe_catholic_cult
+			clr_wonder_flag = Guadalupe_sacred_heart_cult
+			clr_wonder_flag = Guadalupe_mictlantec_cult
+			clr_wonder_flag = Guadalupe_sol_invicta_cult
+		}
 		if = {
 			limit = { religion = catholic }
 			event_target:target_wonder = {

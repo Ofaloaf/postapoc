@@ -3932,3 +3932,196 @@ hijolly_adventure = {
 		factor = 100
 	}
 }
+colonial_ducal_conquest = {
+	name = CB_NAME_COLONIZATION
+	war_name = WAR_NAME_COLONIZATION
+	sprite = 9
+	truce_days = 1825
+	is_holy_war = yes
+	is_permanent = yes
+	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character
+
+	can_use_gui = {
+		ROOT = {
+			OR = {
+				has_landed_title = e_edokko
+				has_landed_title = e_novorusskiy
+				has_landed_title = k_redcoat_outpost
+				has_landed_title = e_redcoat_dominion
+			}
+			prestige = 100
+		}
+	}
+
+	can_use = {
+		ROOT = {
+			OR = {
+				has_landed_title = e_edokko
+				has_landed_title = e_novorusskiy
+				has_landed_title = k_redcoat_outpost
+				has_landed_title = e_redcoat_dominion
+			}
+			ai = no
+			prestige = 100
+		}
+	
+	}
+	can_use_title = {
+		# The attacker needs at least one county in the target kingdom, or a border, or be only two sea zones away from one of your counties
+		any_direct_de_jure_vassal_title = {
+			OR = {
+				holder_scope = {
+					OR = {
+						character = ROOT
+						is_liege_or_above = ROOT
+					}
+				}
+				location = {
+					OR = {
+						region = custom_pacific
+						region = custom_atlantic
+					}
+					any_neighbor_province = {
+						OR = {
+							AND = {
+								has_owner = yes
+								owner = {
+									OR = {
+										character = ROOT
+										is_liege_or_above = ROOT
+									}
+								}
+							}
+							AND = {
+								is_land = no
+								any_neighbor_province = {
+									OR = {
+										AND = {
+											has_owner = yes
+											owner = {
+												OR = {
+													character = ROOT
+													is_liege_or_above = ROOT
+												}
+											}
+										}
+										AND = {
+											is_land = no
+											any_neighbor_province = {
+												owner = {
+													OR = {
+														character = ROOT
+														is_liege_or_above = ROOT
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		FROM = {
+			any_realm_title =  { 
+				OR = {
+					region = custom_pacific 
+					region = custom_atlantic
+				}
+			}
+		}
+	}
+
+	is_valid = {
+		ROOT = {
+			OR = {
+				has_landed_title = e_edokko
+				has_landed_title = e_novorusskiy
+				has_landed_title = k_redcoat_outpost
+				has_landed_title = e_redcoat_dominion
+			}
+		}
+	}
+
+	on_add = {
+		hidden_tooltip = { fire_haruspicy_event_effect = yes }
+		if = {
+			limit = { defender = { is_offmap_governor = offmap_china } }
+			attacker = {  
+				sound_effect = china_angered_emperor
+				detract_grace_super_huge_effect = yes 
+			}
+		}
+		prestige = -100
+	}
+	
+	on_success = {
+		ROOT = { 
+			prestige = 250	
+		}
+
+		FROM = {
+			prestige = -250 
+		}
+	}
+
+	on_success_title = {
+		custom_tooltip = {
+			text = other_invasion_succ_tip
+			hidden_tooltip = {
+				ROOT = {
+					vassalize_or_take_under_title = {
+						title = PREV
+						enemy = FROM
+						type = host
+					}
+				}
+			}
+		}
+	}
+
+	on_fail = {
+		FROM = {
+			prestige = 100
+		}
+		ROOT = {
+			prestige = -250
+		}
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+		
+		FROM = {
+			prestige = 200
+		}
+		
+		ROOT = {
+			prestige = -200
+		}
+	}
+	
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}
+

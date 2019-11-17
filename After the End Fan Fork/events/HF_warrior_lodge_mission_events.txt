@@ -1,0 +1,2207 @@
+# Written by Flavio (HF.25500 - HF.25511)
+# Written by Milla (HF.10500, etc)
+
+namespace = HF
+
+###MISSIONS###
+##WL Mission Tombola
+character_event = {
+	id = HF.25500
+	hide_window = yes
+
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+	}
+
+	immediate = {
+		random_society_member = {
+			limit = {
+				NOT = { character = ROOT }
+				society_rank == 4
+				same_society_as = ROOT
+			}
+			save_event_target_as = lodge_hero #Character for handing out missions...
+		}
+		if = {
+			limit = { is_landed = yes }
+			capital_scope = { save_event_target_as = home_capital } #For some distance checks...
+		}
+		
+		### AVAILABLE MISSIONS: ###
+		# Raid and loot barony. ....................... HF.25501
+		# Lose Weak Focus.............................. HF.25504
+		# Duel <someone>. First blood. ................ HF.10500
+		# Duel <someone>. To the death! ............... HF.10510
+		# Wage war against someone! ................... HF.10512
+		# Recruit child into warrior lodge! ........... HF.10520
+
+		random_list = { 
+			20 = {
+				trigger = { #Ruler should be allowed to loot at all in the first place
+					is_landed = yes
+					is_allowed_to_loot = yes
+					NOT = { society_member_of = warrior_lodge_mexican }
+					OR = {
+						independent = yes
+						top_liege = {
+							is_allowed_to_loot = yes
+						}
+					}
+					#A lootable province must exist.
+					any_independent_ruler = {
+						NOT = { war_with = ROOT }
+						NOR = {
+							is_liege_of = ROOT
+							has_non_aggression_pact_with = ROOT
+							is_allied_with = ROOT
+							AND = {
+								is_tributary = yes
+								suzerain = {
+									OR = {
+										character = ROOT
+										any_liege = {
+											character = ROOT
+										}
+									}
+								}
+							}
+						}
+						OR = { 
+							AND = { 
+								ROOT = { 
+									OR = { 
+										religion = norse_pagan
+										has_religion_feature = religion_seafaring
+										is_seafarer = yes
+									} 
+								} 
+								NOT = { distance_from_realm = { who = ROOT value = 250 } } 
+							} 
+							NOT = { 
+								distance_from_realm = { who = ROOT value = 50 } 
+							} 
+						}
+						any_realm_province = {
+							is_occupied = no
+							OR = {
+								any_neighbor_province = {
+									owner = { is_liege_or_above = ROOT }
+								}
+								any_neighbor_province = {
+									owner = { character = ROOT } 
+								}
+								ROOT = { 
+									any_demesne_province = { 
+										port = yes 
+										TECH_NAVAL = 1
+										OR = { 
+											has_building = tb_shipyard_1
+											has_building = ca_shipyard_1
+											has_building = tp_shipyard_1
+											has_building = ct_shipyard_1
+										} 
+										can_naval_path_to = PREVPREV
+									} 
+								}
+							}
+							capital_holding = { NOT = { holding_type = nomad } }
+							holder_scope = {
+								NOT = {
+									character = ROOT
+								}
+							}
+							holder_scope = {
+								NOT = { same_society_as = ROOT }
+								top_liege = { NOT = { same_society_as = ROOT } }
+							}
+						}
+					}
+				}
+				event_target:lodge_hero = {
+					character_event = { id = HF.25501 } #Raid and loot barony.
+				}
+			}
+			20 = {
+				trigger = { 
+					has_dlc = "Way of Life"
+					is_landed = yes
+					NOR = {
+						has_focus = focus_war
+						has_focus = focus_hunting
+						has_focus = focus_rulership
+						has_focus = focus_carousing
+					}
+				}
+				event_target:lodge_hero = {
+					character_event = { id = HF.25504 } #Lose Weak Focus.
+				}
+			}
+			20 = {
+				trigger = {
+					NOT = { society_member_of = warrior_lodge_mexican }
+					age = 16
+					society = {
+						any_society_member = {
+			                ai = yes
+			                age = 16
+							NOT = { character = ROOT }
+			                is_inaccessible_or_incapable_trigger = no
+			                NOT = { has_character_modifier = bedridden_illness }
+				            NOT = { has_character_modifier = severe_illness }
+				            NOT = { has_character_flag = call_to_legend_active }
+						}
+					}
+				}
+				event_target:lodge_hero = {
+					character_event = { id = HF.10500 } #Duel <someone>. First blood.
+				}
+			}
+			5 = {
+				trigger = {
+					ai = no
+					NOT = { society_member_of = warrior_lodge_mexican }
+					age = 16
+					OR = {
+						AND = {
+							any_society_member = {
+				           		NOT = { same_society_as = ROOT }
+				           		is_member_of_any_warrior_lodge_trigger = yes
+				                is_inaccessible_or_incapable_trigger = no
+				                NOT = { has_character_modifier = bedridden_illness }
+					            NOT = { has_character_modifier = severe_illness }
+								NOT = { any_spouse = { character = ROOT } }
+				                is_adult = yes
+				                ai = yes
+								is_within_diplo_range = ROOT
+				            }
+						}
+						AND = {
+							any_rival = {
+				                is_inaccessible_or_incapable_trigger = no
+				                NOT = { has_character_modifier = bedridden_illness }
+					            NOT = { has_character_modifier = severe_illness }
+				                is_adult = yes
+				                ai = yes
+								ROOT = { capital_scope = { distance = { where = PREV distance < 1000 } } }
+			            	}
+						}
+						AND = {
+							any_realm_character = {
+				                is_inaccessible_or_incapable_trigger = no
+				                NOT = { has_character_modifier = bedridden_illness }
+					            NOT = { has_character_modifier = severe_illness }
+					            NOT = { any_spouse = { character = ROOT } }
+				                ai = yes
+				                is_adult = yes
+				            }
+						}
+						AND = {
+							any_neighbor_independent_ruler = {
+								any_realm_character = {
+					                is_inaccessible_or_incapable_trigger = no
+					                NOT = { has_character_modifier = bedridden_illness }
+						            NOT = { has_character_modifier = severe_illness }
+						            NOT = { any_spouse = { character = ROOT } }
+					                is_adult = yes
+					                ai = yes
+									ROOT = { capital_scope = { distance = { where = PREV distance < 1000 } } }
+								}
+				            }
+						}
+					}
+				}
+				event_target:lodge_hero = {
+					character_event = { id = HF.10510 } #Duel <someone>. To the death!
+				}
+
+			}
+			20 = {
+				trigger = {
+					is_landed = yes
+					NOT = { society_member_of = warrior_lodge_mexican }
+					any_independent_ruler = {
+				        any_realm_title = {
+				            tier = COUNT
+				            ROOT = {
+				                can_use_cb = { #against target
+				                    target = PREVPREV
+				                    thirdparty_title = PREV
+				                    casus_belli = pagan_county_conquest
+				                }
+				            }
+				            location = {
+					            OR = {
+						            AND = { #Either you can travel via water to them...
+							        	is_coastal = yes
+							        	can_naval_path_to = { target = event_target:home_capital distance < 1000 }
+						            }
+						            AND = {
+							            #Or they are accessible via land...
+							            event_target:home_capital = { is_coastal = no }
+								        can_land_path_to = { target = event_target:home_capital distance < 1000 }
+						            }
+						            AND = { #Or not a coastal place...
+							        	is_coastal = no
+							        	can_land_path_to = { target = event_target:home_capital distance < 1000 }
+							        	#event_target:home_capital = { distance = { where = PREV distance < 1000 } }
+						            }
+						        }
+				            }
+				        }
+				        holder_scope = {
+				        	top_liege = {
+				        		NOT = { has_truce = ROOT }
+						        # target should not be stronger than 120% of your strength, and not weaker than 50% of your strength:
+						        NOT = { relative_power = { who = ROOT power = 1.2 } }
+						        relative_power = { who = ROOT power = 0.5 }
+				        	}
+				        }
+					}
+				}
+
+				event_target:lodge_hero = {
+					character_event = { id = HF.10512 } #Wage war against someone!
+				}
+			}
+			20 = {
+				trigger = {
+			        is_playable = yes
+	    		    is_adult = yes	        		
+	        		any_child = {
+	        			is_child_of = PREV
+	        			is_in_society = no
+	        			is_alive = yes
+	        			age = 12
+					    prisoner = no
+	        			NOT = { has_character_flag = flag_child_abandoned_lodge }
+				        OR = { #AIs should only strive to recruit their main heir
+				            PREV = { ai = no }
+				            is_primary_heir = PREV
+				        }
+	        		}
+				}
+
+				event_target:lodge_hero = {
+					character_event = { id = HF.10520 } #Recruit child into warrior lodge!
+				}
+			}
+			75 = { # AI bypasses missions at times
+				trigger = {
+					ai = yes
+				}
+				random_list = {
+					70 = {
+						modifier = {
+							factor = 0.9
+							society_influence >= 30
+						}
+						modifier = {
+							factor = 0.9
+							society_influence >= 40
+						}
+						modifier = {
+							factor = 0.8
+							society_influence >= 50
+						}
+						modifier = {
+							factor = 0.7
+							society_influence >= 70
+						}
+						modifier = {
+							factor = 0.6
+							society_influence >= 80
+						}
+						modifier = {
+							factor = 0.5
+							society_influence >= 90
+						}
+						add_mission_succeed_influence_effect = yes
+					}
+					30 = {
+						add_mission_fail_influence_effect = yes
+					}
+				}
+				random = {
+					chance = 10
+					modifier = {
+						factor = 0
+						society_member_of = warrior_lodge_mexican
+					}
+					character_event = { id = HF.25070 } #Small chance for tattoos to Rank 3 and 4s.
+				}
+			}
+			20 = {
+				trigger = {
+					society_member_of = warrior_lodge_mexican
+					age = 16
+					society = {
+						any_society_member = {
+			                ai = yes
+			                age = 16
+							NOT = { character = ROOT }
+			                is_inaccessible_or_incapable_trigger = no
+			                NOT = { has_character_modifier = bedridden_illness }
+				            NOT = { has_character_modifier = severe_illness }
+				            NOT = { has_character_flag = call_to_legend_active }
+						}
+					}
+				}
+				event_target:lodge_hero = {
+					character_event = { id = HF.10522 } #Wrestle Someone
+				}
+			}
+			20 = {
+				trigger = {
+					society_member_of = warrior_lodge_mexican
+					age = 16
+					NOT = { has_character_modifier = bedridden_illness }
+					NOT = { has_character_modifier = severe_illness }
+					NOT = { has_character_flag = call_to_legend_active }
+					OR = {
+						NOT = { has_character_flag = w_training_flag }
+						had_character_flag = { flag = w_training_flag days = 730 }
+					}
+				}
+				event_target:lodge_hero = {
+					character_event = { id = WR.1 } #Ping to tell you to train
+				}
+			}
+			100 = {
+				trigger = {
+					society_member_of = warrior_lodge_mexican
+					age = 16
+					society = {
+						any_society_member = {
+			                ai = yes
+			                age = 16
+							NOT = { character = ROOT }
+			                is_inaccessible_or_incapable_trigger = no
+			                NOT = { has_character_modifier = bedridden_illness }
+				            NOT = { has_character_modifier = severe_illness }
+				            NOT = { has_character_flag = call_to_legend_active }
+						}
+					}
+					NOR = {
+						trait = w_heel
+						trait = w_face
+					}
+				}
+				event_target:lodge_hero = {
+					society_quest_event = { id = WR.100 } #Pick Persona
+				}
+			}
+			200 = {
+				trigger = {
+					ai = yes
+				}
+				#Do nothing for AI
+			}
+		}
+	}
+}
+###Raid and Loot Barony###
+
+#MISSION: 
+#Ping event for the mission Raid a Barony
+character_event = {
+	id = HF.25501
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.25502 days = 7 random = 7 } } }
+}
+
+#Assign event
+society_quest_event = {
+	id = HF.25502
+	desc = EVTDESCHF25502
+
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		has_any_quest = no
+		same_society_as = FROM
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		is_landed = yes
+		is_allowed_to_loot = yes
+		OR = {
+			independent = yes
+			top_liege = {
+				is_allowed_to_loot = yes
+			}
+		}
+	}
+
+
+	immediate = {
+		random_independent_ruler = {
+			limit = {
+				NOT = { war_with = ROOT }
+				NOR = {
+					is_liege_of = ROOT
+					has_non_aggression_pact_with = ROOT
+					is_allied_with = ROOT
+					AND = {
+						is_tributary = yes
+						suzerain = {
+							OR = {
+								character = ROOT
+								any_liege = {
+									character = ROOT
+								}
+							}
+						}
+					}
+				}
+				OR = { 
+					AND = { 
+						ROOT = { 
+							OR = { 
+								religion = norse_pagan
+								has_religion_feature = religion_seafaring
+								is_seafarer = yes
+							} 
+						} 
+						NOT = { distance_from_realm = { who = ROOT value = 250 } } 
+					} 
+					NOT = { 
+						distance_from_realm = { who = ROOT value = 50 } 
+					} 
+				}
+				any_realm_province = {
+					is_occupied = no
+					OR = {
+						any_neighbor_province = {
+							owner = { is_liege_or_above = ROOT }
+						}
+						any_neighbor_province = {
+							owner = { character = ROOT } 
+						}
+						ROOT = { 
+							any_demesne_province = { 
+								port = yes 
+								TECH_NAVAL = 1
+								OR = { 
+									has_building = tb_shipyard_1
+									has_building = ca_shipyard_1
+									has_building = tp_shipyard_1
+									has_building = ct_shipyard_1
+								} 
+								can_naval_path_to = PREVPREV
+							} 
+						}
+					}
+					capital_holding = { NOT = { holding_type = nomad } }
+					holder_scope = {
+						NOT = {
+							character = ROOT
+						}
+					}
+					holder_scope = {
+						NOT = { same_society_as = ROOT }
+						top_liege = { NOT = { same_society_as = ROOT } }
+					}
+				}
+			}
+			preferred_limit = { 
+				NOR = { 
+					is_tribal = yes
+					is_nomadic = yes
+				}
+			} 
+			random_realm_province = {
+				limit = {
+					is_occupied = no
+					capital_holding = { NOT = { holding_type = nomad } }
+					OR = {
+						any_neighbor_province = {
+							owner = { is_liege_or_above = ROOT }
+						}
+						any_neighbor_province = {
+							owner = { character = ROOT } 
+						}
+						ROOT = { 
+							any_demesne_province = { 
+								port = yes 
+								TECH_NAVAL = 1
+								OR = { 
+									has_building = tb_shipyard_1
+									has_building = ca_shipyard_1
+									has_building = tp_shipyard_1
+									has_building = ct_shipyard_1
+								} 
+								can_naval_path_to = PREVPREV
+							} 
+						}
+					}
+					holder_scope = {
+						NOT = {
+							character = ROOT
+						}
+					}
+					holder_scope = {
+						NOT = { same_society_as = ROOT }
+						top_liege = { NOT = { same_society_as = ROOT } }
+					}
+				}
+				preferred_limit = { 
+					OR = { 
+						AND = { 
+							ROOT = { 
+								OR = { 
+									religion = norse_pagan
+									has_religion_feature = religion_seafaring
+									is_seafarer = yes
+								} 
+							} 
+							NOT = { distance_from_realm = { who = ROOT value = 200 } } 
+						} 
+						NOT = { 
+							distance_from_realm = { who = ROOT value = 50 } 
+						} 
+					}
+					capital_holding = { 
+						OR = { #Prefer cities and temples.
+							holding_type = city 
+							holding_type = temple
+						}
+					} 
+				} 
+				preferred_limit = { 
+					OR = { 
+						AND = { 
+							ROOT = { 
+								OR = { 
+									religion = norse_pagan
+									has_religion_feature = religion_seafaring
+									is_seafarer = yes
+								} 
+							} 
+							NOT = { distance_from_realm = { who = ROOT value = 200 } } 
+						} 
+						NOT = { 
+							distance_from_realm = { who = ROOT value = 50 } 
+						} 
+					}
+					capital_holding = { 
+						holding_type = castle #Or at least not tribes.
+					} 
+				} 
+				preferred_limit = { 
+					OR = { 
+						AND = { 
+							ROOT = { 
+								OR = { 
+									religion = norse_pagan
+									has_religion_feature = religion_seafaring
+									is_seafarer = yes
+								} 
+							} 
+							NOT = { distance_from_realm = { who = ROOT value = 200 } } 
+						} 
+						NOT = { 
+							distance_from_realm = { who = ROOT value = 50 } 
+						} 
+					} 
+				} 
+				preferred_limit = { 
+					OR = { 
+						AND = { 
+							ROOT = { 
+								OR = { 
+									religion = norse_pagan
+									has_religion_feature = religion_seafaring
+									is_seafarer = yes
+								} 
+							} 
+							NOT = { distance_from_realm = { who = ROOT value = 250 } } 
+						} 
+						NOT = { 
+							distance_from_realm = { who = ROOT value = 100 } 
+						} 
+					} 
+					capital_holding = { 
+						OR = { #Prefer cities and temples.
+							holding_type = city 
+							holding_type = temple
+						}
+					} 
+				} 
+				preferred_limit = { 
+					OR = { 
+						AND = { 
+							ROOT = { 
+								OR = { 
+									religion = norse_pagan
+									has_religion_feature = religion_seafaring
+									is_seafarer = yes
+								} 
+							} 
+							NOT = { distance_from_realm = { who = ROOT value = 250 } } 
+						} 
+						NOT = { 
+							distance_from_realm = { who = ROOT value = 100 } 
+						} 
+					} 
+					capital_holding = { 
+						holding_type = castle #Or at least not tribes.
+					} 
+				} 
+				preferred_limit = { 
+					OR = { 
+						AND = { 
+							ROOT = { 
+								OR = { 
+									religion = norse_pagan
+									has_religion_feature = religion_seafaring
+									is_seafarer = yes
+								} 
+							} 
+							NOT = { distance_from_realm = { who = ROOT value = 250 } } 
+						} 
+						NOT = { 
+							distance_from_realm = { who = ROOT value = 100 } 
+						} 
+					} 
+				} 
+				capital_holding = {
+					save_event_target_as = wl_looting_target
+				}
+			}
+		}
+	}
+
+	quest_target = event_target:wl_looting_target
+
+	option = {
+		name = ACCEPT
+		event_target:wl_looting_target = {
+			show_scope_change = no
+			set_quest_target = {
+				id = quest_warrior_lodge_raid_and_loot
+				holder = ROOT
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+#on_loot_settlement: Raid the province and end the quest.
+character_event = {
+	id = HF.25503
+	desc = EVTDESCAHF25503
+	picture = GFX_evt_vikings_arriving_oldgods
+	border = GFX_event_normal_frame_war
+
+	is_triggered_only = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		has_quest = quest_warrior_lodge_raid_and_loot
+		FROM = { is_quest_target_of = ROOT }
+	}
+
+	option = {
+		name = EVTOPTAHF25503
+		clr_quest = quest_warrior_lodge_raid_and_loot
+		add_society_currency_medium_effect = yes
+		add_legend_progress_trivial_effect = yes
+		if = { 
+			limit = { 
+				FROM = {
+					holding_type = tribal
+				}
+			}
+			scaled_wealth = { value = 1.0 min = 20 max = 50 } 
+		}
+		if = { 
+			limit = { 
+				FROM = {
+					holding_type = castle
+				}
+			}
+			scaled_wealth = { value = 1.0 min = 50 max = 150 } 
+		}
+		if = { 
+			limit = { 
+				FROM = { 
+					OR = { 
+						holding_type = city
+						holding_type = temple
+					}
+				}
+			}
+			scaled_wealth = { value = 1.0 min = 100 max = 250 }
+		}
+		hidden_tooltip = {
+			destroy_random_building = FROM
+			destroy_random_building = FROM
+		}
+	}
+}
+
+###Lose Weak Focus###
+
+#MISSION: 
+#Ping event for the mission Lose Weak Focus
+character_event = {
+	id = HF.25504
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.25505 days = 7 random = 7 } } }
+}
+
+#Assign event
+society_quest_event = {
+	id = HF.25505
+	desc = {
+		trigger = {
+			ROOT = { 
+				has_character_flag = flag_renounce_focus_for_war
+			}
+		}
+		text = EVTDESCAHF25505
+	}
+	desc = {
+		trigger = {
+			ROOT = { 
+				has_character_flag = flag_renounce_focus_for_hunting
+			}
+		}
+		text = EVTDESCBHF25505
+	}
+	desc = {
+		trigger = {
+			ROOT = { 
+				has_character_flag = flag_renounce_focus_for_rulership
+			}
+		}
+		text = EVTDESCCHF25505
+	}
+	desc = {
+		trigger = {
+			ROOT = { 
+				has_character_flag = flag_renounce_focus_for_carousing
+			}
+		}
+		text = EVTDESCDHF25505
+	}
+
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		same_society_as = FROM
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		has_dlc = "Way of Life"
+		is_landed = yes
+		NOR = {
+			has_focus = focus_war
+			has_focus = focus_hunting
+			has_focus = focus_carousing
+			has_focus = focus_rulership
+		}
+	}
+
+	immediate = {
+		random_list = {
+			25 = { set_character_flag = flag_renounce_focus_for_war }
+			25 = { set_character_flag = flag_renounce_focus_for_hunting }
+			25 = { set_character_flag = flag_renounce_focus_for_rulership }
+			25 = { set_character_flag = flag_renounce_focus_for_carousing }
+		}
+	}
+
+	quest_target = ROOT
+
+	option = {
+		name = ACCEPT
+		ROOT = {
+			show_scope_change = no
+			if = { 
+				limit = { has_character_flag = flag_renounce_focus_for_war }
+				set_quest_target = {
+					id = quest_warrior_lodge_weak_focus_to_war
+					holder = ROOT
+				}
+			}
+			if = { 
+				limit = { has_character_flag = flag_renounce_focus_for_hunting }
+				set_quest_target = {
+					id = quest_warrior_lodge_weak_focus_to_hunting
+					holder = ROOT
+				}
+			}
+			if = { 
+				limit = { has_character_flag = flag_renounce_focus_for_rulership }
+				set_quest_target = {
+					id = quest_warrior_lodge_weak_focus_to_rulership
+					holder = ROOT
+				}
+			}
+			if = { 
+				limit = { has_character_flag = flag_renounce_focus_for_carousing }
+				set_quest_target = {
+					id = quest_warrior_lodge_weak_focus_to_carousing
+					holder = ROOT
+				}
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+	after = {
+		hidden_effect = { #For the one who instantly selected the focus, bypassing the mission-trigger
+			trigger_switch = {
+				on_trigger = has_character_flag
+				flag_renounce_focus_for_war = {
+					if = {
+						limit = { has_focus = focus_war }
+						character_event = { id = HF.25506 days = 1 }
+					}
+				}
+				flag_renounce_focus_for_hunting = {
+					if = {
+						limit = { has_focus = focus_hunting }
+						character_event = { id = HF.25507 days = 1 }
+					}
+				}
+				flag_renounce_focus_for_rulership = {
+					if = {
+						limit = { has_focus = focus_rulership }
+						character_event = { id = HF.25508 days = 1 }
+					}
+				}
+				flag_renounce_focus_for_carousing = {
+					if = {
+						limit = { has_focus = focus_carousing }
+						character_event = { id = HF.25509 days = 1 }
+					}
+				}
+			}
+		}
+
+		clr_character_flag = flag_renounce_focus_for_war
+		clr_character_flag = flag_renounce_focus_for_hunting
+		clr_character_flag = flag_renounce_focus_for_rulership
+		clr_character_flag = flag_renounce_focus_for_carousing
+	}
+}
+#on_focus_selected: Changing to War focus.
+character_event = {
+	id = HF.25506
+	desc = EVTDESCAHF25506
+	picture = GFX_evt_vikings_arriving_oldgods
+	border = GFX_event_normal_frame_war
+
+	is_triggered_only = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		has_quest = quest_warrior_lodge_weak_focus_to_war
+		has_focus = focus_war
+	}
+
+	option = {
+		name = EVTOPTAHF25506
+		clr_quest = quest_warrior_lodge_weak_focus_to_war
+		add_society_currency_minor_effect = yes
+		add_legend_progress_trivial_effect = yes
+	}
+}
+#on_focus_selected: Changing to Hunting focus.
+character_event = {
+	id = HF.25507
+	desc = EVTDESCAHF25507
+	picture = GFX_evt_mysterious_forest
+	border = GFX_event_normal_frame_war
+
+	is_triggered_only = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		has_quest = quest_warrior_lodge_weak_focus_to_hunting
+		has_focus = focus_hunting
+	}
+
+	option = {
+		name = EVTOPTAHF25507
+		clr_quest = quest_warrior_lodge_weak_focus_to_hunting
+		add_society_currency_minor_effect = yes
+		add_legend_progress_trivial_effect = yes
+	}
+}
+#on_focus_selected: Changing to Rulership focus.
+character_event = {
+	id = HF.25508
+	desc = EVTDESCAHF25508
+	picture = GFX_evt_tengri_throneroom_oldgods
+	border = GFX_event_normal_frame_economy
+
+	is_triggered_only = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		has_quest = quest_warrior_lodge_weak_focus_to_rulership
+		has_focus = focus_rulership
+	}
+
+	option = {
+		name = EVTOPTAHF25508
+		clr_quest = quest_warrior_lodge_weak_focus_to_rulership
+		add_society_currency_minor_effect = yes
+		add_legend_progress_trivial_effect = yes
+	}
+}
+#on_focus_selected: Changing to Carousing focus.
+character_event = {
+	id = HF.25509
+	desc = EVTDESCAHF25509
+	picture = GFX_evt_camaraderie
+	border = GFX_event_normal_frame_diplomacy
+
+	is_triggered_only = yes
+
+	trigger = {
+		is_member_of_any_warrior_lodge_trigger = yes
+		has_quest = quest_warrior_lodge_weak_focus_to_carousing
+		has_focus = focus_carousing
+	}
+
+	option = {
+		name = EVTOPTAHF25509
+		clr_quest = quest_warrior_lodge_weak_focus_to_carousing
+		add_society_currency_minor_effect = yes
+		add_legend_progress_trivial_effect = yes
+	}
+}
+
+
+#MISSION: 
+#Ping event for the mission Duel <someone>
+character_event = {
+	id = HF.10500
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.10501 days = 7 random = 7 } } }
+}
+
+#Hero character wants you to duel someone!
+society_quest_event = {
+	id = HF.10501
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	desc = {
+		text = EVTDESCHF10501_A #default
+		trigger = { event_target:duel_target = { NOT = { character = event_target:lodge_hero } } }
+	}
+	desc = {
+		text = EVTDESCHF10501_B #if target is also the person giving you the quest...
+		trigger = { event_target:duel_target = { character = event_target:lodge_hero } }
+	}
+
+	trigger = {
+		FROM = { is_alive = yes }
+		is_member_of_any_warrior_lodge_trigger = yes
+		same_society_as = FROM
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		is_landed = yes
+
+		society = {
+			any_society_member = {
+				ai = yes
+				age = 16
+                NOT = { character = ROOT }
+	            is_inaccessible_or_incapable_trigger = no
+                NOT = { has_character_modifier = bedridden_illness }
+	            NOT = { has_character_modifier = severe_illness }
+			}
+		}
+	}
+
+	immediate = {
+		if = {
+			limit = { #best case (someone within diplo-range, not sick, not seriously injured already)...
+				any_society_member = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					is_maimed_trigger = no
+					has_medium_disability_trigger = no #limits the character to some extent
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+					is_within_diplo_range = ROOT
+				}
+			}
+
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					is_maimed_trigger = no
+					has_medium_disability_trigger = no #limits the character to some extent
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+					is_within_diplo_range = ROOT
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+			
+		}
+		else_if = { #second best choice (same, but outside of diplo-range)...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					has_medium_disability_trigger = no #limits the character to some extent
+					is_maimed_trigger = no #has a maimed trait
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+				}
+			}
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					has_medium_disability_trigger = no #limits the character to some extent
+					is_maimed_trigger = no #has a maimed trait
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+		}
+		else_if = { #third best option (now also injured or old folks allowed)...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+	                ai = yes
+					age = 16
+	                NOT = { character = ROOT }
+		            is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { has_character_flag = call_to_legend_active }
+	            }
+			}
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+	                NOT = { character = ROOT }
+		            is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { has_character_flag = call_to_legend_active }
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+		}
+	}
+	
+	quest_target = event_target:duel_target #Is this how it's done?
+
+	option = {
+		name = ACCEPT
+		event_target:duel_target = {
+			show_scope_change = no
+			set_quest_target = {
+				id = quest_warrior_lodge_duel_honor
+				holder = ROOT
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+
+# Hidden Cleanup event for (prematurely) dead quest targets...
+character_event = {
+	id = HF.10502
+	hide_window = yes
+	has_dlc = "Holy Fury"
+
+	is_triggered_only = yes
+
+	trigger = { 
+		is_quest_target = yes
+	}
+
+	immediate = {
+		any_quester_targeting_this = {
+			limit = {
+				OR = {
+					has_quest = quest_warrior_lodge_duel_honor
+					has_quest = quest_warrior_lodge_duel_deadly
+					has_quest = quest_warrior_lodge_wrestle_honor
+				}
+			}
+			character_event = { id = HF.10503 days = 15 } #Clears duel mission
+		}
+		any_quester_targeting_this = {
+			limit = {
+				has_quest = quest_warrior_lodge_war
+			}
+			character_event = { id = HF.10503 days = 15 } #Clears war mission
+		}
+		any_quester_targeting_this = {
+			limit = {
+				has_quest = quest_warrior_lodge_recruit
+			}
+			character_event = { id = HF.10503 days = 15 } #Clears recruit mission
+		}
+	}
+}
+
+# Notification "I have failed my mission duel <dead character>..."
+character_event = {
+    id = HF.10503
+    picture = GFX_evt_battle
+    border = GFX_event_normal_frame_war
+    has_dlc = "Holy Fury"
+
+    is_triggered_only = yes
+
+    desc = {
+    	text = EVTDESC_HF_10503_duel
+    	trigger = {
+			OR = {
+				has_quest = quest_warrior_lodge_duel_honor
+				has_quest = quest_warrior_lodge_duel_deadly
+				has_quest = quest_warrior_lodge_wrestle_honor
+			}
+			NOT = { has_quest = quest_warrior_lodge_war	}
+			NOT = { has_quest = quest_warrior_lodge_recruit	}
+    	}
+    }
+    desc = {
+    	text = EVTDESC_HF_10503_war
+    	trigger = {
+			has_quest = quest_warrior_lodge_war
+			NOT = { has_quest = quest_warrior_lodge_duel_honor	}
+			NOT = { has_quest = quest_warrior_lodge_duel_deadly	}
+			NOT = { has_quest = quest_warrior_lodge_wrestle_honor }
+			NOT = { has_quest = quest_warrior_lodge_recruit	}
+    	}
+    }
+    desc = {
+    	text = EVTDESC_HF_10503_recruit
+    	trigger = {
+			has_quest = quest_warrior_lodge_recruit
+			NOT = { has_quest = quest_warrior_lodge_duel_honor	}
+			NOT = { has_quest = quest_warrior_lodge_duel_deadly	}
+			NOT = { has_quest = quest_warrior_lodge_war	}
+			NOT = { has_quest = quest_warrior_lodge_wrestle_honor }
+    	}
+    }
+
+    trigger = {
+    	OR = {
+	    	has_quest = quest_warrior_lodge_duel_honor
+	    	has_quest = quest_warrior_lodge_duel_deadly
+	    	has_quest = quest_warrior_lodge_war
+	    	has_quest = quest_warrior_lodge_recruit
+			has_quest = quest_warrior_lodge_wrestle_honor
+    	}
+    }
+
+    notification = yes
+
+    option = { #Alas
+        name = ALAS
+        character_event = { id = HF.10504 days = 1 } # ACTUAL cleanup
+    }
+}
+
+character_event = { #*Actual* clean up, because the event above can't handle all the instant stuff
+    id = HF.10504
+    hide_window = yes
+    is_triggered_only = yes
+    immediate = {
+    	if = {
+        	limit = {
+        		has_quest = quest_warrior_lodge_war
+        	}
+        	add_character_modifier = {
+				name = quest_cooldown_timer
+				hidden = yes
+				days = 1000
+			}
+        }
+
+        clr_quest = { id = quest_warrior_lodge_wrestle_honor failure = yes }
+		clr_quest = { id = quest_warrior_lodge_duel_honor failure = yes }
+        clr_quest = { id = quest_warrior_lodge_duel_deadly failure = yes }
+        clr_quest = { id = quest_warrior_lodge_war failure = yes }
+        clr_quest = { id = quest_warrior_lodge_recruit failure = yes }
+        clr_character_flag = deadly_duel@FROM	
+    }
+}
+
+#MISSION: 
+#Ping event for the mission Duel & Slay <someone>
+character_event = {
+	id = HF.10510
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.10511 days = 7 random = 7 } } }
+}
+
+#Hero character wants you to duel and slay someone!
+society_quest_event = {
+	id = HF.10511
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	trigger = {
+		FROM = { is_alive = yes }
+		is_member_of_any_warrior_lodge_trigger = yes
+		same_society_as = FROM
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		is_landed = yes
+	}
+
+	desc = {
+		text = EVTDESCHF10511_A #default
+		trigger = { event_target:duel_target = { is_member_of_any_warrior_lodge_trigger = yes } }
+	}
+	desc = {
+		text = EVTDESCHF10511_B #if target is not in a warrior lodge...
+		trigger = { event_target:duel_target = { is_member_of_any_warrior_lodge_trigger = no } }
+	}
+
+	immediate = {
+		if = { #Best case... (a society member of *another* warrior lodge, who matches or is below your PCS)
+			limit = {
+				any_society_member = {
+	           		NOT = { same_society_as = ROOT }
+	           		is_member_of_any_warrior_lodge_trigger = yes
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+					NOT = { any_spouse = { character = ROOT } }
+	                is_adult = yes
+	                ai = yes
+					is_within_diplo_range = ROOT
+					top_liege = {
+						any_demesne_title = {
+							lower_tier_than = DUKE
+						}
+					}
+	            }		
+			}
+			any_society_member = {
+				limit = {
+	           		NOT = { same_society_as = ROOT }
+	           		is_member_of_any_warrior_lodge_trigger = yes
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+	                NOT = { any_spouse = { character = ROOT } }
+	                is_adult = yes
+	                ai = yes
+	                is_within_diplo_range = ROOT
+					top_liege = {
+						any_demesne_title = {
+							lower_tier_than = DUKE
+						}
+					}
+                }
+                score_value = { #Prioritizes selecting some kind of character you wouldn't get along with...
+                	value = 10
+                	potential_rival_score = yes
+	            }
+	            score_value = { #Extra weight for characters you've encountered before...
+	                value = 10
+	                disliked_target_selection_score = yes
+	            }
+	            score_value = { #Reduced chance to pick people currently at war (unable to duel)...
+	                value = 10
+	            	at_war_reduction_score = yes
+	            }
+	            
+				save_event_target_as = duel_target
+				break = yes
+            }	
+		}
+		if = { #2nd best case (a rival) - PCS is second prio...
+			limit = {
+				any_rival = {
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+	                is_adult = yes
+	                ai = yes
+					ROOT = { capital_scope = { distance = { where = PREV distance < 1000 } } }
+	            }
+			}
+			any_rival = {
+				limit = {
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+	                is_adult = yes
+	                ai = yes
+	                ROOT = { capital_scope = { distance = { where = PREV distance < 1000 } } }
+                }
+                score_value = { #Prioritizes selecting some kind of character you wouldn't get along with...
+                	value = 10
+                	potential_rival_score = yes
+	            }
+	            score_value = { #Extra weight for characters you've encountered before...
+	                value = 10
+	                disliked_target_selection_score = yes
+	            }
+				save_event_target_as = duel_target
+				break = yes
+            }
+		}
+		if = { #3rd best case (a realm character) who fits the bill...
+			limit = {
+				any_realm_character = {
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { any_spouse = { character = ROOT } }
+	                ai = yes
+	                is_adult = yes
+	            }
+			}
+			any_realm_character = {
+				limit = {
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { any_spouse = { character = ROOT } }
+	                ai = yes
+	                is_adult = yes
+                }
+                score_value = { #Prioritizes selecting some kind of character you wouldn't get along with...
+                	value = 10
+                	potential_rival_score = yes
+	            }
+	            score_value = { #Extra weight for characters you've encountered before...
+	                value = 10
+	                disliked_target_selection_score = yes
+	            }
+				save_event_target_as = duel_target
+				break = yes
+            }
+		}
+		if = { #4th case (a *neighbor's* realm character) who fits the bill...
+			limit = {
+				any_neighbor_independent_ruler = {
+					any_realm_character = {
+		                is_inaccessible_or_incapable_trigger = no
+		                NOT = { has_character_modifier = bedridden_illness }
+			            NOT = { has_character_modifier = severe_illness }
+			            NOT = { any_spouse = { character = ROOT } }
+		                is_adult = yes
+		                ai = yes
+						ROOT = { capital_scope = { distance = { where = PREV distance < 1000 } } }
+					}
+	            }
+			}
+			random_neighbor_independent_ruler = {
+				limit = {
+					any_realm_character = {
+		                is_inaccessible_or_incapable_trigger = no
+		                NOT = { has_character_modifier = bedridden_illness }
+			            NOT = { has_character_modifier = severe_illness }
+			            NOT = { any_spouse = { character = ROOT } }
+		                is_adult = yes
+		                ai = yes
+						ROOT = { capital_scope = { distance = { where = PREV distance < 1000 } } }
+					}
+				}
+				any_realm_character = {
+					limit = {
+		                is_inaccessible_or_incapable_trigger = no
+		                NOT = { has_character_modifier = bedridden_illness }
+			            NOT = { has_character_modifier = severe_illness }
+			            NOT = { any_spouse = { character = ROOT } }
+		                is_adult = yes
+		                ai = yes
+						is_within_diplo_range = ROOT
+						ROOT = { capital_scope = { distance = { where = PREV distance < 1000 } } }
+	                }
+	                score_value = { #Prioritizes selecting some kind of character you wouldn't get along with...
+	                	value = 10
+	                	potential_rival_score = yes
+		            }
+		            score_value = { #Extra weight for characters you've encountered before...
+		                value = 10
+		                disliked_target_selection_score = yes
+		            }
+					save_event_target_as = duel_target
+					break = yes
+				}
+            }
+		}
+		if = { # Warrior Lodge members who are without diplomatic range, such as mercenaries
+			limit = {
+				any_society_member = {
+	           		NOT = { same_society_as = ROOT }
+	           		is_member_of_any_warrior_lodge_trigger = yes
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+					NOT = { any_spouse = { character = ROOT } }
+	                is_adult = yes
+	                ai = yes
+					is_within_diplo_range = ROOT
+	            }		
+			}
+			any_society_member = {
+				limit = {
+	           		NOT = { same_society_as = ROOT }
+	           		is_member_of_any_warrior_lodge_trigger = yes
+	                is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+	                NOT = { any_spouse = { character = ROOT } }
+	                is_adult = yes
+	                ai = yes
+	                is_within_diplo_range = ROOT
+                }
+                score_value = { #Prioritizes selecting some kind of character you wouldn't get along with...
+                	value = 10
+                	potential_rival_score = yes
+	            }
+	            score_value = { #Extra weight for characters you've encountered before...
+	                value = 10
+	                disliked_target_selection_score = yes
+	            }
+	            score_value = { #Reduced chance to pick people currently at war (unable to duel)...
+	                value = 10
+	            	at_war_reduction_score = yes
+	            }
+	            
+				save_event_target_as = duel_target
+				break = yes
+            }	
+		}
+	}
+	
+	quest_target = event_target:duel_target
+
+	option = {
+		name = ACCEPT
+		set_character_flag = deadly_duel@event_target:duel_target
+		event_target:duel_target = {
+			show_scope_change = no
+			set_quest_target = {
+				id = quest_warrior_lodge_duel_deadly
+				holder = ROOT
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+
+#MISSION: 
+#Ping event for the mission Wage War
+character_event = {
+	id = HF.10512
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.10513 days = 7 random = 7 } } }
+}
+
+#Hero character wants you to wage war against someone!
+society_quest_event = {
+	id = HF.10513
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+	
+	trigger = {
+		FROM = { is_alive = yes }
+		is_member_of_any_warrior_lodge_trigger = yes
+		same_society_as = FROM
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		is_landed = yes
+		any_independent_ruler = {
+	        any_realm_title = {
+	            tier = COUNT
+	            ROOT = {
+	                can_use_cb = { #against target
+	                    target = PREVPREV
+	                    thirdparty_title = PREV
+	                    casus_belli = pagan_county_conquest
+	                }
+	            }
+	            location = {
+		            OR = {
+			            AND = { #Either you can travel via water to them...
+				        	is_coastal = yes
+				        	can_naval_path_to = { target = event_target:home_capital distance < 1000 }
+			            }
+			            AND = {
+				            #Or they are accessible via land...
+				            event_target:home_capital = { is_coastal = no }
+					        can_land_path_to = { target = event_target:home_capital distance < 1000 }
+			            }
+			            AND = { #Or not a coastal place...
+				        	is_coastal = no
+				        	can_land_path_to = { target = event_target:home_capital distance < 1000 }
+				        	#event_target:home_capital = { distance = { where = PREV distance < 1000 } }
+			            }
+			        }
+	            }
+	            holder_scope = {
+		        	top_liege = {
+		        		NOT = { has_truce = ROOT }
+				        # target should not be stronger than 120% of your strength, and not weaker than 50% of your strength. 
+				        NOT = { relative_power = { who = ROOT power = 1.2 } }
+				        relative_power = { who = ROOT power = 0.5 }
+		        	}
+		        }
+	        }
+		}
+	}
+
+	desc = {
+		text = EVTDESCHF10513 #default
+		trigger = { event_target:my_war_target_holder = { NOT = { character = event_target:lodge_hero } } }
+	}
+	desc = {
+		text = EVTDESCHF10513_B #if target is also the person giving you the quest...
+		trigger = { event_target:my_war_target_holder = { character = event_target:lodge_hero } }
+	}
+
+	immediate = {
+		#Declare a county conquest against someone
+		random_independent_ruler = {
+		    limit = {
+		        any_realm_title = {
+		            tier = COUNT
+		            ROOT = {
+		                can_use_cb = { #against target
+		                    target = PREVPREV
+		                    thirdparty_title = PREV
+		                    casus_belli = pagan_county_conquest
+		                }
+		            }
+		            location = {
+			            OR = {
+				            AND = { #Either you can travel via water to them...
+					        	is_coastal = yes
+					        	can_naval_path_to = { target = event_target:home_capital distance < 1000 }
+				            }
+				            AND = {
+					            #Or they are accessible via land...
+					            event_target:home_capital = { is_coastal = no }
+						        can_land_path_to = { target = event_target:home_capital distance < 1000 }
+				            }
+				            AND = { #Or not a coastal place...
+					        	is_coastal = no
+					        	can_land_path_to = { target = event_target:home_capital distance < 1000 }
+					        	#event_target:home_capital = { distance = { where = PREV distance < 1000 } }
+				            }
+				        }
+		            }
+		            holder_scope = {
+			        	top_liege = {
+			        		NOT = { has_truce = ROOT }
+					        # target should not be stronger than 120% of your strength, and not weaker than 50% of your strength. 
+					        NOT = { relative_power = { who = ROOT power = 1.2 } }
+					        relative_power = { who = ROOT power = 0.5 }
+			        	}
+			        }
+		        }
+		    }
+		    random_realm_title = {
+		        limit = {
+		            tier = COUNT
+		            ROOT = {
+		                can_use_cb = { #against target
+		                    target = PREVPREV
+		                    thirdparty_title = PREV
+		                    casus_belli = pagan_county_conquest
+		                }
+		            }
+		            location = {
+			            OR = {
+				            AND = { #Either you can travel via water to them...
+					        	is_coastal = yes
+					        	can_naval_path_to = { target = event_target:home_capital distance < 1000 }
+				            }
+				            AND = {
+					            #Or they are accessible via land...
+					            event_target:home_capital = { is_coastal = no }
+						        can_land_path_to = { target = event_target:home_capital distance < 1000 }
+				            }
+				            AND = { #Or not a coastal place...
+					        	is_coastal = no
+					        	can_land_path_to = { target = event_target:home_capital distance < 1000 }
+					        	#event_target:home_capital = { distance = { where = PREV distance < 1000 } }
+				            }
+				        }
+		            }
+		            holder_scope = {
+			        	top_liege = {
+			        		NOT = { has_truce = ROOT }
+					        # target should not be stronger than 120% of your strength, and not weaker than 50% of your strength. 
+					        NOT = { relative_power = { who = ROOT power = 1.2 } }
+					        relative_power = { who = ROOT power = 0.5 }
+			        	}
+			        }
+		        }
+	            save_event_target_as = my_war_target
+		        holder_scope = {
+		            top_liege = {
+		                save_event_target_as = my_war_target_holder
+		            }
+		        }
+		    }
+		}
+	}
+
+	quest_target = event_target:my_war_target #Is this how it's done?
+
+	option = {
+		name = ACCEPT
+		event_target:my_war_target = {
+			show_scope_change = no
+			set_quest_target = {
+				id = quest_warrior_lodge_war
+				holder = ROOT
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+
+#Mission to Wage War complete: Warrior lodge hero says good job on the war!
+letter_event = {
+	id = HF.10514
+	border = GFX_event_letter_frame_war
+
+	portrait = event_target:lodge_hero
+
+	trigger = {
+		has_quest = quest_warrior_lodge_war
+	}
+
+	immediate = { 
+		hidden_effect = {
+			
+			if = { #Find some folks who are impressed by your victory...
+				limit = { has_character_flag = won_war@event_target:defender_target }
+				any_society_member = {
+					limit = {
+						same_society_as = ROOT
+						NOT = { character = ROOT }
+						NOT = { character = event_target:defender_target }
+					}
+					count = 3
+					score_value = { #Prioritizes selecting some kind of warrior...
+						value = 10
+						warrior_recruit_score = yes
+					}
+					set_character_flag = impressed@ROOT
+				}
+			}
+
+			#Selects someone to congratulate you...
+			random_society_member = {
+				limit = {
+					same_society_as = ROOT
+					society_rank == 4
+					NOT = { character = ROOT }
+					NOT = { character = event_target:defender_target }
+				}
+				save_event_target_as = lodge_hero
+				break = yes
+			}
+			random_society_member = {
+				limit = {
+					same_society_as = ROOT
+					society_rank == 3
+					NOT = { character = ROOT }
+					NOT = { character = event_target:defender_target }
+				}
+				save_event_target_as = lodge_hero
+				break = yes
+			}
+			random_society_member = {
+				limit = {
+					same_society_as = ROOT
+					society_rank == 2
+					NOT = { character = ROOT }
+					NOT = { character = event_target:defender_target }
+				}
+				save_event_target_as = lodge_hero
+				break = yes
+			}
+			random_society_member = {
+				limit = {
+					same_society_as = ROOT
+					society_rank == 1 #This is likely never really ever going to be needed. But still.
+					NOT = { character = ROOT }
+					NOT = { character = event_target:defender_target }
+				}
+				save_event_target_as = lodge_hero
+				break = yes
+			}
+		}
+	}
+
+	desc = {
+		text = EVTDESC_HF_10514_won
+		trigger = { has_character_flag = won_war@event_target:defender_target }
+	}
+	desc = {
+		text = EVTDESC_HF_10514_white_peace
+		trigger = { has_character_flag = white_peace@event_target:defender_target }
+	}
+	desc = {
+		text = EVTDESC_HF_10514_lost
+		trigger = { has_character_flag = lost_war@event_target:defender_target }
+	}
+	
+	is_triggered_only = yes
+
+	#I understand
+	option = {
+		name = {
+			text = EVTOPTA_HF_10514_won
+			trigger = { has_character_flag = won_war@event_target:defender_target }
+		}
+		name = {
+			text = EVTOPTA_HF_10514_white_peace
+			trigger = { has_character_flag = white_peace@event_target:defender_target }
+		}
+		name = {
+			text = EVTOPTA_HF_10514_lost
+			trigger = { has_character_flag = lost_war@event_target:defender_target }
+		}
+		trigger_switch = {
+			on_trigger = has_character_flag
+			won_war@event_target:defender_target = {
+				any_society_member = {
+					limit = { has_character_flag = impressed@ROOT }
+					show_scope_change = no
+					opinion = {
+			            who = ROOT
+			            modifier = opinion_conquered_new_land
+			            years = 10
+			        }
+					clr_character_flag = impressed@ROOT
+				}
+				add_society_currency_major_effect = yes
+			}
+			white_peace@event_target:defender_target = { add_society_currency_medium_effect = yes }
+			lost_war@event_target:defender_target = { add_society_currency_minor_effect = yes }
+		}
+		clr_quest = quest_warrior_lodge_war
+		add_legend_progress_trivial_effect = yes
+		clr_character_flag = won_war@event_target:defender_target
+		clr_character_flag = white_peace@event_target:defender_target
+		clr_character_flag = lost_war@event_target:defender_target
+	}
+}
+
+#on_war_ended_victory: Clear Wage War mission correctly
+# From = Attacker, Root = Defender
+character_event = {
+	id = HF.10515
+	hide_window = yes
+	is_triggered_only = yes
+	has_dlc = "Holy Fury"
+	trigger = {
+		FROM = {
+			is_member_of_any_warrior_lodge_trigger = yes
+			has_quest = quest_warrior_lodge_war
+		}
+		any_realm_title = {
+			is_quest_target_of = FROM
+		}
+	}
+
+	immediate = {
+		#To handle Warrior Lodge mission "Wage War" completion...
+		random_realm_title = {
+			limit = { is_quest_target_of = FROM }
+			save_event_target_as = target_title
+		}
+		FROM = { save_event_target_as = attacker_target }
+		save_event_target_as = defender_target
+
+		event_target:attacker_target = {
+			set_character_flag = won_war@event_target:defender_target
+			character_event = { id = HF.10514 days = 6 } # Hero character states that you completed the mission...
+		}
+	}
+}
+
+#on_war_ended_whitepeace: Clear Wage War mission correctly
+# From = Attacker, Root = Defender
+character_event = {
+	id = HF.10516
+	hide_window = yes
+	is_triggered_only = yes
+	has_dlc = "Holy Fury"
+	trigger = {
+		FROM = {
+			is_member_of_any_warrior_lodge_trigger = yes
+			has_quest = quest_warrior_lodge_war
+		}
+		any_realm_title = {
+			is_quest_target_of = FROM
+		}
+	}
+
+	immediate = {
+		#To handle Warrior Lodge mission "Wage War" completion...
+		random_realm_title = {
+			limit = { is_quest_target_of = FROM }
+			save_event_target_as = target_title
+		}
+		FROM = { save_event_target_as = attacker_target }
+		save_event_target_as = defender_target
+
+		event_target:attacker_target = {
+			set_character_flag = white_peace@event_target:defender_target
+			character_event = { id = HF.10514 days = 6 } # Hero character states that you completed the mission...
+		}
+	}
+}
+#on_war_ended_defeat: Clear Wage War mission correctly
+# From = Attacker, Root = Defender
+character_event = {
+	id = HF.10517
+	hide_window = yes
+	is_triggered_only = yes
+	has_dlc = "Holy Fury"
+	trigger = {
+		FROM = {
+			is_member_of_any_warrior_lodge_trigger = yes
+			has_quest = quest_warrior_lodge_war
+		}
+		any_realm_title = {
+			is_quest_target_of = FROM
+		}
+	}
+
+	immediate = {
+		#To handle Warrior Lodge mission "Wage War" completion...
+		random_realm_title = {
+			limit = { is_quest_target_of = FROM }
+			save_event_target_as = target_title
+		}
+		FROM = { save_event_target_as = attacker_target }
+		save_event_target_as = defender_target
+
+		event_target:attacker_target = {
+			set_character_flag = lost_war@event_target:defender_target
+			character_event = { id = HF.10514 days = 6 } # Hero character states that you completed the mission...
+		}
+	}
+}
+#on_war_ended_invalid: Clear Wage War mission correctly
+# From = Attacker, Root = Defender
+character_event = {
+	id = HF.10518
+	hide_window = yes
+	is_triggered_only = yes
+	has_dlc = "Holy Fury"
+	trigger = {
+		FROM = {
+			is_member_of_any_warrior_lodge_trigger = yes
+			has_quest = quest_warrior_lodge_war
+		}
+		any_realm_title = {
+			is_quest_target_of = FROM
+		}
+	}
+
+	immediate = {
+		#To handle Warrior Lodge mission "Wage War" completion...
+		random_realm_title = {
+			limit = { is_quest_target_of = FROM }
+			save_event_target_as = target_title
+		}
+		FROM = { save_event_target_as = attacker_target }
+		save_event_target_as = defender_target
+
+		event_target:attacker_target = {
+			character_event = { id = HF.10503 days = 6 } # Mission target is no longer valid-notification...
+		}
+	}
+}
+
+
+#on_new_holder: Clear Raid Province mission if the province is now under your control.
+# ROOT is the character, FROM is the title, FROMFROM is the old holder
+character_event = {
+	id = HF.25510
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	trigger = {
+		OR = { 
+			AND = { 
+				is_member_of_any_warrior_lodge_trigger = yes
+				has_quest = quest_warrior_lodge_raid_and_loot
+			}
+			any_liege = { 
+				is_member_of_any_warrior_lodge_trigger = yes
+				has_quest = quest_warrior_lodge_raid_and_loot
+			}
+		}
+	}
+
+	immediate = {
+		if = {
+			limit = { 
+				is_member_of_any_warrior_lodge_trigger = yes
+				has_quest = quest_warrior_lodge_raid_and_loot
+			}
+			character_event = { id = HF.25511 days = 1 }
+		}
+		if = {
+			limit = { 
+				any_liege = { 
+					is_member_of_any_warrior_lodge_trigger = yes
+					has_quest = quest_warrior_lodge_raid_and_loot
+				}
+			}
+			any_liege = { 
+				limit = { 
+					is_member_of_any_warrior_lodge_trigger = yes
+					has_quest = quest_warrior_lodge_raid_and_loot
+				}
+				character_event = { id = HF.25511 days = 1 }
+			}
+		}
+	}
+}
+
+character_event = {
+	id = HF.25511
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = {
+		if = {
+			limit = { 
+				is_member_of_any_warrior_lodge_trigger = yes
+				has_quest = quest_warrior_lodge_raid_and_loot
+				any_realm_title = { 
+					is_quest_target_of = ROOT 
+				}
+			}
+			clr_quest = quest_warrior_lodge_raid_and_loot
+		}
+	}
+}
+
+#MISSION: 
+#Ping event for the mission Recruit Your Child
+character_event = {
+	id = HF.10520
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.10521 days = 7 random = 7 } } }
+}
+
+#Hero character wants you to Recruit Your Child
+society_quest_event = {
+	id = HF.10521
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+	
+	trigger = {
+		is_landed = yes
+	    is_adult = yes	        		
+		FROM = { is_alive = yes }
+		is_member_of_any_warrior_lodge_trigger = yes
+		same_society_as = FROM
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		any_child = {
+			is_child_of = PREV
+			is_alive = yes
+			is_in_society = no
+			age = 12
+		    prisoner = no
+			NOT = { has_character_flag = flag_child_abandoned_lodge }
+	        OR = { #AIs should only strive to recruit their main heir
+	            PREV = { ai = no }
+	            is_primary_heir = PREV
+	        }
+		}
+	}
+
+	desc = EVTDESCHF10521 #default
+
+	immediate = {
+		random_child = { #Select a child to recruit
+		    limit = {
+		    	is_alive = yes
+				age = 12
+				is_in_society = no
+			    prisoner = no
+				NOT = { has_character_flag = flag_child_abandoned_lodge }
+		        OR = { #AIs should only strive to recruit their main heir
+		            PREV = { ai = no }
+		            is_primary_heir = PREV
+		        }
+		    }
+		    preferred_limit = {
+		    	is_primary_heir = PREV
+		    }
+		    save_event_target_as = recruit_to_be
+		}
+	}
+
+	quest_target = event_target:recruit_to_be 
+
+	option = {
+		name = ACCEPT
+		event_target:recruit_to_be = {
+			show_scope_change = no
+			set_quest_target = {
+				id = quest_warrior_lodge_recruit
+				holder = ROOT
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}

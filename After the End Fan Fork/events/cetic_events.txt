@@ -254,11 +254,44 @@ character_event = {
 	trigger = {
 		religion = cetic
 		controls_religion = yes
-		trait = figurehead
 	}
 	
 	immediate = {
-		current_heir = { add_trait = figurehead }
+		current_heir = { 
+			add_character_modifier = {
+				name = imperial_authority
+				duration = -1
+			}
+			if = {
+				limit = {
+					check_variable = { which = global_imp_auth value < 11 }
+				}
+				add_trait = weak_emperor
+			}
+			if = {
+				limit = {
+					check_variable = { which = global_imp_auth value <= 50 }
+				}
+				add_trait = figurehead
+				character_event = { id = cetic.316 }
+			}
+			if = {
+				limit = {
+					AND = {
+						check_variable = { which = global_imp_auth value > 50 }
+						check_variable = { which = global_imp_auth value < 70 }
+					}
+				}
+				character_event = { id = cetic.316 }
+			}
+			if = {
+				limit = {
+					check_variable = { which = global_imp_auth value > 70 }
+				}
+				set_variable = { which = global_imp_auth value = 60 }
+				set_character_flag = imp_auth_dont_change
+			}
+		}
 	}
 	
 	option = { name = OK }
@@ -286,6 +319,22 @@ narrative_event = {
 		}
 		add_trait = figurehead
 		FROMFROM = { remove_trait = figurehead }
+		add_character_modifier = {
+			name = imperial_authority
+			duration = -1
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value < 11 }
+			}
+			add_trait = weak_emperor
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value > 70 }
+			}
+			add_trait = strong_emperor
+		}
 		ai_chance = { factor = 100 }
 	}
 	
@@ -309,6 +358,22 @@ narrative_event = {
 		}
 		tooltip_info = diplomacy
 		add_trait = figurehead
+		add_character_modifier = {
+			name = imperial_authority
+			duration = -1
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value < 11 }
+			}
+			add_trait = weak_emperor
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value > 70 }
+			}
+			add_trait = strong_emperor
+		}
 		FROMFROM = { remove_trait = figurehead }
 		ai_chance = { factor = 100 }
 	}
@@ -322,6 +387,22 @@ narrative_event = {
 		}
 		tooltip_info = learning
 		add_trait = figurehead
+		add_character_modifier = {
+			name = imperial_authority
+			duration = -1
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value < 11 }
+			}
+			add_trait = weak_emperor
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value > 70 }
+			}
+			add_trait = strong_emperor
+		}
 		FROMFROM = { remove_trait = figurehead }
 		ai_chance = { factor = 100 }
 	}
@@ -1549,6 +1630,7 @@ character_event = {
 	}
 }
 
+#Inspired Writings
 narrative_event = {
 	id = cetic.51
 	title = EVTNAME_cetic_write_inspire
@@ -1596,6 +1678,7 @@ narrative_event = {
 		prestige = 100
 		piety = 100
 		hidden_tooltip = {
+			character_event = { id = cetic.310 }
 			any_playable_ruler = {
 				limit = { religion = cetic }
 				character_event = { id = cetic.55 }
@@ -1604,6 +1687,7 @@ narrative_event = {
 	}
 }
 
+#Competent Writings
 character_event = {
 	id = cetic.52
 	desc = EVTDESC_cetic_write_competent
@@ -1639,6 +1723,7 @@ character_event = {
 	option = {
 		name = EVTOPT_cetic_write_better
 		piety = 10
+		character_event = { id = cetic.311 }
 		random_list = {
 			10 = { add_trait = stressed }
 			10 = { add_trait = zealous }
@@ -1652,6 +1737,7 @@ character_event = {
 	option = {
 		name = EVTOPT_cetic_write_goodenough
 		prestige = 10
+		character_event = { id = cetic.311 }
 		random_list = {
 			10 = { add_trait = humble }
 			10 = { add_trait = slothful }
@@ -1662,6 +1748,7 @@ character_event = {
 	}
 }
 
+#Terrible Writings
 narrative_event = {
 	id = cetic.53
 	title = EVTNAME_cetic_write_terrible
@@ -1706,6 +1793,7 @@ narrative_event = {
 	
 	immediate = {
 		remove_character_modifier = intense_writing
+		character_event = { id = cetic.320 }
 		any_playable_ruler = {
 			limit = { religion = cetic }
 			character_event = { id = cetic.56 }
@@ -2823,5 +2911,2546 @@ narrative_event = {
 				has_character_flag = supported_claimant_imperial_war
 			}
 		}
+	}
+}
+
+#Appointed Governator by Emperor
+character_event = {
+	id = cetic.300
+	title = EVTTITLECETIC300
+	desc = EVTDESCCETIC300
+	picture = GFX_evt_china_stable
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC300
+		add_trait = governator
+		prestige = 100
+		if = {
+			limit = {
+				liege = {
+					has_landed_title = e_california
+					religion = cetic
+					controls_religion = yes 
+					NOT = {
+						trait = strong_emperor
+					}
+				}
+			}
+			give_minor_title = title_governator
+		}
+	}
+}
+
+#Governator takes Regent
+character_event = {
+	id = cetic.301
+	desc = EVTDESCCETIC301
+	picture = GFX_evt_china_stable
+	
+	trigger = {
+		has_minor_title = title_governator
+		NOT = {
+			has_minor_title = title_regent
+		}
+		liege = {
+			has_landed_title = e_california
+			OR = {
+				prisoner = no
+				is_abroad = no
+				is_adult = no
+				trait = incapable
+				trait = in_hiding
+				trait = weak_emperor
+			}
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTACETIC301
+		give_minor_title = title_regent
+		# custom_tooltip = {
+			# text = send_a_message_to_regent_TT
+			# hidden_tooltip = {
+				# any_courtier = {
+					# limit = {
+						# has_minor_title = title_regent
+					# }
+					# remove_title = title_regent
+					# character_event = { id = cetic.302 }
+				# }
+			# }
+		# }
+		prestige = 50
+	}
+}
+
+#Regent gets obliterated by the Governator
+# character_event = {
+	# id = cetic.302
+	# desc = EVTDESCCETIC302
+	# picture = GFX_evt_bad_news
+	# is_triggered_only = yes
+	
+	# option = {
+		# name = EVTOPTACETIC302
+		# prestige = -50
+	# }
+# }
+
+#on_startup to set up Imperial Authority
+character_event = {
+	id = cetic.303
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_landed_title = e_california
+		religion = cetic
+		controls_religion = yes
+		NOT = {
+			has_global_flag = imperial_authority_set
+		}
+	}
+	immediate = {
+		set_variable = { which = global_imp_auth value = 20 }
+		set_global_flag = imperial_authority_set
+		add_character_modifier = {
+			name = imperial_authority
+			duration = -1
+		}
+	}
+}
+
+#Giving out traits when needed
+character_event = {
+	id = cetic.304
+	desc = {
+		trigger = {
+			check_variable = { which = global_imp_auth value < 11 }
+		}
+		text = EVTDESCCETIC304_WEAK
+		picture = GFX_evt_china_isolationist
+	}
+	desc = {
+		trigger = {
+			check_variable = { which = global_imp_auth value <= 50 }
+		}
+		text = EVTDESCCETIC304_FIGUREHEAD
+		picture = GFX_evt_china_isolationist
+	}
+	desc = {
+		trigger = {
+			check_variable = { which = global_imp_auth value > 50 }
+		}
+		text = EVTDESCCETIC304
+		picture = GFX_evt_china_open
+	}
+	desc = {
+		trigger = {
+			check_variable = { which = global_imp_auth value < 70 }
+			trait = strong_emperor
+		}
+		text = EVTDESCCETIC304_B
+		picture = GFX_evt_china_isolationist
+	}
+	desc = {
+		trigger = {
+			check_variable = { which = global_imp_auth value > 70 }
+		}
+		text = EVTDESCCETIC304_STRONG
+		picture = GFX_evt_china_golden_age
+	}
+	
+	trigger = {
+		has_landed_title = e_california
+		religion = cetic
+		controls_religion = yes
+		OR = {
+			AND = {
+				check_variable = { which = global_imp_auth value < 11 }
+				NOT = {
+					trait = weak_emperor
+				}
+			}
+			AND = {
+				check_variable = { which = global_imp_auth value <= 50 }
+				NOT = {
+					trait = figurehead
+				}
+			}
+			AND = {
+				check_variable = { which = global_imp_auth value > 50 }
+				trait = figurehead
+			}
+			AND = {
+				check_variable = { which = global_imp_auth value < 70 }
+				trait = strong_emperor
+			}
+			AND = {
+				check_variable = { which = global_imp_auth value > 70 }
+				NOT = {
+					trait = strong_emperor
+				}
+			}
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = {
+			text = EVTOPTACETIC304_WEAK
+			trigger = {
+				check_variable = { which = global_imp_auth value < 11 }
+				NOT = {
+					trait = weak_emperor
+				}
+			}
+		}
+		name = {
+			text = EVTOPTACETIC304_FIGUREHEAD
+			trigger = {
+				check_variable = { which = global_imp_auth value <= 50 }
+				NOT = {
+					trait = figurehead
+				}
+			}
+		}
+		name = {
+			text = EVTOPTACETIC304
+			trigger = {
+				check_variable = { which = global_imp_auth value > 50 }
+				trait = figurehead
+			}
+		}
+		name = {
+			text = EVTOPTACETIC304_B
+			trigger = {
+				check_variable = { which = global_imp_auth value < 70 }
+				trait = strong_emperor
+			}
+		}
+		name = {
+			text = EVTOPTACETIC304_STRONG
+			trigger = {
+				check_variable = { which = global_imp_auth value > 70 }
+				NOT = {
+					trait = strong_emperor
+				}
+			}
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value < 11 }
+				NOT = {
+					trait = weak_emperor
+				}
+			}
+			add_trait = weak_emperor
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value <= 50 }
+				NOT = {
+					trait = figurehead
+				}
+			}
+			add_trait = figurehead
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value > 50 }
+				trait = figurehead
+			}
+			remove_trait = figurehead
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value < 70 }
+				trait = strong_emperor
+			}
+			remove_trait = strong_emperor
+		}
+		if = {
+			limit = {
+				check_variable = { which = global_imp_auth value > 70 }
+				NOT = {
+					trait = strong_emperor
+				}
+			}
+			add_trait = strong_emperor
+		}
+	}
+}	
+
+character_event = {
+	id = cetic.305
+	hide_window = yes
+	trigger = {
+		check_variable = { which = global_imp_auth value > 100 }
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		while = {
+			limit = {
+				check_variable = { which = global_imp_auth value > 100 }
+			}
+			change_variable = { which = global_imp_auth value = -1 }
+		}
+	}
+}
+
+character_event = {
+	id = cetic.500
+	hide_window = yes
+	trigger = {
+		check_variable = { which = global_imp_auth value < 0 }
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		while = {
+			limit = {
+				check_variable = { which = global_imp_auth value < 0 }
+			}
+			change_variable = { which = global_imp_auth value = 1 }
+		}
+	}
+}
+
+#Authority Increase - Win War
+character_event = {
+	id = cetic.306
+	desc = EVTDESCCETIC306
+	is_triggered_only = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = 5 }
+	}
+	
+	option = {
+		name = opta_excellent
+		custom_tooltip = {
+			text = impauth_increase_5_TT
+		}
+	}
+}
+
+#Authority Increase - Good Stats
+character_event = {
+	id = cetic.307
+	desc = EVTDESCCETIC307
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		OR = {
+			stewardship = 15
+			learning = 15
+			trait = genius
+			trait = quick
+			trait = erudite
+			trait = administrator
+		}
+		NOT = {
+			has_character_flag = ia_goodstats
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = 5 }
+	}
+	
+	option = {
+		name = opta_excellent
+		custom_tooltip = {
+			text = impauth_increase_5_TT
+		}
+		hidden_tooltip = {
+			set_character_flag = ia_goodstats
+		}
+	}
+}
+
+#Authority Increase - Good Imperial Exam Score
+character_event = {
+	id = cetic.308
+	desc = EVTDESCCETIC308
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		OR = {
+			trait = imp_ex3
+			trait = imp_ex4
+		}
+		NOT = {
+			has_character_flag = ia_goodscore
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = 5 }
+	}
+	
+	option = {
+		name = opta_excellent
+		custom_tooltip = {
+			text = impauth_increase_5_TT
+		}
+		hidden_tooltip = {
+			set_character_flag = ia_goodscore
+		}
+	}
+}
+
+#Authority Increase - Uniting California
+narrative_event = {
+	id = cetic.309
+	title = EVTTITLECETIC309
+	desc = EVTDESCCETIC309
+	picture = GFX_evt_china_golden_age
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		completely_controls = e_california
+		NOT = {
+			has_global_flag = ia_unite
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = 10 }
+	}
+	
+	option = {
+		name = opta_excellent
+		custom_tooltip = {
+			text = impauth_increase_10_TT
+		}
+		hidden_tooltip = {
+			set_global_flag = ia_unite
+		}
+		any_playable_ruler = {
+			limit = {
+				religion = cetic
+			}
+			narrative_event = { id = cetic.15 }
+		}
+	}
+}
+
+#Authority Increase - Excellent Writings
+character_event = {
+	id = cetic.310
+	desc = EVTDESCCETIC310
+	is_triggered_only = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = 5 }
+	}
+	
+	option = {
+		name = opta_excellent
+		custom_tooltip = {
+			text = impauth_increase_7_TT
+		}
+	}
+}
+
+#Authority Increase - Good Writings
+character_event = {
+	id = cetic.311
+	desc = EVTDESCCETIC311
+	is_triggered_only = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = 2 }
+	}
+	
+	option = {
+		name = opta_excellent
+		custom_tooltip = {
+			text = impauth_increase_5_TT
+		}
+	}
+}
+
+#Authority Decrease - Lost War
+character_event = {
+	id = cetic.312
+	desc = EVTDESCCETIC312
+	is_triggered_only = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = -10 }
+	}
+	
+	option = {
+		name = opta_disappointing
+		custom_tooltip = {
+			text = impauth_decrease_10_TT
+		}
+	}
+}
+
+#Authority Decrease - Low Skills
+character_event = {
+	id = cetic.313
+	desc = EVTDESCCETIC313
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		OR = {
+			stewardship < 5
+			learning < 5
+			trait = slow
+			trait = inbred
+			trait = dull
+		}
+		NOT = {
+			has_character_flag = ia_badstats
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = -10 }
+	}
+	
+	option = {
+		name = opta_disappointing
+		custom_tooltip = {
+			text = impauth_decrease_10_TT
+		}
+		hidden_tooltip = {
+			set_character_flag = ia_badstats
+		}
+	}
+}
+
+#Authority Decrease - Low Imperial Exam Score
+character_event = {
+	id = cetic.314
+	desc = EVTDESCCETIC314
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		OR = {
+			trait = failed_exam
+			trait = imp_ex1
+		}
+		NOT = {
+			has_character_flag = ia_badscore
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = -10 }
+	}
+	
+	option = {
+		name = opta_disappointing
+		custom_tooltip = {
+			text = impauth_decrease_10_TT
+		}
+		hidden_tooltip = {
+			set_character_flag = ia_badscore
+		}
+	}
+}
+
+#Authority Decrease - Peasant Revolts
+character_event = {
+	id = cetic.315
+	desc = EVTDESCCETIC315
+	is_triggered_only = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = -5 }
+	}
+	
+	option = {
+		name = opta_disappointing
+		custom_tooltip = {
+			text = impauth_decrease_5_TT
+		}
+	}
+}
+
+#Authority Decrease - Succession
+character_event = {
+	id = cetic.316
+	desc = EVTDESCCETIC316
+	is_triggered_only = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+	}
+	
+	immediate = {
+		change_variable = { which = global_imp_auth value = -10 }
+	}
+	
+	option = {
+		name = opta_disappointing
+		custom_tooltip = {
+			text = impauth_decrease_10_TT
+		}
+	}
+}
+
+#Authority Decrease - Regency Set Up
+character_event = {
+	id = cetic.317
+	hide_window = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		has_regent = yes
+		NOT = {
+			has_character_flag = california_regent
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		set_character_flag = california_regent
+	}
+}
+
+#Authority Decrease - Regency
+character_event = {
+	id = cetic.318
+	desc = EVTDESCCETIC318
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		has_regent = yes
+		had_character_flag = {
+			flag = california_regent
+			days = 1825
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		clr_character_flag = california_regent
+		set_character_flag = california_regent
+		change_variable = { which = global_imp_auth value = -5 }
+	}
+	option = {
+		name = opta_disappointing
+		custom_tooltip = {
+			text = impauth_decrease_5_TT
+		}
+	}
+}
+
+#Authority Decrease - Regency Cleanup
+character_event = {
+	id = cetic.319
+	hide_window = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+		has_regent = no
+		has_character_flag = california_regent
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		clr_character_flag = california_regent
+	}
+}
+
+#Authority Decrease - Terrible Writings
+character_event = {
+	id = cetic.320
+	desc = EVTDESCCETIC320
+	is_triggered_only = yes
+	trigger = {
+		religion = cetic
+		controls_religion = yes
+		has_landed_title = e_california
+	}
+	immediate = {
+		change_variable = { which = global_imp_auth value = -5 }
+	}
+	option = {
+		name = opta_disappointing
+		custom_tooltip = {
+			text = impauth_decrease_5_TT
+		}
+	}
+}
+
+#Governator chose heir
+character_event = {
+	id = cetic.321
+	desc = EVTDESCCETIC321
+	is_triggered_only = yes
+	trigger = {
+		OR = {
+			religion = imamite
+			religion = qingzheng
+			religion = cetic
+		}
+	}
+	option = {
+		name = opta_excellent
+		add_trait = governator_heir
+		prestige = 50
+	}
+}
+
+character_event = {
+	id = cetic.322
+	desc = EVTDESCCETIC322
+	is_triggered_only = yes
+	trigger = {
+		age = 16
+	}
+	option = {
+		name = hellbebahck
+		remove_trait = governator_heir
+		prestige = -50
+	}
+}
+
+#Governator dies, no heir chosen
+character_event = {
+	id = cetic.323
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		trait = governator
+		any_character = {
+			religion = cetic
+			controls_religion = yes
+			has_landed_title = e_california
+			NOT = {
+				trait = figurehead
+			}
+		}
+		NOT = {
+			has_character_flag = chosen_heir_gnator
+		}
+	}
+	immediate = {
+		if = {
+			limit = {
+				any_close_relative = {
+					is_alive = yes
+					is_adult = yes
+				}
+			}
+			random_close_relative = {
+				preferred_limit = { #smh sexism in 2666
+					is_heir = yes
+					female = no
+				}
+				preferred_limit = {
+					is_heir = yes
+					female = yes
+				}
+				preferred_limit = {
+					is_child_of = ROOT
+					female = no
+				}
+				preferred_limit = {
+					is_child_of = ROOT
+					female = yes
+				}
+				preferred_limit = {
+					is_close_relative = ROOT
+					female = no
+				}
+				preferred_limit = {
+					is_close_relative = ROOT
+					female = yes
+				}
+				character_event = { id = cetic.324 }
+			}
+		}
+		else = {
+			current_heir = {
+				character_event = { id = cetic.325 }
+			}
+		}
+	}
+}
+
+#Close Relative gets governator
+character_event = {
+	id = cetic.324
+	desc = EVTDESCCETIC324
+	picture = GFX_evt_china_expansionist
+	is_triggered_only = yes
+	trigger = {
+		age = 16
+	}
+	
+	option = {
+		name = EVTOPTACETIC324
+		add_trait = governator
+		prestige = 100
+		if = {
+			limit = {
+				liege = {
+					religion = cetic
+					has_landed_title = e_california
+					NOT = {
+						trait = strong_emperor
+					}
+				} 
+			}
+			give_minor_title = title_governator
+		}
+	}
+}
+
+#Current heir (non relative) gets governator
+character_event = {
+	id = cetic.325
+	desc = EVTDESCCETIC325
+	picture = GFX_evt_china_expansionist
+	is_triggered_only = yes
+	trigger = {
+		age = 16
+	}
+	
+	option = {
+		name = EVTOPTACETIC324
+		add_trait = governator
+		prestige = 50
+		if = {
+			limit = {
+				liege = {
+					religion = cetic
+					has_landed_title = e_california
+					NOT = {
+						trait = strong_emperor
+					}
+				} 
+			}
+			give_minor_title = title_governator
+		}
+	}
+}
+
+#Governator Heir gets Governator Setup
+character_event = {
+	id = cetic.326
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		trait = governator
+		has_character_flag = chosen_heir_gnator
+	}
+	
+	immediate = {
+		any_character = {
+			limit = {
+				trait = governator_heir
+			}
+			character_event = { id = cetic.327 }
+		}
+	}
+}
+
+#Governator Heir gets Governator
+character_event = {
+	id = cetic.327
+	desc = EVTDESCCETIC327
+	picture = GFX_evt_china_expansionist
+	is_triggered_only = yes
+	trigger = {
+		age = 16
+	}
+	
+	option = {
+		name = hastalavista
+		add_trait = governator
+		remove_trait = governator_heir
+		prestige = 100
+		if = {
+			limit = {
+				liege = {
+					religion = cetic
+					has_landed_title = e_california
+					NOT = {
+						trait = strong_emperor
+					}
+				} 
+			}
+			give_minor_title = title_governator
+		}
+	}
+}
+
+#Governator heir has died set up
+character_event = {
+	id = cetic.328
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		trait = governator_heir
+	}
+	
+	immediate = {
+		any_character = {
+			limit = {
+				trait = governator
+			}
+			character_event = { id = cetic.329 }
+		}
+	}
+}
+
+#Governator Heir has Died
+character_event = {
+	id = cetic.329
+	desc = EVTDESCCETIC329
+	picture = GFX_evt_bad_news
+	is_triggered_only = yes
+	trigger = {
+		trait = governator
+	}
+	
+	option = {
+		name = hastalavista
+		add_trait = governator
+		clr_character_flag = chosen_heir_gnator
+	}
+}
+
+#Governator now vassal of California
+character_event = {
+	id = cetic.330
+	desc = EVTDESCCETIC330
+	picture = GFX_evt_chinese_bureaucrat
+	trigger = {
+		trait = governator
+		NOT = {
+			has_minor_title = title_governator
+		}
+		liege = {
+			has_landed_title = e_california
+			religion = cetic
+			NOT = {
+				trait = strong_emperor
+			}
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTACETIC330
+		give_minor_title = title_governator
+	}
+}
+
+#Governator now Emperor of California
+character_event = {
+	id = cetic.331
+	desc = EVTDESCCETIC331
+	picture = GFX_evt_china_stable
+	trigger = {
+		trait = governator
+		has_landed_title = e_california
+		religion = cetic
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTACETIC331
+		remove_trait = governator
+		if = {
+			limit = {
+				trait = figurehead
+			}
+			random_courtier_or_vassal = {
+				limit = {
+					age = 16
+					prisoner = no
+					NOT = {
+						trait = incapable
+					}
+				}
+				preferred_limit = {
+					is_powerful_vassal = yes
+					religion = cetic
+				}
+				preferred_limit = {
+					is_powerful_vassal = yes
+					religion = imamite
+				}
+				preferred_limit = {
+					is_powerful_vassal = yes
+					religion = qingzheng
+				}
+				preferred_limit = {
+					is_powerful_vassal = yes
+				}
+				preferred_limit = {
+					real_tier = KING
+				}
+				preferred_limit = {
+					real_tier = DUKE
+				}
+				preferred_limit = {
+					real_tier = COUNT
+				}
+				preferred_limit = {
+					is_voter = yes
+				}
+				preferred_limit = {
+					is_close_relative = ROOT
+				}
+				character_event = { id = cetic.300 }
+			}
+		}
+	}
+}
+
+#Governator gets... terminated
+character_event = {
+	id = cetic.332
+	desc = EVTDESCCETIC332
+	picture = GFX_evt_bad_news
+	is_triggered_only = yes
+	
+	immediate = {
+		ROOT = {
+			save_event_target_as = slanderer
+		}
+		FROM = {
+			save_event_target_as = slanderee
+		}
+	}
+	
+	option = {
+		name = imterminated
+		remove_trait = governator
+		if = {
+			limit = {
+				has_minor_title = title_governator
+			}
+			remove_title = title_governator
+		}
+		opinion = {
+			modifier = sacked_me
+			who = FROM
+			years = 25
+		}
+		ai_chance = {
+			factor = 0.5
+			modifier = {
+				factor = 100
+				ROOT = { is_friend = event_target:slanderee }
+			}
+			modifier = {
+				factor = 0.01
+				ROOT = { is_rival = event_target:slanderee }
+			}
+			modifier = {
+				factor = 0.2
+				ROOT = { opinion = { who = event_target:slanderee value <= -80 } }
+			}
+			modifier = {
+				factor = 0.4
+				ROOT = { opinion = { who = event_target:slanderee value <= -60 } }
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = { opinion = { who = event_target:slanderee value <= -40 } }
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = { opinion = { who = event_target:slanderee value <= -20 } }
+			}
+			modifier = {
+				factor = 1.2
+				ROOT = { opinion = { who = event_target:slanderee value = 20 } }
+			}
+			modifier = {
+				factor = 1.4
+				ROOT = { opinion = { who = event_target:slanderee value = 40 } }
+			}
+			modifier = {
+				factor = 1.6
+				ROOT = { opinion = { who = event_target:slanderee value = 60 } }
+			}
+			modifier = {
+				factor = 1.8
+				ROOT = { opinion = { who = event_target:slanderee value = 80 } }
+			}
+		}
+	}
+	option = {
+		name = EVTOPTACETIC332
+		opinion = {
+			modifier = sacked_me
+			who = FROM
+			years = 25
+		}
+		remove_trait = governator
+		if = {
+			limit = {
+				has_minor_title = title_governator
+			}
+			remove_title = title_governator
+		}
+		custom_tooltip = {
+			text = attack_emperor_TT
+		}
+		character_event = { id = cetic.333 }
+		ai_chance = {
+			factor = 0.20
+			modifier = {
+				factor = 0
+				ROOT = { is_friend = event_target:slanderee }
+			}
+			modifier = {
+				factor = 100
+				ROOT = { is_rival = event_target:slanderee }
+			}
+			modifier = {
+				factor = 1.8
+				ROOT = { opinion = { who = event_target:slanderee value <= -80 } }
+			}
+			modifier = {
+				factor = 1.6
+				ROOT = { opinion = { who = event_target:slanderee value <= -60 } }
+			}
+			modifier = {
+				factor = 1.4
+				ROOT = { opinion = { who = event_target:slanderee value <= -40 } }
+			}
+			modifier = {
+				factor = 1.2
+				ROOT = { opinion = { who = event_target:slanderee value <= -20 } }
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = { opinion = { who = event_target:slanderee value = 20 } }
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = { opinion = { who = event_target:slanderee value = 40 } }
+			}
+			modifier = {
+				factor = 0.4
+				ROOT = { opinion = { who = event_target:slanderee value = 60 } }
+			}
+			modifier = {
+				factor = 0.2
+				ROOT = { opinion = { who = event_target:slanderee value = 80 } }
+			}
+		}
+	}
+}
+
+#Ex-Governator Writes a Paper to Slander Emperor
+character_event = {
+	id = cetic.333
+	desc  = EVTDESCCETIC333
+	picture = GFX_evt_scandal
+	is_triggered_only = yes
+	
+	immediate = {
+		event_target:slanderer = {
+			set_character_flag = no_scope_please
+		}
+	}
+	
+	option = {
+		name = EVTOPTACETIC333
+		custom_tooltip = {
+			text = furious_writing_TT
+			random_list = {
+				33 = { #Do poorly
+					custom_tooltip = {
+						text = do_poorly_TT
+						hidden_tooltip = {
+							character_event = { id = cetic.334 }
+							any_character = {
+								limit = {
+									NOT = {
+										has_character_flag = no_scope_please
+									}
+									is_voter = yes
+									liege = {
+										has_landed_title = e_california
+									}
+								}
+								character_event = { id = cetic.337 }
+							}
+						}
+					}
+					modifier = {
+						factor = 1.5
+						OR = {
+							event_target:slanderee = {
+								is_benevolent_trigger = yes
+								has_pleasant_personality_trigger = yes 
+								is_pious_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 1.3
+						OR = {
+							event_target:slanderee = {
+								has_benevolent_trait_trigger = yes
+								has_pleasant_trait_trigger = yes
+								has_pious_trait_trigger = yes
+								has_virtue_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 0
+						OR = {
+							intrigue = 12
+							trait = genius
+							trait = flamboyant_schemer
+							trait = deceitful
+						}
+					}
+				}
+				44 = { #Do well
+					custom_tooltip = {
+						text = do_well_TT
+						hidden_tooltip = {
+							character_event = { id = cetic.335 }
+							any_character = {
+								limit = {
+									NOT = {
+										has_character_flag = no_scope_please
+									}
+									is_voter = yes
+									liege = {
+										has_landed_title = e_california
+									}
+								}
+								character_event = { id = cetic.338 }
+							}
+						}
+					}
+					modifier = {
+						factor = 1.5
+						OR = {
+							intrigue = 12
+							trait = genius
+							trait = flamboyant_schemer
+							trait = deceitful
+						}
+					}
+					modifier = {
+						factor = 1.4
+						OR = {
+							event_target:slanderee = {
+								is_evil_trigger = yes
+								has_unpleasant_personality_trigger = yes 
+								is_impious_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 1.3
+						OR = {
+							event_target:slanderee = {
+								has_evil_trait_trigger = yes
+								has_unpleasant_trait_trigger = yes
+								has_impious_trait_trigger = yes
+								has_vice_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 0.8
+						OR = {
+							event_target:slanderee = {
+								is_benevolent_trigger = yes
+								has_pleasant_personality_trigger = yes 
+								is_pious_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 0.6
+						OR = {
+							event_target:slanderee = {
+								has_benevolent_trait_trigger = yes
+								has_pleasant_trait_trigger = yes
+								has_pious_trait_trigger = yes
+								has_virtue_trigger = yes
+							}
+						}
+					}
+				}
+				22 = { #Do excellent
+					custom_tooltip = {
+						text = do_excellent_TT
+						hidden_tooltip = {
+							character_event = { id = cetic.336 }
+							any_character = {
+								limit = {
+									NOT = {
+										has_character_flag = no_scope_please
+									}
+									is_voter = yes
+									liege = {
+										has_landed_title = e_california
+									}
+								}
+								character_event = { id = cetic.339 }
+							}
+						}
+					}
+					modifier = {
+						factor = 1.4
+						OR = {
+							intrigue = 12
+							trait = genius
+							trait = flamboyant_schemer
+							trait = deceitful
+						}
+					}
+					modifier = {
+						factor = 1.3
+						OR = {
+							event_target:slanderee = {
+								is_evil_trigger = yes
+								has_unpleasant_personality_trigger = yes 
+								is_impious_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 1.2
+						OR = {
+							event_target:slanderee = {
+								has_evil_trait_trigger = yes
+								has_unpleasant_trait_trigger = yes
+								has_impious_trait_trigger = yes
+								has_vice_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 0.9
+						OR = {
+							event_target:slanderee = {
+								is_benevolent_trigger = yes
+								has_pleasant_personality_trigger = yes 
+								is_pious_trigger = yes
+							}
+						}
+					}
+					modifier = {
+						factor = 0.7
+						OR = {
+							event_target:slanderee = {
+								has_benevolent_trait_trigger = yes
+								has_pleasant_trait_trigger = yes
+								has_pious_trait_trigger = yes
+								has_virtue_trigger = yes
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+#Slandering goes poorly
+character_event = {
+	id = cetic.334
+	desc = EVTDESCCETIC334
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	immediate = {
+		event_target:slanderer = {
+			clr_character_flag = no_scope_please
+		}
+	}
+	
+	option = {
+		name = EVTOPTACETIC334
+		custom_tooltip = {
+			text = council_dislikes_you_TT
+			hidden_tooltip = {
+				any_character = {
+					limit = {
+						NOT = {
+							is_friend = ROOT
+						}
+						is_voter = yes
+						liege = {
+							has_landed_title = e_california
+						}
+					}
+					opinion = {
+						modifier = slandered_emperor
+						who = FROM
+					}
+				}
+			}
+		}
+		event_target:slanderee = {
+			character_event = { id = cetic.340 } #Message to emperor
+		}
+	}
+}
+
+#Slandering goes well
+character_event = {
+	id = cetic.335
+	desc = EVTDESCCETIC335
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	immediate = {
+		event_target:slanderer = {
+			clr_character_flag = no_scope_please
+		}
+	}
+	
+	option = {
+		name = EVTOPTACETIC335
+		custom_tooltip = {
+			text = council_dislikes_TT
+			hidden_tooltip = {
+				any_character = {
+					limit = {
+						NOT = {
+							is_friend = event_target:slanderee
+						}
+						is_voter = yes
+						liege = {
+							has_landed_title = e_california
+						}
+					}
+					opinion = {
+						modifier = gnator_rumors_10
+						who = event_target:slanderee
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				trait = governator
+			}
+			custom_tooltip = {
+				text = impauth_decrease_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = -3 }
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_landed_title = e_california
+			}
+			custom_tooltip = {
+				text = impauth_increase_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = 3 }
+				}
+			}
+		}
+		event_target:slanderee = {
+			character_event = { id = cetic.341 } #Message to emperor
+		}
+	}
+}
+
+#Slandering goes excellently
+character_event = {
+	id = cetic.336
+	desc = EVTDESCCETIC336
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	immediate = {
+		event_target:slanderer = {
+			clr_character_flag = no_scope_please
+		}
+	}
+	
+	option = {
+		name = EVTOPTACETIC336
+		any_character = {
+			limit = {
+				religion = cetic
+				is_landed = yes
+				NOT = {
+					is_friend = event_target:slanderee
+				}
+				NOT = {
+					has_landed_title = e_california
+				}
+			}
+			opinion = {
+				modifier = gnator_rumors_25
+				who = event_target:slanderee
+			}
+		}
+		if = {
+			limit = {
+				trait = governator
+			}
+			custom_tooltip = {
+				text = impauth_decrease_5_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = -5 }
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_landed_title = e_california
+			}
+			custom_tooltip = {
+				text = impauth_increase_5_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = 5 }
+				}
+			}
+		}
+		event_target:slanderee = {
+			character_event = { id = cetic.342 } #Message to emperor
+		}
+	}
+}
+
+#Slandering goes poorly - Council
+character_event = {
+	id = cetic.337
+	desc = EVTDESCCETIC337
+	picture = GFX_evt_council
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC337
+		custom_tooltip = {
+			text = council_hates_gnator_TT
+		}
+	}
+}
+
+#Slandering goes well - Council
+character_event = {
+	id = cetic.338
+	desc = EVTDESCCETIC338
+	picture = GFX_evt_scandal
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC338
+		custom_tooltip = {
+			text = council_dislikes_emp_TT
+		}
+	}
+}
+
+#Slandering goes excellently - Council
+character_event = {
+	id = cetic.339
+	desc = EVTDESCCETIC339
+	picture = GFX_evt_scandal
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC339
+		custom_tooltip = {
+			text = council_hates_emp_TT
+		}
+	}
+}
+
+#Slandering goes poorly - Emperor
+character_event = {
+	id = cetic.340
+	desc = EVTDESCCETIC340
+	picture = GFX_evt_chinese_emissary
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC340
+		opinion = {
+			modifier = opinion_slanderer
+			who = FROM
+		}
+		if = {
+			limit = {
+				is_friend = FROM
+			}
+			remove_friend = FROM
+		}
+	}
+}
+
+#Slandering goes well - Emperor
+character_event = {
+	id = cetic.341
+	desc = EVTDESCCETIC341
+	picture = GFX_evt_chinese_emissary
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC341
+		opinion = {
+			modifier = opinion_slanderer
+			who = FROM
+		}
+		if = {
+			limit = {
+				is_friend = FROM
+			}
+			remove_friend = FROM
+		}
+	}
+}
+
+#Slandering goes excellently - Emperor
+character_event = {
+	id = cetic.342
+	desc = EVTDESCCETIC342
+	picture = GFX_evt_chinese_emissary
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC342
+		opinion = {
+			modifier = opinion_slanderer
+			who = FROM
+		}
+		if = {
+			limit = {
+				is_friend = FROM
+			}
+			remove_friend = FROM
+		}
+	}
+}
+
+#Grain to the masses
+character_event = {
+	id = cetic.343
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		ROOT = {
+			save_event_target_as = slanderer
+		}
+		FROM = {
+			save_event_target_as = slanderee
+		}
+		character_event = { id = cetic.333 }
+	}
+}
+
+character_event = {
+	id = cetic.344
+	desc = EVTDESCCETIC344
+	picture = GFX_evt_stone_church
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC344
+		scaled_wealth = -0.05
+		custom_tooltip = {
+			text = send_excess_crops_TT
+			hidden_tooltip = {
+				random_list = {
+					50 = { #poor food
+						character_event = { id = cetic.345 }
+					}
+					50 = { #food
+						character_event = { id = cetic.346 }
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 0.25
+			modifier = {
+				factor = 2
+				trait = greedy
+			}
+			modifier = {
+				factor = 0.7
+				trait = kind
+			}
+			modifier = {
+				factor = 0.3
+				trait = charitable
+			}
+		}
+	}
+	option = {
+		name = EVTOPTBCETIC344
+		scaled_wealth = -0.30
+		custom_tooltip = {
+			text = send_crops_TT
+			hidden_tooltip = {
+				random_list = {
+					33 = { #poor food
+						character_event = { id = cetic.345 }
+					}
+					67 = { #food
+						character_event = { id = cetic.346 }
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 0.45
+			modifier = {
+				factor = 0.5
+				trait = greedy
+			}
+			modifier = {
+				factor = 1.1
+				trait = kind
+			}
+			modifier = {
+				factor = 1.2
+				trait = charitable
+			}
+		}
+	}
+	option = {
+		name = EVTOPTCCETIC344
+		scaled_wealth = -0.80
+		custom_tooltip = {
+			text = send_many_crops_TT
+			hidden_tooltip = {
+				random_list = {
+					10 = { #poor food
+						character_event = { id = cetic.345 }
+					}
+					90 = { #food
+						character_event = { id = cetic.346 }
+					}
+				}
+			}
+		}
+		ai_chance = {
+			factor = 0.30
+			modifier = {
+				factor = 0.5
+				trait = greedy
+			}
+			modifier = {
+				factor = 1.2
+				trait = kind
+			}
+			modifier = {
+				factor = 1.3
+				trait = charitable
+			}
+		}
+	}
+}
+
+#Food is bad
+character_event = {
+	id = cetic.345
+	desc = EVTDESCCETIC345
+	picture = GFX_evt_depopulated_town
+	is_triggered_only = yes
+	
+	option = {
+		name = opta_disappointing
+		if = {
+			limit = {
+				has_landed_title = e_california
+			}
+			custom_tooltip = {
+				text = impauth_decrease_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = -3 }
+				}
+			}
+			capital_scope = {
+				add_province_modifier = {
+					name = peasant_unrest
+					years = 2
+				}
+			}
+		}
+		if = {
+			limit = {
+				trait = governator
+			}
+			custom_tooltip = {
+				text = impauth_increase_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = 3 }
+				}
+			}
+			scaled_wealth = -0.2
+		}
+	}
+}
+
+#Food is good
+character_event = {
+	id = cetic.346
+	desc = EVTDESCCETIC346
+	picture = GFX_evt_stone_church
+	is_triggered_only = yes
+	
+	option = {
+		name = opta_excellent
+		if = {
+			limit = {
+				has_landed_title = e_california
+			}
+			custom_tooltip = {
+				text = impauth_increase_5_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = 5 }
+				}
+			}
+			capital_scope = {
+				add_province_modifier = {
+					name = endearing_peasants
+					years = 2
+				}
+			}
+		}
+		if = {
+			limit = {
+				trait = governator
+			}
+			custom_tooltip = {
+				text = impauth_decrease_5_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = -5 }
+				}
+			}
+		}
+	}
+}
+
+#Attempt to bribe/sweettalk/threaten voter
+character_event = {
+	id = cetic.347
+	desc = EVTDESCCETIC347
+	picture = GFX_evt_courtiers_talking
+	is_triggered_only = yes
+	
+	immediate = {
+		any_character = {
+			limit = {
+				trait = governator
+			}
+			save_event_target_as = gnator
+		}
+		ROOT = {
+			save_event_target_as = swayer
+		}
+		FROM = {
+			save_event_target_as = swayee
+		}
+	}
+	
+	option = { #Use diplomacy
+		name = EVTOPTACETIC347
+		set_character_flag = sway_dip
+		random_list = {
+			50 = { #fails
+				hidden_tooltip = {
+					event_target:swayee = {
+						character_event = { id = cetic.348 } #simple ping event
+					}
+				}
+				custom_tooltip = {
+					text = not_swayed_TT
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayer = {
+						diplomacy < 8
+					}
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayee = {
+						OR = {
+							is_friend = liege
+							is_friend = event_target:gnator
+						}
+						NOT = {
+							has_character_flag = forced_friend
+						}
+					}
+				}
+				modifier = {
+					factor = 0.7
+					event_target:swayee = {
+						OR = {
+							is_friend = liege
+							is_friend = event_target:gnator
+						}
+						has_character_flag = forced_friend
+					}
+				}
+				modifier = {
+					factor = 0.5
+					event_target:swayer = {
+						diplomacy = 12
+					}
+				}
+				modifier = {
+					factor = 1.8
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+				}
+				modifier = {
+					factor = 1.6
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+				}
+				modifier = {
+					factor = 1.4
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+				}
+				modifier = {
+					factor = 1.2
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+				}
+				modifier = {
+					factor = 0.9
+					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+				}
+				modifier = {
+					factor = 0.8
+					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+				}
+				modifier = {
+					factor = 0.6
+					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+				}
+			}
+			50 = { #it succeeds
+				hidden_tooltip = {
+					event_target:swayee = {
+						character_event = { id = cetic.349 } #simple ping event
+						clr_character_flag = forced_friend
+					}
+				}
+				custom_tooltip = {
+					text = swayed_TT
+				}
+				modifier = {
+					factor = 0.5
+					event_target:swayer = {
+						diplomacy < 8
+					}
+				}
+				modifier = {
+					factor = 100
+					event_target:swayee = { is_friend = event_target:swayer }
+				}
+				modifier = {
+					factor = 0.01
+					event_target:swayee = { is_rival = event_target:swayer }
+				}
+				modifier = {
+					factor = 0.2
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+				}
+				modifier = {
+					factor = 0.4
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+				}
+				modifier = {
+					factor = 0.6
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+				}
+				modifier = {
+					factor = 0.8
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+				}
+				modifier = {
+					factor = 1.2
+					event_target:swayee = { opinion = { who = event_target:swayer value = 20 } }
+				}
+				modifier = {
+					factor = 1.4
+					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+				}
+				modifier = {
+					factor = 1.6
+					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+				}
+				modifier = {
+					factor = 1.8
+					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+				}
+			}
+		}
+	}
+	option = { #Use bribery
+		name = EVTOPTBCETIC347
+		set_character_flag = sway_bribe
+		hidden_tooltip = {
+			event_target:swayer = {
+				set_character_flag = bribery
+			}
+		}
+		wealth = -200
+		random_list = {
+			60 = { #fails
+				hidden_tooltip = {
+					event_target:swayee = {
+						character_event = { id = cetic.348 } #simple ping event
+					}
+				}
+				custom_tooltip = {
+					text = not_swayed_TT
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayee = {
+						trait = greedy
+					}
+				}
+				modifier = {
+					factor = 0.5
+					event_target:swayee = {
+						trait = honest
+					}
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayee = {
+						OR = {
+							is_friend = liege
+							is_friend = event_target:gnator
+						}
+						NOT = {
+							has_character_flag = forced_friend
+						}
+					}
+				}
+				modifier = {
+					factor = 0.7
+					event_target:swayee = {
+						OR = {
+							is_friend = liege
+							is_friend = event_target:gnator
+						}
+						has_character_flag = forced_friend
+					}
+				}
+				modifier = {
+					factor = 0
+					event_target:swayee = { is_friend = event_target:swayer }
+				}
+				modifier = {
+					factor = 100
+					event_target:swayee = { is_rival = event_target:swayer }
+				}
+				modifier = {
+					factor = 1.8
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+				}
+				modifier = {
+					factor = 1.6
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+				}
+				modifier = {
+					factor = 1.4
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+				}
+				modifier = {
+					factor = 1.2
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+				}
+				modifier = {
+					factor = 0.9
+					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+				}
+				modifier = {
+					factor = 0.8
+					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+				}
+				modifier = {
+					factor = 0.6
+					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+				}
+			}
+			40 = { #it succeeds
+				hidden_tooltip = {
+					event_target:swayee = {
+						character_event = { id = cetic.349 } #simple ping event
+						set_character_flag = forced_friend
+					}
+				}
+				custom_tooltip = {
+					text = swayed_TT
+				}
+				modifier = {
+					factor = 0.5
+					event_target:swayee = {
+						trait = honest
+					}
+				}
+				modifier = {
+					factor = 100
+					event_target:swayee = { is_friend = event_target:swayer }
+				}
+				modifier = {
+					factor = 0.01
+					event_target:swayee = { is_rival = event_target:swayer }
+				}
+				modifier = {
+					factor = 0.2
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+				}
+				modifier = {
+					factor = 0.4
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+				}
+				modifier = {
+					factor = 0.6
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+				}
+				modifier = {
+					factor = 0.8
+					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+				}
+				modifier = {
+					factor = 1.2
+					event_target:swayee = { opinion = { who = event_target:swayer value = 20 } }
+				}
+				modifier = {
+					factor = 1.4
+					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+				}
+				modifier = {
+					factor = 1.6
+					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+				}
+				modifier = {
+					factor = 1.8
+					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+				}
+			}
+		}
+	}
+	option = { #Use intrigue
+		name = EVTOPTCCETIC347
+		set_character_flag = sway_int
+		random_list = {
+			50 = { #fails
+				hidden_tooltip = {
+					event_target:swayee = {
+						character_event = { id = cetic.348 } #simple ping event
+					}
+				}
+				custom_tooltip = {
+					text = not_swayed_TT
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayee = {
+						OR = {
+							is_friend = liege
+							is_friend = event_target:gnator
+						}
+						NOT = {
+							has_character_flag = forced_friend
+						}
+					}
+				}
+				modifier = {
+					factor = 0.7
+					event_target:swayee = {
+						OR = {
+							is_friend = liege
+							is_friend = event_target:gnator
+						}
+						has_character_flag = forced_friend
+					}
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayer = {
+						has_pleasant_personality_trigger = yes
+					}
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayer = {
+						intrigue < 8
+					}
+				}
+				modifier = {
+					factor = 0.5
+					event_target:swayer = {
+						intrigue = 12
+					}
+				}
+			}
+			50 = { #it succeeds
+				hidden_tooltip = {
+					event_target:swayee = {
+						character_event = { id = cetic.349 } #simple ping event
+						set_character_flag = forced_friend
+					}
+				}
+				custom_tooltip = {
+					text = swayed_TT
+				}
+				modifier = {
+					factor = 0.5
+					event_target:swayer = {
+						intrigue < 8
+					}
+				}
+				modifier = {
+					factor = 1.3
+					event_target:swayer = {
+						has_unpleasant_personality_trigger = yes
+					}
+				}
+			}
+		}
+	}
+}
+
+#Sway failed
+character_event = {
+	id = cetic.348
+	hide_window = yes 
+	is_triggered_only = yes
+	
+	immediate = {
+		event_target:swayer = {
+			letter_event = { id = cetic.350 days = 4 }
+		}
+	}
+}
+
+#Sway suceeded
+character_event = {
+	id = cetic.349
+	hide_window = yes 
+	is_triggered_only = yes
+	
+	immediate = {
+		event_target:swayer = {
+			letter_event = { id = cetic.351 days = 4 }
+		}
+	}
+}
+
+#Sway failed
+letter_event = {
+	id = cetic.350
+	desc = EVTDESCCETIC350 
+	picture = GFX_evt_council_quarrelling
+	is_triggered_only = yes
+	
+	option = {
+		name = opta_disappointing
+		if = {
+			limit = {
+				has_character_flag = bribery
+			}
+			wealth = 200
+			clr_character_flag = bribery
+		}
+		if = {
+			limit = {
+				event_target:swayer = {
+					has_landed_title = e_california
+				}
+			}
+			custom_tooltip = {
+				text = impauth_decrease_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = -3 }
+				}
+			}
+		}
+		if = {
+			limit = {
+				event_target:swayer = {
+					trait = governator
+				}
+			}
+			custom_tooltip = {
+				text = impauth_increase_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = 3 }
+				}
+			}
+		}
+		hidden_tooltip = {
+			event_target:swayer = {
+				character_event = { id = cetic.352 } #cleanup
+			}
+		}
+	}
+}
+
+#Sway succeeded
+letter_event = {
+	id = cetic.351
+	desc = EVTDESCCETIC351 
+	picture = GFX_evt_council_agreement
+	is_triggered_only = yes
+	
+	immediate = {
+		any_character = {
+			limit = {
+				has_landed_title = e_california
+			}
+			save_event_target_as = emperor_sway
+		}
+	}
+	
+	option = {
+		name = opta_excellent
+		if = {
+			limit = {
+				has_character_flag = bribery
+			}
+			event_target:swayee = {
+				wealth = 200
+			}
+			event_target:swayer = {
+				clr_character_flag = bribery
+			}
+		}
+		if = {
+			limit = {
+				event_target:swayee = {
+					is_friend = event_target:gnator
+				}
+			}
+			event_target:swayee = {
+				remove_friend = event_target:gnator
+			}
+		}
+		if = {
+			limit = {
+				event_target:swayee = {
+					is_friend = event_target:emperor_sway
+				}
+			}
+			event_target:swayee = {
+				remove_friend = event_target:emperor_sway
+			}
+		}
+		if = {
+			limit = {
+				event_target:swayer = {
+					trait = governator
+				}
+			}
+			custom_tooltip = {
+				text = impauth_decrease_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = -3 }
+				}
+			}
+		}
+		if = {
+			limit = {
+				event_target:swayer = {
+					has_landed_title = e_california
+				}
+			}
+			custom_tooltip = {
+				text = impauth_increase_3_TT
+				hidden_tooltip = {
+					change_variable = { which = global_imp_auth  value = 3 }
+				}
+			}
+		}
+		event_target:swayer = {
+			add_friend = event_target:swayee
+		}
+		event_target:swayee = {
+			set_character_flag = swayed_councillor
+		}
+		hidden_tooltip = {
+			event_target:swayer = {
+				character_event = { id = cetic.352 } #cleanup
+			}
+			save_persistent_event_target = {
+				name = pers_swayer
+				scope = event_target:swayer
+			}
+		}
+	}
+}
+
+character_event = {
+	id = cetic.352
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		clr_character_flag = sway_bribe
+		clr_character_flag = sway_dip
+		clr_character_flag = sway_int
+	}
+}
+
+character_event = {
+	id = cetic.500
+	hide_window = yes
+	trigger = {
+		has_landed_title = e_california
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	immediate = {
+		any_character = {
+			limit = {
+				is_friend = ROOT
+				is_voter = no
+				has_character_flag = swayed_councillor
+			}
+			character_event = { id = cetic.354 }
+		}
+	}
+	option = {
+		name = ok
+	}
+}
+
+character_event = {
+	id = cetic.354
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		remove_friend = FROM
+	}
+}
+
+#Restoring California
+character_event = {
+	id = cetic.400
+	desc = EVTDESCCETIC400
+	picture = GFX_evt_china_expansionist
+	is_triggered_only = yes
+	
+	immediate = {
+		add_character_modifier = {
+			name = imperial_authority
+			duration = -1
+		}
+	}
+	trigger = {
+		religion = cetic
+		has_landed_title = e_california
+		NOT = {
+			has_character_modifier = imperial_authority
+		}
+	}
+	option = {
+		name = EVTOPTACETIC400
+		hidden_tooltip = {
+			set_variable = { which = global_imp_auth value = 70 }
+		}
+		add_trait = strong_emperor
 	}
 }

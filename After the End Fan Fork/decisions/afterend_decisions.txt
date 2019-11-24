@@ -2172,5 +2172,959 @@ decisions = {
 			}
 		}
 	}
+	
+	grain_to_masses = {
+		is_high_prio = yes
+		potential = {
+			OR = {
+				trait = governator
+				has_landed_title = e_california
+			}
+			prisoner = no
+			NOT = {
+				trait = incapable
+			}
+			is_inaccessible_trigger = no
+		}
+		allow = {
+			custom_tooltip = {
+				text = has_not_action_2ys_TT
+				hidden_tooltip = {
+					OR = {
+						had_character_flag = { flag = influence_act days = 730 }
+						NOT = { has_character_flag = influence_act }
+					}
+				}
+			}
+			wealth = 0
+		}
+		effect = {
+			character_event = { id = cetic.344 }
+			clr_character_flag = influence_act
+			set_character_flag = influence_act
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.25
+			modifier = {
+				factor = 0.6
+				FROM = {
+					trait = content
+				}
+			}
+			modifier = {
+				factor = 1.2
+				FROM = {
+					trait = ambitious
+				}
+			}
+		}
+	}
+	
+	take_imp_exam = {
+		is_high_prio = yes
+		potential = {
+			government = bureaucratic_government
+			is_landed = yes
+			age = 16
+			trait = not_evaluated
+			NOT = {
+				custom_tooltip = {
+					text = ie_applied_TT
+					hidden_tooltip = {
+						has_character_flag = ie_applied
+					}
+				}
+			}
+			NOT = {
+				custom_tooltip = {
+					text = cheated_expelled_TT
+					hidden_tooltip = {
+						has_character_flag = cheated_exam
+					}
+				}
+			}
+		}
+		allow = {
+			NAND = {
+				custom_tooltip = {
+					text = need_retest_TT
+					hidden_tooltip = {
+						has_character_flag = need_retest
+					}
+				}
+				NOT = {
+					wealth = 500
+				}
+			}
+			prisoner = no
+			NOT = { trait = incapable }
+			NOT = { is_inaccessible_trigger = yes }
+			war = no
+			in_command = no
+			custom_tooltip = {
+				text = has_eval_merit_TT
+				hidden_tooltip = {
+					any_courtier_or_vassal = {
+						liege = { character = ROOT }
+						OR = {
+							has_job_title = job_spiritual
+							has_minor_title = title_evaluator_of_merit
+						}
+					}
+				}
+			}
+		}
+		
+		effect = {
+			if = {
+				limit = {
+					any_courtier_or_vassal = {
+						liege = { character = ROOT }
+						has_minor_title = title_evaluator_of_merit
+					}
+				}
+				any_courtier_or_vassal = {
+					limit = {
+						liege = { character = ROOT }
+						has_minor_title = title_evaluator_of_merit
+					}
+					character_event = { id = IE.1 }
+				}
+			}
+			else_if = {
+				limit = {
+					any_courtier_or_vassal = {
+						liege = { character = ROOT }
+						has_job_title = job_spiritual
+					}
+				}
+				any_courtier_or_vassal = {
+					limit = {
+						liege = { character = ROOT }
+						has_job_title = job_spiritual
+					}
+					character_event = { id = IE.1 }
+				}
+			}
+			set_character_flag = ie_applied
+			if = {
+				limit = {
+					has_character_flag = need_retest
+				}
+				wealth = -500
+			}
+		}
+		revoke_allowed = { always = no }
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	failed_exam_abdicate = {
+		is_high_prio = yes
+		ai_check_interval = 12
+		
+		potential = {
+			trait = failed_exam
+			government = bureaucratic_government
+			is_landed = yes
+		}
+		allow = {
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			war = no
+			in_command = no
+		}
+		effect = {
+			abdicate = yes 
+			any_realm_lord = {
+				limit = {
+					is_landed = yes
+				}
+				character_event = { id = IE.22 }
+			}
+		}
+		revoke_allowed = { always = no }
+		ai_will_do = {
+			factor = 0.2
+			modifier = {
+				factor = 1.5
+				trait = humble
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					trait = stubborn
+					trait = ambitious
+				}
+			}
+		}
+	}
+	
+	reschedule_exam = {
+		is_high_prio = yes
+		ai_check_interval = 1
+		potential = {
+			custom_tooltip = {
+				text = application_tm_TT
+				hidden_tooltip = {
+					had_character_flag = { flag = ie_applied days = 60 }
+				}
+			}
+		}
+		allow = {
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			war = no
+			in_command = no
+		}
+		effect = {
+			hidden_tooltip = {
+				set_variable = { which = "test_score" value = 0 }
+			}
+			clr_character_flag = study_hard
+			clr_character_flag = study_well
+			clr_character_flag = study_math
+			clr_character_flag = study_la
+			clr_character_flag = study_sc
+			clr_character_flag = study_hi
+			clr_character_flag = ie_applied
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	claim_realm_exam = {
+		is_high_prio = yes
+		ai_check_interval = 1
+		potential = {
+			NOT = {
+				has_strong_claim = dejure_liege_title
+			}
+			NOT = {
+				has_character_flag = claim_realm_ex
+			}
+			NOT = {
+				trait = failed_exam
+			}
+			OR = {
+				AND = {
+					liege = {
+						trait = failed_exam
+					}
+					OR = {
+						trait = imp_ex1
+						trait = imp_ex2
+						trait = imp_ex3
+						trait = imp_ex4
+					}
+				}
+				AND = {
+					liege = {
+						OR = {
+							trait = failed_exam
+							trait = imp_ex1
+						}
+					}
+					OR = {
+						trait = imp_ex2
+						trait = imp_ex3
+						trait = imp_ex4
+					}
+				}
+			}
+		}
+		allow = {
+			liege = {
+				war = no
+			}
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			war = no
+			in_command = no
+		}
+		effect = {
+			opinion = {
+				modifier = claimant_vs_holder
+				who = liege
+			}
+			reverse_opinion = {
+				modifier = opinion_claimed_my_title
+				who = liege
+			}
+			dejure_liege_title = {
+				add_claim = ROOT
+			}
+			set_character_flag = claim_realm_ex
+		}
+		ai_will_do = {
+			factor = 0.3
+			modifier = {
+				factor = 100
+				ROOT = { is_rival = liege }
+			}
+			modifier = {
+				factor = 0
+				trait = content
+			}
+			modifier = {
+				factor = 1.5
+				trait = ambitious
+			}
+			modifier = {
+				factor = 1.8
+				ROOT = { reverse_opinion = { who = liege value <= -80 } } 
+			}
+			modifier = {
+				factor = 1.6
+				 ROOT = { reverse_opinion = { who = liege value <= -60 } } 
+			}
+			modifier = {
+				factor = 1.4
+				 ROOT = { reverse_opinion = { who = liege value <= -40 } }
+			}
+			modifier = {
+				factor = 1.2
+				 ROOT = { reverse_opinion = { who = liege value <= -20 } }
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = { reverse_opinion = { who = liege value = 20 } }
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = { reverse_opinion = { who = liege value = 40 } }
+			}
+			modifier = {
+				factor = 0.4
+				ROOT = { reverse_opinion = { who = liege value = 60 } }
+			}
+			modifier = {
+				factor = 0.2
+				ROOT = { reverse_opinion = { who = liege value = 80 } }
+			}
+		}
+	}
 }	
 	
+targetted_decisions = {
+	
+	appoint_governator = {
+		is_high_prio = yes
+		from_potential = {
+			has_landed_title = e_california
+			controls_religion = yes
+			NOT = {
+				trait = figurehead
+			}
+			age = 16
+		}
+		potential = {
+			OR = {
+				religion = imamite
+				religion = qingzheng
+				religion = cetic
+			}
+			OR = {
+				higher_real_tier_than = BARON
+				is_close_relative = FROM
+				is_theocracy = yes
+			}
+			age = 16
+			prisoner = no
+			NOT = {
+				trait = incapable
+			}
+		}
+		allow = {
+			NOT = {
+				any_character = {
+					trait = governator
+				}
+			}
+			FROM = {
+				prisoner = no
+				NOT = {
+					trait = incapable
+				}
+			}
+			ROOT = {
+				prisoner = no
+				NOT = {
+					trait = incapable
+				}
+			}
+		}
+		effect = {
+			ROOT = {
+				character_event = { id = cetic.300 }
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.25
+			modifier = {
+				factor = 100
+				FROM = { is_friend = ROOT }
+			}
+			modifier = {
+				factor = 0.01
+				FROM = { is_rival = ROOT }
+			}
+			modifier = {
+				factor = 0.2
+				FROM = { opinion = { who = ROOT value <= -80 } }
+			}
+			modifier = {
+				factor = 0.4
+				FROM = { opinion = { who = ROOT value <= -60 } }
+			}
+			modifier = {
+				factor = 0.6
+				FROM = { opinion = { who = ROOT value <= -40 } }
+			}
+			modifier = {
+				factor = 0.8
+				FROM = { opinion = { who = ROOT value <= -20 } }
+			}
+			modifier = {
+				factor = 1.2
+				FROM = { opinion = { who = ROOT value = 20 } }
+			}
+			modifier = {
+				factor = 1.4
+				FROM = { opinion = { who = ROOT value = 40 } }
+			}
+			modifier = {
+				factor = 1.6
+				FROM = { opinion = { who = ROOT value = 60 } }
+			}
+			modifier = {
+				factor = 1.8
+				FROM = { opinion = { who = ROOT value = 80 } }
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = {
+					real_tier = COUNT
+				}
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = {
+					real_tier = DUKE
+				}
+			}
+			modifier = {
+				factor = 1.2
+				ROOT = {
+					real_tier = KING
+				}
+			}
+			modifier = {
+				factor = 0.1
+				ROOT = {
+					trait = failed_exam
+				}
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = {
+					trait = imp_ex1
+				}
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = {
+					trait = imp_ex2
+				}
+			}
+			modifier = {
+				factor = 1.2
+				ROOT = {
+					trait = imp_ex3
+				}
+			}
+			modifier = {
+				factor = 1.4
+				ROOT = {
+					trait = imp_ex4
+				}
+			}
+		}
+	}
+	
+	remove_governator = {
+		is_high_prio = yes
+		ai_check_interval = 12
+		from_potential = {
+			has_landed_title = e_california
+			controls_religion = yes
+			NOT = {
+				trait = figurehead
+			}
+			age = 16
+			has_regent = no
+		}
+		potential = {
+			trait = governator
+		}
+		allow = {
+			FROM = {
+				prisoner = no
+				NOT = {
+					trait = incapable
+				}
+			}
+			custom_tooltip = {
+				text = at_least_65_TT
+				hidden_tooltip = {
+					check_variable = { which = global_imp_auth value = 65 }
+				}
+			}
+		}
+		effect = {
+			ROOT = {
+				character_event = { id = cetic.332 }
+				opinion = {
+					modifier = sacked_gnator_5
+					who = FROM
+					years = 25
+				}
+			}
+			change_variable = { which = global_imp_auth value = -5 }
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.20
+			modifier = {
+				factor = 0
+				FROM = { is_friend = ROOT }
+			}
+			modifier = {
+				factor = 100
+				FROM = { is_rival = ROOT }
+			}
+			modifier = {
+				factor = 1.8
+				FROM = { opinion = { who = ROOT value <= -80 } }
+			}
+			modifier = {
+				factor = 1.6
+				FROM = { opinion = { who = ROOT value <= -60 } }
+			}
+			modifier = {
+				factor = 1.4
+				FROM = { opinion = { who = ROOT value <= -40 } }
+			}
+			modifier = {
+				factor = 1.2
+				FROM = { opinion = { who = ROOT value <= -20 } }
+			}
+			modifier = {
+				factor = 0.8
+				FROM = { opinion = { who = ROOT value = 20 } }
+			}
+			modifier = {
+				factor = 0.6
+				FROM = { opinion = { who = ROOT value = 40 } }
+			}
+			modifier = {
+				factor = 0.4
+				FROM = { opinion = { who = ROOT value = 60 } }
+			}
+			modifier = {
+				factor = 0.2
+				FROM = { opinion = { who = ROOT value = 80 } }
+			}
+			modifier = {
+				factor = 0.6
+				AND = {
+					ROOT = {
+						is_powerful_vassal = yes
+					}
+					FROM = {
+						NOT = {
+							trait = strong_emperor
+						}
+					}
+				}
+			}
+			modifier = {
+				factor = 1.6
+				ROOT = {
+					trait = failed_exam
+				}
+			}
+			modifier = {
+				factor = 1.4
+				ROOT = {
+					trait = imp_ex1
+				}
+			}
+			modifier = {
+				factor = 1.2
+				ROOT = {
+					trait = imp_ex2
+				}
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = {
+					trait = imp_ex3
+				}
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = {
+					trait = imp_ex4
+				}
+			}
+		}
+	}
+	
+	governator_heir_decision = {
+		is_high_prio = yes
+		from_potential = {
+			trait = governator
+			any_character = {
+				has_landed_title = e_california
+				trait = figurehead
+			}
+			age = 16
+		}
+		potential = {
+			prisoner = no
+			age = 16
+			OR = {
+				higher_real_tier_than = BARON
+				is_close_relative = FROM
+				is_theocracy = yes
+			}
+			OR = {
+				religion = imamite
+				religion = qingzheng
+				religion = cetic
+			}
+			NOR = {
+				trait = incapable
+				trait = governator_heir
+				has_landed_title = e_california
+			}
+		}
+		allow = {
+			FROM = {
+				prisoner = no
+				NOT = {
+					trait = incapable
+				}
+			}
+			ROOT = {
+				prisoner = no
+				NOT = {
+					trait = incapable
+				}
+			}
+		}
+		effect = {
+			ROOT = {
+				character_event = { id = cetic.321 days = 2 }
+			}
+			if = {
+				limit = {
+					any_character = {
+						trait = governator_heir
+					}
+				}
+				character_event = { id = cetic.322 }
+			}
+			FROM = {
+				clr_character_flag = chosen_heir_gnator
+				set_character_flag = chosen_heir_gnator
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.25
+			modifier = {
+				factor = 0.1
+				NOT = {
+					had_character_flag = {
+						flag = chosen_heir_gnator
+						days = 1095
+					}
+				}
+			}
+			modifier = {
+				factor = 100
+				FROM = { is_friend = ROOT }
+			}
+			modifier = {
+				factor = 0.01
+				FROM = { is_rival = ROOT }
+			}
+			modifier = {
+				factor = 0.2
+				FROM = { opinion = { who = ROOT value <= -80 } }
+			}
+			modifier = {
+				factor = 0.4
+				FROM = { opinion = { who = ROOT value <= -60 } }
+			}
+			modifier = {
+				factor = 0.6
+				FROM = { opinion = { who = ROOT value <= -40 } }
+			}
+			modifier = {
+				factor = 0.8
+				FROM = { opinion = { who = ROOT value <= -20 } }
+			}
+			modifier = {
+				factor = 1.2
+				FROM = { opinion = { who = ROOT value = 20 } }
+			}
+			modifier = {
+				factor = 1.4
+				FROM = { opinion = { who = ROOT value = 40 } }
+			}
+			modifier = {
+				factor = 1.6
+				FROM = { opinion = { who = ROOT value = 60 } }
+			}
+			modifier = {
+				factor = 1.8
+				FROM = { opinion = { who = ROOT value = 80 } }
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = {
+					real_tier = COUNT
+				}
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = {
+					real_tier = DUKE
+				}
+			}
+			modifier = {
+				factor = 1.2
+				ROOT = {
+					real_tier = KING
+				}
+			}
+			modifier = {
+				factor = 0.1
+				ROOT = {
+					trait = failed_exam
+				}
+			}
+			modifier = {
+				factor = 0.6
+				ROOT = {
+					trait = imp_ex1
+				}
+			}
+			modifier = {
+				factor = 0.8
+				ROOT = {
+					trait = imp_ex2
+				}
+			}
+			modifier = {
+				factor = 1.2
+				ROOT = {
+					trait = imp_ex3
+				}
+			}
+			modifier = {
+				factor = 1.4
+				ROOT = {
+					trait = imp_ex4
+				}
+			}
+			modifier = {
+				factor = 1.8
+				ROOT = {
+					is_close_relative = FROM
+				}
+			}
+		}
+	}
+	
+	slander_character = {
+		is_high_prio = yes
+		ai_check_interval = 3
+		from_potential = {
+			OR = {
+				trait = governator
+				has_landed_title = e_california
+			}
+			age = 16
+			
+		}
+		potential = {
+			OR = {
+				trait = governator
+				has_landed_title = e_california
+			}
+			age = 16
+		}
+		allow = {
+			FROM = {
+				prisoner = no
+				NOT = {
+					trait = incapable
+				}
+				custom_tooltip = {
+					text = has_not_action_2ys_TT
+					hidden_tooltip = {
+						OR = {
+							had_character_flag = { flag = influence_act days = 730 }
+							NOT = { has_character_flag = influence_act }
+						}
+					}
+				}
+			}
+			
+		}
+		effect = {
+			FROM = {
+				character_event = { id = cetic.343 }
+				clr_character_flag = influence_act
+				set_character_flag = influence_act
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.25
+			modifier = {
+				factor = 0
+				FROM = { is_friend = ROOT }
+			}
+			modifier = {
+				factor = 100
+				FROM = { is_rival = ROOT }
+			}
+			modifier = {
+				factor = 1.8
+				FROM = { opinion = { who = ROOT value <= -80 } }
+			}
+			modifier = {
+				factor = 1.6
+				FROM = { opinion = { who = ROOT value <= -60 } }
+			}
+			modifier = {
+				factor = 1.4
+				FROM = { opinion = { who = ROOT value <= -40 } }
+			}
+			modifier = {
+				factor = 1.2
+				FROM = { opinion = { who = ROOT value <= -20 } }
+			}
+			modifier = {
+				factor = 0.9
+				FROM = { opinion = { who = ROOT value = 40 } }
+			}
+			modifier = {
+				factor = 0.8
+				FROM = { opinion = { who = ROOT value = 60 } }
+			}
+			modifier = {
+				factor = 0.6
+				FROM = { opinion = { who = ROOT value = 80 } }
+			}
+			modifier = {
+				factor = 0.6
+				FROM = {
+					trait = content
+				}
+			}
+			modifier = {
+				factor = 1.2
+				FROM = {
+					trait = ambitious
+				}
+			}
+		}
+	}
+	
+	gain_favor_cetic = {
+		is_high_prio = yes
+		ai_check_interval = 3
+		from_potential = {
+			OR = {
+				trait = governator
+				has_landed_title = e_california
+			}
+			age = 16	
+		}
+		potential = {
+			is_voter = yes
+			NOT = {
+				trait = governator
+			}
+			NOT = {
+				is_friend = FROM
+			}
+			liege = {
+				has_landed_title = e_california
+			}
+			ai = yes
+		}
+		allow = {
+			FROM = {
+				prisoner = no
+				NOT = {
+					trait = incapable
+				}
+				custom_tooltip = {
+					text = has_not_action_2ys_TT
+					hidden_tooltip = {
+						OR = {
+							had_character_flag = { flag = influence_act days = 730 }
+							NOT = { has_character_flag = influence_act }
+						}
+					}
+				}
+			}
+		}
+		effect = {
+			FROM = {
+				character_event = { id = cetic.347 }
+				clr_character_flag = influence_act
+				set_character_flag = influence_act
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0.25
+			modifier = {
+				factor = 0.6
+				FROM = {
+					trait = content
+				}
+			}
+			modifier = {
+				factor = 1.2
+				FROM = {
+					trait = ambitious
+				}
+			}
+		}
+	}
+}

@@ -4140,24 +4140,15 @@ governator_war = {
 				trait = governator_heir
 			}
 			NOT = {
+				trait = sanctioned_governator
+			}
+			NOT = {
 				has_landed_title = e_california
 			}
 			OR = {
-				religion = cetic
-				religion = imamite
-				religion = qingzheng
+				is_theocracy = yes
 				government = bureaucratic_government
 			}
-			# OR = {
-				# liege = {
-					# character = PREV # either independent
-				# }
-				# liege = { 
-					# FROM = { 
-						# is_liege_or_above = PREV # or have shared liege
-					# }
-				# }
-			# }
 		}
 		OR = {
 			FROM = {
@@ -4169,22 +4160,7 @@ governator_war = {
 				}
 			}
 		}
-		
-		# FROM = {
-			# OR = {
-				# liege = {
-					# character = PREV # either independent
-				# }
-				# liege = { 
-					# FROM = { 
-						# is_liege_or_above = PREV # or have shared liege
-					# }
-				# }
-				# independent = no #Or just not independent
-			# }
-		# }
 		e_california = { holder_scope = { trait = figurehead } }
-		#check_variable = { which = global_imp_auth value > 50 }
 	}
 	
 	can_use_gui = {
@@ -4263,6 +4239,14 @@ governator_war = {
 			}
 			remove_trait = governator_heir
 		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = defied_norms
+					who = ROOT
+				}
+			}
+		}
 		ROOT = {
 			show_scope_change = no
 			participation_scaled_prestige = 100
@@ -4338,5 +4322,264 @@ governator_war = {
 	
 	defender_ai_defeat_worth = {
 		factor = 100
+	}
+	
+	ai_will_do = {
+		factor = 1
+		modifier = {
+			factor = 1.5
+			AND = {
+				e_california = { 
+					holder_scope = {
+						reverse_opinion {
+							who = ROOT
+							value > 50
+						}
+					}
+				}
+				e_california = { 
+					holder_scope = {
+						reverse_opinion {
+							who = FROM
+							value < -40
+						}
+					}
+				}
+			}
+		}
+		modifier = {
+			factor = 1.6
+			AND = {
+				e_california = { 
+					holder_scope = {
+						opinion {
+							who = ROOT
+							value > 50
+						}
+					}
+				}
+				e_california = { 
+					holder_scope = {
+						opinion {
+							who = FROM
+							value < -40
+						}
+					}
+				}
+			}
+		}
+		modifier = {
+			factor = 1.5
+			trait = ambitious
+		}
+		modifier = {
+			factor = 0.1
+			trait = content
+		}
+	}
+}
+
+sanc_governator_war = {
+	name = CB_NAME_SANCGOVERNATOR_WAR
+	war_name = WAR_NAME_SANCGOVERNATOR_WAR
+	sprite = 13
+	truce_days = 3650
+	attacker_can_call_allies = yes
+	can_ask_to_join_war = yes
+	is_permanent = yes
+	
+	can_use = {
+		ROOT = {
+			trait = sanctioned_governator
+		}
+		OR = {
+			FROM = {
+				trait = governator
+			}
+			FROM = {
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+		e_california = { holder_scope = { trait = figurehead } }
+	}
+	
+	can_use_gui = {
+		ROOT = {
+			trait = sanctioned_governator
+		}
+		OR = {
+			FROM = {
+				trait = governator
+			}
+			FROM = {
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+	}
+
+	is_valid = {
+		e_california = { holder_scope = { trait = figurehead } }
+		FROM = {
+			OR = {
+				trait = governator
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+		ROOT = {
+			trait = sanctioned_governator
+		}
+	}
+	
+	on_success = {
+		if = {
+			limit = {
+				FROM = {
+					trait = governator
+				}
+			}
+			FROM = {
+				remove_trait = governator
+			}
+		}
+		ROOT = {
+			remove_trait = sanctioned_governator
+		}
+		custom_tooltip = {
+			text = vassal_gov_removed_TT
+			hidden_tooltip = {
+				if = {
+					limit = {
+						FROM = {
+							any_realm_character = {
+								trait = governator
+							}
+						}
+					}
+					FROM = {
+						any_realm_character = {
+							remove_trait = governator
+						}
+					}
+				}
+			}
+		}
+		any_character = {
+			limit = {
+				trait = governator_heir
+			}
+			remove_trait = governator_heir
+		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = gnator_succeed
+					who = ROOT
+				}
+			}
+		}
+		ROOT = {
+			character_event = { id = cetic.355 }
+		}
+		ROOT = {
+			show_scope_change = no
+			participation_scaled_prestige = 100
+			add_trait = governator
+			if = {
+				limit = {
+					liege = {
+						has_landed_title = e_california
+					}
+				}
+				give_minor_title = title_governator
+			}
+		}
+		any_attacker = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = {
+				participation_scaled_prestige = 100 
+			}
+		}
+	}
+	
+	on_fail = {
+		ROOT = {
+			show_scope_change = no
+			prestige = -100
+		}
+		FROM = {
+			show_scope_change = no
+			participation_scaled_prestige = 50
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 50 }
+		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = gnator_fail
+					who = ROOT
+				}
+			}
+		}
+	}
+	
+	on_reverse_demand = {
+		ROOT = {
+			show_scope_change = no
+			prestige = -200
+		}
+		FROM = {
+			show_scope_change = no
+			participation_scaled_prestige = 100
+			hidden_tooltip = { 
+				if = { 
+					limit = { NOT = { has_opinion_modifier = { modifier = opinion_traitor who = ROOT } } } #Allow free revocation of a title.
+					opinion = {
+						who = ROOT
+						modifier = opinion_traitor
+					}
+				}
+			}
+		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = gnator_fail
+					who = ROOT
+				}
+			}
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+		
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+	
+	ai_will_do = {
+		factor = 1
 	}
 }

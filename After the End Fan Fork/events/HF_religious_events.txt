@@ -11302,6 +11302,10 @@ character_event = {
 						has_province_flag = flag_great_pillar_celtic_pagan
 						ROOT = { religion_openly_in_celtic_subgroup_trigger = no }
 					}
+					AND = {
+						has_province_flag = flag_great_pillar_trailwalker
+						ROOT = { religion_openly_trailwalker_or_reformed_trigger = no }
+					}
 				}
 			}
 			owner = {
@@ -11449,7 +11453,31 @@ character_event = {
 							}
 							character_event = { id = HF.23474 }
 						}
-					}	
+					}
+				}
+				if = { 
+					limit = {
+						location = { has_province_flag = flag_great_pillar_trailwalker }
+					}
+					location = { 
+						clr_province_flag = flag_great_pillar_trailwalker
+						set_province_flag = flag_just_destroyed_trailwalker_pillar #Needed for next event.
+						province_event = { id = HF.23475 days = 60 } #Clean up flag.
+					}
+					trailwalker = {
+						religion_authority = {
+							modifier = destroyed_great_pillar
+							years = 10
+						}
+					}		
+					owner = {
+						any_realm_character = {
+							limit = {  
+								religion = trailwalker
+							}
+							character_event = { id = HF.23474 }
+						}
+					}
 				}
 			}
 		}
@@ -11635,6 +11663,31 @@ character_event = {
 				years = 10
 			}
 		}
+		if = { 
+			limit = {
+				FROMFROM = { location = { has_province_flag = flag_just_destroyed_trailwalker_pillar } }
+				religion = trailwalker
+			}
+			tooltip = { #Already removed in previous event.
+				religion_authority = {
+					modifier = destroyed_great_pillar
+					years = 10
+				}
+			}
+			if = { 
+				limit = { has_character_modifier = recently_built_great_pillar }
+				remove_character_modifier = recently_built_great_pillar
+			}
+			add_character_modifier = { #Prevents rebuilding one immediately after.
+				name = recently_destroyed_great_pillar_cooldown
+				years = 30
+			}
+			opinion = {
+				who = FROM
+				modifier = opinion_sacrilege
+				years = 10
+			}
+		}
 	}
 	option = { 
 		name = EVTOPTBHF23474
@@ -11655,6 +11708,7 @@ province_event = {
 		clr_province_flag = flag_just_destroyed_occultist_pillar
 		clr_province_flag = flag_just_destroyed_thelemic_pillar
 		clr_province_flag = flag_just_destroyed_celtic_pagan_pillar
+		clr_province_flag = flag_just_destroyed_trailwalker_pillar
 	}
 }
 

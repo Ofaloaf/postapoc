@@ -1,0 +1,322 @@
+###########################################
+#                                         #
+# Wonder Maintenance Events        	      #             
+#                                         #
+# ID LT.10000                             #
+#                                         #
+###########################################
+
+# Written by Milla Isaksson
+
+namespace = LT
+
+
+# Wonder name and desc update event (fired from: on_wonder_stage_finish)
+# ROOT = owner
+# FROM = wonder
+# FROMFROM = province (location of wonder)
+character_event = {
+    id = LT.10000
+    is_triggered_only = yes
+    hide_window = yes
+    trigger = {
+    }
+
+    immediate = {
+    	FROM = { save_event_target_as = target_wonder }
+    	FROMFROM = { save_event_target_as = target_province }
+		FROM = { 
+			original_wonder_owner = { 
+				save_event_target_as = wonder_owner_original 
+			} 
+		}
+    	if = {
+    		limit = {
+	    		event_target:target_wonder = {
+	    			any_upgrade_on_wonder = {
+	    				is_active = yes
+	    			}
+	    		}
+    		}
+    		event_target:target_wonder = {
+    			any_upgrade_on_wonder = {
+    				limit = {
+    					is_active = yes
+                        NOT = { has_wonder_upgrade_flag = negative }
+    				}
+                    score_value = { #Prioritizes selecting a cool upgrade...
+                        value = 10
+                        fancy_upgrade_selection_score = yes
+                    }
+    				save_event_target_as = upgrade_00
+    			}    			
+    		}
+    	}
+
+    	log = "[From.GetName] is the wonder, pre-saved as event-target"
+    	
+		wonder_stage_completion_sound_effect = yes
+
+        event_target:target_wonder = {
+            log = "[target_wonder.GetName] is the wonder"
+
+            if = { # If you still have the builder's desc (otherwise, desc is left for upgrades)...
+                limit = {
+                    NOR = {
+                        has_wonder_flag = wonder_desc_1
+                        has_wonder_flag = wonder_desc_2
+                        has_wonder_flag = wonder_desc_3
+                        has_wonder_flag = wonder_desc_4
+                        has_wonder_flag = wonder_desc_5
+                        has_wonder_flag = wonder_desc_6
+                        has_wonder_flag = wonder_desc_7
+                    }
+                }
+                set_wonder_flag = wonder_desc_1 #1st! 
+            }
+            set_description = wonder_desc_text_update
+
+            log = "[upgrade_00.GetName] is the target upgrade"
+            if = {
+                limit = {
+                    has_custom_name = no #only change the name if the player has not used the renaming button
+                    NOT = {
+                        has_wonder_flag = is_historical  #Only change name if it's not a historical wonder
+                    }
+                }
+                wonder_name_change_effect = yes #run last, because contains breaks
+            }
+        }
+    }
+}
+
+# Wonder desc update event (fired from: on_wonder_upgrade_finish)
+# ROOT = owner
+# FROM = upgrade
+# FROMFROM = wonder
+# FROMFROMFROM = province (location of wonder)
+character_event = {
+    id = LT.10001
+    is_triggered_only = yes
+    hide_window = yes
+    trigger = {
+    	
+    }
+
+    immediate = {
+        FROM = { save_event_target_as = upgrade_00 }
+        FROMFROM = { save_event_target_as = target_wonder }
+        FROMFROMFROM = { save_event_target_as = target_province }
+        FROM = { 
+            original_wonder_owner = { 
+                save_event_target_as = wonder_owner_original 
+            } 
+        }
+        
+        if = {
+            limit = {
+                event_target:target_wonder = {
+                    any_upgrade_on_wonder = {
+                        NOT = { wonder_upgrade = event_target:upgrade_00 }
+                    }
+                }
+            }
+            event_target:target_wonder = {
+                any_upgrade_on_wonder = {
+                    limit = {
+                        is_active = yes
+                        NOT = { wonder_upgrade = event_target:upgrade_00 }
+                        NOT = { has_wonder_upgrade_flag = negative }
+                    }
+                    score_value = { #Prioritizes selecting a cool upgrade...
+                        value = 10
+                        fancy_upgrade_selection_score = yes
+                    }
+                    save_event_target_as = upgrade_01
+                }
+            }
+        }
+
+        log = "STEP 1: [upgrade_00.GetName] is the first upgrade."
+        log = "STEP 1: [upgrade_01.GetName] is the second upgrade."
+        log = "STEP 1: [target_wonder.GetName] is the wonder."
+        log = "STEP 1: [target_wonder.GetDesc] is the old desc."
+
+        event_target:target_wonder = {
+            if = {
+                limit = {
+                    OR = {
+                        had_flag = {
+                            flag = wonder_name_1
+                            years = 55
+                        }
+                        had_flag = {
+                            flag = wonder_name_2
+                            years = 65
+                        }
+                        had_flag = {
+                            flag = wonder_name_3
+                            years = 75
+                        }
+                        had_flag = {
+                            flag = wonder_name_4
+                            years = 85
+                        }
+                        had_flag = {
+                            flag = wonder_name_5
+                            years = 75
+                        }
+                        had_flag = {
+                            flag = wonder_name_6
+                            years = 75
+                        }
+                    }
+                }
+                if = {
+                    limit = {
+                        has_custom_name = no #only change the name if the player has not used the renaming button
+                        NOT = {
+                            has_wonder_flag = is_historical #Only change name if it's not a historical wonder
+                        }
+                    } 
+                    wonder_name_change_effect = yes                
+                } 
+            }
+
+            if = {
+                limit = {
+                    OR = {
+                        had_flag = {
+                            flag = wonder_desc_1
+                            years = 15
+                        }
+                        had_flag = {
+                            flag = wonder_desc_2
+                            years = 35
+                        }
+                        had_flag = {
+                            flag = wonder_desc_3
+                            years = 35
+                        }
+                        had_flag = {
+                            flag = wonder_desc_4
+                            years = 35
+                        }
+                        had_flag = {
+                            flag = wonder_desc_5
+                            years = 35
+                        }
+                        had_flag = {
+                            flag = wonder_desc_6
+                            years = 35
+                        }
+                    }
+                }
+                wonder_desc_change_effect = yes #run last, because contains breaks
+            }
+
+        }
+    }
+}
+
+# Wonder desc update event (fired from: on_wonder_stage_loot_finish)
+# ROOT = owner
+# FROM = wonder
+# FROMFROM = province (location of wonder)
+character_event = {
+    id = LT.10002
+    is_triggered_only = yes
+    hide_window = yes
+    trigger = {
+        
+    }
+
+    immediate = {
+        FROM = { save_event_target_as = target_wonder }
+        FROMFROM = { save_event_target_as = target_province }
+        FROM = { 
+            original_wonder_owner = { 
+                save_event_target_as = wonder_owner_original 
+            } 
+        }
+
+        event_target:target_wonder = {
+
+            # Name...
+            if = {
+                limit = {
+                    has_flag = wonder_stage_3  #it was a high stage building
+                    NOT = { has_flag = was_renamed }
+                }
+                set_name = ruins_of_wonder_name # deserves to keep fancy name
+            }
+            else_if = {
+                limit = { has_flag = wonder_stage_less_than_3 }
+                set_name = destroyed_wonder_type
+            }
+            # Description....
+            if = {
+                limit = {
+                    has_flag = wonder_stage_3  #it was a high stage building
+                }
+                set_description = ruined_wonder_desc_1
+            }
+            else = {
+                limit = { has_flag = wonder_stage_less_than_3 }
+                set_description = ruined_wonder_desc_2
+            }
+            
+            if = { #Have it already been renamed?
+                limit = {
+                    NOT = { has_flag = was_renamed }
+                }
+                set_flag = was_renamed
+            }
+        }
+    }
+    after = {
+        clear_flags_with_prefix = wonder_stage_ 
+    }
+}
+
+# Handles setting desc of upgrades using dynamic loc keys (Root.Religion.GetRandomGodName)
+# Otherwise, it changes month to month 
+# (Fired from on_wonder_upgrade_finish)
+# ROOT = owner
+# FROM = upgrade
+# FROMFROM = wonder
+# FROMFROMFROM = province (location of wonder)
+character_event = {
+    id = LT.10003
+    hide_window = yes
+    is_triggered_only = yes
+    immediate = {
+        if = {
+            limit = { FROM = { has_wonder_upgrade = upgrade_statue_god } }
+			FROM = { set_description = upgrade_statue_god_desc }
+        }
+    }
+}
+
+# Adding the historical flag to wonders and setting Hagia Sophia cult flag.
+# (Fired from on_startup)
+character_event = {
+	id = LT.32000
+	is_triggered_only = yes
+	hide_window = yes
+	
+	trigger = {
+		is_save_game = no
+	}
+	
+	immediate = {
+		any_wonder = {
+			set_wonder_flag = historical
+
+            if = {
+				limit = { has_wonder = wonder_basilica_guadalupe }
+				set_wonder_flag = Guadalupe_sacred_heart_cult
+			}
+		}
+	}
+}

@@ -22,6 +22,9 @@ targeted_decisions = {
 	        	AND = {
 	        		has_dlc = "Holy Fury"
 					is_member_of_any_warrior_lodge_trigger = yes
+					NOT = {
+						society_member_of = warrior_lodge_mexican
+					}
 	        	}
 				AND = {
 	        		has_dlc = "Holy Fury"
@@ -287,6 +290,306 @@ targeted_decisions = {
 	        }
 	        hidden_tooltip = {
 	            character_event = { id = HFP.10095 } #Duel evaluation (hidden) + result event as follow-up.
+	        }
+	    }
+	    
+	    revoke_allowed = {
+	        always = no
+	    }
+	    ai_will_do = {
+	        factor = 1
+	        modifier = {
+	            factor = 0
+	            has_character_modifier = declined_prestige_duel_timer #if the target has already declined a duel, AI's won't attempt to duel them while the timer is still
+	        }
+	        modifier = {
+	            factor = 0.1
+	        }
+	        modifier = {
+	            factor = 1.5
+	        	FROM = { potentially_interested_in_rivaling_root_trigger = yes }
+	        }
+	    }
+	}
+	
+	wrestle_decision = {
+	    only_playable = yes
+	    is_high_prio = yes
+	    diplomacy_icon = GFX_duel_decision
+	    
+	    #ai_target_filter = rivals
+		ai_check_interval = 10
+	    
+	    from_potential = {
+	        is_playable = yes
+	        is_adult = yes
+	        prisoner = no
+	        OR = {
+	        	AND = {
+	        		has_focus = focus_war
+		    		has_dlc = "Way of Life"
+	        	}
+	        	AND = {
+	        		has_dlc = "Holy Fury"
+					is_member_of_any_warrior_lodge_trigger = yes
+	        	}
+				AND = {
+	        		has_dlc = "Holy Fury"
+					any_bloodline = {
+						has_bloodline_flag = duelist_bloodline
+					}
+	        	}
+	        }
+	        has_regent = no
+	        is_inaccessible_trigger = no
+
+	        OR = {
+	            ai = no
+	            
+	            is_female = no
+
+	            AND = {
+	                is_female = yes
+	                OR = {
+	                    trait = brave
+	                    religion_group = pagan_group
+						religion_group = oldworld
+						religion = neognostic
+	                    is_nomadic = yes
+	                    gender_equality_trigger = yes
+	                }
+	            }
+	        }
+	    }
+	    
+	    potential = {
+	    	OR = {
+		    	AND = { #Either you are adult, as well as your target...
+		        	is_adult = yes
+		    		FROM = { is_adult = yes }
+		    	}
+		    	AND = { #Or you are both children! WEIRD!
+		        	is_adult = no
+		    		FROM = { is_adult = no }
+		    	}
+	    	}
+			society_member_of = warrior_lodge_mexican
+	        prisoner = no
+	        NOT = { character = FROM }
+	        is_inaccessible_trigger = no
+	    }
+	    
+	    allow = {
+	    	trigger_if = { #[Won't show ANY reqs. if you have "Unrestricted" duels...]
+				limit = { #But otherwise: find a target, valid both relationship-, and healthwise...
+					NOT = { 
+						has_game_rule = {
+	                        name = dueling
+	                        value = unrestricted
+	                    }
+					}
+				}
+                OR = { # RELATIONSHIP/mission reqs...
+                    custom_tooltip = {
+                        text = duel_tooltip_rivals
+                        is_rival = FROM
+                    }
+					AND = {
+						ROOT = {
+							society_member_of = warrior_lodge_mexican
+						}
+						FROM = {
+							society_member_of = warrior_lodge_mexican
+						}
+					}
+                    custom_tooltip = {
+                        text = duel_tooltip_foes
+                        is_foe = FROM
+                    }
+                    trigger_if = {
+                        limit = { religion = FROM }
+                    	custom_tooltip = {
+                    		text = duel_tooltip_excommunicated
+                    		FROM = { trait = zealous }
+                        	trait = excommunicated
+                    	}
+                    }
+                    #trigger_if = {
+                    #    limit = { FROM = { religion_group = muslim } }
+	                #    custom_tooltip = {
+	                #        text = duel_tooltip_decadent
+	                #        FROM = { trait = zealous }
+	                #        trait = decadent
+	                #    }
+					#}
+					trigger_if = {
+						limit = {
+			                any_quester_targeting_this = { #FROM must have this as a quest target
+								character = FROM
+								has_quest = quest_warrior_lodge_wrestle_honor
+							}
+						}
+						custom_tooltip = {
+							text = quest_target_tt
+							any_quester_targeting_this = { #FROM must have this as a quest target
+								character = FROM
+								has_quest = quest_warrior_lodge_wrestle_honor
+							}
+						}
+					}
+                }
+			}
+
+            #Both are healthy
+            custom_tooltip = {
+                text = duel_tooltip_sickness
+                FROM = {
+                	NOR = { #Not in sickly in bed, but sick if well treated is okay
+                		has_character_modifier = bedridden_illness
+                		has_character_modifier = severe_illness
+						trait = incapable
+					}
+                }
+                ROOT = {
+                    NOR = { #Not in sickly in bed, but sick if well treated is okay
+                		has_character_modifier = bedridden_illness
+                		has_character_modifier = severe_illness
+						trait = incapable
+                    }
+                }
+            }
+            
+            custom_tooltip = {
+            	text = duel_tooltip_pregnant
+                FROM = { is_pregnant = no }
+                ROOT = { is_pregnant = no }
+            }
+
+	                #Checks gender and some religious stuff... (turned this into apply_any_applicable_harsh_penalties_effect instead)
+#	                custom_tooltip = {
+#	                    text = duel_tooltip_valid_target_updated
+#	                    #text = duel_tooltip_valid_target
+#	                    hidden_tooltip = { ### Not female or challenger religion accepts female warriors
+#	                         OR = {
+#	                            is_female = no
+#
+#	                            is_member_of_roots_warrior_lodge_trigger = yes
+	                            #
+#	                            #Both FROM and ROOT have gender equality
+#	                            AND = {
+#	                                OR = {
+#	                                    trait = brave
+#	                                    gender_equality_trigger = yes
+#	                                    religion_group = pagan_group
+#	                                    is_nomadic = yes
+#	                                    religion = buddhist
+#	                                    religion = bogomilist
+#	                                }
+#	                                FROM = {
+#	                                    OR = {
+#	                                        gender_equality_trigger = yes
+#	                                        religion_group = pagan_group
+#	                                        is_nomadic = yes
+#	                                        religion = buddhist
+#	                                        religion = bogomilist
+#	                                    }
+#	                                }
+#	                            }
+#	                        }
+#	                        ### Not priest or challenger religion is pagan
+#	                        trigger_if = {
+#	                        	limit = { is_member_of_any_warrior_lodge_trigger = no }
+#		                        OR = {
+#		                            is_priest = no
+#		                            FROM = { religion_group = pagan_group }
+#		                        }
+#	                        }
+#	                    }
+#	                }
+
+	        ####### You won't want to fight someone who is badly injured, and if you are hurt yourself, you will want to wait...
+	        custom_tooltip = {
+	            text = duel_tooltip_recent_duel
+	            hidden_tooltip = {
+	                FROM = { NOT = { has_character_modifier = recent_duel_timer } }
+	                NOT = { has_character_modifier = recent_duel_timer }
+	            }
+	        }
+
+	        #############################################################################
+
+	        custom_tooltip = {
+	            #text = duel_tooltip_busy
+	            text = duel_tooltip_no_war
+	            hidden_tooltip = {
+	                FROM = {
+	                    #NOT = { has_character_flag = do_not_disturb }
+	                    NOT = { war = yes }
+	                }
+	                #NOT = { has_character_flag = do_not_disturb }
+	                NOT = { war = yes }
+	            }
+	        }
+	        trigger_if = { #If you do not have this as your mission target, you need to be within diplo-range...
+	        	limit = {
+	        		NOT = {
+						any_quester_targeting_this = { #FROM must have this as a quest target
+							character = FROM
+							has_quest = quest_warrior_lodge_wrestle_honor
+						}
+					}
+	        	}
+	        	is_within_diplo_range = FROM # CPU HEAVY!
+	        }
+	        trigger_if = { #If you *do* have this as your mission target, it's fine regardless of range..
+	        	limit = {
+					any_quester_targeting_this = {
+						character = FROM
+						has_quest = quest_warrior_lodge_wrestle_honor
+					}
+	        	}
+	        	OR = {
+	        		is_within_diplo_range = FROM
+	        		custom_tooltip = {
+						text = quest_target_tt
+						any_quester_targeting_this = { #FROM must have this as a quest target
+							character = FROM
+							has_quest = quest_warrior_lodge_wrestle_honor
+						}
+					}
+	        	}
+	        }
+	        trigger_if = {
+	        	limit = {
+					has_character_modifier = has_recently_declined_duel_cooldown
+	        	}
+	        	custom_tooltip = {
+	        		text = opinion_duel_decline_cooldown_tt
+		        	NOT = { 
+		        		has_character_modifier = has_recently_declined_duel_cooldown
+					}
+	        	}
+	        }
+	    }
+	    
+	    effect = {
+	    	#REQUIRED event targets for setting up duel evaluation!
+	    	FROM = { save_event_target_as = combatant_1 } #the person issuing the duel...
+	    	save_event_target_as = combatant_2 #the target of the duel...
+
+	    	apply_degree_of_dishonorable_duel_effect = yes #checks a bunch of age and health statuses...
+	    	apply_any_applicable_harsh_penalties_effect = yes #if your target is someone 
+	        
+	        FROM = {
+	            pacifists_lose_piety_effect = yes
+	            add_character_modifier = {
+	                modifier = recent_match_timer
+	                duration = 90
+	                hidden = yes
+	            }
+	        }
+	        hidden_tooltip = {
+	            character_event = { id = HFP.16003 } #Duel evaluation (hidden) + result event as follow-up.
 	        }
 	    }
 	    
@@ -807,7 +1110,20 @@ targeted_decisions = {
 	    	FROM = { society = { save_event_target_as = warrior_lodge_to_join } }
 
 	        hidden_tooltip = {
-	            character_event = { id = HF.10016 }
+	            if = {
+					limit = {
+						society_member_of = warrior_lodge_mexican
+					}
+					character_event = { id = WR.113 }
+				}
+				else_if = {
+					limit = {
+						NOT = {
+							society_member_of = warrior_lodge_mexican
+						}
+					}
+					character_event = { id = HF.10016 }
+				}
 	        }
 	    }
 	    
@@ -837,6 +1153,7 @@ targeted_decisions = {
 			is_playable = yes
 			is_adult = yes
 			is_member_of_any_warrior_lodge_trigger = yes
+			NOT = { society_member_of = warrior_lodge_mexican }
 			society_rank == 4
 		}
 		
@@ -898,6 +1215,7 @@ targeted_decisions = {
 			is_playable = yes
 			is_adult = yes
 			is_member_of_any_warrior_lodge_trigger = yes
+			NOT = { society_member_of = warrior_lodge_mexican }
 			society_rank >= 2
 			NOT = { has_character_flag = choosing_warrior_training } #to stop you spamming the button
 			has_current_warrior_lodge_leader_trait_trigger = no #to keep it hidden once you're done
@@ -1159,6 +1477,127 @@ targeted_decisions = {
 }
 	
 society_decisions = {
+
+	warrior_lodge_mexican_train = {
+		ai_check_interval = 24
+		potential = {
+			has_dlc = "Mystics"
+			is_member_of_any_warrior_lodge_trigger = yes
+			OR = {
+				has_quest = quest_warrior_lodge_mexican_train
+				society_rank =  2
+			}
+		}
+
+		allow = {
+			OR = {
+				custom_tooltip = {
+					text = lodge_allow_training_TT
+					OR = {
+						NOT = { has_character_flag = w_training_flag }
+						had_character_flag = { flag = w_training_flag days = 730 }
+					}
+				}
+				AND = {
+					has_quest = quest_warrior_lodge_mexican_train
+					OR = {
+						NOT = { has_character_flag = w_training_flag }
+						had_character_flag = { flag = w_training_flag days = 730 }
+					}
+				}
+			}
+		}
+
+		effect = {
+			clr_character_flag = w_training_flag
+			set_character_flag = w_training_flag
+			character_event = { id = WR.3 }
+		}
+
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 0.5
+
+			modifier = {
+				factor = 0.01
+				war = yes
+			}
+			modifier = {
+				factor = 0.1
+				martial < 5
+			}
+			modifier = {
+				factor = 5
+				martial = 8
+			}
+		}
+	}
+	
+	warrior_lodge_mexican_persona = {
+		only_playable = yes
+		ai_check_interval = 36
+		
+		potential = {
+			society_member_of = warrior_lodge_mexican
+			NOR = {
+				trait = w_heel
+				trait = w_face
+				has_character_flag = choosing_persona
+				
+			}
+			society_rank = 3
+		}
+		
+		allow = {
+			is_adult = yes
+		}
+		
+		effect = {
+			character_event = { id = WR.101 }
+			set_character_flag = choosing_persona
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	warrior_lodge_mexican_style = {
+		only_playable = yes
+		ai_check_interval = 36
+		
+		potential = {
+			society_member_of = warrior_lodge_mexican
+			NOR = {
+				trait = w_eagle
+				trait = w_jaguar
+				trait = w_snake
+				has_character_flag = choosing_style
+			}
+			society_rank = 2
+		}
+		
+		allow = {
+			is_adult = yes
+		}
+		
+		effect = {
+			character_event = { id = WR.104 }
+			set_character_flag = choosing_style
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
 	warrior_lodge_legendary_gathering = {
 		only_playable = yes
 		ai_check_interval = 36 #check only once every 36 months.
@@ -1817,6 +2256,9 @@ society_decisions = {
 			is_playable = yes
 			is_adult = yes
 			is_member_of_any_warrior_lodge_trigger = yes
+			NOT = {
+				society_member_of = warrior_lodge_mexican
+			}
 			society_rank >= 3
 			OR = {
 				ai = no
@@ -2120,6 +2562,7 @@ settlement_decisions = {
 			has_dlc = "Holy Fury"
 			higher_tier_than = BARON
 			is_member_of_any_warrior_lodge_trigger = yes
+			NOT = { society_member_of = warrior_lodge_mexican }
 			society_rank >= 3
 			NOT = { has_character_flag = inspiring_warriors }
 		}

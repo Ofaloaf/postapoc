@@ -1,0 +1,2558 @@
+#this will be kept in a seperate file as a way of acknowledging that at least part of this code was originally made by WWW. not the whole thing, i can actually pinpoint when they began recycling unused code i wrote.
+
+calculate_candidate_score = {
+	log = "Current candidate: [new_candidate.GetBestName]"
+	set_variable = { which = newCandidate value = 0 }
+	if = { 
+		
+		limit = {
+		NOT = {
+			trait = arbitrary
+		}
+		trait = bad_priest_americanist
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			trait = bad_priest_americanist
+		}
+		} change_variable = { which = newCandidate value = 25 } }
+	if = { 
+		
+		limit = {
+		NOR = {
+			trait = cynical
+			trait = arbitrary
+			trait = zealous
+			trait = bad_priest_americanist
+		}
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			trait = bad_priest_americanist
+		}
+		} change_variable = { which = newCandidate value = -50 } }
+	#Wicked Judge
+	if = { 
+		
+		limit = {
+		trait = zealous
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			trait = bad_priest_americanist
+		}
+		} change_variable = { which = newCandidate value = -100 } }
+	#Crusader
+	if = { 
+		
+		limit = {
+		
+		NOT = { religion_authority = 0.4 }
+		NOR = {
+			trait = cynical
+			trait = zealous
+		}
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			religion = ROOT
+			has_crusade_trait_trigger = yes
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { religion_authority = 0.4 }
+		trait = zealous
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			religion = ROOT
+			has_crusade_trait_trigger = yes
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	#Presidential bloodline.
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			any_owned_bloodline = {
+				has_bloodline_flag = prez_bloodline
+			}
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	#########################   Elector voting himself   ##########################					   #yep here it is
+	#Not much has changed, except for incorporating the Become President ambition into it.
+	#Changed to the on_campaign trait. WWW should've done this but w/e
+	#schrodinger's design philosophy: when you do something good and are complimented, it is a serious mod that you put a lot of work into.
+	#when people call you out for poor design decisions or rude conduct, then it's just a for fun silly thing with your friends.
+	#at least I credit people
+	if = { 
+		
+		limit = {
+		
+		character = event_target:new_candidate
+		NOR = {
+			trait = humble
+			trait = content
+			trait = craven
+			trait = slothful
+			trait = stressed
+			trait = depressed
+			trait = ambitious
+		}
+		NOT = { trait = on_campaign }
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		character = event_target:new_candidate
+		NOT = { trait = ambitious }
+		NOT = { trait = on_campaign }
+		OR = {
+			trait = humble
+			trait = content
+			trait = craven
+			trait = slothful
+			trait = stressed
+			trait = depressed
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	#if = { #no longer makes sense to include this edge case. i get it's a silly for fun mod but you seem to take a lot of pride in "fixing" this even though this area is really rough.
+	#	
+	#	limit = {
+	#	
+	#	character = event_target:new_candidate
+	#	trait = ambitious
+	#	NOT = { trait = on_campaign }
+	#	} change_variable = { which = newCandidate value = 40 } }
+	if = { 
+		
+		limit = {
+		
+		character = event_target:new_candidate
+		trait = on_campaign
+		} change_variable = { which = newCandidate value = 40 } }
+	#Sexism
+	#Works similarly to vanilla, but cultures that allow absolute cognatic will not be affected (i.e., they will treat men and women equally.)
+	if = { 
+		
+		limit = {
+		
+		holder_scope = {
+			has_law = status_of_women_0
+		}
+		NOR = {
+			has_feminist_culture_trigger = yes
+			has_game_rule = {
+				name = gender
+				value = all
+			}
+		}
+		event_target:new_candidate = {
+			is_female = yes
+		}
+		} change_variable = { which = newCandidate value = -30 } }
+	if = { 
+		
+		limit = {
+		
+		holder_scope = {
+			has_law = status_of_women_1
+		}
+		NOR = {
+			has_feminist_culture_trigger = yes
+			has_game_rule = {
+				name = gender
+				value = all
+			}
+		}
+		event_target:new_candidate = {
+			is_female = yes
+		}
+		} change_variable = { which = newCandidate value = -40 } }
+	if = { 
+		
+		limit = {
+		
+		holder_scope = {
+			has_law = status_of_women_2
+		}
+		NOR = {
+			has_feminist_culture_trigger = yes
+			has_game_rule = {
+				name = gender
+				value = all
+			}
+		}
+		event_target:new_candidate = {
+			is_female = yes
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		holder_scope = {
+			has_law = status_of_women_3
+		}
+		NOT = {
+			has_game_rule = {
+				name = gender
+				value = all
+			}
+		}
+		event_target:new_candidate = {
+			is_female = yes
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	##Ageism##
+	#Candidates will favor older candidates, barring exceptional circumstances. Note that, after a candidate reaches the age of 65, the value drops sharply.
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			NOT = {
+				age = 40
+			}
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			age = 40
+			NOT = {
+				age = 45
+			}
+			NOR = {
+				trait = quick
+				trait = genius
+				diplomacy = 16
+				AND = {
+					trait = just
+					trait = erudite
+					OR = {
+						trait = kind
+						trait = diligent
+						trait = charitable
+						trait = zealous
+					}
+				}
+			}
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	#Candidates between 45 and 50 are rated as default.
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			age = 50
+			NOT = {
+				age = 55
+			}
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			age = 55
+			NOT = {
+				age = 65
+			}
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate }
+		event_target:new_candidate = {
+			age = 65
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	#Culturism
+	#Works similarly to vanilla.
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate }
+		culture = event_target:new_candidate
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { culture = event_target:new_candidate }
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { culture_group = event_target:new_candidate }
+		} change_variable = { which = newCandidate value = -30 } }
+	#Barbarism
+	if = { 
+		
+		limit = {
+		
+		OR = { 
+			is_feudal = yes 
+			is_merchant_republic = yes
+			is_patrician = yes
+		}
+		event_target:new_candidate = { 
+			NOR = { 
+				is_feudal = yes 
+				is_merchant_republic = yes
+				is_patrician = yes
+			} 
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	#Nepotism
+	#Note that nepotism goes against traditional Americanist values, and will be opposed by Just or Zealous rulers.
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { 
+			dynasty = ROOT
+			NOT = { 
+				is_close_relative = ROOT
+			}
+			NOR = {
+				trait = just
+				trait = zealous
+			}
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { 
+			is_close_relative = ROOT
+			NOT = { 
+				is_child_of = ROOT
+			}
+			NOR = {
+				trait = just
+				trait = zealous
+			}
+		}
+		} change_variable = { which = newCandidate value = 20 } }
+	#Prestige
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { NOT = { prestige = -1000 } }
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { prestige = -1000 }
+		event_target:new_candidate = { NOT = { prestige = -500 } }
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { prestige = -500 }
+		event_target:new_candidate = { NOT = { prestige = -250 } }
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { prestige = -250 }
+		event_target:new_candidate = { NOT = { prestige = 0 } }
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { prestige = 250 }
+		event_target:new_candidate = { NOT = { prestige = 500 } }
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { prestige = 500 }
+		event_target:new_candidate = { NOT = { prestige = 1000 } }
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { prestige = 1000 }
+		} change_variable = { which = newCandidate value = 15 } }
+	
+	#Piety
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { NOT = { piety = -500 } }
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { piety = -500 }
+		event_target:new_candidate = { NOT = { piety = -250 } }
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { piety = -250 }
+		event_target:new_candidate = { NOT = { piety = -100 } }
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { piety = -100 }
+		event_target:new_candidate = { NOT = { piety = 0 } }
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { piety = 100 }
+		event_target:new_candidate = { NOT = { piety = 250 } }
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { piety = 250 }
+		event_target:new_candidate = { NOT = { piety = 500 } }
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { 
+			character = event_target:new_candidate
+		}
+		event_target:new_candidate = { piety = 500 }
+		} change_variable = { which = newCandidate value = 15 } }
+	#Educational preferences
+	if = { 
+		
+		limit = {
+		
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = {
+			martial = 10
+			OR = { 
+				has_education_martial_trigger = yes 
+				has_lifestyle_martial_trigger = yes
+			} 
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = {
+			is_merchant_republic = yes
+		}
+		event_target:new_candidate = { 
+			OR = { 
+				AND = { 
+					diplomacy = 10
+					OR = { 
+						has_education_diplomacy_trigger = yes
+						has_lifestyle_diplomacy_trigger = yes
+					}
+				}
+				AND = { 
+					learning = 10
+					OR = { 
+						has_education_learning_trigger = yes 
+						has_lifestyle_learning_trigger = yes
+					}
+				}
+			} 
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		is_merchant_republic = yes
+		event_target:new_candidate = { 
+			stewardship = 10
+			OR = { 
+				has_education_stewardship_trigger = yes 
+				has_lifestyle_stewardship_trigger = yes
+			} 
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	#All the Traits
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = depressed
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = drunkard
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = immortal
+		}
+		} change_variable = { which = newCandidate value = -35	 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = incapable
+		}
+		} change_variable = { which = newCandidate value = -50 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = infirm
+		}
+		} change_variable = { which = newCandidate value = -30 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOR = { 
+			trait = zealous 
+			is_tribal = yes
+		}
+		event_target:new_candidate = { 
+			trait = lunatic
+		}
+		} change_variable = { which = newCandidate value = -30 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = maimed
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { trait = zealous }
+		event_target:new_candidate = { 
+			trait = possessed
+		}
+		} change_variable = { which = newCandidate value = -35 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = zealous
+		NOR = { 
+			is_tribal = yes
+			is_nomadic = yes
+		}
+		event_target:new_candidate = { 
+			trait = possessed
+		}
+		} change_variable = { which = newCandidate value = -60 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = physician
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = scarred
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = scarred_mid
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = scarred_high
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = stressed
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = wounded
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = has_aztec_disease
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = has_typhus 
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = cancer
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = has_tuberculosis
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = dancing_plague 
+		}
+		} change_variable = { which = newCandidate value = -35 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = dysentery
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = flu
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = food_poisoning
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = gout
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = syphilitic
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = has_typhoid_fever 
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = ill
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = leper
+		}
+		} change_variable = { which = newCandidate value = -50 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = has_measles
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = pneumonic
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = rabies
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = scurvy
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = sickly
+		}
+		} change_variable = { which = newCandidate value = -45 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = has_small_pox
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = has_bubonic_plague
+		}
+		} change_variable = { which = newCandidate value = -35 } }
+	if = { 
+		
+		limit = {
+		
+		religion_authority = 0.4
+		NOT = { 
+			culture_group = south_anglo
+		}
+		event_target:new_candidate = { 
+			trait = disfigured
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		religion_authority = 0.4
+		culture_group = south_anglo
+		event_target:new_candidate = { 
+			trait = disfigured
+		}
+		} change_variable = { which = newCandidate value = -50 } }
+
+	if = { 
+		
+		limit = {
+		
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = disfigured
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = mangled
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = mangled
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = one_eyed
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = one_handed
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		event_target:new_candidate = { 
+			trait = one_legged
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = severely_injured
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_feudal = yes
+		event_target:new_candidate = { 
+			trait = bastard
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	#additive_modifier = {
+	#	value = 10
+	#	
+	#	NOT = { character = event_target:new_candidate } #
+	#	culture_group = byzantine
+	#	event_target:new_candidate = { 
+	#		trait = born_in_the_purple
+	#	}
+	#}
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_feudal = yes
+		event_target:new_candidate = {
+			OR = { 
+				trait = legit_bastard
+				trait = child_of_consort_male
+				trait = child_of_consort
+			}
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_adult = yes
+		NOT = { is_close_relative = event_target:new_candidate }
+		OR = { 
+			AND = { 
+				prefers_men_trigger = yes
+				NOR = { 
+					trait = celibate 
+					AND = { 
+						is_married = yes 
+						NOT = { is_married = event_target:new_candidate }
+						trait = chaste
+					}
+				}
+				event_target:new_candidate = { 
+					is_female = no 
+					is_adult = yes
+					is_attractive_trigger = yes
+				}
+			}
+			AND = { 
+				prefers_men_trigger = no
+				NOR = { 
+					trait = celibate 
+					AND = { 
+						is_married = yes 
+						NOT = { is_married = event_target:new_candidate }
+						trait = chaste
+					}
+				}
+				event_target:new_candidate = { 
+					is_female = yes 
+					is_adult = yes
+					is_attractive_trigger = yes
+				}
+			}
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_adult = yes
+		NOT = { is_close_relative = event_target:new_candidate }
+		OR = { 
+			AND = { 
+				prefers_men_trigger = yes
+				NOR = { 
+					trait = celibate 
+					AND = { 
+						is_married = yes 
+						NOT = { is_married = event_target:new_candidate }
+						trait = chaste
+					}
+				}
+				event_target:new_candidate = { 
+					is_female = no 
+					is_adult = yes
+					is_unattractive_trigger = yes
+				}
+			}
+			AND = { 
+				prefers_men_trigger = no
+				NOR = { 
+					trait = celibate 
+					AND = { 
+						is_married = yes 
+						NOT = { is_married = event_target:new_candidate }
+						trait = chaste
+					}
+				}
+				event_target:new_candidate = { 
+					is_female = yes 
+					is_adult = yes
+					is_unattractive_trigger = yes
+				}
+			}
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = genius
+		}
+		} change_variable = { which = newCandidate value = 20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = quick
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = quick
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = strong
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = strong
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = clubfooted
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = dwarf
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = harelip
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = hunchback
+		}
+		} change_variable = { which = newCandidate value = -30 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = imbecile
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = inbred
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = lisp
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = slow
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = stutter
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = weak
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = weak
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = robust
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = robust
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = dull
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = feeble
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = feeble
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+
+	#The Seven Sins/Virtues
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { trait = lustful }
+		event_target:new_candidate = { 
+			trait = chaste
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = lustful 
+			trait = hedonist
+		}
+		NOT = { trait = chaste }
+		event_target:new_candidate = { 
+			trait = chaste
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { trait = gluttonous }
+		event_target:new_candidate = { 
+			trait = temperate
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = gluttonous
+			trait = drunkard
+			trait = hedonist
+		}
+		NOT = { trait = temperate }
+		event_target:new_candidate = { 
+			trait = temperate
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { trait = greedy }
+		NOT = { is_merchant_republic = yes } # They don't hate charity, they simply  about it much.
+		event_target:new_candidate = { 
+			trait = charitable
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = {
+			trait = greedy
+			AND = { #Zealous and insane rulers may mistake charity for Communism.
+				trait = zealous
+				trait = lunatic
+				trait = possessed
+			}
+		}
+		event_target:new_candidate = { 
+			trait = charitable
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { trait = slothful }
+		event_target:new_candidate = { 
+			trait = diligent
+		}
+		} change_variable = { which = newCandidate value = 25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = slothful
+		event_target:new_candidate = { 
+			trait = diligent
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = {
+			NOT = { 
+				trait = wroth
+			}
+			religion_authority = 0.4
+		}
+		event_target:new_candidate = { 
+			trait = patient
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = wroth
+		event_target:new_candidate = { 
+			trait = patient
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_benevolent_trigger = yes
+		event_target:new_candidate = { 
+			is_benevolent_trigger = yes
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_evil_trigger = yes
+		event_target:new_candidate = { 
+			is_benevolent_trigger = yes
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOR = { 
+			trait = proud 
+			trait = envious
+		}
+		event_target:new_candidate = { 
+			trait = humble
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = {
+			trait = proud
+			trait = envious
+		}
+		event_target:new_candidate = { 
+			trait = humble
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = lustful
+			trait = hedonist
+		}
+		event_target:new_candidate = { 
+			trait = lustful
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = arbitrary #
+			NOR = { 
+				trait = lustful
+				trait = hedonist
+			}
+		}
+		event_target:new_candidate = { 
+			trait = lustful
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = {
+			trait = gluttonous
+			trait = hedonist
+		}
+		event_target:new_candidate = { 
+			trait = gluttonous
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = arbitrary #
+			NOR = { 
+				trait = gluttonous
+				trait = hedonist
+			}
+		}
+		event_target:new_candidate = { 
+			trait = gluttonous
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = greedy
+		event_target:new_candidate = { 
+			trait = greedy
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_merchant_republic = yes }
+		OR = { 
+			trait = arbitrary #
+			NOT = { trait = greedy }
+		}
+		event_target:new_candidate = { 
+			trait = greedy
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = slothful
+		event_target:new_candidate = { 
+			trait = slothful
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = arbitrary #
+			NOT = { trait = slothful }
+		}
+		event_target:new_candidate = { 
+			trait = slothful
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = wroth
+		event_target:new_candidate = { 
+			trait = wroth
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = wroth
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = arbitrary #
+			NOT = { is_evil_trigger = yes }
+		}
+		event_target:new_candidate = { 
+			is_evil_trigger = yes
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = proud
+		event_target:new_candidate = { 
+			trait = proud
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = arbitrary #
+			trait = humble
+			AND = { 
+				is_theocracy = yes 
+				NOT = { trait = proud } 
+			}
+		}
+		event_target:new_candidate = { 
+			trait = proud
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = {
+			trait = content
+		}
+		event_target:new_candidate = { 
+			trait = ambitious
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = content
+		event_target:new_candidate = { 
+			trait = ambitious
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = just
+			trait = arbitrary #Arbitraception
+		}
+		event_target:new_candidate = { 
+			trait = arbitrary
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		NOR = { 
+			trait = envious
+			trait = arbitrary #
+		}
+		event_target:new_candidate = { 
+			trait = brave
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		NOR = { 
+			trait = envious
+			trait = arbitrary #
+		}
+		event_target:new_candidate = { 
+			trait = brave
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		OR = { 
+			trait = envious
+			trait = arbitrary #
+		}
+		event_target:new_candidate = { 
+			trait = brave
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = content
+		event_target:new_candidate = { 
+			trait = content
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_group = pagan_group
+		NOT = { 
+			trait = content
+		}
+		event_target:new_candidate = { 
+			trait = content
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = craven
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = craven
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = cynical
+		event_target:new_candidate = { 
+			trait = cynical
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOR = { 
+			trait = cynical
+			trait = zealous
+		}
+		event_target:new_candidate = { 
+			trait = cynical
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { has_religion_feature = religion_dogmatic has_religion_feature = religion_feature_rust_cultist }
+		religion = event_target:new_candidate
+		trait = zealous
+		event_target:new_candidate = { 
+			trait = cynical
+		}
+		} change_variable = { which = newCandidate value = -50 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = arbitrary 
+			trait = honest
+		}
+		event_target:new_candidate = { 
+			trait = deceitful
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOR = {
+			trait = deceitful
+			trait = schemer
+		}
+		event_target:new_candidate = { 
+			trait = honest
+		}
+		} change_variable = { which = newCandidate value = 20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		event_target:new_candidate = { 
+			trait = erudite
+		}
+		} change_variable = { which = newCandidate value = 20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOR = { 
+			trait = deceitful
+			trait = arbitrary
+		}
+		event_target:new_candidate = { 
+			trait = just
+		}
+		} change_variable = { which = newCandidate value = 25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		NOR = { 
+			trait = deceitful
+			trait = arbitrary
+			trait = paranoid
+		}
+		event_target:new_candidate = { 
+			trait = paranoid
+		}
+		} change_variable = { which = newCandidate value = -5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		trait = paranoid
+		NOR = { 
+			trait = deceitful
+			trait = arbitrary
+		}
+		event_target:new_candidate = { 
+			trait = paranoid
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { trait = shy }
+		event_target:new_candidate = {
+			trait = shy
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = stubborn
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	#Americanists don't see stubborness as a bad thing.
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			trait = deceitful
+			trait = schemer
+			trait = ambitious
+		}
+		event_target:new_candidate = { 
+			trait = trusting
+		}
+		} change_variable = { which = newCandidate value = 5 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion = event_target:new_candidate
+		NOT = { 
+			trait = cynical
+		}
+		event_target:new_candidate = { 
+			trait = zealous
+		}
+		} change_variable = { which = newCandidate value = 20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion = event_target:new_candidate
+		trait = cynical
+		event_target:new_candidate = { 
+			trait = zealous
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion = event_target:new_candidate
+		trait = zealous
+		event_target:new_candidate = { 
+			trait = pilgrim
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = adventurer
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		religion_authority = 0.4
+		event_target:new_candidate = { 
+			trait = blinded
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = blinded
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	#Americanists  if their President is a eunuch.
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		OR = { 
+			NOT = { trait = excommunicated }
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			excommunicated_for = ROOT
+		}
+		} change_variable = { which = newCandidate value = -100 } }
+	#Kinslayer - event_target:new_candidate stranger's perspective
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { dynasty = event_target:new_candidate }
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = dynastic_kinslayer
+		}
+		} change_variable = { which = newCandidate value = -10 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { dynasty = event_target:new_candidate }
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = familial_kinslayer
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { dynasty = event_target:new_candidate }
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = kinslayer
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	#Kinslayer - event_target:new_candidate a far relative's perspective
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_close_relative = event_target:new_candidate }
+		dynasty = event_target:new_candidate
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = dynastic_kinslayer
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_close_relative = event_target:new_candidate }
+		dynasty = event_target:new_candidate
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = familial_kinslayer
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_close_relative = event_target:new_candidate }
+		dynasty = event_target:new_candidate
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = kinslayer
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	#Kinslayer - event_target:new_candidate a close relative's perspective
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_close_relative = event_target:new_candidate 
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = dynastic_kinslayer
+		}
+		} change_variable = { which = newCandidate value = -20 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_close_relative = event_target:new_candidate 
+		dynasty = event_target:new_candidate
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = familial_kinslayer
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_close_relative = event_target:new_candidate 
+		dynasty = event_target:new_candidate
+		OR = { 
+			NOR = { 
+				trait = dynastic_kinslayer 
+				trait = familial_kinslayer
+				trait = kinslayer
+			}
+			trait = arbitrary 
+		}
+		event_target:new_candidate = { 
+			trait = kinslayer
+		}
+		} change_variable = { which = newCandidate value = -30 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { has_sympathy_trait_trigger = yes }
+		event_target:new_candidate = { 
+			has_sympathy_trait_trigger = yes
+		}
+		} change_variable = { which = newCandidate value = -25 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { religion_authority = 0.4 }
+		event_target:new_candidate = { 
+			trait = giant
+		}
+		} change_variable = { which = newCandidate value = 10 } }
+	########################  Raw Opinion bonus towards Candidate   ##########################
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		is_rival = event_target:new_candidate
+		} change_variable = { which = newCandidate value = -150 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		NOT = {
+			opinion = {
+				who = event_target:new_candidate
+				value = -75 
+			}
+		}
+		} change_variable = { which = newCandidate value = -100 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		NOT = {
+			opinion = {
+				who = event_target:new_candidate
+				value = -50  
+			}
+		}
+		opinion = {
+			who = event_target:new_candidate
+			value = -75 
+		}
+		} change_variable = { which = newCandidate value = -50 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		NOT = {
+			opinion = {
+				who = event_target:new_candidate
+				value = -25
+			}
+		}
+		opinion = {
+			who = event_target:new_candidate
+			value = -50
+		}
+		} change_variable = { which = newCandidate value = -30 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		NOT = {
+			opinion = {
+				who = event_target:new_candidate
+				value = 0
+			}
+		}
+		opinion = {
+			who = event_target:new_candidate
+			value = -25 
+		}
+		} change_variable = { which = newCandidate value = -15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		opinion = {
+			who = event_target:new_candidate
+			value = 0
+		}
+		NOT = {
+			opinion = {
+				who = event_target:new_candidate
+				value = 25
+			}
+		}
+		} change_variable = { which = newCandidate value = 15 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		opinion = {
+			who = event_target:new_candidate
+			value = 25
+		}
+		NOT = {
+			opinion = {
+				who = event_target:new_candidate
+				value = 50
+			}
+		}
+		} change_variable = { which = newCandidate value = 30 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		opinion = {
+			who = event_target:new_candidate
+			value = 50
+		}
+		NOT = {
+			opinion = {
+				who = event_target:new_candidate
+				value = 75 
+			}
+		}
+		} change_variable = { which = newCandidate value = 50 } }
+	if = { 
+		
+		limit = {
+		
+		NOT = { character = event_target:new_candidate } 
+		NOT = { is_rival = event_target:new_candidate } 
+		opinion = {
+			who = event_target:new_candidate
+			value = 75
+		}
+		} change_variable = { which = newCandidate value = 70 } }
+
+	if = {
+		limit = {
+			OR = {
+				trait = lunatic
+				NOT = { ai_rationality = -40 }
+			}
+		}
+		random_list = {
+			20 = {
+				change_variable = { which = newCandidate value = 100 }
+			}
+			20 = {
+				change_variable = { which = newCandidate value = -100 }
+			}
+			20 = {
+				change_variable = { which = newCandidate value = 50 }
+			}
+			20 = {
+				change_variable = { which = newCandidate value = -50 }
+			}
+			20 = {}
+		}
+	}
+	else = {
+		random_list = {
+			10 = {
+				change_variable = { which = newCandidate value = 10 }
+			}
+			10 = {
+				change_variable = { which = newCandidate value = -10 }
+			}
+			20 = {
+				change_variable = { which = newCandidate value = 25 }
+			}
+			20 = {
+				change_variable = { which = newCandidate value = -25 }
+			}
+			10 = {
+				change_variable = { which = newCandidate value = 50 }
+			}
+			10 = {
+				change_variable = { which = newCandidate value = -50 }
+			}
+			20 = {}
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_opinion_modifier = { who = event_target:new_candidate modifier = opinion_loyal_servant }
+				has_opinion_modifier = { who = event_target:new_candidate modifier = opinion_the_chosen_one }
+			}
+		}
+		set_variable = { which = newCandidate value = 10000 }
+	}
+}
+
+evaluate_candidate = {
+	clr_character_flag = current_candidate_c1
+	clr_character_flag = current_candidate_c2
+	clr_character_flag = current_candidate_c3
+	clr_character_flag = current_candidate_c4
+	clr_character_flag = current_candidate_c5
+	clr_character_flag = current_candidate_c6
+	clr_character_flag = current_candidate_c7
+	clr_character_flag = current_candidate_c8
+	if = {
+		limit = {
+			OR = {
+				NOT = { has_character_flag = evaluated_candidate_c1 }
+				NOT = { has_character_flag = evaluated_candidate_c2 }
+				NOT = { has_character_flag = evaluated_candidate_c3 }
+				NOT = { has_character_flag = evaluated_candidate_c4 }
+				NOT = { has_character_flag = evaluated_candidate_c5 }
+				NOT = { has_character_flag = evaluated_candidate_c6 }
+				NOT = { has_character_flag = evaluated_candidate_c7 }
+				NOT = { has_character_flag = evaluated_candidate_c8 }
+			}
+		}
+		if = {
+			limit = { 
+				NOT = { has_character_flag = evaluated_candidate_c1 }
+			}
+			event_target:c1 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c1
+			log = "Current candidate c1: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		else_if = {
+			limit = {
+				NOT = { has_character_flag = evaluated_candidate_c2 }
+			}
+			event_target:c2 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c2
+			log = "Current candidate c2: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		else_if = {
+			limit = {
+				NOT = { has_character_flag = evaluated_candidate_c3 }
+			}
+			event_target:c3 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c3
+			log = "Current candidate c3: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		else_if = {
+			limit = {
+				NOT = { has_character_flag = evaluated_candidate_c4 }
+			}
+			event_target:c4 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c4
+			log = "Current candidate c4: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		else_if = {
+			limit = { 
+				NOT = { has_character_flag = evaluated_candidate_c5 }
+			}
+			event_target:c5 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c5
+			log = "Current candidate c5: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		else_if = {
+			limit = {
+				NOT = { has_character_flag = evaluated_candidate_c6 }
+			}
+			event_target:c6 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c6
+			log = "Current candidate c6: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		else_if = {
+			limit = {
+				NOT = { has_character_flag = evaluated_candidate_c7 }
+			}
+			event_target:c7 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c7
+			log = "Current candidate c7: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		else_if = {
+			limit = {
+				NOT = { has_character_flag = evaluated_candidate_c8 }
+			}
+			event_target:c8 = { save_event_target_as = new_candidate }
+			set_character_flag = current_candidate_c8
+			log = "Current candidate c8: [new_candidate.GetBestName]"
+			calculate_candidate_score = yes
+		}
+		log = "[new_candidate.GetBestName]: [Root.newCandidate.GetValue] best candidate: [Root.bestCandidate.GetValue]"
+		if = {
+			limit = { has_character_flag = current_candidate_c1 }
+			set_character_flag = evaluated_candidate_c1
+		}
+		else_if = {
+			limit = { has_character_flag = current_candidate_c2 }
+			set_character_flag = evaluated_candidate_c2
+		}
+		else_if = {
+			limit = { has_character_flag = current_candidate_c3 }
+			set_character_flag = evaluated_candidate_c3
+		}
+		else_if = {
+			limit = { has_character_flag = current_candidate_c4 }
+			set_character_flag = evaluated_candidate_c4
+		}
+		else_if = {
+			limit = { has_character_flag = current_candidate_c5 }
+			set_character_flag = evaluated_candidate_c5
+		}
+		else_if = {
+			limit = { has_character_flag = current_candidate_c6 }
+			set_character_flag = evaluated_candidate_c6
+		}
+		else_if = {
+			limit = { has_character_flag = current_candidate_c7 }
+			set_character_flag = evaluated_candidate_c7
+		}
+		else_if = {
+			limit = { has_character_flag = current_candidate_c8 }
+			set_character_flag = evaluated_candidate_c8
+		}
+		if = {
+			limit = {
+				check_variable = { which = newCandidate which = bestCandidate }
+			}
+			clr_character_flag = best_candidate_c1
+			clr_character_flag = best_candidate_c2
+			clr_character_flag = best_candidate_c3
+			clr_character_flag = best_candidate_c4
+			clr_character_flag = best_candidate_c5
+			clr_character_flag = best_candidate_c6
+			clr_character_flag = best_candidate_c7
+			clr_character_flag = best_candidate_c8
+			if = {
+				limit = { has_character_flag = current_candidate_c1 }
+				set_character_flag = best_candidate_c1
+				log = "new best candidate c1: [new_candidate.GetBestName]"
+			}
+			else_if = {
+				limit = { has_character_flag = current_candidate_c2 }
+				set_character_flag = best_candidate_c2
+				log = "new best candidate c2: [new_candidate.GetBestName]"
+			}
+			else_if = {
+				limit = { has_character_flag = current_candidate_c3 }
+				set_character_flag = best_candidate_c3
+				log = "new best candidate c3: [new_candidate.GetBestName]"
+			}
+			else_if = {
+				limit = { has_character_flag = current_candidate_c4 }
+				set_character_flag = best_candidate_c4
+				log = "new best candidate c4: [new_candidate.GetBestName]"
+			}
+			else_if = {
+				limit = { has_character_flag = current_candidate_c5 }
+				set_character_flag = best_candidate_c5
+				log = "new best candidate c5: [new_candidate.GetBestName]"
+			}
+			else_if = {
+				limit = { has_character_flag = current_candidate_c6 }
+				set_character_flag = best_candidate_c6
+				log = "new best candidate c6: [new_candidate.GetBestName]"
+			}
+			else_if = {
+				limit = { has_character_flag = current_candidate_c7 }
+				set_character_flag = best_candidate_c7
+				log = "new best candidate c7: [new_candidate.GetBestName]"
+			}
+			else_if = {
+				limit = { has_character_flag = current_candidate_c8 }
+				set_character_flag = best_candidate_c8
+				log = "new best candidate c8: [new_candidate.GetBestName]"
+			}
+			set_variable = { which = bestCandidate which = newCandidate }
+		}
+		else_if = {
+			limit = {
+				is_variable_equal = { which = newCandidate which = bestCandidate }
+			}
+			random = {
+				chance = 50
+				clr_character_flag = best_candidate_c1
+				clr_character_flag = best_candidate_c2
+				clr_character_flag = best_candidate_c3
+				clr_character_flag = best_candidate_c4
+				clr_character_flag = best_candidate_c5
+				clr_character_flag = best_candidate_c6
+				clr_character_flag = best_candidate_c7
+				clr_character_flag = best_candidate_c8
+				if = {
+					limit = { has_character_flag = current_candidate_c1 }
+					set_character_flag = best_candidate_c1
+					log = "new best candidate c1: [new_candidate.GetBestName]"
+				}
+				else_if = {
+					limit = { has_character_flag = current_candidate_c2 }
+					set_character_flag = best_candidate_c2
+					log = "new best candidate c2: [new_candidate.GetBestName]"
+				}
+				else_if = {
+					limit = { has_character_flag = current_candidate_c3 }
+					set_character_flag = best_candidate_c3
+					log = "new best candidate c3: [new_candidate.GetBestName]"
+				}
+				else_if = {
+					limit = { has_character_flag = current_candidate_c4 }
+					set_character_flag = best_candidate_c4
+					log = "new best candidate c4: [new_candidate.GetBestName]"
+				}
+				else_if = {
+					limit = { has_character_flag = current_candidate_c5 }
+					set_character_flag = best_candidate_c5
+					log = "new best candidate c5: [new_candidate.GetBestName]"
+				}
+				else_if = {
+					limit = { has_character_flag = current_candidate_c6 }
+					set_character_flag = best_candidate_c6
+					log = "new best candidate c6: [new_candidate.GetBestName]"
+				}
+				else_if = {
+					limit = { has_character_flag = current_candidate_c7 }
+					set_character_flag = best_candidate_c7
+					log = "new best candidate c7: [new_candidate.GetBestName]"
+				}
+				else_if = {
+					limit = { has_character_flag = current_candidate_c8 }
+					set_character_flag = best_candidate_c8
+					log = "new best candidate c8: [new_candidate.GetBestName]"
+				}
+			}
+		}
+	}
+}
+

@@ -4,7 +4,7 @@ targetted_decisions = {
 	vassal_generic_sacrifice_decision = {
 		only_playable = yes
 		ai_check_interval = 8 #check only once every 8 months.
-	    diplomacy_icon = GFX_sacrifice_decision
+		diplomacy_icon = GFX_sacrifice_decision
 	
 		ai_target_filter = home_court
 	
@@ -89,7 +89,7 @@ targetted_decisions = {
 	stable_attribute_improvement_decision = {
 		only_playable = yes
 		ai_check_interval = 50 #check only once every 50 months.
-	    diplomacy_icon = GFX_stable_prestige_icon_decision
+		diplomacy_icon = GFX_stable_prestige_icon_decision
 	
 		filter = court
 		ai_target_filter = court
@@ -336,7 +336,7 @@ targetted_decisions = {
 	stable_attribute_improvement_self_decision = {
 		only_playable = yes
 		ai_check_interval = 50 #check only once every 50 months.
-	    diplomacy_icon = GFX_stable_prestige_icon_decision
+		diplomacy_icon = GFX_stable_prestige_icon_decision
 	
 		filter = self
 		ai_target_filter = self
@@ -463,6 +463,7 @@ decisions = {
 				trait = sympathy_pagans
 				trait = sympathy_judaism
 				trait = sympathy_indian
+				trait = sympathy_islam
 				has_character_flag = flag_picking_sympathy
 			}
 			OR = { 
@@ -1010,6 +1011,71 @@ decisions = {
 								}
 							}
 						}
+						100 = {
+							add_trait = sympathy_islam
+							
+							modifier = {
+								factor = 0
+								religion_group = muslim
+							}
+							modifier = { # Prioritize getting a sympathy trait that is useful
+								factor = 100
+								OR = {
+									any_demesne_province = {
+										religion_group = muslim
+									}
+									any_vassal = {
+										religion_group = muslim
+									}
+								}
+							}
+							modifier = { # Otherwise try to emulate your liege
+								factor = 5
+								NOR = {
+									any_demesne_province = {
+										NOT = { religion_group = muslim }
+									}
+									any_vassal = {
+										NOT = { religion_group = muslim }
+									}
+								}
+								any_liege = {
+									OR = {
+										AND = {
+											trait = sympathy_islam
+											religion = ROOT
+										}
+										religion_group = muslim
+									}
+								}	
+							}
+							modifier = {
+								factor = 0
+								NOR = {
+									any_liege = {
+										OR = {
+											AND = {
+												trait = sympathy_islam
+												religion = ROOT
+											}
+											religion_group = muslim
+										}
+									}
+									spouse = {
+										religion_group = muslim
+									}
+									any_courtier_or_vassal = {
+										religion_group = muslim
+									}
+									any_neighbor_independent_ruler = {
+										religion_group = muslim
+									}
+									any_demesne_province = {
+										religion_group = muslim
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1077,6 +1143,7 @@ decisions = {
 			NOR = { #still use existing branch traits
 				religion = occultist
 				religion = occultist_reformed
+				religion = peyotist
 			}
 			NOT = { trait = pagan_branch_1 }
 			NOT = { trait = pagan_branch_2 }
@@ -1123,6 +1190,7 @@ decisions = {
 			NOR = { #still use existing branch traits
 				religion = occultist
 				religion = occultist_reformed
+				religion = peyotist
 			}
 			OR = { 
 				trait = pagan_branch_1
@@ -1235,7 +1303,7 @@ decisions = {
 			}
 			is_heretic = no #Must belong to a dominant denomination of the faith.
 			OR = { #Must be of the interested cultures.
-				culture_group = north_atlantic
+				culture_group = mid_atlantic
 				culture_group = south_anglo
 			}
 			OR = { #Must be eccentric or crazy.
@@ -1615,6 +1683,10 @@ settlement_decisions = {
 					religion = celtic_pagan
 					any_realm_province = { has_province_flag = flag_great_pillar_celtic_pagan } 
 				}
+				AND = { 
+					religion = trailwalker
+					any_realm_province = { has_province_flag = flag_great_pillar_trailwalker } 
+				}
 			}
 		}
 		
@@ -1654,6 +1726,7 @@ settlement_decisions = {
 							has_province_flag = flag_great_pillar_occultist
 							has_province_flag = flag_great_pillar_thelemic
 							has_province_flag = flag_great_pillar_celtic_pagan
+							has_province_flag = flag_great_pillar_trailwalker
 						}
 					}
 				}
@@ -1740,6 +1813,18 @@ settlement_decisions = {
 					if = { 
 						limit = { NOT = { has_building = tb_great_pillar_celtic_pagan } } 
 						add_building = tb_great_pillar_celtic_pagan
+					}
+				}
+				if = {  
+					limit = { FROM = { religion = trailwalker } }
+					hidden_tooltip = {
+						location = {
+							set_province_flag = flag_great_pillar_trailwalker
+						}
+					}
+					if = { 
+						limit = { NOT = { has_building = tb_great_pillar_trailwalker } } 
+						add_building = tb_great_pillar_trailwalker
 					}
 				}
 			}

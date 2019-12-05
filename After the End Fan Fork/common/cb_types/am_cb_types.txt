@@ -2531,7 +2531,7 @@ reconquista_bajio = {
 
 	on_success = {
 
-		d_los_altos = {
+		d_bajio_occidente = {
 			save_event_target_as = first_duchy_title
 		}
 
@@ -3053,6 +3053,19 @@ cetic_holy_war = { #Adapted from Buddhist holy war
 			OR = {
 				NOT = { has_character_modifier = holy_war_cooldown }
 				has_game_rule = { name = holy_war_cooldown_rule value = off }
+			}
+		}
+		NAND = {
+			ROOT = {
+				has_law = bureaucratic_war_declaration_1
+			}
+			OR = {
+				e_california = {
+					has_holder = yes
+				}
+				e_new_california = {
+					has_holder = yes
+				}
 			}
 		}
 	}
@@ -3594,5 +3607,1007 @@ imperial_claim_war = { #Special CB used for imperial claims
 			}
 			abdicate = yes
 		}
+	}
+}
+maghrebjihad = {
+	name = CB_NAME_COLONIZATION
+	war_name = WAR_NAME_COLONIZATION
+	sprite = 9
+	truce_days = 3650
+	is_permanent = yes
+	hostile_against_others = yes
+	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character. Only valid if is_permanent = yes
+
+	can_use = {
+		ROOT = {
+			has_character_flag = revivalistconqueror
+		}
+	}
+	
+	can_use_title = {
+		FROM = {
+			any_realm_province = {
+				port = yes
+				de_jure_liege_or_above = PREVPREV
+				any_province_holding = { holding_type = castle }
+			}
+		}
+	}
+	
+	on_add = {
+		if = {
+			limit = { defender = { is_offmap_governor = offmap_china } }
+			attacker = {  
+				sound_effect = china_angered_emperor
+				detract_grace_super_huge_effect = yes
+			}
+		}
+	}
+
+	#is_valid = {
+	#	always = yes
+	#}
+	
+	#is_valid_title = {
+	#	always = yes
+	#}
+	
+	on_success = {
+		ROOT = { 
+			prestige = 250
+			hidden_tooltip = {
+				clr_character_flag = revivalistconqueror
+				if = {
+					limit = { has_landed_title = d_revivalist }
+					narrative_event = { id = revivalist.3 days = 1 } # Victorious
+				}
+			}
+		}
+		FROM = {
+			prestige = -250 
+		}
+	}
+
+	on_success_title = {
+		custom_tooltip = {
+			text = tribal_invasion_succ_tip
+			hidden_tooltip = {
+				FROM = {
+					random_realm_province = {
+						limit = {
+							port = yes
+							de_jure_liege_or_above = PREVPREV
+							any_province_holding = { holding_type = castle }
+							#OR = {
+							#	NOT = { culture = ROOT }
+							#	NOT = { religion = ROOT }
+							#}
+						}
+						culture = ROOT
+						religion = ROOT
+						
+						county = { grant_title = ROOT }
+						duchy = { grant_title = ROOT }
+						# Give them the old capital too
+						any_province_holding = {
+							limit = { same_realm = FROM }
+							grant_title = ROOT
+						}
+					}
+				}
+				ROOT = {
+					occupy_minors_of_occupied_settlements = FROM
+					gain_all_occupied_titles = FROM
+					vassalize_or_take_under_title_destroy_duchies = {
+						title = PREV
+						enemy = FROM
+						type = invasion
+					}
+					
+					# Settle the colonists
+					any_demesne_title = {
+						limit = { tier = BARON }
+						remove_holding_modifier = recently_conquered
+						refill_holding_levy = yes
+					}
+				}
+			}
+		}
+		
+	}
+
+	on_fail = {
+		FROM = {
+			prestige = 100
+		}
+		ROOT = {
+			imprison = FROM 
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = revivalistconqueror
+			}
+		}
+	
+		ROOT = { prestige = -100 }
+		
+		random = {
+			chance = 40
+			if = {
+				limit = { ROOT = { has_landed_title = d_revivalist } }
+				narrative_event = { id = revivalist.4 days = 1 } # Defeated
+			}
+		}
+		if = {
+			limit = { ROOT = { has_landed_title = d_revivalist } }
+			activate_title = { title = d_revivalist status = no }
+		}
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+		
+		FROM = {
+			prestige = 200
+		}
+		
+		ROOT = {
+			imprison = FROM
+			prestige = -200
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = revivalistconqueror
+			}
+		}
+		
+		random = {
+			chance = 40
+			if = {
+				limit = { ROOT = { has_landed_title = d_revivalist } }
+				narrative_event = { id = revivalist.4 days = 1 } # Defeated
+			}
+		}
+		if = {
+			limit = { ROOT = { has_landed_title = d_revivalist } }
+			activate_title = { title = d_revivalist status = no }
+		}
+	}
+	
+	on_attacker_leader_death = {
+		ROOT = {
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = revivalistconqueror
+			}
+		}
+		end_war = invalid
+		
+		random = {
+			chance = 40
+			if = {
+				limit = { ROOT = { has_landed_title = d_revivalist } }
+				narrative_event = { id = col.4 days = 1 } # Defeated
+			}
+		}
+		if = {
+			limit = { ROOT = { has_landed_title = d_revivalist } }
+			activate_title = { title = d_revivalist status = no }
+		}
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}
+
+hijolly_adventure = {
+	name = CB_NAME_KINGDOM_ADVENTURE
+	war_name = WAR_KINGDOM_ADVENTURE
+	sprite = 9
+	truce_days = 3650
+	hostile_against_others = yes
+	check_de_jure_tier = KING # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character
+
+	can_use = {
+	}
+
+	is_valid = {
+		always = yes
+	}
+
+	on_add = {
+		hidden_tooltip = { fire_haruspicy_event_effect = yes }
+		if = {
+			limit = { defender = { is_offmap_governor = offmap_china } }
+			attacker = {  
+				sound_effect = china_angered_emperor
+				detract_grace_super_huge_effect = yes 
+			}
+		}
+	}
+	
+	on_success = {
+		ROOT = { 
+			prestige = 250
+			narrative_event = {
+				id = islamate.76
+			}
+			clr_character_flag = duchy_adventurer
+			give_nickname = VICEROY_NICKNAME
+	
+		}
+
+		FROM = {
+			prestige = -250 
+		}
+	}
+
+	on_success_title = {
+		custom_tooltip = {
+			text = other_invasion_succ_tip
+			hidden_tooltip = {
+				ROOT = {
+					vassalize_or_take_under_title = {
+						title = PREV
+						enemy = FROM
+						type = host
+					}
+				}
+			}
+		}
+	}
+
+	on_fail = {
+		FROM = {
+			prestige = 100
+			hidden_tooltip = {
+				opinion = {
+					modifier = opinion_rebel_traitor 
+					who = ROOT
+					months = 1200
+				}
+			}
+		}
+		ROOT = {
+			clear_wealth = yes
+			imprison = FROM 
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = duchy_adventurer
+			}
+		}
+	
+		ROOT = { prestige = -100 }
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+		
+		FROM = {
+			prestige = 200
+		}
+		
+		ROOT = {
+			clear_wealth = yes
+			imprison = FROM
+			prestige = -200
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = duchy_adventurer
+			}
+		}
+	}
+	
+	on_attacker_leader_death = {
+		ROOT = {
+			hidden_tooltip = {
+				disband_event_forces = yes
+				clr_character_flag = duchy_adventurer
+			}
+		}
+		end_war = invalid
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}
+colonial_ducal_conquest = {
+	name = CB_NAME_COLONIZATION
+	war_name = WAR_NAME_COLONIZATION
+	sprite = 9
+	truce_days = 1825
+	is_holy_war = yes
+	is_permanent = yes
+	check_de_jure_tier = DUKE # this scans all dejure duchies for the counties which are held by or vassals(or below) of selected character
+
+	can_use_gui = {
+		ROOT = {
+			OR = {
+				has_landed_title = e_edokko
+				has_landed_title = e_novorusskiy
+				has_landed_title = k_redcoat_outpost
+				has_landed_title = e_redcoat_dominion
+			}
+			prestige = 100
+		}
+	}
+
+	can_use = {
+		ROOT = {
+			OR = {
+				has_landed_title = e_edokko
+				has_landed_title = e_novorusskiy
+				has_landed_title = k_redcoat_outpost
+				has_landed_title = e_redcoat_dominion
+			}
+			ai = no
+			prestige = 100
+		}
+	
+	}
+	can_use_title = {
+		# The attacker needs at least one county in the target kingdom, or a border, or be only two sea zones away from one of your counties
+		any_direct_de_jure_vassal_title = {
+			OR = {
+				holder_scope = {
+					OR = {
+						character = ROOT
+						is_liege_or_above = ROOT
+					}
+				}
+				location = {
+					OR = {
+						region = custom_pacific
+						region = custom_atlantic
+					}
+					any_neighbor_province = {
+						OR = {
+							AND = {
+								has_owner = yes
+								owner = {
+									OR = {
+										character = ROOT
+										is_liege_or_above = ROOT
+									}
+								}
+							}
+							AND = {
+								is_land = no
+								any_neighbor_province = {
+									OR = {
+										AND = {
+											has_owner = yes
+											owner = {
+												OR = {
+													character = ROOT
+													is_liege_or_above = ROOT
+												}
+											}
+										}
+										AND = {
+											is_land = no
+											any_neighbor_province = {
+												owner = {
+													OR = {
+														character = ROOT
+														is_liege_or_above = ROOT
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		FROM = {
+			any_realm_title =  { 
+				OR = {
+					region = custom_pacific 
+					region = custom_atlantic
+				}
+			}
+		}
+	}
+
+	is_valid = {
+		ROOT = {
+			OR = {
+				has_landed_title = e_edokko
+				has_landed_title = e_novorusskiy
+				has_landed_title = k_redcoat_outpost
+				has_landed_title = e_redcoat_dominion
+			}
+		}
+	}
+
+	on_add = {
+		hidden_tooltip = { fire_haruspicy_event_effect = yes }
+		if = {
+			limit = { defender = { is_offmap_governor = offmap_china } }
+			attacker = {  
+				sound_effect = china_angered_emperor
+				detract_grace_super_huge_effect = yes 
+			}
+		}
+		prestige = -100
+	}
+	
+	on_success = {
+		ROOT = { 
+			prestige = 250	
+		}
+
+		FROM = {
+			prestige = -250 
+		}
+	}
+
+	on_success_title = {
+		custom_tooltip = {
+			text = other_invasion_succ_tip
+			hidden_tooltip = {
+				ROOT = {
+					vassalize_or_take_under_title = {
+						title = PREV
+						enemy = FROM
+						type = host
+					}
+				}
+			}
+		}
+	}
+
+	on_fail = {
+		FROM = {
+			prestige = 100
+		}
+		ROOT = {
+			prestige = -250
+		}
+	}
+
+	on_reverse_demand = {
+		ROOT = {
+			transfer_scaled_wealth = {
+				to = FROM
+				value = 4.0
+			}
+		}
+		
+		FROM = {
+			prestige = 200
+		}
+		
+		ROOT = {
+			prestige = -200
+		}
+	}
+	
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+}
+
+governator_war = {
+	name = CB_NAME_GOVERNATOR_WAR
+	war_name = WAR_NAME_GOVERNATOR_WAR
+	sprite = 13
+	truce_days = 3650
+	attacker_can_call_allies = yes
+	can_ask_to_join_war = yes
+	is_permanent = yes
+	
+	can_use = {
+		ROOT = {
+			NOT = {
+				trait = governator_heir
+			}
+			NOT = {
+				trait = sanctioned_governator
+			}
+			NOT = {
+				has_landed_title = e_california
+			}
+			OR = {
+				is_theocracy = yes
+				government = bureaucratic_government
+			}
+		}
+		NAND = {
+			ROOT = {
+				has_law = bureaucratic_war_declaration_1
+			}
+			OR = {
+				e_california = {
+					has_holder = yes
+				}
+				e_new_california = {
+					has_holder = yes
+				}
+			}
+		}
+		OR = {
+			FROM = {
+				trait = governator
+			}
+			FROM = {
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+		e_california = { holder_scope = { trait = figurehead } }
+	}
+	
+	can_use_gui = {
+		ROOT = {
+			NOT = {
+				trait = governator_heir
+			}
+		}
+		OR = {
+			FROM = {
+				trait = governator
+			}
+			FROM = {
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+	}
+
+	is_valid = {
+		e_california = { holder_scope = { trait = figurehead } }
+		FROM = {
+			OR = {
+				trait = governator
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+		ROOT = {
+			OR = {
+				NOT = {
+					trait = governator_heir
+				}
+				NOT = {
+					trait = governator
+				}
+			}
+		}
+	}
+	
+	on_success = {
+		if = {
+			limit = {
+				FROM = {
+					trait = governator
+				}
+			}
+			FROM = {
+				remove_trait = governator
+			}
+		}
+		custom_tooltip = {
+			text = vassal_gov_removed_TT
+			hidden_tooltip = {
+				if = {
+					limit = {
+						FROM = {
+							any_realm_character = {
+								trait = governator
+							}
+						}
+					}
+					FROM = {
+						any_realm_character = {
+							remove_trait = governator
+						}
+					}
+				}
+			}
+		}
+		any_character = {
+			limit = {
+				trait = governator_heir
+			}
+			remove_trait = governator_heir
+		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = defied_norms
+					who = ROOT
+				}
+			}
+		}
+		ROOT = {
+			show_scope_change = no
+			participation_scaled_prestige = 100
+			add_trait = governator
+			if = {
+				limit = {
+					liege = {
+						has_landed_title = e_california
+					}
+				}
+				give_minor_title = title_governator
+			}
+		}
+		any_attacker = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = {
+				participation_scaled_prestige = 100 
+			}
+		}
+	}
+	
+	on_fail = {
+		ROOT = {
+			show_scope_change = no
+			prestige = -100
+		}
+		FROM = {
+			show_scope_change = no
+			participation_scaled_prestige = 50
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 50 }
+		}
+	}
+	
+	on_reverse_demand = {
+		ROOT = {
+			show_scope_change = no
+			prestige = -200
+		}
+		FROM = {
+			show_scope_change = no
+			participation_scaled_prestige = 100
+			hidden_tooltip = { 
+				if = { 
+					limit = { NOT = { has_opinion_modifier = { modifier = opinion_traitor who = ROOT } } } #Allow free revocation of a title.
+					opinion = {
+						who = ROOT
+						modifier = opinion_traitor
+					}
+				}
+			}
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+		
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+	
+	ai_will_do = {
+		factor = 1
+		modifier = {
+			factor = 1.5
+			AND = {
+				e_california = { 
+					holder_scope = {
+						reverse_opinion {
+							who = ROOT
+							value > 50
+						}
+					}
+				}
+				e_california = { 
+					holder_scope = {
+						reverse_opinion {
+							who = FROM
+							value < -40
+						}
+					}
+				}
+			}
+		}
+		modifier = {
+			factor = 1.6
+			AND = {
+				e_california = { 
+					holder_scope = {
+						opinion {
+							who = ROOT
+							value > 50
+						}
+					}
+				}
+				e_california = { 
+					holder_scope = {
+						opinion {
+							who = FROM
+							value < -40
+						}
+					}
+				}
+			}
+		}
+		modifier = {
+			factor = 1.5
+			trait = ambitious
+		}
+		modifier = {
+			factor = 0.1
+			trait = content
+		}
+	}
+}
+
+sanc_governator_war = {
+	name = CB_NAME_SANCGOVERNATOR_WAR
+	war_name = WAR_NAME_SANCGOVERNATOR_WAR
+	sprite = 13
+	truce_days = 3650
+	attacker_can_call_allies = yes
+	can_ask_to_join_war = yes
+	is_permanent = yes
+	
+	can_use = {
+		ROOT = {
+			trait = sanctioned_governator
+		}
+		OR = {
+			FROM = {
+				trait = governator
+			}
+			FROM = {
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+		e_california = { holder_scope = { trait = figurehead } }
+	}
+	
+	can_use_gui = {
+		ROOT = {
+			trait = sanctioned_governator
+		}
+		OR = {
+			FROM = {
+				trait = governator
+			}
+			FROM = {
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+	}
+
+	is_valid = {
+		e_california = { holder_scope = { trait = figurehead } }
+		FROM = {
+			OR = {
+				trait = governator
+				any_realm_character = {
+					trait = governator
+				}
+			}
+		}
+		ROOT = {
+			trait = sanctioned_governator
+		}
+	}
+	
+	on_success = {
+		if = {
+			limit = {
+				FROM = {
+					trait = governator
+				}
+			}
+			FROM = {
+				remove_trait = governator
+			}
+		}
+		ROOT = {
+			remove_trait = sanctioned_governator
+		}
+		custom_tooltip = {
+			text = vassal_gov_removed_TT
+			hidden_tooltip = {
+				if = {
+					limit = {
+						FROM = {
+							any_realm_character = {
+								trait = governator
+							}
+						}
+					}
+					FROM = {
+						any_realm_character = {
+							remove_trait = governator
+						}
+					}
+				}
+			}
+		}
+		any_character = {
+			limit = {
+				trait = governator_heir
+			}
+			remove_trait = governator_heir
+		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = gnator_succeed
+					who = ROOT
+				}
+				character_event = { id = cetic.361 }
+			}
+		}
+		ROOT = {
+			character_event = { id = cetic.355 }
+		}
+		ROOT = {
+			show_scope_change = no
+			participation_scaled_prestige = 100
+			add_trait = governator
+			if = {
+				limit = {
+					liege = {
+						has_landed_title = e_california
+					}
+				}
+				give_minor_title = title_governator
+			}
+		}
+		any_attacker = {
+			limit = { NOT = { character = ROOT } }
+			hidden_tooltip = {
+				participation_scaled_prestige = 100 
+			}
+		}
+	}
+	
+	on_fail = {
+		ROOT = {
+			show_scope_change = no
+			prestige = -100
+		}
+		FROM = {
+			show_scope_change = no
+			participation_scaled_prestige = 50
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 50 }
+		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = gnator_fail
+					who = ROOT
+				}
+				character_event = { id = cetic.362 }
+			}
+		}
+	}
+	
+	on_reverse_demand = {
+		ROOT = {
+			show_scope_change = no
+			prestige = -200
+		}
+		FROM = {
+			show_scope_change = no
+			participation_scaled_prestige = 100
+			hidden_tooltip = { 
+				if = { 
+					limit = { NOT = { has_opinion_modifier = { modifier = opinion_traitor who = ROOT } } } #Allow free revocation of a title.
+					opinion = {
+						who = ROOT
+						modifier = opinion_traitor
+					}
+				}
+			}
+		}
+		e_california = {
+			holder_scope = {
+				opinion = {
+					modifier = gnator_fail
+					who = ROOT
+				}
+			}
+		}
+		any_defender = {
+			limit = { NOT = { character = FROM } }
+			hidden_tooltip = { participation_scaled_prestige = 100 }
+		}
+		
+	}
+
+	attacker_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	attacker_ai_defeat_worth = {
+		factor = 100
+	}
+
+	defender_ai_victory_worth = {
+		factor = -1 # always accept
+	}
+	
+	defender_ai_defeat_worth = {
+		factor = 100
+	}
+	
+	ai_will_do = {
+		factor = 1
 	}
 }

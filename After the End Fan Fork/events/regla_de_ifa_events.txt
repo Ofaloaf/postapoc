@@ -1,0 +1,773 @@
+#All events related to the new Afro-Syncretic society. This is my redemption for constantly hijacking vanilla event files in a really difficult to maintain way.
+namespace = regladeifa #wanted to use a different namespace but whatever
+#100-103	happiness potion
+#200		scrying
+#300-		tire machet training
+
+#Happiness Potion
+
+#Giving the potion to yourself
+character_event = {
+    id = regladeifa.100
+    desc = EVTDESC_regladeifa_100
+    picture = GFX_evt_experiment
+    border = GFX_event_normal_frame_religion
+
+    hide_from = yes
+
+    is_triggered_only = yes
+    
+    option = { 
+        name = EVTOPTA_regladeifa_100
+
+        if = { 
+			limit = { trait = stressed }
+			remove_trait = stressed
+		}
+		if = { 
+			limit = { trait = depressed }
+			remove_trait = depressed
+		}
+		if = {
+			limit = { has_character_modifier = apathetic }
+			remove_character_modifier = apathetic
+		}
+
+		hidden_effect = {
+			clr_character_flag = preparing_potion
+			random = {
+				chance = 40
+				#no potion quality because no ingredients. screw it.
+				character_event = { id = regladeifa.103 days = 150 random = 600 }
+			}
+		} 
+    }
+}
+
+#The other person gets offered a potion
+character_event = {
+    id = regladeifa.101
+    desc = EVTDESC_regladeifa_101
+    picture = GFX_evt_experiment
+    border = GFX_event_normal_frame_religion
+
+    is_triggered_only = yes
+    
+    option = { 
+        name = EVTOPTA_regladeifa_101
+        custom_tooltip = { text = EVTOPTA_regladeifa_101_TT }
+
+        tooltip = {
+	        if = { 
+				limit = { trait = stressed }
+				remove_trait = stressed
+			}
+			if = { 
+				limit = { trait = depressed }
+				remove_trait = depressed
+			}
+			if = {
+				limit = { has_character_modifier = apathetic }
+				remove_character_modifier = apathetic
+			}
+        }
+
+		hidden_effect = { FROM = { character_event = { id = regladeifa.102 } } }
+
+		ai_chance = {
+			factor = 50
+			modifier = {
+				society_member_of = hermetics
+				factor = 3
+			}
+		}
+    }
+
+    option = {
+        name = EVTOPTB_regladeifa_101
+        custom_tooltip = { text = EVTOPTB_regladeifa_101_TT }
+
+        reverse_opinion = {
+        	who = FROM
+        	modifier = opinion_ungrateful
+        }
+        #Does not give follow-up because if a player recieves this, the sender is a courtier
+
+        ai_chance = {
+			factor = 50
+			modifier = {
+				trait = zealous
+				factor = 3
+			}
+			modifier = {
+				liege = { character = FROM } #A player will always get a yes
+				factor = 0
+			}
+		}
+    }
+}
+
+
+#Giving the potion to someone else 
+character_event = {
+    id = regladeifa.102
+    desc = EVTDESC_regladeifa_102
+    picture = GFX_evt_experiment
+    border = GFX_event_normal_frame_religion
+
+    is_triggered_only = yes
+    
+    option = { 
+        name = EVTOPTA_regladeifa_102
+		
+    	FROM = {
+	        if = { 
+				limit = { trait = stressed }
+				remove_trait = stressed
+			}
+			if = { 
+				limit = { trait = depressed }
+				remove_trait = depressed
+			}
+			if = {
+				limit = { has_character_modifier = apathetic }
+				remove_character_modifier = apathetic
+			}
+
+			hidden_effect = {
+				random = {
+					chance = 20
+					character_event = { id = regladeifa.103 days = 150 random = 600 }  
+				}
+			} 
+    	}
+
+        reverse_opinion = {
+        	who = FROM
+        	modifier = opinion_grateful
+        }
+    }
+}
+
+#The good effect didn't last
+character_event = {
+    id = regladeifa.103
+    desc = EVTDESC_regladeifa_103
+    picture = GFX_evt_illness
+    border = GFX_event_normal_frame_religion
+
+    is_triggered_only = yes
+
+    trigger = { NOT = { trait = depressed } }
+
+    option = { 
+        name = EVTOPTA_regladeifa_103
+
+        add_trait = depressed
+
+        add_character_modifier = {
+        	name = apathetic
+        	years = 5
+        }
+    }
+}
+
+#Scrying
+character_event = {
+    id = regladeifa.200
+	desc = EVTDESC_regladeifa_200
+    picture = GFX_evt_dark_prayer
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+    trigger = {
+    	has_dlc = "Mystics"
+    	has_an_omen_modifier_trigger = no
+    }
+
+    option = { # I want to know about battles to come
+        name = EVTOPTA_regladeifa_200
+        set_character_flag = battle_focused_scrying_flag
+    }
+    option = { # I want to know where my relationships will lead
+        name = EVTOPTB_regladeifa_200
+        set_character_flag = relationship_focused_scrying_flag
+    }
+    option = { # I want to find out how to increase my power
+        name = EVTOPTC_regladeifa_200
+        set_character_flag = power_hungry_scrying_flag
+    }
+	
+    after = {
+    	hidden_effect = {
+   			character_event = { id = regladeifa.201 days = 5 random = 1 }
+    	}
+    }
+}
+
+character_event = { # You see something in the water and react well or poorly to it
+    id = regladeifa.201
+    picture = GFX_evt_dark_prayer
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+    trigger = {
+    	has_dlc = "Mystics"
+    	has_an_omen_modifier_trigger = no
+    	society_member_of = hermetics
+    }
+
+    desc = {
+    	trigger = { has_character_flag = battle_focused_scrying_flag has_character_flag = desc_variation_A_flag }
+    	text = EVTDESC_regladeifa_201_BATTLE_A
+    }
+    desc = {
+    	trigger = { has_character_flag = battle_focused_scrying_flag has_character_flag = desc_variation_B_flag }
+    	text = EVTDESC_regladeifa_201_BATTLE_B
+    }
+    desc = {
+    	trigger = { has_character_flag = battle_focused_scrying_flag has_character_flag = desc_variation_C_flag }
+    	text = EVTDESC_regladeifa_201_BATTLE_C
+    }
+
+    desc = {
+    	trigger = { has_character_flag = relationship_focused_scrying_flag has_character_flag = desc_variation_A_flag }
+    	text = EVTDESC_regladeifa_201_RELATIONSHIP_A
+    }
+    desc = {
+    	trigger = { has_character_flag = relationship_focused_scrying_flag has_character_flag = desc_variation_B_flag }
+    	text = EVTDESC_regladeifa_201_RELATIONSHIP_B
+    }
+    desc = {
+    	trigger = { has_character_flag = relationship_focused_scrying_flag has_character_flag = desc_variation_C_flag }
+    	text = EVTDESC_regladeifa_201_RELATIONSHIP_C
+    }
+
+    desc = {
+    	trigger = { has_character_flag = power_hungry_scrying_flag has_character_flag = desc_variation_A_flag }
+    	text = EVTDESC_regladeifa_201_POWER_A
+    }
+    desc = {
+    	trigger = { has_character_flag = power_hungry_scrying_flag has_character_flag = desc_variation_B_flag }
+    	text = EVTDESC_regladeifa_201_POWER_B
+    }
+    desc = {
+    	trigger = { has_character_flag = power_hungry_scrying_flag has_character_flag = desc_variation_C_flag }
+    	text = EVTDESC_regladeifa_201_POWER_C
+    }
+
+    immediate = {
+    	random_list = {
+    		10 = { set_character_flag = desc_variation_A_flag }
+    		10 = { set_character_flag = desc_variation_B_flag }
+    		10 = { set_character_flag = desc_variation_C_flag }
+    	}
+    	random_list = {
+    		50 = {
+    			set_character_flag = positive_reaction_to_scrying_flag
+    		}
+    		50 = {
+    			set_character_flag = negative_reaction_to_scrying_flag
+    		}
+    	}
+    }
+    option = {
+        name = EVTOPTA_regladeifa_201
+
+		if = { limit = { has_character_flag = battle_focused_scrying_flag }
+			add_character_modifier = {
+				name = good_battle_omen
+				duration = -1
+			}
+			
+		}
+		if = { limit = { has_character_flag = relationship_focused_scrying_flag }
+			add_character_modifier = {
+				name = good_relationship_omen
+				duration = -1
+			}
+		}
+		if = { limit = { has_character_flag = power_hungry_scrying_flag }
+			add_character_modifier = {
+				name = good_power_omen
+				duration = -1
+			}
+		}
+
+		trigger = {
+			has_character_flag = positive_reaction_to_scrying_flag
+		}
+    }
+    option = {
+        name = EVTOPTB_regladeifa_201
+
+		if = { limit = { has_character_flag = battle_focused_scrying_flag }
+			add_character_modifier = {
+				name = bad_battle_omen
+				duration = -1
+			}
+		}
+		if = { limit = { has_character_flag = relationship_focused_scrying_flag }
+			add_character_modifier = {
+				name = bad_relationship_omen
+				duration = -1
+			}
+		}
+		if = { limit = { has_character_flag = power_hungry_scrying_flag }
+			add_character_modifier = {
+				name = bad_power_omen
+				duration = -1
+			}
+		}
+
+		trigger = {
+			has_character_flag = negative_reaction_to_scrying_flag
+		}
+    }
+    after = {
+    	hidden_effect = {
+			random_list = { # For sending fallbacks, in case nothing else triggers from the omen-modifiers during the next few years. these don't need special events so fuck it i guess whatever
+				10 = {
+					character_event = { id = MNM.1225 days = 1500 random = 300 }
+				}
+				10 = {
+					character_event = { id = MNM.1226 days = 1500 random = 300 }
+				}
+				10 = {
+					character_event = { id = MNM.1227 days = 1500 random = 300 }
+				}
+			}
+			remove_character_modifier = scrying_cooldown
+		}
+    	clr_character_flag = desc_variation_A_flag
+		clr_character_flag = desc_variation_B_flag
+		clr_character_flag = desc_variation_C_flag
+		clr_character_flag = battle_focused_scrying_flag
+		clr_character_flag = relationship_focused_scrying_flag
+		clr_character_flag = power_hungry_scrying_flag
+    }
+}
+
+character_event = {
+    id = regladeifa.300
+    desc = EVTDESC_regladeifa_300
+    picture = GFX_evt_capoeira
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_regladeifa_300
+		custom_tooltip = { text = EVTOPTA_regladeifa_300_tt }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				combat_rating = 30
+			}
+			set_character_flag = learning_tire_machet_quick
+			character_event = { id = regladeifa.301 days = 3 } #pick it up incredibly quickly
+		}
+		if = {
+			limit = {
+				combat_rating = 20
+				NOT = { combat_rating = 30 }
+			}
+			set_character_flag = learning_tire_machet_normal
+			character_event = { id = regladeifa.302 days = 3 } #notification of progress
+			character_event = { id = regladeifa.301 days = 7 } #pick it up in a normal amount of time
+		}
+		if = {
+			limit = {
+				combat_rating = 10
+				NOT = { combat_rating = 20 }
+			}
+			set_character_flag = learning_tire_machet_extended
+			character_event = { id = regladeifa.302 days = 3 } #notification of progress
+			character_event = { id = regladeifa.301 days = 10 } #pick it up in an extended amount of time
+		}
+		if = {
+			limit = {
+				NOT = { combat_rating = 10 }
+			}
+			set_character_flag = learning_tire_machet_very_extended
+			character_event = { id = regladeifa.302 days = 3 } #notification of progress
+			character_event = { id = regladeifa.301 days = 14 } #have to learn everything from scratch...
+		}
+	}
+}
+
+character_event = { #Picking up the trait itself
+    id = regladeifa.301
+    desc = {
+		trigger = { has_character_flag = learning_tire_machet_quick }
+		text = EVTDESCA_regladeifa_301
+	}
+	desc = {
+		trigger = { has_character_flag = learning_tire_machet_normal }
+		text = EVTDESCB_regladeifa_301
+	}
+	desc = {
+		trigger = { has_character_flag = learning_tire_machet_extended }
+		text = EVTDESCC_regladeifa_301
+	}
+	desc = {
+		trigger = { has_character_flag = learning_tire_machet_very_extended }
+		text = EVTDESCD_regladeifa_301
+	}
+    picture = GFX_evt_capoeira
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_regladeifa_301
+		add_trait = tire_machet
+		if = {
+			limit = {
+				has_character_flag = learning_tire_machet_quick
+			}
+			prestige = 50
+		}
+		if = {
+			limit = {
+				has_character_flag = learning_tire_machet_normal
+			}
+			prestige = 25
+		}
+		if = {
+			limit = {
+				has_character_flag = learning_tire_machet_extended
+			}
+			prestige = 15
+		}
+		if = {
+			limit = {
+				has_character_flag = learning_tire_machet_very_extended
+			}
+			prestige = 10
+		}
+		custom_tooltip = { text = EVTOPTA_regladeifa_301_tt }
+	}
+	
+	after = {
+		clr_character_flag = learning_tire_machet_quick
+		clr_character_flag = learning_tire_machet_normal
+		clr_character_flag = learning_tire_machet_extended
+		clr_character_flag = learning_tire_machet_very_extended
+		clr_character_flag = do_not_disturb
+	}
+}
+
+character_event = { #Delay notification event
+    id = regladeifa.302
+    desc = {
+		trigger = { has_character_flag = learning_tire_machet_normal }
+		text = EVTDESCA_regladeifa_302
+	}
+	desc = {
+		trigger = { has_character_flag = learning_tire_machet_extended }
+		text = EVTDESCB_regladeifa_302
+	}
+	desc = {
+		trigger = { has_character_flag = learning_tire_machet_very_extended }
+		text = EVTDESCC_regladeifa_302
+	}
+    picture = GFX_evt_capoeira
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = {
+		name = {
+			trigger = { has_character_flag = learning_tire_machet_normal }
+			text = EVTOPTA_regladeifa_302
+		}
+		name = {
+			trigger = { has_character_flag = learning_tire_machet_extended }
+			text = EVTOPTB_regladeifa_302
+		}
+		name = {
+			trigger = { has_character_flag = learning_tire_machet_very_extended }
+			text = EVTOPTC_regladeifa_302
+		}
+		custom_tooltip = { text = EVTOPTA_regladeifa_302_tt }
+	}
+}
+
+character_event = { #Emergency flag clear event
+    id = regladeifa.303
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = learning_tire_machet_quick
+		clr_character_flag = learning_tire_machet_normal
+		clr_character_flag = learning_tire_machet_extended
+		clr_character_flag = learning_tire_machet_very_extended
+		clr_character_flag = do_not_disturb
+	}
+}
+
+character_event = { #Creating a fetish - for Santeria
+    id = regladeifa.400
+    desc = EVTDESC_regladeifa_400
+    picture = GFX_evt_west_african_ruler
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = { #Create an iron hammer to represent Ogún
+		name = EVTOPTA_regladeifa_400
+		custom_tooltip = { text = EVTOPTA_regladeifa_400_tt }
+		hidden_tooltip = { set_character_flag = creating_iron_hammer_ogun }
+	}
+	
+	option = { #Create a ceremonial iron bow and arrow to represent Ochosi
+		name = EVTOPTB_regladeifa_400
+		custom_tooltip = { text = EVTOPTB_regladeifa_400_tt }
+		hidden_tooltip = { set_character_flag = creating_iron_bow_ochosi }
+	}
+	
+	option = { #Create a ceremonial iron chalice and arrow to represent Osún
+		name = EVTOPTC_regladeifa_400
+		custom_tooltip = { text = EVTOPTC_regladeifa_400_tt }
+		hidden_tooltip = { set_character_flag = creating_iron_chalice_osun }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = creating_iron_hammer_ogun
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_iron_bow_ochosi
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_iron_chalice_osun
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+	}
+}
+
+character_event = { #Creating a fetish - for Santeria
+    id = regladeifa.401
+    desc = EVTDESC_regladeifa_401
+    picture = GFX_evt_west_african_ruler
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = { #Create an above Nkisi
+		name = EVTOPTA_regladeifa_401
+		custom_tooltip = { text = EVTOPTA_regladeifa_401_tt }
+		hidden_tooltip = { set_character_flag = creating_above_nkisi }
+	}
+	
+	option = { #Create a below Nkisi
+		name = EVTOPTB_regladeifa_401
+		custom_tooltip = { text = EVTOPTB_regladeifa_401_tt }
+		hidden_tooltip = { set_character_flag = creating_below_nkisi }
+	}
+	
+	option = { #Create a Nkondi
+		name = EVTOPTC_regladeifa_401
+		custom_tooltip = { text = EVTOPTC_regladeifa_401_tt }
+		hidden_tooltip = { set_character_flag = creating_nkondi }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = creating_above_nkisi
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_below_nkisi
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_nkondi
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+	}
+}
+
+character_event = { #Creating a fetish - for Voodoo
+    id = regladeifa.402
+    desc = EVTDESC_regladeifa_402
+    picture = GFX_evt_west_african_ruler
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = { #Create a gris-gris amulet
+		name = EVTOPTA_regladeifa_402
+		custom_tooltip = { text = EVTOPTA_regladeifa_402_tt }
+		hidden_tooltip = { set_character_flag = creating_gris_gris }
+	}
+	
+	option = { #Create a drapo servis (important religious icon)
+		name = EVTOPTB_regladeifa_402
+		custom_tooltip = { text = EVTOPTB_regladeifa_402_tt }
+		hidden_tooltip = { set_character_flag = creating_drapo_servis }
+	}
+	
+	option = { #Create "Voodoo doll" (actually a representation of a particular loa)
+		name = EVTOPTC_regladeifa_402
+		custom_tooltip = { text = EVTOPTC_regladeifa_402_tt }
+		hidden_tooltip = { set_character_flag = creating_voodoo_doll }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = creating_gris_gris
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_drapo_servis
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_voodoo_doll
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+	}
+}
+
+character_event = { #Creating a fetish - for Rastafarian. (Wait, how would this even work?)
+    id = regladeifa.403
+    desc = EVTDESC_regladeifa_403
+    picture = GFX_evt_west_african_ruler
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = { #Create a grand chalice (the greatest bong of all time)
+		name = EVTOPTA_regladeifa_403
+		custom_tooltip = { text = EVTOPTA_regladeifa_403_tt }
+		hidden_tooltip = { set_character_flag = creating_grand_chalice_rasta }
+	}
+	
+	option = { #Create an elaborate Dashiki
+		name = EVTOPTB_regladeifa_403
+		custom_tooltip = { text = EVTOPTB_regladeifa_403_tt }
+		hidden_tooltip = { set_character_flag = creating_dashiki }
+	}
+	
+	option = { #Create Steel Drum (making these would be way harder after an apocalypse)
+		name = EVTOPTC_regladeifa_403
+		custom_tooltip = { text = EVTOPTC_regladeifa_403_tt }
+		hidden_tooltip = { set_character_flag = creating_steel_drum }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = creating_grand_chalice_rasta
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_dashiki
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_steel_drum
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+	}
+}
+
+character_event = { #Creating a fetish - for Rastafarian. (Wait, how would this even work?)
+    id = regladeifa.404
+    desc = EVTDESC_regladeifa_404
+    picture = GFX_evt_west_african_ruler
+    border = GFX_event_normal_frame_religion
+    is_triggered_only = yes
+
+	option = { #Create a statue of Maria Lionza (yeah I'm getting lazy with these ones, it's late and I'm tired. sue me.)
+		name = EVTOPTA_regladeifa_404
+		custom_tooltip = { text = EVTOPTA_regladeifa_404_tt }
+		hidden_tooltip = { set_character_flag = creating_maria_lionza_statue }
+	}
+	
+	option = { #Create a statue of Guaicaipuro
+		name = EVTOPTB_regladeifa_404
+		custom_tooltip = { text = EVTOPTB_regladeifa_404_tt }
+		hidden_tooltip = { set_character_flag = creating_guaicaipuro_statue }
+	}
+	
+	option = { #Create a statue of Felipe (can't use his actual real name here because cultural differences)
+		name = EVTOPTC_regladeifa_404
+		custom_tooltip = { text = EVTOPTC_regladeifa_404_tt }
+		hidden_tooltip = { set_character_flag = creating_felipe_statue }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = creating_maria_lionza_statue
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_guaicaipuro_statue
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+		if = {
+			limit = {
+				has_character_flag = creating_felipe_statue
+			}
+			character_event = { id = #FILL IN LATER days = 10 } #make first decision about the artifact
+			character_event = { id = #FILL IN LATER days = 20 } #make second decision about the artifact
+			character_event = { id = #FILL IN LATER days = 30 } #finished artifact
+		}
+	}
+}

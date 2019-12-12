@@ -1,9 +1,67 @@
 #All events related to the new Afro-Syncretic society. This is my redemption for constantly hijacking vanilla event files in a really difficult to maintain way.
+
 namespace = regladeifa #wanted to use a different namespace but whatever
+
+#1-			basic society maintenance
 #100-103	happiness potion
-#200		scrying
-#300-		tire machet training
-#400-		fetish creation (I am very glad I gave myself 100 events for this, as I may very well need them)
+#200-201	scrying
+#300-303	tire machet training
+#400-440	fetish creation (I am very glad I gave myself 100 events for this, as I may very well need them)
+#441		invite ascetic
+#500-		mission tombola and quests
+
+#From on_character_ask_to_join_society
+character_event = {
+	id = regladeifa.1
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		FROM = { leader = { society_member_of = regla_de_ifa } }
+	}
+	immediate = {
+		FROM = { leader = { character_event = { id = regladeifa.2 } } }
+	}
+}
+
+#Ping event
+character_event = {
+	id = regladeifa.2
+	hide_window = yes
+	is_triggered_only = yes
+	immediate = {
+		FROM = { letter_event = { id = regladeifa.3 } }
+	}
+}
+
+#Welcome letter
+letter_event = {
+	id = regladeifa.3
+	desc = EVTDESC_regladeifa_3
+	border = GFX_event_letter_frame_religion
+
+	is_triggered_only = yes
+	
+	immediate = { set_character_flag = society_join_block }
+	
+	option = { 
+		name = EVTOPTA_regladeifa_3
+
+	   FROM = {
+			show_scope_change = no
+			ROOT = {
+				show_scope_change = no
+				join_prev_monastic_order_society = yes
+			}
+		}
+		
+		scaled_wealth = -0.25
+
+		#FROM = { society = { save_event_target_as = joining_society } }
+		#join_society = event_target:joining_society
+		
+		clr_character_flag = society_join_block
+	}
+}
 
 #Happiness Potion
 
@@ -1673,7 +1731,7 @@ character_event = { #Creating Felipe Statue - finished!
 	}
 }
 
-character_event = { #Creating Felipe Statue - finished!
+character_event = { #Cleanup event
     id = regladeifa.440
     hide_window = yes
     is_triggered_only = yes
@@ -1987,6 +2045,140 @@ character_event = {
 				50 = { }
 			}
 			character_event = { id = MNM.4433 }	
+		}
+	}
+}
+
+character_event = {
+	id = regladeifa.500
+	hide_window = yes
+
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	trigger = {
+		society_member_of = regla_de_ifa
+		NOT = { society_rank == 4 }
+		has_any_quest = no
+		NOT = { is_inaccessible_trigger = yes }
+		NOT = { has_character_modifier = quest_cooldown_timer }
+	}
+
+	immediate = {
+		random_society_member = {
+			limit = {
+				society_rank == 4
+				same_society_as = ROOT
+			}
+			save_event_target_as = monastic_leader
+		}
+
+		random_list = {
+			10 = { 
+				set_character_flag = regla_de_ifa_provide_consultations
+			}
+			10 = { 
+				modifier = { factor = 0 is_playable = no }
+				set_character_flag = regla_de_ifa_hold_feast
+			}
+			10 = {
+				modifier = { factor = 0 NOT = { has_dlc ="Way of Life" } }
+				modifier = { factor = 0 has_focus = focus_theology }
+				modifier = { factor = 0 is_playable = no } # Only playable characters get focuses
+				set_character_flag = monastic_orders_mission_theology
+			}
+			10 = {
+				set_character_flag = regla_de_ifa_procure_ebo
+			}
+			10 = {
+				set_character_flag = regla_de_ifa_recieve_ewo
+			}
+			10 = {
+				trigger = {
+					is_playable = yes
+					any_demesne_province = {
+						num_of_empty_holdings = 1			
+					}
+				}
+				modifier = {
+					factor = 0 is_tribal = yes
+				}
+				modifier = {
+					factor = 0 is_nomadic = yes
+				}
+				modifier = { factor = 0 is_playable = no }
+				set_character_flag = monastic_orders_mission_temple
+			}
+			50 = { # AI bypasses missions at times
+				modifier = {
+					factor = 0
+					ai = no
+				}
+				random_list = {
+					70 = {
+						modifier = {
+							factor = 0.9
+							society_influence >= 30
+						}
+						modifier = {
+							factor = 0.9
+							society_influence >= 40
+						}
+						modifier = {
+							factor = 0.8
+							society_influence >= 50
+						}
+						modifier = {
+							factor = 0.7
+							society_influence >= 70
+						}
+						modifier = {
+							factor = 0.6
+							society_influence >= 80
+						}
+						modifier = {
+							factor = 0.5
+							society_influence >= 90
+						}
+						add_mission_succeed_influence_effect = yes
+						monastic_order_purity_effect = yes
+					}
+					30 = {
+						add_mission_fail_influence_effect = yes
+					}
+				}
+			}
+			85 = {
+				modifier = {
+					factor = 0
+					ai = no
+				}
+				#Do nothing for AI
+			}
+		}
+		event_target:monastic_leader = { character_event = { id = regladeifa.502 days = 7 random = 7 } }
+	}
+}
+
+#Tombola Ping Event
+character_event = {
+	id = regladeifa.502
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = {
+		FROM = {
+			trigger_switch = {
+				on_trigger = has_character_flag
+				regla_de_ifa_provide_consultations = 			{ clr_character_flag = regla_de_ifa_provide_consultations society_quest_event = { id = #FILL IN LATER } }
+				regla_de_ifa_hold_feast = 						{ clr_character_flag = regla_de_ifa_hold_feast society_quest_event = { id = #FILL IN LATER } }
+				monastic_orders_mission_theology = 				{ clr_character_flag = monastic_orders_mission_theology society_quest_event = { id = MNM.4015 } }
+				regla_de_ifa_procure_ebo = 						{ clr_character_flag = regla_de_ifa_procure_ebo society_quest_event = { id = #FILL IN LATER } }
+				regla_de_ifa_recieve_ewo = 						{ clr_character_flag = regla_de_ifa_recieve_ewo society_quest_event = { id = #FILL IN LATER } }
+				monastic_orders_mission_temple = 				{ clr_character_flag = monastic_orders_mission_temple society_quest_event = { id = MNM.4023 } }
+			}
 		}
 	}
 }

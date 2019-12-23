@@ -1,0 +1,1585 @@
+namespace = varangian
+
+### Varangian vents adapted for varangians
+
+# # Varangian Guard Founded (Norse)
+# narrative_event = {
+	# id = TOG.3101
+	# title = EVTNAME_TOG_3100
+	# picture = GFX_evt_viking_battle_oldgods
+	# border = GFX_event_narrative_frame_war
+	
+	# desc = {
+		# text = EVTDESC_TOG_3101_A
+		# trigger = { # Men want to join the guard!
+			# gender_equality_trigger = no
+			# NOT = {
+				# has_religion_feature = religion_matriarchal
+			# }
+		# }
+	# }
+	# desc = {
+		# text = EVTDESC_TOG_3101_B
+		# trigger = { # Men *and* women want to join the guard
+			# gender_equality_trigger = yes
+			# NOT = {
+				# has_religion_feature = religion_matriarchal
+			# }
+		# }
+	# }
+	# desc = {
+		# text = EVTDESC_TOG_3101_C
+		# trigger = { # Women want to join the guard!
+			# has_religion_feature = religion_matriarchal
+		# }
+	# }
+
+	# is_triggered_only = yes
+	
+	# option = {
+		# name = EVTOPTA_TOG_3101
+		# custom_tooltip = { text = varangians_organized }
+	# }
+# }
+
+# Varangian Captain gets Varangian trait
+character_event = {
+	id = TOG.3105
+	hide_window = yes	
+	only_rulers = yes
+	min_age = 16
+	capable_only = yes
+	prisoner = no
+	
+	trigger = {
+		has_landed_title = d_mounties
+		NOT = { trait = mountie }
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	immediate = {
+		add_trait = mountie
+	}
+}
+
+# # Hack to deal with male only inheritance (sent from on_new_holder_inheritance)
+# # (ROOT is the character, FROM is the title, FROMFROM is the old holder)
+# character_event = {
+    # id = HFP.19100
+    # is_triggered_only = yes
+    # hide_window = yes
+
+    # trigger = {
+    	# NOT = { has_character_flag = varangian_title_sorted }
+    	# NOT = { has_character_flag = is_chosen_varangian_leader }
+    	# has_landed_title = d_varangian_guard
+    	# is_female = no
+    	# OR = {
+	    	# top_liege = {
+	    		# gender_equality_trigger = yes
+	    	# }
+	    	# any_playable_ruler = {
+	    		# religion_openly_norse_or_reformed_trigger = yes
+	    		# has_religion_feature = religion_matriarchal
+	    	# }
+    	# }
+    # }
+
+    # immediate = {
+    	# set_character_flag = varangian_title_sorted
+
+    	# liege = { save_event_target_as = true_liege }
+
+    	# if = {
+			# limit = { gender_equality_trigger = yes }
+			# create_character = {
+				# random_traits = yes
+				# religion = norse_pagan
+				# culture = norse
+				# dynasty = NONE
+				# female = 50
+				# age = 34
+				# trait = skilled_tactician
+			# }
+		# }
+		# else_if = {
+			# limit = {
+				# any_playable_ruler = {
+		    		# religion_openly_norse_or_reformed_trigger = yes
+		    		# has_religion_feature = religion_matriarchal
+		    	# }
+			# }
+			# create_character = {
+				# random_traits = yes
+				# religion = norse_pagan
+				# culture = norse
+				# dynasty = NONE
+				# female = yes
+				# age = 34
+				# trait = skilled_tactician
+			# }
+		# }
+		# new_character = {
+			# add_trait = mountie
+			# set_character_flag = is_chosen_varangian_leader
+			# d_varangian_guard = {
+				# grant_title = PREV
+			# }
+			# set_defacto_liege = event_target:true_liege
+		# }
+    # }
+# }
+
+# Son has served a few years, choose outcome
+character_event = {
+	id = TOG.3108
+	
+	hide_window = yes	
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = serving_varangian
+	}
+	
+	immediate = {	
+		
+		#Find ruler to return to
+		if = { 
+			limit = { is_ruler = yes }
+			character_event = { id = TOG.3134 }
+			break = yes
+		}
+		
+		if = { #Check actually still at merc
+			limit = { NOT = { liege = { primary_title = { mercenary = yes } } } }
+			break = yes
+		}
+		event_target:old_home = {
+			owner = {
+				if = {
+					limit = { is_parent_of = ROOT }
+					save_event_target_as = varangian_home
+				}
+			}
+		}
+		if = { 
+			limit = {
+				NOT = { event_target:varangian_home = { always = yes } }
+				father = {
+					is_alive = yes
+					is_ruler = yes
+				}
+			}
+			father = { save_event_target_as = varangian_home }
+		}
+		else_if = { 
+			limit = {
+				NOT = { event_target:varangian_home = { always = yes } }
+				mother = {
+					is_alive = yes
+					is_ruler = yes
+				}
+			}
+			mother = { save_event_target_as = varangian_home }
+		}
+		if = { 
+			limit = { NOT = { event_target:varangian_home = { always = yes } } }
+			event_target:old_home = {
+				owner = {
+					if = {
+						limit = { is_close_relative = ROOT }
+						save_event_target_as = varangian_home
+					}
+				}
+			}
+		}
+		if = { 
+			limit = { NOT = { event_target:varangian_home = { always = yes } } }
+			father = {
+				primary_title = {
+					holder_scope = {
+						if = {
+							limit = { dynasty = ROOT is_alive = yes }
+							save_event_target_as = varangian_home
+						}	
+					}
+				}
+			}
+		}
+		if = { 
+			limit = { NOT = { event_target:varangian_home = { always = yes } } }
+			random_dynasty_member = {
+				limit = {
+					is_ruler = yes
+					is_alive = yes
+					is_priest = no
+				}
+				save_event_target_as = varangian_home
+			}
+		}
+		if = { 
+			limit = { NOT = { event_target:varangian_home = { always = yes } } }
+			random_close_relative = {
+				limit = {
+					is_ruler = yes
+					is_alive = yes
+					is_priest = no
+				}
+				save_event_target_as = varangian_home
+			}
+		}
+		if = { #No home
+			limit = { NOT = { event_target:varangian_home = { always = yes } } }
+			break = yes
+		}
+		#Check adventure can end
+		if = { 
+			limit = {
+				OR = {
+					trait = incapable
+					prisoner = yes
+				}
+			}
+			event_target:varangian_home = { ROOT = { move_character = PREV } }
+			break = yes
+		}
+		if = { 
+			limit = { event_target:varangian_home = { always = yes } }
+			#Select Outcome		
+			random_list = {
+				5 = { # Son stays in Greece with wife (Son)
+					modifier = {
+						factor = 0
+						is_married = yes
+					}
+					modifier = {
+						factor = 0
+						is_primary_heir = yes
+					}
+					modifier = {
+						factor = 1.5
+						trait = chaste
+					}
+					modifier = {
+						factor = 1.5
+						trait = humble
+					}
+					modifier = {
+						factor = 1.5
+						trait = content
+					}
+					modifier = {
+						factor = 1.5
+						trait = slothful
+					}
+					modifier = {
+						factor = 0.66
+						trait = proud
+					}
+					modifier = {
+						factor = 0.66
+						trait = ambitious
+					}
+					modifier = {
+						factor = 0.66
+						trait = diligent
+					}
+					modifier = {
+						factor = 0.66
+						trait = lustful
+					}
+					character_event = { id = TOG.3111 }
+				}
+				5 = { # Son returns scarred but seasoned (Son)
+					modifier = {
+						factor = 0
+						trait = scarred_high
+					}
+					modifier = {
+						factor = 1.5
+						trait = brave
+					}
+					modifier = {
+						factor = 0.66
+						trait = craven
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3115 } }
+				}
+				4 = { # Son returns with notions of Greek love (Son)
+					modifier = {
+						factor = 0
+						trait = homosexual
+					}
+					modifier = {
+						factor = 1.5
+						trait = lustful
+					}
+					modifier = {
+						factor = 1.5
+						trait = hedonist
+					}
+					modifier = {
+						factor = 0.66
+						trait = chaste
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3117 } }
+				}
+				3 = { # Son returns castrated and blinded (Son)
+					modifier = {
+						factor = 0
+						OR = {
+							trait = eunuch
+							trait = blinded
+						}
+					}
+					modifier = {
+						factor = 1.5
+						trait = rude
+					}
+					modifier = {
+						factor = 1.5
+						trait = wroth
+					}
+					modifier = {
+						factor = 1.5
+						trait = arbitrary
+					}
+					modifier = {
+						factor = 1.5
+						trait = greedy
+					}
+					modifier = {
+						factor = 1.5
+						trait = cruel
+					}
+					modifier = {
+						factor = 1.5
+						trait = proud
+					}
+					modifier = {
+						factor = 0.66
+						trait = patient
+					}
+					modifier = {
+						factor = 0.66
+						trait = just
+					}
+					modifier = {
+						factor = 0.66
+						trait = charitable
+					}
+					modifier = {
+						factor = 0.66
+						trait = kind
+					}
+					modifier = {
+						factor = 0.66
+						trait = humble
+					}
+					modifier = {
+						factor = 0.66
+						trait = gregarious
+					}
+					add_trait = blinded
+					event_target:varangian_home = { character_event = { id = TOG.3119 } }
+				}
+				5 = { # Son returns as excellent strategist (Son)
+					modifier = {
+						factor = 0
+						trait = brilliant_strategist
+					}
+					modifier = {
+						factor = 2
+						trait = genius
+					}
+					modifier = {
+						factor = 1.5
+						trait = diligent
+					}
+					modifier = {
+						factor = 1.5
+						is_smart_trigger = yes
+					}
+					modifier = {
+						factor = 0.66
+						is_dumb_trigger = yes
+					}
+					modifier = {
+						factor = 0.5
+						trait = imbecile
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3121 } }
+				}
+				5 = { # Son returns with PTSD (Son)
+					modifier = {
+						factor = 0
+						trait = depressed
+					}				
+					modifier = {
+						factor = 1.5
+						trait = kind
+					}
+					modifier = {
+						factor = 1.5
+						trait = poet
+					}
+					modifier = {
+						factor = 1.5
+						trait = just
+					}
+					modifier = {
+						factor = 1.5
+						trait = craven
+					}
+					modifier = {
+						factor = 1.5
+						trait = shy
+					}
+					modifier = {
+						factor = 0.66
+						trait = cruel
+					}
+					modifier = {
+						factor = 0.66
+						trait = arbitrary
+					}
+					modifier = {
+						factor = 0.66
+						trait = brave
+					}
+					modifier = {
+						factor = 0.66
+						trait = gregarious
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3123 } }
+				}
+				5 = { # Son returns home with Greek wife (Son)
+					modifier = {
+						factor = 0
+						is_married = yes
+					}
+					modifier = {
+						factor = 1.5
+						trait = chaste
+					}
+					modifier = {
+						factor = 1.5
+						trait = just
+					}
+					modifier = {
+						factor = 1.5
+						trait = content
+					}
+					modifier = {
+						factor = 1.5
+						trait = humble
+					}
+					modifier = {
+						factor = 0.66
+						trait = lustful
+					}
+					modifier = {
+						factor = 0.66
+						trait = arbitrary
+					}
+					modifier = {
+						factor = 0.66
+						trait = ambitious
+					}
+					modifier = {
+						factor = 0.66
+						trait = proud
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3125 } }
+				}
+				5 = { # Son returns home as a Christian zealot (Son)
+					modifier = {
+						factor = 0
+						religion = rhllor
+					}
+					modifier = {
+						factor = 0
+						event_target:varangian_home = { religion = high_church }
+					}
+					modifier = {
+						factor = 0
+						trait = zealous
+					}
+					modifier = {
+						factor = 0
+						trait = cynical
+					}
+					modifier = {
+						factor = 1.5
+						trait = arbitrary
+					}
+					modifier = {
+						factor = 0.66
+						trait = just
+					}
+					modifier = {
+						factor = 1.5
+						trait = humble
+					}
+					modifier = {
+						factor = 0.66
+						trait = proud
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3127 } }
+				}
+				8 = { # Son returns home as a seasoned warrior (Son)
+					modifier = {
+						factor = 1.5
+						trait = brave
+					}
+					modifier = {
+						factor = 1.5
+						is_strong_trigger = yes
+					}
+					modifier = {
+						factor = 1.5
+						is_smart_trigger = yes
+					}
+					modifier = {
+						factor = 2
+						trait = genius
+					}
+					modifier = {
+						factor = 0.66
+						trait = slothful
+					}
+					modifier = {
+						factor = 0.66
+						is_dumb_trigger = yes
+					}
+					modifier = {
+						factor = 0.5
+						trait = imbecile
+					}
+					modifier = {
+						factor = 0.5
+						trait = craven
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3129 } }
+				}
+				4 = { # Son dies in battle (Son)
+					modifier = {
+						factor = 1.5
+						trait = brave
+					}
+					modifier = {
+						factor = 0.66
+						trait = craven
+					}
+					modifier = {
+						factor = 1.5
+						trait = wroth
+					}
+					modifier = {
+						factor = 0.66
+						trait = patient
+					}
+					modifier = {
+						factor = 1.5
+						trait = berserker
+					}					
+					modifier = {
+						factor = 1.5
+						trait = drunkard
+					}
+					modifier = {
+						factor = 0.5
+						trait = infirm
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3131 } }
+				}
+				5 = { # Son returns with loot (Son)
+					modifier = {
+						factor = 1.5
+						trait = greedy
+					}
+					modifier = {
+						factor = 0.66
+						trait = charitable
+					}
+					modifier = {
+						factor = 0.66
+						NOT = { stewardship = 2 }
+					}
+					modifier = {
+						factor = 0.66
+						NOT = { stewardship = 6 }
+					}
+					modifier = {
+						factor = 1.5
+						stewardship = 10
+					}
+					modifier = {
+						factor = 1.5
+						stewardship = 14
+					}
+					event_target:varangian_home = { character_event = { id = TOG.3133 } }
+				}
+			}	
+		}	
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+# Son wants to join the Varangians (Son) #adapted for varangians
+character_event = {
+	id = TOG.3109
+	hide_window = yes
+	
+	ai = yes
+	is_triggered_only = yes
+	min_age = 16
+	max_age = 30
+	capable_only = yes
+	prisoner = no
+	has_dlc = "The Old Gods"
+	is_sick = no
+	
+	trigger = {	
+		is_landed = no
+		in_command = no	
+		has_epidemic = no
+		NOT = { has_severe_disability_trigger = yes }
+		
+		OR = {
+			is_female = no
+			female_get_masculine_event_trigger = yes
+		}
+		#has_global_flag = varangian_guard_founded
+		#culture_group = north_germanic
+		NOR = { 
+			trait = mountie
+			has_character_flag = serving_varangian
+			has_character_flag = denied_varangian
+		}
+		OR = { # Regardless, they might ask either parent...
+			father = {
+				is_ruler = yes
+				is_alive = yes
+				is_liege_of = ROOT
+				#culture_group = north_germanic
+				prisoner = no
+				NOT = { trait = incapable }
+				ROOT = { host = { character = PREVPREV } }
+			}
+			mother = {
+				is_ruler = yes
+				is_alive = yes
+				is_liege_of = ROOT
+				#culture_group = north_germanic
+				prisoner = no
+				NOT = { trait = incapable }
+				ROOT = { host = { character = PREVPREV } }
+			}
+		}
+		NOT = { trait = content }
+		
+		can_press_claims_trigger = yes	
+		NOT = { is_inaccessible_trigger = yes }
+	}
+	
+	weight_multiplier = {
+		#months = 1000 #AGOT
+		factor = 1
+		
+		modifier = {
+			factor = 0.25
+			is_primary_heir = yes
+		}
+		modifier = {
+			factor = 0.33
+			OR = {
+				is_voter = yes
+				is_councillor = yes
+			}
+		}
+		modifier = {
+			factor = 0.33
+			has_ambition = obj_wants_landed_title
+		}
+		
+		modifier = {
+			factor = 2
+			trait = ambitious
+		}
+		modifier = {
+			factor = 2
+			trait = diligent
+		}
+		modifier = {
+			factor = 2
+			trait = brave
+		}	
+		modifier = {
+			factor = 1.33
+			trait = proud
+		}
+		modifier = {
+			factor = 1.33
+			trait = greedy
+		}	
+		modifier = {
+			factor = 1.33
+			trait = berserker
+		}
+		modifier = {
+			factor = 1.33
+			trait = impaler
+		}
+		modifier = {
+			factor = 1.25
+			trait = bastard
+		}
+		modifier = {
+			factor = 0.2
+			trait = slothful
+		}
+		modifier = {
+			factor = 0.2
+			trait = craven
+		}
+		modifier = {
+			factor = 0.66
+			trait = humble
+		}
+		modifier = {
+			factor = 0.66
+			trait = shy
+		}
+	}
+	
+	immediate = {
+		set_character_flag = serving_varangian
+		random_list = { # Send event to parent-liege...
+			50 = {
+				trigger = {
+					father = {
+						is_ruler = yes
+						is_alive = yes
+						is_liege_of = ROOT
+						#culture_group = north_germanic
+						prisoner = no
+						NOT = { trait = incapable }
+						ROOT = { host = { character = PREVPREV } }
+					}
+				}
+				father = { character_event = { id = TOG.3110 } }
+			}
+			50 = {
+				trigger = {
+					mother = {
+						is_ruler = yes
+						is_alive = yes
+						is_liege_of = ROOT
+						#culture_group = north_germanic
+						prisoner = no
+						NOT = { trait = incapable }
+						ROOT = { host = { character = PREVPREV } }
+					}
+				}
+				mother = { character_event = { id = TOG.3110 } }
+			}			
+		}
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+# Son wants to join the Varangians (Father)
+character_event = {
+	id = TOG.3110
+	desc = EVTDESC_TOG_3110
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = { # Deny
+		name = EVTOPTA_TOG_3110
+		ai_chance = {
+			factor = 100
+			
+			modifier = {
+				factor = 2
+				NOT = { opinion = { who = FROM value = -20 } }
+			}
+			modifier = {
+				factor = 2
+				NOT = { opinion = { who = FROM value = -50 } }
+			}
+			modifier = {
+				factor = 2
+				NOT = { opinion = { who = FROM value = -80 } }
+			}
+			modifier = {
+				factor = 2
+				trait = cruel
+			}
+			modifier = {
+				factor = 2
+				trait = greedy
+			}
+			modifier = {
+				factor = 2
+				trait = wroth
+			}
+			modifier = {
+				factor = 2
+				trait = arbitrary
+			}
+			modifier = {
+				factor = 2
+				trait = paranoid
+			}
+		}
+		FROM = {
+			show_scope_change = no
+			opinion = {
+				modifier = opinion_very_disappointed
+				years = 1
+				who = ROOT
+			}
+			clr_character_flag = serving_varangian
+			set_character_flag = denied_varangian
+		}
+		prestige = -25
+	}
+	option = { # Allow
+		name = EVTOPTB_TOG_3110
+		ai_chance = {
+			factor = 100
+			
+			modifier = {
+				factor = 2
+				opinion = { who = FROM value = 20 }
+			}
+			modifier = {
+				factor = 2
+				opinion = { who = FROM value = 50 }
+			}
+			modifier = {
+				factor = 2
+				opinion = { who = FROM value = 80 }
+			}
+			modifier = {
+				factor = 2
+				trait = kind
+			}
+			modifier = {
+				factor = 2
+				trait = charitable
+			}
+			modifier = {
+				factor = 2
+				trait = patient
+			}
+			modifier = {
+				factor = 2
+				trait = just
+			}
+			modifier = {
+				factor = 2
+				trait = trusting
+			}
+		}
+		liege = { capital_scope = { save_event_target_as = old_home } } #record just in case
+		random_independent_ruler = {
+			limit = {
+				primary_title = {
+					OR = {
+						title = d_mounties
+					}
+				}	
+			}
+			show_scope_change = no
+			FROM = {
+				show_scope_change = no
+				move_character = PREV #Does not seem to work properly
+				#force_host = PREV #instead using this #AGOT: actually it does seem to work
+			}
+		}
+		hidden_tooltip = {
+			FROM = { 
+				if = {
+					limit = { is_female = yes }
+					set_character_flag = special_marshal #for safety, so they can go lead armies...
+				}
+				set_character_flag = serving_varangian
+				character_event = { id = TOG.3108 days = 1750  random = 400 }
+			}
+		}
+		prestige = 25
+	}
+}
+
+# Son stays in Greece with wife (Son)
+character_event = {
+	id = TOG.3111
+	
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_dlc = "The Old Gods"	
+	}
+
+	immediate = {
+		event_target:varangian_home = { character_event = { id = TOG.3112 days = 1 } }
+		random_playable_ruler = {
+			limit = {
+				higher_tier_than = COUNT
+				OR = {
+					independent = yes
+					tier = KING
+				}
+				capital_scope = {
+					OR = {
+						culture_group = plains
+						culture = metis
+						culture = saulteaux
+					}
+				}	
+				NOT = { is_parent_of = ROOT }
+				NOT = { dynasty = ROOT }
+				NOT = { culture = ROOT }		
+			}
+			character_event = { id = TOG.3113 }
+		}
+	}
+	
+	option = {
+		name = OK
+	}
+}
+
+# Son stays in Greece with wife (Norse father)
+character_event = {
+	id = TOG.3112
+	desc = EVTDESC_TOG_3112
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3112
+		tooltip = {
+			FROM = {
+				liege = {
+					FROM = {
+						move_character = PREV
+						religion = PREV
+					}
+				}	
+			}
+		}		
+		FROM = { 
+			prestige = 100
+			wealth = 100
+		}
+	}
+}
+
+# Son stays in Greece with wife (Byzantine Emperor)
+character_event = {
+	id = TOG.3113
+	desc = EVTDESC_TOG_3113
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	hide_window = yes
+	
+	immediate = {
+		FROM = { set_character_flag = keep_lowborn_marriage }
+		capital_scope = {
+			ROOT = {
+				if = {
+					limit = { FROM = { is_female = no } }
+					create_character = {
+						random_traits = yes
+						dynasty = random
+						female = yes
+						age = 26
+						religion = PREV
+						culture = PREV
+					}
+					new_character = {
+						add_spouse_matrilineal = FROM
+					}
+				}	
+				if = {
+					limit = { FROM = { is_female = yes } }
+					create_character = {
+						random_traits = yes
+						dynasty = random
+						age = 26
+						religion = PREV
+						culture = PREV
+					}
+					new_character = {
+						add_spouse = FROM
+					}
+				}	
+			}
+		}	
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			father = {
+				any_child = {
+					limit = { 
+						same_liege = PREVPREV 
+						NOT = { character = PREVPREV }
+						NOT = { has_character_flag = serving_varangian }
+					}
+					move_character = PREV
+				}
+			}
+			move_character = ROOT
+			religion = ROOT		
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_TOG_3113
+	}
+}
+
+# Son returns scarred but seasoned
+character_event = {
+	id = TOG.3115
+	desc = EVTDESC_TOG_3115
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3115
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			move_character = ROOT
+			add_scarred_tiered_effect = yes
+			if = {
+				limit = { NOT = { trait = robust } }
+				if = {
+					limit = { 
+						trait = brave 	
+					}
+					random = {
+						chance = 20
+						add_trait = robust
+					}	
+				}
+				else_if = {
+					limit = { 
+						trait = strong 	
+					}
+					random = {
+						chance = 50
+						add_trait = robust
+					}	
+				}
+				else = {
+					add_trait = robust
+					hidden_tooltip = { remove_trait = frail }
+				}
+			}	
+			add_trait = mountie
+			change_martial = 2
+			prestige = 50
+			wealth = 50
+		}
+		any_child = {
+			limit = { same_liege = FROM }
+			move_character = ROOT
+		}
+	}
+}
+
+# Son returns with notions of Greek love
+character_event = {
+	id = TOG.3117
+	desc = EVTDESC_TOG_3117
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3117
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			move_character = ROOT
+			add_trait = homosexual
+			add_trait = mountie
+			prestige = 50
+			wealth = 50
+		}
+	}
+}
+
+# Son returns castrated and blinded
+character_event = {
+	id = TOG.3119
+	desc = EVTDESC_TOG_3119
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3119
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			move_character = ROOT
+			tooltip = { add_trait = blinded }
+			if = {
+				limit = { is_female = no }
+				add_trait = eunuch
+			}	
+			if = {
+				limit = { is_female = yes }
+				add_crippled_trait_effect = yes
+			}
+			add_trait = mountie
+		}
+	}
+}
+
+# Son returns as excellent strategist
+character_event = {
+	id = TOG.3121
+	desc = EVTDESC_TOG_3121
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3121
+		if = {
+			limit = {
+				FROM = {
+					trait = skilled_tactician
+				}
+			}
+			FROM = {
+				hidden_tooltip = { remove_trait = skilled_tactician }
+				add_trait = brilliant_strategist
+			}
+		}
+		if = {
+			limit = {
+				FROM = {
+					OR = {
+						trait = misguided_warrior
+						trait = tough_soldier
+					}	
+				}
+			}
+			FROM = {
+				hidden_tooltip = { 
+					remove_trait = misguided_warrior
+					remove_trait = tough_soldier
+				}
+				add_trait = skilled_tactician
+			}
+		}
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			change_martial = 2
+			add_trait = mountie
+			move_character = ROOT
+			prestige = 50
+			wealth = 50
+		}
+	}
+}
+
+# Son returns with PTSD
+character_event = {
+	id = TOG.3123
+	desc = EVTDESC_TOG_3123
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3123
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			move_character = ROOT
+			add_trait = stressed
+			add_trait = depressed
+			add_trait = mountie
+			wealth = 50
+		}
+	}
+}
+
+# Son returns home with Greek wife
+character_event = {
+	id = TOG.3125
+	desc = EVTDESC_TOG_3125
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	immediate = {
+		hidden_tooltip = {
+			random_playable_ruler = {
+				limit = { capital_scope = { culture_group = plains } }
+				capital_scope = {
+					ROOT = {
+						FROM = { set_character_flag = keep_lowborn_marriage }
+						if = {
+							limit = { FROM = { is_female = no } }
+							create_character = {
+								random_traits = yes
+								dynasty = NONE
+								female = yes
+								age = 26
+								culture = PREV
+								religion = PREV
+								trait = fair
+							}
+							new_character = {
+								add_spouse = FROM
+								add_lover = FROM
+							}
+						}	
+						if = {
+							limit = { FROM = { is_female = yes } }
+							create_character = {
+								random_traits = yes
+								dynasty = NONE
+								age = 26
+								culture = PREV
+								religion = PREV
+								trait = fair
+							}
+							new_character = {
+								add_spouse_matrilineal = FROM
+								add_lover = FROM
+							}
+						}	
+					}
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_TOG_3125
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = { 
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			any_spouse = {
+				limit = { is_ruler = no }
+				move_character = ROOT
+			}
+			add_trait = mountie
+			move_character = ROOT
+			prestige = 50
+			wealth = 50
+		}
+	}
+}
+# Son returns home as a Christian zealot
+character_event = {
+	id = TOG.3127
+	desc = EVTDESC_TOG_3127
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3127
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			move_character = ROOT
+			add_trait = zealous
+			add_trait = mountie
+			religion = high_church
+			prestige = 50
+			wealth = 50
+		}
+	}
+}
+
+# Son returns home as a seasoned warrior
+character_event = {
+	id = TOG.3129
+	desc = EVTDESC_TOG_3129
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3129
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			move_character = ROOT
+			if = {
+				limit = { trait = skilled_warrior }
+				hidden_tooltip = { remove_trait = skilled_warrior }
+				add_trait = master_warrior
+			}
+			if = {
+				limit = { trait = trained_warrior }
+				hidden_tooltip = { remove_trait = trained_warrior }
+				add_trait = skilled_warrior
+			}
+			if = {
+				limit = { 
+					NOT = { trait = robust }
+				}
+				hidden_tooltip = { remove_trait = frail }
+				add_trait = robust
+			}
+			if = {
+				limit = { 
+					NOT = { trait = brave }
+					NOT = { trait = craven }
+				}
+				add_trait = brave
+			}
+			if = {
+				limit = { trait = craven }
+				remove_trait = craven
+			}
+			prestige = 50
+			wealth = 50
+			add_trait = mountie
+			change_martial = 2
+		}
+	}
+}
+
+# Son dies in battle
+character_event = {
+	id = TOG.3131
+	desc = EVTDESC_TOG_3131
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3131
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = { 
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			death = { death_reason = death_battle } 
+			prestige = 50
+		}
+	}
+}
+
+# Son returns with loot
+character_event = {
+	id = TOG.3133
+	desc = EVTDESC_TOG_3133
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_TOG_3133
+		any_child = {
+			limit = { 
+				same_liege = FROM
+				NOT = { character = FROM }
+				NOT = { has_character_flag = serving_varangian }
+			}
+			move_character = ROOT
+		}
+		FROM = {
+			any_child = {
+				limit = { same_liege = PREV }
+				move_character = ROOT
+			}
+			move_character = ROOT
+			add_trait = mountie
+			wealth = 150
+			prestige = 50
+		}
+		wealth = 150
+	}
+}
+
+# Father dies, Player Son is heir
+character_event = {
+	id = TOG.3134
+	desc = EVTDESC_TOG_3134
+	picture = GFX_evt_viking_throneroom_oldgods
+	border = GFX_event_normal_frame_war
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		has_dlc = "The Old Gods"
+		has_character_flag = serving_varangian
+	}
+	
+	immediate = {
+		clr_character_flag = serving_varangian
+	}
+	
+	option = {
+		name = EVTOPTA_TOG_3134
+		add_trait = mountie
+		prestige = 50
+		wealth = 50
+	}
+}
+
+# Father dies, Son gets Varangian trait
+character_event = {
+	id = TOG.3135
+	hide_window = yes
+	
+	min_age = 16
+	ai = yes
+	only_men = yes
+	capable_only = yes
+	prisoner = no
+	
+	trigger = {
+		has_dlc = "The Old Gods"
+		OR = {
+			has_character_flag = wants_varangian
+			has_character_flag = serving_varangian
+		}
+		father_even_if_dead = { is_alive = no }
+	}
+	
+	immediate = {
+		add_trait = mountie
+		clr_character_flag = wants_varangian
+		clr_character_flag = serving_varangian
+	}
+	
+	option = {
+		name = OK
+	}
+}

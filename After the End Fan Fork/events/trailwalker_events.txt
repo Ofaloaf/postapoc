@@ -1,0 +1,242 @@
+#1-x	Missus Sureshot visits her faithful
+
+namespace = trailwalker
+
+character_event = {
+	id = trailwalker.1
+	desc = EVTDESC_trailwalker_1
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	only_playable = yes
+	only_capable = yes
+	min_age = 16
+	prisoner = no
+	
+	trigger = {
+		OR = {
+			religion = trailwalker
+			religion = trailwalker_reformed
+		}
+		has_character_modifier = follower_of_missus_sureshot
+	}
+	
+	mean_time_to_happen = { years = 50 }
+	
+	option = {
+		name = EVTOPTA_trailwalker_1
+		prestige = 25
+		set_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text = TXT_sureshot_challenge_accepted }
+		hidden_tooltip = {
+			character_event = { id = trailwalker.2 }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 2
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_trailwalker_1
+		piety = 25
+		custom_tooltip = { text =  TXT_sureshot_challenge_declined }
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 2
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+		}
+	}
+}
+
+character_event = { # Hidden event which decides what outcome the contest has
+	id = trailwalker.2
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	immediate = {
+		random_list = {
+			65 = { #Fail spectacularly
+				modifier = {
+					factor = 2
+					NOT = { combat_rating = 35 }
+				}
+				modifier = {
+					factor = 0.5
+					combat_rating = 35
+					NOT = { combat_rating = 50 }
+				}
+				modifier = {
+					factor = 0.25
+					combat_rating = 50
+				}
+				character_event = { id = trailwalker.3 days = 1 }
+				break = yes
+			}
+			20 = { #Fall just short
+				modifier = {
+					factor = 0.5
+					NOT = { combat_rating = 35 }
+				}
+				modifier = {
+					factor = 2
+					combat_rating = 35
+					NOT = { combat_rating = 50 }
+				}
+				character_event = { id = trailwalker.4 days = 1 }
+				break = yes
+			}
+			10 = { #Actually succeed
+				modifier = {
+					factor = 0
+					NOT = { combat_rating = 35 }
+				}
+				modifier = {
+					factor = 0.5
+					combat_rating = 35
+					NOT = { combat_rating = 50 }
+				}
+				modifier = {
+					factor = 2
+					combat_rating = 50
+				}
+				character_event = { id = trailwalker.5 days = 1 }
+				break = yes
+			}
+		}
+	}
+}
+
+character_event = { # Fail spectacularly
+	id = trailwalker.3
+	desc = EVTDESC_trailwalker_3
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	option = {
+		name = EVTOPTA_trailwalker_3
+		clr_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text =  TXT_sureshot_super_fail }
+		if = {
+			limit = {
+				trait = proud
+			}
+			remove_trait = proud
+			prestige = -35
+		}
+		if = {
+			limit = {
+				trait = humble
+			}
+			prestige = -20
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = proud }
+				NOT = { trait = humble }
+			}
+			add_trait = humble
+			prestige = -30
+		}
+	}
+}
+
+character_event = { # Fall just short
+	id = trailwalker.4
+	desc = EVTDESC_trailwalker_4
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	option = {
+		name = EVTOPTA_trailwalker_4
+		clr_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text =  TXT_sureshot_close_fail }
+		if = {
+			limit = {
+				trait = proud
+			}
+			remove_trait = proud
+			prestige = -5
+		}
+		if = {
+			limit = {
+				trait = humble
+			}
+			prestige = 15
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = proud }
+				NOT = { trait = humble }
+			}
+			add_trait = humble
+			prestige = 10
+		}
+	}
+}
+
+character_event = { # Actually win somehow???
+	id = trailwalker.5
+	desc = EVTDESC_trailwalker_5
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	option = {
+		name = EVTOPTA_trailwalker_5
+		clr_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text =  TXT_sureshot_victory }
+		add_artifact = sureshot_bow
+		if = {
+			limit = {
+				trait = proud
+			}
+			prestige = 100
+		}
+		if = {
+			limit = {
+				trait = humble
+			}
+			remove_trait = humble
+			prestige = 50
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = proud }
+				NOT = { trait = humble }
+			}
+			add_trait = proud
+			prestige = 75
+		}
+	}
+}

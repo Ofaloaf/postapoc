@@ -2092,7 +2092,7 @@ character_event = {
 				set_character_flag = regla_de_ifa_procure_ebo
 			}
 			10 = {
-				set_character_flag = regla_de_ifa_recieve_ewo
+				set_character_flag = regla_de_ifa_receive_ewo
 			}
 			10 = {
 				trigger = {
@@ -2170,15 +2170,707 @@ character_event = {
 
 	immediate = {
 		FROM = {
-			trigger_switch = {
+			trigger_switch = { #these are all out of order cause i did these in order of easiest to code
 				on_trigger = has_character_flag
 				regla_de_ifa_provide_consultations = 			{ clr_character_flag = regla_de_ifa_provide_consultations society_quest_event = { id = #FILL IN LATER } }
-				regla_de_ifa_hold_feast = 						{ clr_character_flag = regla_de_ifa_hold_feast society_quest_event = { id = #FILL IN LATER } }
+				regla_de_ifa_hold_feast = 						{ clr_character_flag = regla_de_ifa_hold_feast society_quest_event = { id = regladeifa.503 } }
 				monastic_orders_mission_theology = 				{ clr_character_flag = monastic_orders_mission_theology society_quest_event = { id = MNM.4015 } }
 				regla_de_ifa_procure_ebo = 						{ clr_character_flag = regla_de_ifa_procure_ebo society_quest_event = { id = #FILL IN LATER } }
-				regla_de_ifa_recieve_ewo = 						{ clr_character_flag = regla_de_ifa_recieve_ewo society_quest_event = { id = #FILL IN LATER } }
+				regla_de_ifa_receive_ewo = 						{ clr_character_flag = regla_de_ifa_receive_ewo society_quest_event = { id = regladeifa.506 } }
 				monastic_orders_mission_temple = 				{ clr_character_flag = monastic_orders_mission_temple society_quest_event = { id = MNM.4023 } }
 			}
+		}
+	}
+}
+
+#MISSION: Hold a feast
+society_quest_event = {
+	id = regladeifa.503
+	desc = EVTDESC_regladeifa_503
+	border = GFX_event_letter_frame_religion
+
+	is_triggered_only = yes
+
+	option = {
+		name = ACCEPT
+		set_quest = quest_regla_de_ifa_hold_feast
+	}
+	option = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+#Leader Ping for charity
+character_event = {
+	id = regladeifa.504
+	is_triggered_only = yes
+	hide_window = yes
+
+	immediate = {
+		FROM = {
+			letter_event = {
+				id = regladeifa.505
+			}
+		}
+	}
+}
+
+letter_event = {
+	id = regladeifa.505
+	desc = EVTDESC_regladeifa_505
+	border = GFX_event_letter_frame_religion
+
+	is_triggered_only = yes
+
+	trigger = {
+		society_member_of = regla_de_ifa
+	}
+
+	option = {
+		name = EVTOPT_regladeifa_505
+
+		wealth = -100
+		if = {
+			limit = { NOT = { has_quest = quest_regla_de_ifa_hold_feast } }
+			add_society_currency_minor_effect = yes
+		}
+		
+		if = {
+			limit = { has_quest = quest_regla_de_ifa_hold_feast }
+			clr_quest = quest_regla_de_ifa_hold_feast
+			sound_effect = monastic_orders_donate_charity
+			hidden_effect = { monastic_order_purity_effect = yes }
+			add_society_currency_medium_effect = yes
+		}
+
+		if = {
+			limit = { NOT = { trait = greedy } }
+			random = {
+				chance = 30
+				add_trait = charitable
+			}
+		}
+		if = {
+			limit = { trait = greedy }
+			random = {
+				chance = 40
+				remove_trait = greedy
+			}
+		}
+	}
+}
+
+#MISSION: Receive Ewo
+society_quest_event = {
+	id = regladeifa.506
+	desc = EVTDESC_regladeifa_506
+	border = GFX_event_letter_frame_religion
+
+	is_triggered_only = yes
+
+	option = {
+		name = ACCEPT
+		set_quest = quest_regla_de_ifa_receive_ewo
+	}
+	option = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+character_event = { #Receive an ewo
+	id = regladeifa.507
+	desc = EVTDESC_regladeifa_507
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		society_member_of = regla_de_ifa
+		has_character_flag = receiving_ewo
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_507
+		custom_tooltip = { text = TXT_EVTOPTA_regladeifa_507 }
+	}
+	
+	after = {
+		hidden_tooltip = {
+			random_list = {
+				20 = { #dietary restriction
+					character_event = { id = regladeifa.508 days = 1 }
+				}
+				20 = { #alcohol restriction
+					character_event = { id = regladeifa.509 days = 1 }
+				}
+				20 = { #additional dress restrictions
+					character_event = { id = regladeifa.510 days = 1 }
+				}
+				20 = { #restriction on sex
+					character_event = { id = regladeifa.511 days = 1 }
+				}
+				20 = { #restriction on leisure(???)
+					character_event = { id = regladeifa.512 days = 1 }
+				}
+			}
+		}
+	}
+}
+
+character_event = { #Receive an ewo
+	id = regladeifa.508
+	desc = EVTDESC_regladeifa_508
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		society_member_of = regla_de_ifa
+		has_character_flag = receiving_ewo
+	}
+	
+	immediate = {
+		clr_character_flag = receiving_ewo
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_508
+		piety = 150
+		add_character_modifier = {
+        	name = diet_ewo
+        	years = 2
+        }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_quest = quest_regla_de_ifa_receive_ewo
+			}
+			random_society_member = {
+				limit = {
+					is_society_grandmaster = yes
+					same_society_as = ROOT
+				}
+				character_event = { id = regladeifa.513 } #Mission success
+			}
+		}
+	}
+}
+
+character_event = { #Receive an ewo
+	id = regladeifa.509
+	desc = EVTDESC_regladeifa_509
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		society_member_of = regla_de_ifa
+		has_character_flag = receiving_ewo
+	}
+	
+	immediate = {
+		clr_character_flag = receiving_ewo
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_509
+		piety = 150
+		add_character_modifier = {
+        	name = alcohol_ewo
+        	years = 2
+        }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_quest = quest_regla_de_ifa_receive_ewo
+			}
+			random_society_member = {
+				limit = {
+					is_society_grandmaster = yes
+					same_society_as = ROOT
+				}
+				character_event = { id = regladeifa.513 } #Mission success
+			}
+		}
+	}
+}
+
+character_event = { #Receive an ewo
+	id = regladeifa.510
+	desc = EVTDESC_regladeifa_510
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		society_member_of = regla_de_ifa
+		has_character_flag = receiving_ewo
+	}
+	
+	immediate = {
+		clr_character_flag = receiving_ewo
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_510
+		piety = 150
+		add_character_modifier = {
+        	name = dress_ewo
+        	years = 2
+        }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_quest = quest_regla_de_ifa_receive_ewo
+			}
+			random_society_member = {
+				limit = {
+					is_society_grandmaster = yes
+					same_society_as = ROOT
+				}
+				character_event = { id = regladeifa.513 } #Mission success
+			}
+		}
+	}
+}
+
+character_event = { #Receive an ewo
+	id = regladeifa.511
+	desc = EVTDESC_regladeifa_511
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		society_member_of = regla_de_ifa
+		has_character_flag = receiving_ewo
+	}
+	
+	immediate = {
+		clr_character_flag = receiving_ewo
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_511
+		piety = 150
+		add_character_modifier = {
+        	name = sex_ewo
+        	years = 2
+        }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_quest = quest_regla_de_ifa_receive_ewo
+			}
+			random_society_member = {
+				limit = {
+					is_society_grandmaster = yes
+					same_society_as = ROOT
+				}
+				character_event = { id = regladeifa.513 } #Mission success
+			}
+		}
+	}
+}
+
+character_event = { #Receive an ewo
+	id = regladeifa.512
+	desc = EVTDESC_regladeifa_512
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		society_member_of = regla_de_ifa
+		has_character_flag = receiving_ewo
+	}
+	
+	immediate = {
+		clr_character_flag = receiving_ewo
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_512
+		piety = 150
+		add_character_modifier = {
+        	name = leisure_ewo
+        	years = 2
+        }
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_quest = quest_regla_de_ifa_receive_ewo
+			}
+			random_society_member = {
+				limit = {
+					is_society_grandmaster = yes
+					same_society_as = ROOT
+				}
+				character_event = { id = regladeifa.513 } #Mission success
+			}
+		}
+	}
+}
+
+#Grandmaster ping for ewo
+character_event = {
+	id = regladeifa.513
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = {
+		if = {
+			FROM = { letter_event = { id = regladeifa.514 } }
+		}
+	}
+}
+
+#Ewo success
+letter_event = {
+	id = regladeifa.514
+	border = GFX_event_letter_frame_religion
+	desc = EVTDESC_regladeifa_514
+	is_triggered_only = yes
+	
+	trigger = {
+		society_member_of = regla_de_ifa
+		has_quest = quest_regla_de_ifa_receive_ewo
+	}
+
+	option = {
+		name = EVTOPTA_regladeifa_514
+		clr_quest = quest_regla_de_ifa_receive_ewo
+		sound_effect = monastic_orders_penance
+		remove_character_modifier = doing_penance
+		add_society_currency_medium_effect = yes
+		hidden_effect = { 
+			monastic_order_purity_effect = yes 
+		}
+	}
+}
+
+#Ewo character events
+#Diet ewo makes you stressed
+character_event = {
+	id = regladeifa.515
+	desc = EVTDESC_regladeifa_515
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = diet_ewo
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_515
+		add_trait = stressed
+	}
+}
+
+#Diet ewo removes gluttonous
+character_event = {
+	id = regladeifa.516
+	desc = EVTDESC_regladeifa_516
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = diet_ewo
+		NOT = { trait = temperate }
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_516
+		piety = 50
+		if = {
+			limit = {
+				trait = gluttonous
+			}
+			remove_trait = gluttonous
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = temperate }
+			}
+			add_trait = temperate
+		}
+	}
+}
+
+#Alcohol ewo makes you stressed
+character_event = {
+	id = regladeifa.516
+	desc = EVTDESC_regladeifa_516
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = alcohol_ewo
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_516
+		add_trait = stressed
+	}
+}
+
+#Alcohol ewo removes drunkard
+character_event = {
+	id = regladeifa.517
+	desc = EVTDESC_regladeifa_517
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = alcohol_ewo
+		trait = drunkard
+	}
+	
+	mean_time_to_happen = {
+		years = 1
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_517
+		piety = 100
+		remove_trait = drunkard
+	}
+}
+
+#Dress ewo makes you stressed
+character_event = {
+	id = regladeifa.518
+	desc = EVTDESC_regladeifa_518
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = dress_ewo
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_518
+		add_trait = stressed
+	}
+}
+
+#Dress ewo removes proud/envious
+character_event = {
+	id = regladeifa.519
+	desc = EVTDESC_regladeifa_519
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = dress_ewo
+		NOT = {
+			trait = humble
+		}
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_517
+		piety = 50
+		if = {
+			limit = {
+				trait = proud
+				NOT = { trait = envious }
+			}
+			remove_trait = proud
+		}
+		else_if = {
+			limit = {
+				trait = envious
+				NOT = { trait = proud }
+			}
+			remove_trait = envious
+		}
+		else_if = {
+			limit = {
+				trait = envious
+				trait = proud
+			}
+			remove_trait = envious
+			remove_trait = proud
+		}
+		else_if = {
+			limit = {
+				NOR = {
+					trait = envious
+					trait = proud
+				}
+			}
+			add_trait = humble
+		}
+	}
+}
+
+#Sex ewo makes you stressed
+character_event = {
+	id = regladeifa.520
+	desc = EVTDESC_regladeifa_520
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = sex_ewo
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_520
+		add_trait = stressed
+	}
+}
+
+#Sex ewo removes lustful
+character_event = {
+	id = regladeifa.521
+	desc = EVTDESC_regladeifa_521
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = sex_ewo
+		NOR = {
+			trait = chaste
+			trait = celibate
+		}
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_521
+		piety = 50
+		if = {
+			limit = {
+				trait = lustful
+			}
+			remove_trait = lustful
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = lustful }
+			}
+			add_trait = chaste
+		}
+	}
+}
+
+#Leisure ewo makes you stressed
+character_event = {
+	id = regladeifa.522
+	desc = EVTDESC_regladeifa_522
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = leisure_ewo
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_522
+		add_trait = stressed
+	}
+}
+
+#Sex ewo removes slothful
+character_event = {
+	id = regladeifa.523
+	desc = EVTDESC_regladeifa_523
+	picture = GFX_evt_religious_exultation
+	border = GFX_event_normal_frame_religion
+	
+	trigger = {
+		has_character_modifier = leisure_ewo
+		NOT = {
+			trait = diligent
+		}
+	}
+	
+	mean_time_to_happen = {
+		years = 2
+	}
+	
+	option = {
+		name = EVTOPTA_regladeifa_523
+		piety = 50
+		if = {
+			limit = {
+				trait = slothful
+			}
+			remove_trait = slothful
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = slothful }
+			}
+			add_trait = diligent
 		}
 	}
 }

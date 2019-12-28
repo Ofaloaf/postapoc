@@ -1412,6 +1412,89 @@ targeted_decisions = {
 		}
 	}
 
+#Power, rank 1 (Norse and Celtic only): Train to Capture
+	warrior_lodge_mictlantec_train_capture = {
+		is_in_society = yes
+		
+		filter = self
+		ai_target_filter = self
+		ai_check_interval = 12
+		
+		potential = {
+			character = FROM
+			has_dlc = "Holy Fury"
+			is_playable = yes
+			is_adult = yes
+			society_member_of = warrior_lodge_mictlantec
+			society_rank = 1
+			NOT = { has_character_flag = training_to_capture } #to stop you spamming the button
+		}
+		
+		allow = {
+			has_society_currency_minor_trigger = yes
+			has_religion_matching_joined_warrior_lodge_trigger = yes
+			custom_tooltip = {
+				text = not_already_training_tt
+				NOT = { has_character_flag = training_to_capture }
+			}
+			NOT = { trait = mictlantec_leader }
+			prisoner = no
+		}
+		
+		effect = {
+			if = {
+				limit = { NOT = { trait = mictlantec_leader } }
+				custom_tooltip = {
+					text = gain_mictlantec_leader_tt #Specifies what the trait gives: must be updated if trait is
+					#tooltip = { add_trait = berserker } #no longer needed
+				}
+			}
+			hidden_effect = {
+	    		if = {
+	    			limit = {
+	    				NOT = { trait = patient }
+	    				NOT = { trait = wroth }
+	    			}
+    				add_trait = patient
+	    		}
+				if = {
+					limit = { trait = aggressive_leader }
+					remove_trait = aggressive_leader
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = { prisoner = no }
+					character_event = { id = HF.19000 } #Fires event to handle outcome...
+				}
+			}
+			set_character_flag = training_to_capture
+			detract_society_currency_minor_effect = yes
+		}
+		
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.1
+				trait = shy
+			}
+			modifier = {
+				factor = 0.1
+				trait = craven
+			}
+			modifier = {
+				factor = 0.1
+				trait = patient
+			}
+			modifier = {
+				factor = 0.1
+				trait = aggressive_leader
+			}
+		}
+	}
+
 	#Power, rank 4: Call to Glory
 	warrior_lodge_call_to_glory = {
 		only_playable = yes

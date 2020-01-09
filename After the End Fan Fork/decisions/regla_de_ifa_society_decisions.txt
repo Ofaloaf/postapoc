@@ -1,0 +1,350 @@
+targeted_decisions = {
+	regla_de_ifa_brew_happiness_potion = {
+		is_in_society = yes
+		filter = realm_including_me
+		ai_target_filter = realm_including_me
+		ai_check_interval = 24
+
+		from_potential = {
+			has_dlc = "Mystics"
+			society_rank = {
+				rank >= 3
+				society = regla_de_ifa
+			}
+		}
+
+		potential = {
+			OR = {
+				trait = stressed
+				trait = depressed
+			}
+			OR = {
+				liege = {
+					character = FROM
+				}
+				character = FROM
+			}
+			OR = {
+				FROM = { ai = no }
+				character = FROM
+				is_close_relative = FROM
+				is_friend = FROM
+				is_lover = FROM
+			}
+		}
+
+		allow = {
+			FROM = { has_society_currency_medium_trigger = yes }
+			OR = {
+				trait = stressed
+				trait = depressed
+			}
+			custom_tooltip = {
+				text = must_not_already_be_preparing_potion_tt
+				hidden_tooltip = { FROM = { NOT = { has_character_flag = preparing_potion } } }
+			}
+		}
+
+		effect = {
+			FROM = { detract_society_currency_minor_effect = yes }
+			FROM = { set_character_flag = preparing_potion }
+
+			if = {
+				limit = { character = FROM } #Making yourself a potion
+				custom_tooltip = {
+					text = brew_happiness_potion_effect_self
+					set_character_flag = potion_target_is_self
+					character_event = { id = regladeifa.100 }
+				}
+			}
+
+			if = {
+				limit = { NOT = { character = FROM } } #Making someone else a potion
+				save_event_target_as = potion_target
+				custom_tooltip = {
+					text = brew_happiness_potion_effect_other
+					FROM = { character_event = { id = regladeifa.101 } }
+				}
+			}
+
+			tooltip = {
+				if = { 
+					limit = { trait = stressed }
+					remove_trait = stressed
+				}
+				if = { 
+					limit = { trait = depressed }
+					remove_trait = depressed
+				}
+				if = {
+					limit = { has_character_modifier = apathetic }
+					remove_character_modifier = apathetic
+				}
+			}
+		}
+
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 0.01
+			modifier = {	
+				factor = 100
+				character = FROM
+			}
+			modifier = {
+				factor = 10
+				reverse_opinion = {
+					who = FROM
+					value = 30
+				}
+			}
+		}
+	}
+	
+	regla_de_ifa_perform_scrying = {
+		is_in_society = yes
+		
+		filter = self
+		ai_target_filter = self
+		ai_check_interval = 10
+		
+		potential = {
+			character = FROM
+			has_dlc = "Mystics"
+			society_member_of = regla_de_ifa
+			society_rank >= 2
+		}
+
+		allow = {
+			has_society_currency_minor_trigger = yes
+			custom_tooltip = {
+				text = regla_de_ifa_scrying_cooldown_tooltip
+				has_an_omen_modifier_trigger = no
+				NOT = { has_character_modifier = scrying_cooldown }
+			}
+		}
+
+		effect = {
+			hidden_effect = {
+				add_character_modifier = {
+					name = scrying_cooldown
+					years = 1
+					hidden = yes
+				}
+				character_event = { id = regladeifa.200 days = 1 }
+			}
+			detract_society_currency_minor_effect = yes
+		}
+
+		revoke_allowed = { always = no }
+
+		ai_will_do = {
+			factor = 0.5
+
+			modifier = {
+				factor = 0.5
+				is_dumb_trigger = yes
+			}
+			modifier = {
+				factor = 0.5
+				trait = content
+			}
+			modifier = {
+				factor = 0.5
+				trait = cynical
+			}
+			modifier = {
+				factor = 1.5
+				trait = ambitious
+			}
+			modifier = {
+				factor = 1.5
+				trait = trusting
+			}
+		}
+	}
+}
+
+society_decisions = {
+	regla_de_ifa_warrior_training = {
+		ai_check_interval = 12
+		
+		potential = {
+			society_member_of = regla_de_ifa
+			NOT = { trait = tire_machet }
+		}
+		
+		allow = {
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			NOT = { trait = incapable }
+			custom_tooltip = {
+				text = tooltip_not_busy
+				hidden_trigger = {
+					block_general_event_trigger = no
+				}
+			}
+			has_society_currency_minor_trigger = yes
+		}
+		
+		effect = {
+			detract_society_currency_minor_effect = yes
+			set_character_flag = do_not_disturb
+			custom_tooltip = {
+				text = regla_de_ifa_warrior_training_decision_tt
+			}
+			hidden_tooltip = { character_event = { id = regladeifa.300 } } #actually gives you the trait, after a brief delay for training
+			hidden_tooltip = { character_event = { id = regladeifa.303 days = 30 } } #clears flags in case something breaks
+		}
+	}
+	
+	regla_de_ifa_create_fetish = {
+		ai_check_interval = 12
+		
+		potential = {
+			society_member_of = regla_de_ifa
+			society_rank = 4
+			NOT = { has_character_flag = regla_de_ifa_created_fetish }
+		}
+		
+		allow = {
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			NOT = { trait = incapable }
+			custom_tooltip = {
+				text = tooltip_not_busy
+				hidden_trigger = {
+					block_general_event_trigger = no
+				}
+			}
+			has_society_currency_major_trigger = yes
+			gold = 50
+			piety = 100
+		}
+		
+		effect = {
+			detract_society_currency_major_effect = yes
+			gold = -50
+			piety = -100
+			custom_tooltip = {
+				text = regla_de_ifa_create_fetish_decision_tt
+			}
+			set_character_flag = do_not_disturb
+			hidden_tooltip = {
+				if = {
+					limit = {
+						religion = santeria
+					}
+					hidden_tooltip = { character_event = { id = regladeifa.400 } } #lets you choose the artifacts, for santeria
+				}
+				if = {
+					limit = {
+						religion = candomble
+					}
+					hidden_tooltip = { character_event = { id = regladeifa.401 } } #lets you choose the artifacts, for candomble (perhaps redundant)
+				}
+				if = {
+					limit = {
+						religion = voodoo
+					}
+					hidden_tooltip = { character_event = { id = regladeifa.402 } } #lets you choose the artifacts, for voodoo
+				}
+				if = {
+					limit = {
+						religion = rastafarian
+					}
+					hidden_tooltip = { character_event = { id = regladeifa.403 } } #lets you choose the artifacts, for rastafarian
+				}
+				if = {
+					limit = {
+						OR = {
+							religion = espiritista
+							religion = espiritista_reformed
+						}
+					}
+					hidden_tooltip = { character_event = { id = regladeifa.404 } } #lets you choose the artifacts, for rastafarian
+				}
+				hidden_tooltip = { character_event = { id = regladeifa.440 days = 60 } } #clears flags in case something breaks
+			}
+		}
+	}
+	
+	regla_de_ifa_invite_ascetic = { #had to do it to em
+		only_playable = yes
+		
+		potential = {
+			has_dlc = "Mystics"
+			society_rank >= 3
+			society_member_of = regla_de_ifa
+			NOT = { has_character_flag = ascetic_arriving }
+			NOT = { has_character_modifier = recently_invited_ascetic }
+		}
+
+		allow = {
+			has_society_currency_medium_trigger = yes
+			is_inaccessible_trigger = no
+		}
+
+		effect = {
+			set_character_flag = ascetic_arriving
+			detract_society_currency_medium_effect = yes
+			
+			custom_tooltip = {
+				text = regla_de_ifa_invite_ascetic_tt
+				character_event = { id = regladeifa.441 days = 7 }
+			}
+			add_character_modifier = {
+				name = recently_invited_ascetic
+				duration = 365
+			}
+		}
+
+		revoke_allowed = {
+			always = no
+		}
+
+		ai_will_do = {
+			factor = 0.001
+			modifier = {
+				factor = 0.1
+				any_courtier = { is_monastic_member_trigger = yes } #Less likely to invite if there is already someone else at court
+			}
+			modifier = {
+				any_courtier = { has_job_title = job_spiritual learning = 16 }
+				factor = 0.01
+			}
+		}
+	}
+	
+	regla_de_ifa_receive_ewo = {
+		only_playable = yes
+		
+		potential = {
+			has_dlc = "Mystics"
+			society_member_of = regla_de_ifa
+			regla_de_ifa_has_ewo_trigger = no
+		}
+		
+		allow = {
+			has_society_currency_medium_trigger = yes
+			is_inaccessible_trigger = no
+		}
+		
+		effect = {
+			set_character_flag = receiving_ewo
+			detract_society_currency_medium_effect = yes
+			custom_tooltip = {
+				text = regla_de_ifa_receive_ewo_tt
+				character_event = { id = regladeifa.507 }
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
+		ai_will_do = {
+			factor = 1
+		}
+	}
+}

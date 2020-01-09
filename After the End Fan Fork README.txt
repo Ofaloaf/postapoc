@@ -59,6 +59,7 @@ Casus bellis from Project Balance
 Titular Empires from CK2+ (old version) by Wiz
 Portraits from Lux Invicta by DarkReborn and others
 Clothing and headgear from AGOT Congenital Overhaul by LancelotLoire
+Muslim societies from Maal's Sufi Schools mod
 
 Images:
 All flags have been resized to be compatible with game requirements.

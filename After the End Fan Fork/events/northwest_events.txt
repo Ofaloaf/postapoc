@@ -1,5 +1,9 @@
 namespace = northwest
 
+#1-15	Totem Poles
+#20-x	Potlatch Feast
+#		Icon Creation
+
 character_event = { #Decide which totem pole to build
 	id = northwest.1
 	desc = EVTDESC_northwest_1
@@ -284,5 +288,660 @@ narrative_event = { #Village saved from famine
 		name = EVTOPTA_northwest_15
 		prestige = 150
 		piety = 150
+	}
+}
+
+
+character_event = { #Decide what to give away before sending out invitations
+	id = northwest.20
+	desc = EVTDESC_northwest_20
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_modifier = holding_potlatch
+		NOT = {
+			has_character_flag = sent_invitations
+		}
+	}
+	
+	option = { #Not much
+		name = EVTOPTA_northwest_20
+		scaled_wealth = -0.1
+		piety = 20
+		set_character_flag = bad_potlatch
+		ai_will_do = {
+			factor = 25
+			modifier = {
+				factor = 0
+				NOT = { wealth = 20 }
+			}
+		}
+	}
+	
+	option = { #Acceptable
+		name = EVTOPTB_northwest_20
+		scaled_wealth = -0.2
+		piety = 30
+		set_character_flag = okay_potlatch
+		ai_will_do = {
+			factor = 25
+			modifier = {
+				factor = 0
+				NOT = { wealth = 50 }
+			}
+		}
+	}
+	
+	option = { #Respectable
+		name = EVTOPTC_northwest_20
+		scaled_wealth = -0.3
+		piety = 50
+		set_character_flag = good_potlatch
+		ai_will_do = {
+			factor = 25
+			modifier = {
+				factor = 0
+				NOT = { wealth = 100 }
+			}
+		}
+	}
+	
+	option = { #Excellent
+		name = EVTOPTD_northwest_20
+		scaled_wealth = -0.5
+		piety = 100
+		set_character_flag = excellent_potlatch
+		ai_will_do = {
+			factor = 25
+			modifier = {
+				factor = 0
+				NOT = { wealth = 200 }
+			}
+		}
+	}
+	
+	after = {
+		character_event = { id = northwest.21 days = 1 }
+	}
+}
+
+#Send invites
+character_event = {
+	id = northwest.21
+	desc = EVTDESC_northwest_21
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	trigger = {
+		has_character_modifier = holding_potlatch
+		OR = {
+			has_character_flag = bad_potlatch
+			has_character_flag = okay_potlatch
+			has_character_flag = good_potlatch
+			has_character_flag = excellent_potlatch
+		}
+		NOT = {
+			has_character_flag = sent_invitations
+		}
+	}
+	
+	option = {
+		name = EVTOPTA_northwest_21
+		set_character_flag = sent_invitations
+		custom_tooltip = {
+			text = EVTTOOLTIP1_RoI_1000
+		}
+		hidden_tooltip = {
+			character_event = { id = northwest.25 days = 5 }
+			any_vassal = {
+				limit = {
+					NOT = { is_inaccessible_trigger = yes }
+					prisoner = no
+					NOT = { has_character_flag = do_not_disturb }
+					NOT = { trait = incapable }
+					NOT = { has_character_modifier = holding_potlatch }
+					war = no
+					is_adult = yes
+				}
+				letter_event = {
+					id = northwest.23
+					days = 2
+				}
+			}
+		}
+	}
+}
+
+#Vassal is invited to the feast
+letter_event = {
+	id = northwest.23
+	desc = EVTDESC_northwest_23
+	is_triggered_only = yes
+
+	trigger = { NOT = { is_inaccessible_trigger = yes } }
+
+	option = {
+		name = EVTOPTA_northwest_23 #Travel to the feast
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 2
+				opinion = { who = from value = -40 }
+			}
+			modifier  = {
+				factor = 2
+				opinion = { who = from value = -20 }
+			}
+		}
+		set_character_flag = coming_to_potlatch
+	}
+	option = {
+		name = EVTOPTB_northwest_23 #Refuse
+		ai_chance = {
+			factor = 1
+			modifier  = {
+				factor = 2
+				NOT = { opinion = { who = from value = -60 } }
+			}
+			modifier  = {
+				factor = 2
+				NOT = { opinion = { who = from value = -80 } }
+			}
+		}
+		FROM = {
+			letter_event = {
+				id = northwest.24
+				days = 1
+				random = 2
+				tooltip = EVTTOOLTIP_northwest_24
+			}
+		}
+	}
+}
+
+#Vassal refused to come to the feast
+letter_event = {
+	id = northwest.24
+	desc = EVTDESC_northwest_24
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_24
+		opinion = {
+			modifier = opinion_dislike
+			who = FROM
+			years = 10
+		}
+	}
+}
+
+#The guests have arrived
+character_event = {
+	id = northwest.25
+	desc = EVTDESC_northwest_25
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+
+	is_triggered_only = yes
+
+	trigger = {
+		has_character_modifier = holding_potlatch
+		has_character_flag = sent_invitations
+		NOT = {
+			has_character_flag = host_potlatch_started
+		}
+		any_vassal = {
+			NOT = {
+				has_character_flag = guest_potlatch_started
+			}
+			has_character_flag = coming_to_potlatch
+		}
+	}
+
+	option = {
+		name = EVTOPTA_northwest_25
+		set_character_flag = host_feast_started
+		hidden_tooltip = { 
+			any_vassal = {
+				limit = {
+					has_character_flag = coming_to_potlatch
+				}
+				character_event = {
+					id = northwest.26
+					tooltip = EVTTOOLTIP_northwest_26
+				}
+			}
+			if = {
+				limit = {
+					has_character_flag = bad_potlatch
+				}
+				character_event = { id = northwest.27 days = 3 }
+				any_vassal = {
+					limit = {
+						has_character_flag = coming_to_potlatch
+					}
+					character_event = {
+						id = northwest.28
+						days = 3
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_character_flag = okay_potlatch
+				}
+				character_event = { id = northwest.29 days = 3 }
+				any_vassal = {
+					limit = {
+						has_character_flag = coming_to_potlatch
+					}
+					character_event = {
+						id = northwest.30
+						days = 3
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_character_flag = good_potlatch
+				}
+				character_event = { id = northwest.31 days = 3 }
+				any_vassal = {
+					limit = {
+						has_character_flag = coming_to_potlatch
+					}
+					character_event = {
+						id = northwest.32
+						days = 3
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_character_flag = excellent_potlatch
+				}
+				character_event = { id = northwest.33 days = 3 }
+				any_vassal = {
+					limit = {
+						has_character_flag = coming_to_potlatch
+					}
+					character_event = {
+						id = northwest.34
+						days = 3
+					}
+				}
+			}
+		}
+	}
+	
+	after = {
+		character_event = { id = potlatch.35 days = 5 } #End of potlatch for host
+	}
+}
+
+#Welcome to the potlatch!
+character_event = {
+	id = northwest.26
+	desc = EVTDESC_northwest_26
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_26
+		set_character_flag = guest_potlatch_started
+	}
+}
+
+#Potlatch is bad (host)
+character_event = {
+	id = northwest.27
+	desc = EVTDESC_northwest_27
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_27
+		scaled_prestige = -0.15
+	}
+}
+
+#Potlatch is bad (guest)
+character_event = {
+	id = northwest.28
+	desc = EVTDESC_northwest_28
+	picture = GFX_evt_bad_news
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_28
+		opinion = {
+			modifier = opinion_dislike
+			who = FROM
+			years = 10
+		}
+		set_character_flag = bad_potlatch_guest
+	}
+}
+
+#Potlatch is okay (host)
+character_event = {
+	id = northwest.29
+	desc = EVTDESC_northwest_29
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_29
+		scaled_prestige = 0.1
+	}
+}
+
+#Potlatch is okay (guest)
+character_event = {
+	id = northwest.30
+	desc = EVTDESC_northwest_30
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_30
+		opinion = {
+			modifier = opinion_satisfied
+			who = FROM
+			years = 10
+		}
+		set_character_flag = okay_potlatch_guest
+	}
+}
+
+#Potlatch is good (host)
+character_event = {
+	id = northwest.31
+	desc = EVTDESC_northwest_31
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_31
+		scaled_prestige = 0.25
+	}
+}
+
+#Potlatch is good (guest)
+character_event = {
+	id = northwest.32
+	desc = EVTDESC_northwest_32
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_32
+		opinion = {
+			modifier = opinion_respects_liege
+			who = FROM
+			years = 10
+		}
+		set_character_flag = good_potlatch_guest
+	}
+}
+
+#Potlatch is excellent (host)
+character_event = {
+	id = northwest.33
+	desc = EVTDESC_northwest_33
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_33
+		scaled_prestige = 0.5
+	}
+}
+
+#Potlatch is excellent (guest)
+character_event = {
+	id = northwest.34
+	desc = EVTDESC_northwest_34
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_34
+		opinion = {
+			modifier = opinion_great_leader
+			who = FROM
+			years = 10
+		}
+		set_character_flag = excellent_potlatch_guest
+	}
+}
+
+#Potlatch ending event 1
+character_event = {
+	id = northwest.35
+	desc = {
+		trigger = { has_character_flag = bad_potlatch }
+		text = EVTDESCA_northwest_35
+	}
+	desc = {
+		trigger = { has_character_flag = okay_potlatch }
+		text = EVTDESCB_northwest_35
+	}
+	desc = {
+		trigger = { has_character_flag = good_potlatch }
+		text = EVTDESCC_northwest_35
+	}
+	desc = {
+		trigger = { has_character_flag = excellent_potlatch }
+		text = EVTDESCD_northwest_35
+	}
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_modifier = holding_potlatch
+	}
+	
+	option = {
+		name = EVTOPTA_northwest_35
+		prestige = 10
+		custom_tooltip = {
+			text = EVTOPTA_northwest_35_TOOLTIP
+		}
+		remove_character_modifier = holding_large_feast
+		add_character_modifier = {
+			name = potlatch_timer
+			years = 5
+		}
+		if = {
+			limit = {
+				OR = {
+					has_character_flag = good_potlatch
+					has_character_flag = excellent_potlatch
+				}
+			}
+			add_character_modifier = {
+				name = fabulous_potlatch
+				years = 5
+			}
+		}
+		set_character_flag = recent_potlatch
+		clr_character_flag = sent_invitations
+		clr_character_flag = host_potlatch_started
+		clr_character_flag = bad_potlatch
+		clr_character_flag = okay_potlatch
+		clr_character_flag = good_potlatch
+		clr_character_flag = excellent_potlatch
+		clr_character_flag = do_not_disturb
+		
+		hidden_tooltip = {
+			any_vassal = {
+				limit = {
+					has_character_flag = guest_potlatch_started
+				}
+				character_event = {
+					id = northwest.36
+				}
+				remove_opinion = {
+					modifier = opinion_enjoyed_feast
+					who = ROOT
+				}
+				if = {
+					limit = {
+						OR = {
+							has_character_flag = okay_potlatch_guest
+							has_character_flag = good_potlatch_guest
+							has_character_flag = excellent_potlatch_guest
+						}
+					}
+					opinion = {
+						modifier = opinion_enjoyed_feast
+						who = ROOT
+						years = 2
+					}
+				}
+				clr_character_flag = coming_to_potlatch
+				clr_character_flag = guest_potlatch_started
+			}
+		}
+	}
+}
+
+#Vassal: Feast ended
+character_event = {
+	id = northwest.36
+	desc = {
+		trigger = { has_character_flag = bad_potlatch_guest }
+		text = EVTDESCA_northwest_36
+	}
+	desc = {
+		trigger = { has_character_flag = okay_potlatch_guest }
+		text = EVTDESCB_northwest_36
+	}
+	desc = {
+		trigger = { has_character_flag = good_potlatch_guest }
+		text = EVTDESCC_northwest_36
+	}
+	desc = {
+		trigger = { has_character_flag = excellent_potlatch_guest }
+		text = EVTDESCD_northwest_36
+	}
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_36
+		prestige = 5
+		clr_character_flag = bad_potlatch_guest
+		clr_character_flag = okay_potlatch_guest
+		clr_character_flag = good_potlatch_guest
+		clr_character_flag = excellent_potlatch_guest
+	}
+}
+
+#The feast is cancelled
+character_event = {
+	id = northwest.37
+	desc = EVTDESC_northwest_37
+	picture = GFX_evt_feast
+	border = GFX_event_normal_frame_religion
+	only_rulers = yes
+	war = yes
+
+	trigger = {
+		has_character_modifier = holding_potlatch
+	}
+
+	mean_time_to_happen = {
+		days = 1
+	}
+
+	option = {
+		name = EVTOPTA_northwest_37
+		wealth = 25
+		remove_character_modifier = holding_potlatch
+		set_character_flag = recent_potlatch
+		clr_character_flag = sent_invitations
+		clr_character_flag = host_potlatch_started
+		clr_character_flag = bad_potlatch
+		clr_character_flag = okay_potlatch
+		clr_character_flag = good_potlatch
+		clr_character_flag = excellent_potlatch
+		clr_character_flag = do_not_disturb
+		any_vassal = {
+			limit = {
+				has_character_flag = guest_potlatch_started
+			}
+			letter_event = {
+				id = northwest.38
+				tooltip = EVTTOOLTIP_northwest_38
+			}
+			clr_character_flag = coming_to_potlatch
+			clr_character_flag = bad_potlatch_guest
+			clr_character_flag = okay_potlatch_guest
+			clr_character_flag = good_potlatch_guest
+			clr_character_flag = excellent_potlatch_guest
+			clr_character_flag = guest_potlatch_started
+		}
+	}
+}
+
+#Feast cancelled: notify invited vassals
+letter_event = {
+	id = northwest.38
+	desc = EVTDESC_northwest_38
+
+	is_triggered_only = yes
+
+	option = {
+		name = EVTOPTA_northwest_38
+	}
+}
+
+#Safety Catch
+character_event = {
+	id = northwest.39
+	hide_window = yes
+	is_triggered_only = yes
+
+	immediate = {
+		remove_character_modifier = holding_potlatch
+		set_character_flag = recent_potlatch
+		clr_character_flag = sent_invitations
+		clr_character_flag = host_potlatch_started
+		clr_character_flag = bad_potlatch
+		clr_character_flag = okay_potlatch
+		clr_character_flag = good_potlatch
+		clr_character_flag = excellent_potlatch
+		clr_character_flag = do_not_disturb
+
+		any_vassal = {
+			limit = {
+				has_character_flag = guest_potlatch_started
+			}
+			clr_character_flag = coming_to_potlatch
+			clr_character_flag = bad_potlatch_guest
+			clr_character_flag = okay_potlatch_guest
+			clr_character_flag = good_potlatch_guest
+			clr_character_flag = excellent_potlatch_guest
+			clr_character_flag = guest_potlatch_started
+		}
 	}
 }

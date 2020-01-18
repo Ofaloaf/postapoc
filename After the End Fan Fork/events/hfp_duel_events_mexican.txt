@@ -1,4 +1,186 @@
 namespace = HFP
+
+#HF_warrior_lodge_mission_events transplants
+character_event = {
+	id = HF.10522
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.10523 days = 7 random = 7 } } }
+}
+
+#Hero wants you to duel someone
+society_quest_event = {
+	id = HF.10523
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	desc = {
+		text = EVTDESCHF10523_A #default
+		trigger = { event_target:duel_target = { NOT = { character = event_target:lodge_hero } } }
+	}
+	desc = {
+		text = EVTDESCHF10523_B #if target is also the person giving you the quest...
+		trigger = { event_target:duel_target = { character = event_target:lodge_hero } }
+	}
+
+	trigger = {
+		FROM = { is_alive = yes }
+		is_member_of_any_warrior_lodge_trigger = yes
+		same_society_as = FROM
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		is_landed = yes
+
+		society = {
+			any_society_member = {
+				ai = yes
+				age = 16
+                NOT = { character = ROOT }
+	            is_inaccessible_or_incapable_trigger = no
+                NOT = { has_character_modifier = bedridden_illness }
+	            NOT = { has_character_modifier = severe_illness }
+			}
+		}
+	}
+
+	immediate = {
+		if = {
+			limit = { #best case (someone within diplo-range, not sick, not seriously injured already)...
+				any_society_member = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					is_maimed_trigger = no
+					has_medium_disability_trigger = no #limits the character to some extent
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+					is_within_diplo_range = ROOT
+				}
+			}
+
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					is_maimed_trigger = no
+					has_medium_disability_trigger = no #limits the character to some extent
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+					is_within_diplo_range = ROOT
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+			
+		}
+		else_if = { #second best choice (same, but outside of diplo-range)...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					has_medium_disability_trigger = no #limits the character to some extent
+					is_maimed_trigger = no #has a maimed trait
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+				}
+			}
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					has_medium_disability_trigger = no #limits the character to some extent
+					is_maimed_trigger = no #has a maimed trait
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+		}
+		else_if = { #third best option (now also injured or old folks allowed)...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+	                ai = yes
+					age = 16
+	                NOT = { character = ROOT }
+		            is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { has_character_flag = call_to_legend_active }
+	            }
+			}
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+	                NOT = { character = ROOT }
+		            is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { has_character_flag = call_to_legend_active }
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+		}
+	}
+	
+	quest_target = event_target:duel_target #Is this how it's done?
+
+	option = {
+		name = ACCEPT
+		event_target:duel_target = {
+			show_scope_change = no
+			set_quest_target = {
+				id = quest_warrior_lodge_wrestle_honor
+				holder = ROOT
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
 #hfp_duel_events transplants
 
 #Challenged

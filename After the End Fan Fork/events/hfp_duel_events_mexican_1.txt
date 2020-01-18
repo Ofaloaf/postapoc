@@ -1,0 +1,443 @@
+namespace = HF
+
+#HF_warrior_lodge_mission_events transplants
+character_event = {
+	id = HF.10522
+	hide_window = yes
+
+	is_triggered_only = yes
+
+	immediate = { FROM = { society_quest_event = { id = HF.10523 days = 7 random = 7 } } }
+}
+
+#Hero wants you to duel someone
+society_quest_event = {
+	id = HF.10523
+	is_triggered_only = yes
+	is_in_society = yes
+	only_capable = yes
+
+	desc = {
+		text = EVTDESCHF10523_A #default
+		trigger = { event_target:duel_target = { NOT = { character = event_target:lodge_hero } } }
+	}
+	desc = {
+		text = EVTDESCHF10523_B #if target is also the person giving you the quest...
+		trigger = { event_target:duel_target = { character = event_target:lodge_hero } }
+	}
+
+	trigger = {
+		FROM = { is_alive = yes }
+		is_member_of_any_warrior_lodge_trigger = yes
+		same_society_as = FROM
+		has_any_quest = no
+		NOT = { has_character_modifier = quest_cooldown_timer }
+		NOT = { is_inaccessible_trigger = yes }
+		is_landed = yes
+
+		society = {
+			any_society_member = {
+				ai = yes
+				age = 16
+                NOT = { character = ROOT }
+	            is_inaccessible_or_incapable_trigger = no
+                NOT = { has_character_modifier = bedridden_illness }
+	            NOT = { has_character_modifier = severe_illness }
+			}
+		}
+	}
+
+	immediate = {
+		if = {
+			limit = { #best case (someone within diplo-range, not sick, not seriously injured already)...
+				any_society_member = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					is_maimed_trigger = no
+					has_medium_disability_trigger = no #limits the character to some extent
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+					is_within_diplo_range = ROOT
+				}
+			}
+
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					is_maimed_trigger = no
+					has_medium_disability_trigger = no #limits the character to some extent
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+					is_within_diplo_range = ROOT
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+			
+		}
+		else_if = { #second best choice (same, but outside of diplo-range)...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					has_medium_disability_trigger = no #limits the character to some extent
+					is_maimed_trigger = no #has a maimed trait
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+				}
+			}
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+					NOT = { character = ROOT }
+					NOT = { age = 60 }
+					has_medium_disability_trigger = no #limits the character to some extent
+					is_maimed_trigger = no #has a maimed trait
+					has_severe_disability_trigger = no
+					character_disease_trigger = no
+					NOT = { has_character_flag = call_to_legend_active }
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+		}
+		else_if = { #third best option (now also injured or old folks allowed)...
+			limit = {
+				any_society_member = {
+					same_society_as = ROOT
+	                ai = yes
+					age = 16
+	                NOT = { character = ROOT }
+		            is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { has_character_flag = call_to_legend_active }
+	            }
+			}
+			any_society_member = {
+				limit = {
+					same_society_as = ROOT
+					ai = yes
+					age = 16
+	                NOT = { character = ROOT }
+		            is_inaccessible_or_incapable_trigger = no
+	                NOT = { has_character_modifier = bedridden_illness }
+		            NOT = { has_character_modifier = severe_illness }
+		            NOT = { has_character_flag = call_to_legend_active }
+				}
+				score_value = { #Prioritizes selecting some kind of warrior...
+	                value = 10
+	                matching_soldier_score = yes
+	            }
+	            save_event_target_as = duel_target
+			}
+		}
+	}
+	
+	quest_target = event_target:duel_target #Is this how it's done?
+
+	option = {
+		name = ACCEPT
+		event_target:duel_target = {
+			show_scope_change = no
+			set_quest_target = {
+				id = quest_warrior_lodge_wrestle_honor
+				holder = ROOT
+			}
+		}
+	}
+	option  = {
+		name = DECLINE
+		custom_tooltip = { text = decline_quest_tooltip }
+
+		add_character_modifier = {
+			name = quest_cooldown_timer
+			hidden = yes
+			days = 1000
+		}
+
+		ai_chance = { factor = 0 }
+	}
+}
+
+
+#DDDD
+
+character_event = {
+    id = HF.16029
+    picture = GFX_evt_camaraderie
+    border = GFX_event_normal_frame_war
+    is_triggered_only = yes
+
+    portrait = event_target:craven_ruler
+    
+    trigger = {
+        NOT = { trait = craven }
+        is_inaccessible_or_incapable_trigger = no
+        FROM = {
+            is_alive = yes
+            has_character_modifier = duels_declined
+            trait = craven
+            is_incapable = no
+        }        
+        NAND = { #one part should be AI, for ease of choices
+            ai = no
+            FROM = { ai = no }
+        }
+    }
+
+    immediate = {
+        FROM = { save_event_target_as = craven_ruler }
+    }
+
+    desc = {
+        text = EVTDESC_HF_16029_A
+        trigger = {
+            event_target:craven_ruler = {
+                dynasty = ROOT
+            }
+        }
+    }
+    desc = {
+        text = EVTDESC_HF_16029_B
+        trigger = {
+            event_target:craven_ruler = {
+                NOT = { dynasty = ROOT }
+            }
+        }
+    }
+
+    option = { # Yes, you can't be too careful
+        name = EVTOPTA_HF_16000
+        if = {
+            limit = { ai = no } #otherwise, liege is player, and traits are added later
+            if = {
+                limit = { trait = brave }
+                remove_trait = brave
+            }
+            else_if = {
+                limit = { NOT = { trait = craven } }
+                add_trait = craven
+            }
+        }
+
+        event_target:craven_ruler = { character_event = { id = HF.16030 days = 1 } }
+
+        ai_chance = {
+            factor = 50
+            modifier = {
+                factor = 1.5
+                trait = trusting
+            }
+            modifier = {
+                factor = 1.5
+                trait = weak
+            }
+            modifier = {
+                factor = 1.5
+                trait = feeble
+            }
+            modifier = {
+                factor = 1.5
+                opinion = {
+                    who = event_target:craven_ruler
+                    value = 50
+                }
+            }
+            modifier = {
+                factor = 1.5
+                opinion = {
+                    who = event_target:craven_ruler
+                    value = 70
+                }
+            }
+            modifier = {
+                factor = 1.5
+                opinion = {
+                    who = event_target:craven_ruler
+                    value = 80
+                }
+            }
+            modifier = {
+                factor = 1.5
+                is_child_of = event_target:craven_ruler
+            }
+        }
+    }
+    option = { # No, I am ashamed of my liege
+        name = EVTOPTB_HF_16000
+
+        tooltip = { #added for real in follow up event
+            opinion = {
+                modifier = opinion_renowned_chicken
+                who = event_target:craven_ruler
+                years = 20
+            }
+            reverse_opinion = {
+                modifier = opinion_disrespectful_subject
+                who = event_target:craven_ruler
+                years = 20
+            }
+        }
+        event_target:craven_ruler = { character_event = { id = HF.16031 days = 1 } }
+
+        ai_chance = {
+            factor = 50
+            modifier = {
+                factor = 1.5
+                trait = wroth
+            }
+            modifier = {
+                factor = 1.5
+                trait = ambitious
+            }
+            modifier = {
+                factor = 1.5
+                trait = strong
+            }
+            modifier = {
+                factor = 1.5
+                trait = robust
+            }
+            modifier = {
+                factor = 1.5
+                NOT = {
+                    opinion = {
+                        who = event_target:craven_ruler
+                        value = 25
+                    }
+                }
+            }
+            modifier = {
+                factor = 1.5
+                NOT = {
+                    opinion = {
+                        who = event_target:craven_ruler
+                        value = 0
+                    }
+                }
+            }
+            modifier = {
+                factor = 1.5
+                NOT = {
+                    opinion = {
+                        who = event_target:craven_ruler
+                        value = -25
+                    }
+                }
+            }
+        }
+    }
+}
+
+#Liege finds out their subject wants to be Craven, just like them
+character_event = {
+    id = HF.16030
+    desc = EVTDESC_HF_16001
+    picture = GFX_evt_camaraderie
+    border = GFX_event_normal_frame_war
+    is_triggered_only = yes
+    
+    trigger = {
+        FROM = { is_alive = yes }
+    }
+
+    option = {      
+        name = EVTOPTA_HF_16001 # Thank you! Let's be Craven together
+        prestige = 10
+        if = {
+            limit = { FROM = { NOT = { trait = craven } } }
+            FROM = { show_scope_change = no add_trait = craven }
+        }
+        else_if = {
+            limit = { FROM = { trait = brave } }
+            FROM = { show_scope_change = no remove_trait = brave }
+        }
+    }
+    option = {      
+        name = EVTOPTB_HF_16001 #No, do as I SAY, not what... Argh..
+
+        custom_tooltip = {
+            text = EVTOPTB_HF_16001_TT
+        }
+
+        reverse_opinion = {
+            modifier = opinion_hypocrit_ruler
+            who = FROM
+            years = 20
+        }
+        FROM = { clr_character_flag = reacting_to_craven_duelist }
+    }
+}
+
+#Liege finds out their subject is ashamed of them, just like them
+character_event = {
+    id = HF.16031
+    desc = EVTDESC_HF_16002
+    picture = GFX_evt_upsetting_letter
+    border = GFX_event_normal_frame_war
+    is_triggered_only = yes
+    
+    trigger = {
+        FROM = { is_alive = yes }
+    }
+
+    option = {      
+        name = EVTOPTA_HF_16002 #They... have a point.
+
+        if = {
+            limit = { trait = craven }
+            random = {
+                chance = 20
+                remove_trait = craven
+                hidden_tooltip = { character_event = { id = 38296 } } # Notify Lost Craven
+            }
+        }
+
+        reverse_opinion = {
+            modifier = opinion_renowned_chicken
+            who = FROM
+            years = 20
+        }
+    }
+    option = {      
+        name = EVTOPTB_HF_16002 #Political nonsense! I do as I please!
+
+        prestige = 10
+
+        opinion = {
+            modifier = opinion_disrespectful_subject
+            who = FROM
+            years = 20
+        }
+        reverse_opinion = {
+            modifier = opinion_renowned_chicken
+            who = FROM
+            years = 20
+        }
+    }
+    after = {
+        hidden_effect = { FROM = { clr_character_flag = reacting_to_craven_duelist } }
+    }
+}

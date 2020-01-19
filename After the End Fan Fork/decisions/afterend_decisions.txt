@@ -1100,9 +1100,17 @@ decisions = {
 				text = TXT_imperial_war
 			}
 			hidden_tooltip = {
-				war = {
-					target = event_target:current_emperor
-					casus_belli = imperial_claim_war
+				e_california = { # This is what I call an Event Target 3.
+					holder_scope = {
+						persistent_event_target:imperial_claimant = {
+							unsafe_war = {
+								target = persistent_event_target:current_emperor 
+								casus_belli = imperial_claim_war
+								thirdparty_title = PREV
+								tier = EMPEROR
+							}
+						}
+					}
 				}
 				narrative_event = { id = cetic.100 } # war declared, vassals forced to pick sides
 			}
@@ -1226,16 +1234,21 @@ decisions = {
 				}
 			}
 			prisoner = no
+			NOT = { has_character_flag = ulama_in_progress }
 			NOT = { is_inaccessible_trigger = yes }
 			NOT = {	trait = incapable }
 			is_adult = yes
 		}
 		effect = {
 			scaled_wealth = -0.5
+			set_character_flag = ulama_in_progress
 			set_character_flag = do_not_disturb
 			set_character_flag = recent_minor_decision
 			hidden_tooltip = { 
 				character_event = { id = mesoamerica.200 } 
+			}
+			hidden_tooltip = { 
+				character_event = { id = mesoamerica.299 days = 60 } #emergency flag clear
 			}
 			if = {
 				limit = {
@@ -2473,7 +2486,7 @@ decisions = {
 	}
 
 	grain_to_masses = {
-		ai_check_interval = 3
+		ai_check_interval = 1
 		is_high_prio = yes
 		potential = {
 			OR = {
@@ -3353,7 +3366,158 @@ decisions = {
 			factor = 1
 		}
 	}
+	
+	hold_a_rodeo  = {
+		only_independent = yes
+		is_high_prio = yes
+		ai_check_interval = 24
+		
+		potential = {
+			is_playable = yes
+			NOR = {
+				has_character_modifier = epic_rodeo
+				has_character_flag = epic_rodeo
+			}
+			religion_openly_trailwalker_or_reformed_trigger = yes
+			independent = yes
+			OR = {
+				tier = duke
+				tier = king
+				tier = emperor 
+			}
+			location = {
+				owner = { character = ROOT }
+			}
+		}
+		allow = {
+			war = no
+			prisoner = no
+			in_command = no
+			NOT = { is_inaccessible_trigger = yes }
+			age = 16
+			prestige = 200
+			wealth = 50
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+			}
+		}
+		effect = {
+			add_character_modifier = {
+				name = epic_rodeo
+				years = 10
+				hidden = yes
+			}
+			set_character_flag = do_not_disturb
+			character_event = { id = trailwalker.10 }
+			hidden_tooltip = { character_event = { id = trailwalker.28 days = 100 } } # Safety catch flag clearing
+			wealth = -50
+			prestige = 50
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				NOT = {
+					OR = {
+						wealth = 100
+						scaled_wealth = 3.0
+					}
+				}
+			}
+		}
+	}
 
+		hunt_for_whale = {
+		only_playable = yes
+		is_high_prio = yes
+		ai_check_interval = 3
+		potential = {
+			is_playable = yes
+			is_adult = yes
+			prisoner = no
+			religion = pelagic
+			NOT = {	has_character_flag = on_whale_hunt }
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+		}
+		allow = {
+			war = no
+			custom_tooltip = {
+				text = UNOCCUPIED_DEMESNE_TITLE
+				hidden_tooltip = {
+					any_demesne_title = {
+						NOT = { higher_tier_than = count }
+						is_occupied = no
+					}
+				}
+			}
+			month = 6
+			NOT = {
+				month = 8
+			}
+			wealth = 50
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+			}
+		}
+		effect = {
+			piety = 20
+			set_character_flag = on_whale_hunt
+			set_character_flag = do_not_disturb
+			hidden_tooltip = { character_event = { id = pelagic.10 days = 150 } } # Safety catch flag clearing
+			custom_tooltip = {
+				text = whale_hunt
+				hidden_tooltip = {
+					character_event = { id = pelagic.1 } 
+				}
+			}
+			if = {
+				limit = {
+					has_dlc = "Reapers"
+				}
+				custom_tooltip = {
+					text = capital_prospers_custom_tooltip
+					hidden_tooltip = {
+						capital_scope = {
+							change_variable = { which = prosperity_value value = 8 }
+						}
+					}
+				}
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				NOT = {
+					wealth = 100
+				}
+			}
+			modifier = {
+				factor = 0
+				trait = craven
+			}	
+			modifier = {
+				factor = 0
+				has_character_flag = recent_minor_decision
+				NOT = {
+					had_character_flag = {
+						flag = recent_minor_decision
+						days = 730
+					}
+				}
+			}
+		}
+	}
 }	
 	
 targetted_decisions = {
@@ -4265,7 +4429,7 @@ targetted_decisions = {
 	
 	slander_character = {
 		is_high_prio = yes
-		ai_check_interval = 3
+		ai_check_interval = 1
 		from_potential = {
 			OR = {
 				trait = governator
@@ -4366,7 +4530,7 @@ targetted_decisions = {
 	
 	gain_favor_cetic = {
 		is_high_prio = yes
-		ai_check_interval = 2
+		ai_check_interval = 1
 		from_potential = {
 			OR = {
 				trait = governator
@@ -4585,156 +4749,5 @@ targetted_decisions = {
 				}
 			}
 		}
-	}
-	
-	hold_a_rodeo  = {
-		only_independent = yes
-		is_high_prio = yes
-		ai_check_interval = 24
-		
-		potential = {
-			is_playable = yes
-			NOR = {
-				has_character_modifier = epic_rodeo
-				has_character_flag = epic_rodeo
-			}
-			religion_openly_trailwalker_or_reformed_trigger = yes
-			independent = yes
-			OR = {
-				tier = duke
-				tier = king
-				tier = emperor 
-			}
-			location = {
-				owner = { character = ROOT }
-			}
-		}
-		allow = {
-			war = no
-			prisoner = no
-			in_command = no
-			NOT = { is_inaccessible_trigger = yes }
-			age = 16
-			prestige = 200
-			wealth = 50
-			custom_tooltip = {
-				text = is_not_busy_trigger_tooltip
-				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
-			}
-		}
-		effect = {
-			add_character_modifier = {
-				name = epic_rodeo
-				years = 10
-				hidden = yes
-			}
-			set_character_flag = do_not_disturb
-			character_event = { id = trailwalker.10 }
-			hidden_tooltip = { character_event = { id = trailwalker.28 days = 100 } } # Safety catch flag clearing
-			wealth = -50
-			prestige = 50
-		}
-		ai_will_do = {
-			factor = 1
-			modifier = {
-				factor = 0
-				NOT = {
-					OR = {
-						wealth = 100
-						scaled_wealth = 3.0
-					}
-				}
-			}
-		}
-	}
-}
-	hunt_for_whale = {
-		only_playable = yes
-		is_high_prio = yes
-		ai_check_interval = 3
-		potential = {
-			is_playable = yes
-			is_adult = yes
-			prisoner = no
-			religion = pelagic
-			NOT = {	has_character_flag = on_whale_hunt }
-			NOT = {
-				has_alternate_start_parameter = { key = religion_names value = random }
-			}
-		}
-		allow = {
-			war = no
-			custom_tooltip = {
-				text = UNOCCUPIED_DEMESNE_TITLE
-				hidden_tooltip = {
-					any_demesne_title = {
-						NOT = { higher_tier_than = count }
-						is_occupied = no
-					}
-				}
-			}
-			month = 6
-			NOT = {
-				month = 8
-			}
-			wealth = 50
-			prisoner = no
-			NOT = { is_inaccessible_trigger = yes }
-			custom_tooltip = {
-				text = is_not_busy_trigger_tooltip
-				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
-			}
-		}
-		effect = {
-			piety = 20
-			set_character_flag = on_whale_hunt
-			set_character_flag = do_not_disturb
-			hidden_tooltip = { character_event = { id = pelagic.10 days = 150 } } # Safety catch flag clearing
-			custom_tooltip = {
-				text = whale_hunt
-				hidden_tooltip = {
-					character_event = { id = pelagic.1 } 
-				}
-			}
-			if = {
-				limit = {
-					has_dlc = "Reapers"
-				}
-				custom_tooltip = {
-					text = capital_prospers_custom_tooltip
-					hidden_tooltip = {
-						capital_scope = {
-							change_variable = { which = prosperity_value value = 8 }
-						}
-					}
-				}
-			}
-		}
-		revoke_allowed = {
-			always = no
-		}
-		ai_will_do = {
-			factor = 1
-			
-			modifier = {
-				factor = 0
-				NOT = {
-					wealth = 100
-				}
-			}
-			modifier = {
-				factor = 0
-				trait = craven
-			}	
-			modifier = {
-				factor = 0
-				has_character_flag = recent_minor_decision
-				NOT = {
-					had_character_flag = {
-						flag = recent_minor_decision
-						days = 730
-					}
-				}
-			}
-		}
+	}	
 }

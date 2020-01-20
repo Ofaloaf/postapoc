@@ -791,8 +791,10 @@ province_event = {
 	hide_window = yes
 	
 	trigger = {
-		religion = cetic
-		empire = { title = e_california }
+		OR = {
+			empire = { title = e_california }
+			empire = { title = e_new_california }
+		}
 		owner = {
 			controls_religion = no
 		}
@@ -823,7 +825,7 @@ character_event = {
 	is_triggered_only = yes
 	
 	trigger = {
-		religion = cetic
+		government = bureaucratic_government
 		controls_religion = no
 		has_character_modifier = imperial_favor
 		FROM = {
@@ -2702,7 +2704,7 @@ narrative_event = {
 	title = EVTTITLE_cetic_imperial_war
 	desc = EVTDESC_cetic_imperial_war
 	picture = GFX_evt_china_civil_war
-	border = GFX_event_narrative_frame_war
+	border = GFX_event_normal_frame_war
 	major = yes
 	show_root = yes
 	is_triggered_only = yes
@@ -3954,8 +3956,11 @@ character_event = {
 			e_california = { holder_scope = { trait = figurehead } }
 			e_new_california = { holder_scope = { trait = figurehead } }
 		}
-		NOT = {
+		NOR = {
 			has_character_flag = chosen_heir_gnator
+			any_character = {
+				trait = governator_heir
+			}
 		}
 	}
 	immediate = {
@@ -4090,7 +4095,39 @@ character_event = {
 	is_triggered_only = yes
 	trigger = {
 		trait = governator
-		has_character_flag = chosen_heir_gnator
+		OR = {
+			has_character_flag = chosen_heir_gnator
+			any_character = {
+				trait = governator_heir
+			}
+		}
+	}
+	
+	immediate = {
+		any_character = {
+			limit = {
+				trait = governator_heir
+			}
+			character_event = { id = cetic.327 }
+		}
+	}
+}
+
+#Gnator heir failsafe
+character_event = {
+	id = cetic.371
+	hide_window = yes
+	trigger = {
+		trait = governator_heir
+		NOT = {
+			any_character = {
+				trait = governator
+			}
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 1
 	}
 	
 	immediate = {
@@ -5085,6 +5122,12 @@ character_event = {
 					has_landed_title = e_new_california
 				}
 			}
+			any_character = {
+				limit = {
+					trait = governator 
+				}
+				character_event = { id = cetic.369 }
+			}
 			custom_tooltip = {
 				text = impauth_decrease_3_TT
 				hidden_tooltip = {
@@ -5101,6 +5144,15 @@ character_event = {
 		if = {
 			limit = {
 				trait = governator
+			}
+			any_character = {
+				limit = {
+					OR = {
+						has_landed_title = e_california
+						has_landed_title = e_new_california
+					}
+				}
+				character_event = { id = cetic.369 }
 			}
 			custom_tooltip = {
 				text = impauth_increase_3_TT
@@ -5129,6 +5181,12 @@ character_event = {
 					has_landed_title = e_new_california
 				}
 			}
+			any_character = {
+				limit = {
+					trait = governator 
+				}
+				character_event = { id = cetic.370 }
+			}
 			custom_tooltip = {
 				text = impauth_increase_5_TT
 				hidden_tooltip = {
@@ -5146,11 +5204,88 @@ character_event = {
 			limit = {
 				trait = governator
 			}
+			any_character = {
+				limit = {
+					OR = {
+						has_landed_title = e_california
+						has_landed_title = e_new_california
+					}
+				}
+				character_event = { id = cetic.370 }
+			}
 			custom_tooltip = {
 				text = impauth_decrease_5_TT
 				hidden_tooltip = {
 					change_variable = { which = global_imp_auth  value = -5 }
 				}
+			}
+		}
+	}
+}
+
+#Ping event for bad grain to other person
+character_event = {
+	id = cetic.369
+	desc = EVTDESCCETIC369
+	picture = GFX_evt_emissary
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC369
+		opinion = {
+			modifier = defied_norms
+		}
+		if = {
+			limit = {
+				OR = {
+					has_landed_title = e_california
+					has_landed_title = e_new_california
+				}
+			}
+			custom_tooltip = {
+				text = impauth_increase_3_TT
+			}
+		}
+		if = {
+			limit = {
+				trait = governator
+			}
+			custom_tooltip = {
+				text = impauth_decrease_3_TT
+			}
+		}
+	}
+}
+
+#Ping event for good grain to other person
+character_event = {
+	id = cetic.370
+	desc = EVTDESCCETIC370
+	picture = GFX_evt_bad_news
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTACETIC369
+		opinion = {
+			modifier = defied_norms
+		}
+		if = {
+			limit = {
+				OR = {
+					has_landed_title = e_california
+					has_landed_title = e_new_california
+				}
+			}
+			custom_tooltip = {
+				text = impauth_decrease_5_TT
+			}
+		}
+		if = {
+			limit = {
+				trait = governator
+			}
+			custom_tooltip = {
+				text = impauth_increase_5_TT
 			}
 		}
 	}
@@ -5181,134 +5316,136 @@ character_event = {
 	option = { #Use diplomacy
 		name = EVTOPTACETIC347
 		set_character_flag = sway_dip
-		random_list = {
-			50 = { #fails
-				hidden_tooltip = {
-					event_target:swayee = {
-						character_event = { id = cetic.348 } #simple ping event
-					}
-				}
-				custom_tooltip = {
-					text = not_swayed_TT
-				}
-				modifier = {
-					factor = 1.3
-					event_target:swayer = {
-						diplomacy < 8
-					}
-				}
-				modifier = {
-					factor = 1.3
-					event_target:swayee = {
-						OR = {
-							is_friend = liege
-							is_friend = event_target:gnator
+		hidden_tooltip = {
+			random_list = {
+				60 = { #fails
+					hidden_tooltip = {
+						event_target:swayee = {
+							character_event = { id = cetic.348 } #simple ping event
 						}
-						NOT = {
+					}
+					custom_tooltip = {
+						text = not_swayed_TT
+					}
+					modifier = {
+						factor = 1.3
+						event_target:swayer = {
+							diplomacy < 8
+						}
+					}
+					modifier = {
+						factor = 1.3
+						event_target:swayee = {
+							OR = {
+								is_friend = liege
+								is_friend = event_target:gnator
+							}
+							NOT = {
+								has_character_flag = forced_friend
+							}
+						}
+					}
+					modifier = {
+						factor = 0.7
+						event_target:swayee = {
+							OR = {
+								is_friend = liege
+								is_friend = event_target:gnator
+							}
 							has_character_flag = forced_friend
 						}
 					}
-				}
-				modifier = {
-					factor = 0.7
-					event_target:swayee = {
-						OR = {
-							is_friend = liege
-							is_friend = event_target:gnator
+					modifier = {
+						factor = 0.5
+						event_target:swayer = {
+							diplomacy = 12
 						}
-						has_character_flag = forced_friend
+					}
+					modifier = {
+						factor = 1.8
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+					}
+					modifier = {
+						factor = 1.6
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+					}
+					modifier = {
+						factor = 1.4
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+					}
+					modifier = {
+						factor = 1.2
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+					}
+					modifier = {
+						factor = 0.9
+						event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+					}
+					modifier = {
+						factor = 0.8
+						event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+					}
+					modifier = {
+						factor = 0.6
+						event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
 					}
 				}
-				modifier = {
-					factor = 0.5
-					event_target:swayer = {
-						diplomacy = 12
+				40 = { #it succeeds
+					hidden_tooltip = {
+						event_target:swayee = {
+							character_event = { id = cetic.349 } #simple ping event
+							clr_character_flag = forced_friend
+						}
 					}
-				}
-				modifier = {
-					factor = 1.8
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
-				}
-				modifier = {
-					factor = 1.6
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
-				}
-				modifier = {
-					factor = 1.4
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
-				}
-				modifier = {
-					factor = 1.2
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
-				}
-				modifier = {
-					factor = 0.9
-					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
-				}
-				modifier = {
-					factor = 0.8
-					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
-				}
-				modifier = {
-					factor = 0.6
-					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
-				}
-			}
-			50 = { #it succeeds
-				hidden_tooltip = {
-					event_target:swayee = {
-						character_event = { id = cetic.349 } #simple ping event
-						clr_character_flag = forced_friend
+					custom_tooltip = {
+						text = swayed_TT
 					}
-				}
-				custom_tooltip = {
-					text = swayed_TT
-				}
-				modifier = {
-					factor = 0.5
-					event_target:swayer = {
-						diplomacy < 8
+					modifier = {
+						factor = 0.5
+						event_target:swayer = {
+							diplomacy < 8
+						}
 					}
-				}
-				modifier = {
-					factor = 100
-					event_target:swayee = { is_friend = event_target:swayer }
-				}
-				modifier = {
-					factor = 0.01
-					event_target:swayee = { is_rival = event_target:swayer }
-				}
-				modifier = {
-					factor = 0.2
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
-				}
-				modifier = {
-					factor = 0.4
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
-				}
-				modifier = {
-					factor = 0.6
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
-				}
-				modifier = {
-					factor = 0.8
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
-				}
-				modifier = {
-					factor = 1.2
-					event_target:swayee = { opinion = { who = event_target:swayer value = 20 } }
-				}
-				modifier = {
-					factor = 1.4
-					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
-				}
-				modifier = {
-					factor = 1.6
-					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
-				}
-				modifier = {
-					factor = 1.8
-					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+					modifier = {
+						factor = 100
+						event_target:swayee = { is_friend = event_target:swayer }
+					}
+					modifier = {
+						factor = 0.01
+						event_target:swayee = { is_rival = event_target:swayer }
+					}
+					modifier = {
+						factor = 0.2
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+					}
+					modifier = {
+						factor = 0.4
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+					}
+					modifier = {
+						factor = 0.6
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+					}
+					modifier = {
+						factor = 0.8
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+					}
+					modifier = {
+						factor = 1.2
+						event_target:swayee = { opinion = { who = event_target:swayer value = 20 } }
+					}
+					modifier = {
+						factor = 1.4
+						event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+					}
+					modifier = {
+						factor = 1.6
+						event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+					}
+					modifier = {
+						factor = 1.8
+						event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+					}
 				}
 			}
 		}
@@ -5322,142 +5459,144 @@ character_event = {
 			}
 		}
 		wealth = -200
-		random_list = {
-			60 = { #fails
-				hidden_tooltip = {
-					event_target:swayee = {
-						character_event = { id = cetic.348 } #simple ping event
-					}
-				}
-				custom_tooltip = {
-					text = not_swayed_TT
-				}
-				modifier = {
-					factor = 1.3
-					event_target:swayee = {
-						trait = greedy
-					}
-				}
-				modifier = {
-					factor = 0.5
-					event_target:swayee = {
-						trait = honest
-					}
-				}
-				modifier = {
-					factor = 1.3
-					event_target:swayee = {
-						OR = {
-							is_friend = liege
-							is_friend = event_target:gnator
+		hidden_tooltip = {
+			random_list = {
+				70 = { #fails
+					hidden_tooltip = {
+						event_target:swayee = {
+							character_event = { id = cetic.348 } #simple ping event
 						}
-						NOT = {
+					}
+					custom_tooltip = {
+						text = not_swayed_TT
+					}
+					modifier = {
+						factor = 1.3
+						event_target:swayee = {
+							trait = greedy
+						}
+					}
+					modifier = {
+						factor = 0.5
+						event_target:swayee = {
+							trait = honest
+						}
+					}
+					modifier = {
+						factor = 1.3
+						event_target:swayee = {
+							OR = {
+								is_friend = liege
+								is_friend = event_target:gnator
+							}
+							NOT = {
+								has_character_flag = forced_friend
+							}
+						}
+					}
+					modifier = {
+						factor = 0.7
+						event_target:swayee = {
+							OR = {
+								is_friend = liege
+								is_friend = event_target:gnator
+							}
 							has_character_flag = forced_friend
 						}
 					}
+					modifier = {
+						factor = 0
+						event_target:swayee = { is_friend = event_target:swayer }
+					}
+					modifier = {
+						factor = 100
+						event_target:swayee = { is_rival = event_target:swayer }
+					}
+					modifier = {
+						factor = 1.8
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+					}
+					modifier = {
+						factor = 1.6
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+					}
+					modifier = {
+						factor = 1.4
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+					}
+					modifier = {
+						factor = 1.2
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+					}
+					modifier = {
+						factor = 0.9
+						event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+					}
+					modifier = {
+						factor = 0.8
+						event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+					}
+					modifier = {
+						factor = 0.6
+						event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+					}
 				}
-				modifier = {
-					factor = 0.7
-					event_target:swayee = {
-						OR = {
-							is_friend = liege
-							is_friend = event_target:gnator
+				30 = { #it succeeds
+					hidden_tooltip = {
+						event_target:swayee = {
+							character_event = { id = cetic.349 } #simple ping event
+							set_character_flag = forced_friend
 						}
-						has_character_flag = forced_friend
 					}
-				}
-				modifier = {
-					factor = 0
-					event_target:swayee = { is_friend = event_target:swayer }
-				}
-				modifier = {
-					factor = 100
-					event_target:swayee = { is_rival = event_target:swayer }
-				}
-				modifier = {
-					factor = 1.8
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
-				}
-				modifier = {
-					factor = 1.6
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
-				}
-				modifier = {
-					factor = 1.4
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
-				}
-				modifier = {
-					factor = 1.2
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
-				}
-				modifier = {
-					factor = 0.9
-					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
-				}
-				modifier = {
-					factor = 0.8
-					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
-				}
-				modifier = {
-					factor = 0.6
-					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
-				}
-			}
-			40 = { #it succeeds
-				hidden_tooltip = {
-					event_target:swayee = {
-						character_event = { id = cetic.349 } #simple ping event
-						set_character_flag = forced_friend
+					custom_tooltip = {
+						text = swayed_TT
 					}
-				}
-				custom_tooltip = {
-					text = swayed_TT
-				}
-				modifier = {
-					factor = 0.5
-					event_target:swayee = {
-						trait = honest
+					modifier = {
+						factor = 0.5
+						event_target:swayee = {
+							trait = honest
+						}
 					}
-				}
-				modifier = {
-					factor = 100
-					event_target:swayee = { is_friend = event_target:swayer }
-				}
-				modifier = {
-					factor = 0.01
-					event_target:swayee = { is_rival = event_target:swayer }
-				}
-				modifier = {
-					factor = 0.2
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
-				}
-				modifier = {
-					factor = 0.4
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
-				}
-				modifier = {
-					factor = 0.6
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
-				}
-				modifier = {
-					factor = 0.8
-					event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
-				}
-				modifier = {
-					factor = 1.2
-					event_target:swayee = { opinion = { who = event_target:swayer value = 20 } }
-				}
-				modifier = {
-					factor = 1.4
-					event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
-				}
-				modifier = {
-					factor = 1.6
-					event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
-				}
-				modifier = {
-					factor = 1.8
-					event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+					modifier = {
+						factor = 100
+						event_target:swayee = { is_friend = event_target:swayer }
+					}
+					modifier = {
+						factor = 0.01
+						event_target:swayee = { is_rival = event_target:swayer }
+					}
+					modifier = {
+						factor = 0.2
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -80 } }
+					}
+					modifier = {
+						factor = 0.4
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -60 } }
+					}
+					modifier = {
+						factor = 0.6
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -40 } }
+					}
+					modifier = {
+						factor = 0.8
+						event_target:swayee = { opinion = { who = event_target:swayer value <= -20 } }
+					}
+					modifier = {
+						factor = 1.2
+						event_target:swayee = { opinion = { who = event_target:swayer value = 20 } }
+					}
+					modifier = {
+						factor = 1.4
+						event_target:swayee = { opinion = { who = event_target:swayer value = 40 } }
+					}
+					modifier = {
+						factor = 1.6
+						event_target:swayee = { opinion = { who = event_target:swayer value = 60 } }
+					}
+					modifier = {
+						factor = 1.8
+						event_target:swayee = { opinion = { who = event_target:swayer value = 80 } }
+					}
 				}
 			}
 		}
@@ -5465,8 +5604,9 @@ character_event = {
 	option = { #Use intrigue
 		name = EVTOPTCCETIC347
 		set_character_flag = sway_int
-		random_list = {
-			50 = { #fails
+		hidden_tooltip = {
+			random_list = {
+			70 = { #fails
 				hidden_tooltip = {
 					event_target:swayee = {
 						character_event = { id = cetic.348 } #simple ping event
@@ -5516,7 +5656,7 @@ character_event = {
 					}
 				}
 			}
-			50 = { #it succeeds
+			30 = { #it succeeds
 				hidden_tooltip = {
 					event_target:swayee = {
 						character_event = { id = cetic.349 } #simple ping event
@@ -5539,6 +5679,7 @@ character_event = {
 					}
 				}
 			}
+		}
 		}
 	}
 }
@@ -7900,14 +8041,14 @@ character_event = {
 			text = getback_180_TT
 			hidden_tooltip = {
 				random_list = {
-					33 = { #poor reform
+					25 = { #poor reform
 						character_event = { id = cetic.530 days = 180 }
 						modifier = {
 							factor = 2
 							stewardship < 6
 						}
 					}
-					47 = { #reform
+					55 = { #reform
 						character_event = { id = cetic.531 days = 180 }
 					}
 					20 = { #great reform
@@ -7952,14 +8093,14 @@ character_event = {
 			text = getback_180_TT
 			hidden_tooltip = {
 				random_list = {
-					20 = { #poor reform
+					10 = { #poor reform
 						character_event = { id = cetic.530 days = 180 }
 						modifier = {
 							factor = 2
 							stewardship < 6
 						}
 					}
-					50 = { #reform
+					60 = { #reform
 						character_event = { id = cetic.531 days = 180 }
 					}
 					25 = { #great reform
@@ -8232,6 +8373,7 @@ character_event = {
 				modifier = bureau_offices
 				duration = -1
 			}
+			clr_province_flag = building_stuff
 		}
 		prestige = 100
 		any_demesne_province = {
@@ -8279,6 +8421,7 @@ character_event = {
 				modifier = bureau_roads
 				duration = -1
 			}
+			clr_province_flag = building_stuff
 		}
 		any_demesne_province = {
 			set_province_flag = roads_set

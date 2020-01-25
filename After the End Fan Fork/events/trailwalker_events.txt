@@ -1,0 +1,951 @@
+#1-5	Missus Sureshot visits her faithful
+#10-???	Rodeo events (adapted from grand tournament)
+
+namespace = trailwalker
+
+character_event = {
+	id = trailwalker.1
+	desc = EVTDESC_trailwalker_1
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	only_playable = yes
+	only_capable = yes
+	min_age = 16
+	prisoner = no
+	
+	trigger = {
+		OR = {
+			religion = trailwalker
+			religion = trailwalker_reformed
+		}
+		has_character_modifier = follower_of_missus_sureshot
+	}
+	
+	mean_time_to_happen = { years = 50 }
+	
+	option = {
+		name = EVTOPTA_trailwalker_1
+		prestige = 25
+		set_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text = TXT_sureshot_challenge_accepted }
+		hidden_tooltip = {
+			character_event = { id = trailwalker.2 }
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 2
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+		}
+	}
+	
+	option = {
+		name = EVTOPTB_trailwalker_1
+		piety = 25
+		custom_tooltip = { text =  TXT_sureshot_challenge_declined }
+		ai_chance = {
+			factor = 50
+			modifier = {
+				factor = 2
+				trait = proud
+			}
+			modifier = {
+				factor = 0.5
+				trait = humble
+			}
+		}
+	}
+}
+
+character_event = { # Hidden event which decides what outcome the contest has
+	id = trailwalker.2
+	hide_window = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	immediate = {
+		random_list = {
+			65 = { #Fail spectacularly
+				modifier = {
+					factor = 2
+					NOT = { combat_rating = 35 }
+				}
+				modifier = {
+					factor = 0.5
+					combat_rating = 35
+					NOT = { combat_rating = 50 }
+				}
+				modifier = {
+					factor = 0.25
+					combat_rating = 50
+				}
+				character_event = { id = trailwalker.3 days = 1 }
+				break = yes
+			}
+			20 = { #Fall just short
+				modifier = {
+					factor = 0.5
+					NOT = { combat_rating = 35 }
+				}
+				modifier = {
+					factor = 2
+					combat_rating = 35
+					NOT = { combat_rating = 50 }
+				}
+				character_event = { id = trailwalker.4 days = 1 }
+				break = yes
+			}
+			10 = { #Actually succeed
+				modifier = {
+					factor = 0
+					NOT = { combat_rating = 35 }
+				}
+				modifier = {
+					factor = 0.5
+					combat_rating = 35
+					NOT = { combat_rating = 50 }
+				}
+				modifier = {
+					factor = 2
+					combat_rating = 50
+				}
+				character_event = { id = trailwalker.5 days = 1 }
+				break = yes
+			}
+		}
+	}
+}
+
+character_event = { # Fail spectacularly
+	id = trailwalker.3
+	desc = EVTDESC_trailwalker_3
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	option = {
+		name = EVTOPTA_trailwalker_3
+		clr_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text =  TXT_sureshot_super_fail }
+		if = {
+			limit = {
+				trait = proud
+			}
+			remove_trait = proud
+			prestige = -35
+		}
+		if = {
+			limit = {
+				trait = humble
+			}
+			prestige = -20
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = proud }
+				NOT = { trait = humble }
+			}
+			add_trait = humble
+			prestige = -30
+		}
+	}
+}
+
+character_event = { # Fall just short
+	id = trailwalker.4
+	desc = EVTDESC_trailwalker_4
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	option = {
+		name = EVTOPTA_trailwalker_4
+		clr_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text =  TXT_sureshot_close_fail }
+		if = {
+			limit = {
+				trait = proud
+			}
+			remove_trait = proud
+			prestige = -5
+		}
+		if = {
+			limit = {
+				trait = humble
+			}
+			prestige = 15
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = proud }
+				NOT = { trait = humble }
+			}
+			add_trait = humble
+			prestige = 10
+		}
+	}
+}
+
+character_event = { # Actually win somehow???
+	id = trailwalker.5
+	desc = EVTDESC_trailwalker_5
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_longbowman_arabic
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = sureshot_challenge_accepted
+	}
+	
+	option = {
+		name = EVTOPTA_trailwalker_5
+		clr_character_flag = sureshot_challenge_accepted
+		custom_tooltip = { text =  TXT_sureshot_victory }
+		add_artifact = sureshot_bow
+		if = {
+			limit = {
+				trait = proud
+			}
+			prestige = 100
+		}
+		if = {
+			limit = {
+				trait = humble
+			}
+			remove_trait = humble
+			prestige = 50
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = proud }
+				NOT = { trait = humble }
+			}
+			add_trait = proud
+			prestige = 75
+		}
+	}
+}
+
+character_event = { #Man in Black and Ring of Fire
+    id = trailwalker.6
+	desc = EVTDESC_trailwalker_6
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_bad_news
+	trigger = {
+	    has_concubinage = no
+		has_polygamy = no
+		any_lover = {
+			is_abroad = no
+			prisoner = no
+			is_alive = yes
+			NOT = spouse
+		}
+    }
+	mean_time_to_happen = {
+	    years = 50
+	}
+	option = {
+	    name = EVTOPTA_trailwalker_6
+	}
+}
+
+#Rodeo Events
+character_event = { #The games begin
+	id = trailwalker.10
+	desc = EVTDESCtrodeo.1
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_nomad_camp
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.1
+		hidden_tooltip = { character_event = { id = trailwalker.11 days = 1 } }
+	}
+}
+
+character_event = { #Game selection
+	id = trailwalker.11
+	desc = EVTDESCtrodeo.2
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_nomad_camp
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.2
+		set_character_flag = rodeo_goat_roping
+		wealth = -5
+		hidden_tooltip = { character_event = { id = trailwalker.12 days = 1 } }
+	}
+	
+	option = {
+		name = EVTOPTBtrodeo.2
+		set_character_flag = rodeo_barrel_racing
+		wealth = -15
+		hidden_tooltip = { character_event = { id = trailwalker.15 days = 1 } }
+	}
+	
+	option = {
+		name = EVTOPTCtrodeo.2
+		set_character_flag = rodeo_steer_wrestling
+		wealth = -15
+		hidden_tooltip = { character_event = { id = trailwalker.18 days = 1 } }
+	}
+	
+	option = {
+		name = EVTOPTDtrodeo.2
+		set_character_flag = rodeo_livestock_judging
+		hidden_tooltip = { character_event = { id = trailwalker.21 days = 1 } }
+	}
+}
+
+character_event = { #Goat Roping
+	id = trailwalker.12
+	desc = EVTDESCtrodeo.3
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_horsemanship
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			80 = {
+				set_character_flag = rodeo_event_good
+			}
+			20 = {
+				set_character_flag = rodeo_event_bad
+			}
+		}
+	}
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_goat_roping
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.3
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = rodeo_event_good
+			}
+			character_event = { id = trailwalker.24 trailwalker.13 days = 1 } #good outcome, can recruit courtier
+		}
+		else_if = {
+			limit = {
+				has_character_flag = rodeo_event_bad
+			}
+			character_event = { id = trailwalker.24 trailwalker.14 days = 1 } #bad outcome, lose prestige
+		}
+	}
+}
+
+character_event = { #Goat Roping (Good)
+	id = trailwalker.13
+	desc = EVTDESCtrodeo.4
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_horsemanship
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_goat_roping
+		has_character_flag = rodeo_event_good
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.4
+		prestige = 50
+	}
+	
+	option = {
+		name = EVTOPTBtrodeo.4
+		create_character = {
+			random_traits = yes
+			female = no
+			culture = ROOT
+			religion = ROOT
+			age = 25
+			trait = underhanded_rogue
+			attributes = {
+				diplomacy = 9
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			remove_trait = administrator
+			remove_trait = architect
+			remove_trait = duelist
+			remove_trait = gamer
+			remove_trait = gardener
+			remove_trait = hedonist
+			remove_trait = impaler
+			remove_trait = schemer
+			remove_trait = seducer
+			remove_trait = seductress
+			remove_trait = mystic
+			remove_trait = scholar
+			remove_trait = socializer
+			remove_trait = strategist
+			remove_trait = theologian
+			add_trait = hunter
+		}
+	}
+	
+	after = { #Ending event
+		character_event = { id = trailwalker.24 days = 1 }
+	}
+}
+
+character_event = { #Goat Roping (Bad)
+	id = trailwalker.14
+	desc = EVTDESCtrodeo.5
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_bad_news
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_goat_roping
+		has_character_flag = rodeo_event_bad
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.5
+		prestige = -50
+	}
+	
+	after = { #Ending event
+		character_event = { id = trailwalker.24 days = 1 }
+	}
+}
+
+character_event = { #Barrel Racing
+	id = trailwalker.15
+	desc = EVTDESCtrodeo.6
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_horsemanship
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			80 = {
+				set_character_flag = rodeo_event_good
+			}
+			20 = {
+				set_character_flag = rodeo_event_bad
+			}
+		}
+	}
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_barrel_racing
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.6
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = rodeo_event_good
+			}
+			character_event = { id = trailwalker.16 days = 1 } #good outcome, can recruit courtier
+		}
+		else_if = {
+			limit = {
+				has_character_flag = rodeo_event_bad
+			}
+			character_event = { id = trailwalker.17 days = 1 } #bad outcome, lose prestige
+		}
+	}
+}
+
+character_event = { #Barrel Racing (Good)
+	id = trailwalker.16
+	desc = EVTDESCtrodeo.7
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_horsemanship
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_barrel_racing
+		has_character_flag = rodeo_event_good
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.7
+		prestige = 50
+	}
+	
+	option = {
+		name = EVTOPTBtrodeo.7
+		create_character = {
+			random_traits = yes
+			female = yes
+			culture = ROOT
+			religion = ROOT
+			age = 25
+			trait = tough_soldier
+			attributes = {
+				martial = 9
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			remove_trait = administrator
+			remove_trait = architect
+			remove_trait = duelist
+			remove_trait = gamer
+			remove_trait = gardener
+			remove_trait = hedonist
+			remove_trait = impaler
+			remove_trait = schemer
+			remove_trait = seducer
+			remove_trait = seductress
+			remove_trait = mystic
+			remove_trait = scholar
+			remove_trait = socializer
+			remove_trait = strategist
+			remove_trait = theologian
+			remove_trait = ugly
+			add_trait = fair
+			add_trait = hunter
+		}
+	}
+	
+	after = { #Ending event
+		character_event = { id = days = 1 }
+	}
+}
+
+character_event = { #Barrel Racing (Bad)
+	id = trailwalker.17
+	desc = EVTDESCtrodeo.8
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_bad_news
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_barrel_racing
+		has_character_flag = rodeo_event_bad
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.8
+		prestige = -50
+	}
+	
+	after = { #Ending event
+		character_event = { id = trailwalker.24 days = 1 }
+	}
+}
+
+
+character_event = { #Steer Wrestling
+	id = trailwalker.18
+	desc = EVTDESCtrodeo.9
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_horsemanship
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			80 = {
+				set_character_flag = rodeo_event_good
+			}
+			20 = {
+				set_character_flag = rodeo_event_bad
+			}
+		}
+	}
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_steer_wrestling
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.9
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = rodeo_event_good
+			}
+			character_event = { id = trailwalker.19 days = 1 } #good outcome, can recruit courtier
+		}
+		else_if = {
+			limit = {
+				has_character_flag = rodeo_event_bad
+			}
+			character_event = { id = trailwalker.20 days = 1 } #bad outcome, lose prestige
+		}
+	}
+}
+
+character_event = { #Steer Wrestling (Good)
+	id = trailwalker.19
+	desc = EVTDESCtrodeo.10
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_horsemanship
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_steer_wrestling
+		has_character_flag = rodeo_event_good
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.10
+		prestige = 50
+	}
+	
+	option = {
+		name = EVTOPTBtrodeo.10
+		create_character = {
+			random_traits = yes
+			female = no
+			culture = ROOT
+			religion = ROOT
+			age = 25
+			trait = tough_soldier
+			attributes = {
+				martial = 9
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			remove_trait = administrator
+			remove_trait = architect
+			remove_trait = hunter
+			remove_trait = gamer
+			remove_trait = gardener
+			remove_trait = hedonist
+			remove_trait = impaler
+			remove_trait = schemer
+			remove_trait = seducer
+			remove_trait = seductress
+			remove_trait = mystic
+			remove_trait = scholar
+			remove_trait = socializer
+			remove_trait = strategist
+			remove_trait = theologian
+			remove_trait = ugly
+			remove_trait = weak
+			remove_trait = feeble
+			add_trait = strong
+			add_trait = duelist
+		}
+	}
+	
+	after = { #Ending event
+		character_event = { id = trailwalker.24 days = 1 }
+	}
+}
+
+character_event = { #Steer Wrestling (Bad)
+	id = trailwalker.20
+	desc = EVTDESCtrodeo.11
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_bad_news
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_steer_wrestling
+		has_character_flag = rodeo_event_bad
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.11
+		prestige = -50
+	}
+	
+	after = { #Ending event
+		character_event = { id = trailwalker.24 days = 1 }
+	}
+}
+
+character_event = { #Livestock Judging
+	id = trailwalker.21
+	desc = EVTDESCtrodeo.12
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_market_altaic
+	is_triggered_only = yes
+	
+	immediate = {
+		random_list = {
+			80 = {
+				set_character_flag = rodeo_event_good
+			}
+			20 = {
+				set_character_flag = rodeo_event_bad
+			}
+		}
+	}
+	
+	trigger = {
+		has_character_flag = rodeo_livestock_judging
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.12
+	}
+	
+	after = {
+		if = {
+			limit = {
+				has_character_flag = rodeo_event_good
+			}
+			character_event = { id = trailwalker.22 days = 1 } #good outcome, can recruit courtier
+		}
+		else_if = {
+			limit = {
+				has_character_flag = rodeo_event_bad
+			}
+			character_event = { id = trailwalker.23 days = 1 } #bad outcome, lose prestige
+		}
+	}
+}
+
+character_event = { #Livestock Judging (Good)
+	id = trailwalker.22
+	desc = EVTDESCtrodeo.13
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_market_altaic
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_livestock_judging
+		has_character_flag = rodeo_event_good
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.13
+		prestige = 50
+	}
+	
+	option = {
+		name = EVTOPTBtrodeo.13
+		create_character = {
+			random_traits = yes
+			female = no
+			culture = ROOT
+			religion = ROOT
+			age = 25
+			trait = thrifty_clerk
+			attributes = {
+				stewardship = 9
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			character_event = { id = misc.4 } # Physique
+			remove_trait = administrator
+			remove_trait = architect
+			remove_trait = duelist
+			remove_trait = gamer
+			remove_trait = hunter
+			remove_trait = hedonist
+			remove_trait = impaler
+			remove_trait = schemer
+			remove_trait = seducer
+			remove_trait = seductress
+			remove_trait = mystic
+			remove_trait = scholar
+			remove_trait = socializer
+			remove_trait = strategist
+			remove_trait = theologian
+			add_trait = gardener
+		}
+	}
+	
+	after = { #Ending event
+		character_event = { id = trailwalker.24 days = 1 }
+	}
+}
+
+character_event = { #Goat Roping (Bad)
+	id = trailwalker.23
+	desc = EVTDESCtrodeo.5
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_bad_news
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_livestock_judging
+		has_character_flag = rodeo_event_bad
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.23
+		prestige = -50
+	}
+	
+	after = { #Ending event
+		character_event = { id = trailwalker.24 days = 1 }
+	}
+}
+
+character_event = { #Ending event roulette
+	id = trailwalker.24
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		if = {
+			limit = {
+				has_character_flag = rodeo_event_good
+			}
+			character_event = { id = trailwalker.25 } #Good ending
+		}
+		else_if = {
+			limit = {
+				has_character_flag = rodeo_event_bad
+			}
+			character_event = { id = trailwalker.26 } #Bad ending
+		}
+	}
+}
+
+character_event = { #Ending (Good)
+	id = trailwalker.25
+	desc = EVTDESCtrodeo.15
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_nomad_camp
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_event_good
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.15
+		prestige = 100
+	}
+	
+	after = {
+		clr_character_flag = epic_rodeo
+		clr_character_flag = rodeo_goat_roping
+		clr_character_flag = rodeo_barrel_racing
+		clr_character_flag = rodeo_steer_wrestling
+		clr_character_flag = rodeo_livestock_judging
+		clr_character_flag = rodeo_event_good
+		clr_character_flag = rodeo_event_bad
+		clr_character_flag = do_not_disturb
+	}
+}
+
+character_event = { #Ending (Bad)
+	id = trailwalker.26
+	desc = EVTDESCtrodeo.16
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_nomad_camp
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = epic_rodeo
+		has_character_flag = rodeo_event_bad
+	}
+	
+	option = {
+		name = EVTOPTAtrodeo.16
+		prestige = 25
+	}
+	
+	after = {
+		clr_character_flag = epic_rodeo
+		clr_character_flag = rodeo_goat_roping
+		clr_character_flag = rodeo_barrel_racing
+		clr_character_flag = rodeo_steer_wrestling
+		clr_character_flag = rodeo_livestock_judging
+		clr_character_flag = rodeo_event_good
+		clr_character_flag = rodeo_event_bad
+		clr_character_flag = do_not_disturb
+	}
+}
+
+character_event = { #War interrupts
+	id = trailwalker.27
+	desc = EVTDESCtrodeo.17
+	border = GFX_event_normal_frame_religion
+	picture = GFX_evt_sand_desert
+	has_character_flag = epic_rodeo
+	war = yes
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTArodeo.17
+		wealth = 50
+		prestige = -50
+	}
+	
+	after = {
+		clr_character_flag = epic_rodeo
+		clr_character_flag = rodeo_goat_roping
+		clr_character_flag = rodeo_barrel_racing
+		clr_character_flag = rodeo_steer_wrestling
+		clr_character_flag = rodeo_livestock_judging
+		clr_character_flag = rodeo_event_good
+		clr_character_flag = rodeo_event_bad
+		clr_character_flag = do_not_disturb
+	}
+}
+
+character_event = { #Safety Catch
+	id = trailwalker.28
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = epic_rodeo
+		clr_character_flag = rodeo_goat_roping
+		clr_character_flag = rodeo_barrel_racing
+		clr_character_flag = rodeo_steer_wrestling
+		clr_character_flag = rodeo_livestock_judging
+		clr_character_flag = rodeo_event_good
+		clr_character_flag = rodeo_event_bad
+		clr_character_flag = do_not_disturb
+	}
+}

@@ -1,0 +1,1990 @@
+############################################################
+############# LEGENDARY BLOODLINES SHOWDOWN ################
+############################################################
+
+
+#abort_legendary_bloodlines_events_effect = { #Currently not in use, kept for future reference
+	#clear_delayed_event = { id = HF.12003 }
+	#clear_delayed_event = { id = HF.12003 }
+	#clear_delayed_event = { id = HF.12003 }
+	#clear_delayed_event = { id = HF.12003 }
+	#clear_delayed_event = { id = HF.12003 }
+	#clear_delayed_event = { id = HF.12003 }
+	#clean_up_after_legendary_showdown_effect = yes
+#}
+
+restart_society_progress_effect = {
+	if = {
+		limit = {
+			any_society_member = { has_character_flag = call_to_legend_active }
+		}
+		set_society_progress = 0
+		clr_flag = block_society_progress #So progress can resume for members...
+		clr_flag = used_legendary_gathering #So progress can resume for members...
+	}
+}
+
+clean_up_after_legendary_showdown_effect = {
+	hidden_effect = {
+		set_variable = {
+			which = legendary_event_progress
+			value = 0
+		}
+		remove_character_modifier = out_traveling
+		clr_character_flag = call_to_legend_active
+		clr_character_flag = do_not_disturb
+		clr_character_flag = start_bracket
+		clr_character_flag = mid_bracket
+		clr_character_flag = top_bracket
+		clr_character_flag = call_it_a_day
+		clr_character_flag = i_will_survive
+		clr_character_flag = bloodline_quality_1
+		clr_character_flag = bloodline_quality_2
+		clr_character_flag = bloodline_quality_3
+		clr_character_flag = player_was_involved
+		
+		#tombola events...
+		clr_character_flag = HF_legend_artifact
+		clr_character_flag = HF_legend_feast
+		clr_character_flag = HF_legend_skull
+		clr_character_flag = HF_legend_eagle
+		clr_character_flag = HF_legend_upgrade_weapon
+		clr_character_flag = HF_legend_artifact
+		clr_character_flag = HF_legend_artifact
+
+		#Duel outcomes...
+		clr_character_flag = WL_desc_A
+		clr_character_flag = WL_desc_B
+		clr_character_flag = WL_desc_C
+		clr_character_flag = WL_desc_D
+		clr_character_flag = WL_desc_E
+		clr_character_flag = WL_desc_F
+		clr_character_flag = had_WL_desc_A
+		clr_character_flag = had_WL_desc_B
+		clr_character_flag = had_WL_desc_C
+		clr_character_flag = had_WL_desc_D
+		clr_character_flag = had_WL_desc_E
+		clr_character_flag = had_WL_desc_F
+		clr_character_flag = WL_desc_X
+		clr_character_flag = WL_desc_Y
+		clr_character_flag = WL_desc_Z
+	}
+}
+
+add_1_point_to_legendary_progress_effect = {
+	custom_tooltip = {
+		text = good_progress_tt
+		change_variable = { which = legendary_event_progress value = 1 }
+	}
+}
+add_2_points_to_legendary_progress_effect = {
+	custom_tooltip = {
+		text = great_progress_tt
+		change_variable = { which = legendary_event_progress value = 2 }
+	}
+}
+
+#increase_legendary_progress_effect = {
+evaluate_legendary_progress_effect = {
+	if = { # You're just starting out...
+		limit = {
+			check_variable = { which = legendary_event_progress value = 0 }
+			NOT = { check_variable = { which = legendary_event_progress value = 5 } }
+		}
+		set_character_flag = start_bracket
+	}
+	else_if = { # You're making some progress
+		limit = {
+			check_variable = { which = legendary_event_progress value = 5 }
+			NOT = { check_variable = { which = legendary_event_progress value = 8 } }
+		}
+		clr_character_flag = start_bracket
+		set_character_flag = mid_bracket
+	}
+	else_if = { # Get to dueling!
+		limit = {
+			check_variable = { which = legendary_event_progress value = 8 }
+			NOT = { check_variable = { which = legendary_event_progress value = 18 } }
+		}
+		clr_character_flag = start_bracket
+		clr_character_flag = mid_bracket
+		set_character_flag = top_bracket
+		
+		if = {
+			limit = { #Stream linin' for player runs...
+				has_character_flag = player_was_involved
+				check_variable = { which = legendary_event_progress value = 10 } #Nepotism values
+			}
+			clr_character_flag = start_bracket
+			clr_character_flag = mid_bracket
+			clr_character_flag = top_bracket
+			set_character_flag = call_it_a_day
+		}
+	}
+	else_if = { # Consider yourself victorious, you champ.
+		limit = {
+			check_variable = { which = legendary_event_progress value = 18 }
+		}
+		clr_character_flag = start_bracket
+		clr_character_flag = mid_bracket
+		clr_character_flag = top_bracket
+		set_character_flag = call_it_a_day
+	}
+
+	#Fallback...
+	else_if = { #If you have been lagging behind the rest of your team, bumps you into the top bracket...
+		limit = {
+			has_character_modifier = out_traveling
+			OR = {
+				has_character_flag = start_bracket
+				has_character_flag = mid_bracket
+			}
+		}
+		hidden_effect = { set_variable = { which = legendary_event_progress value = 8 } }
+		clr_character_flag = start_bracket
+		clr_character_flag = mid_bracket
+		set_character_flag = top_bracket
+	}
+}
+
+send_legendary_tombola_effect = {
+	#For testing, use the following line (and comment out the other one):
+	#character_event = { id = HF.12003 days = 1 random = 5 } #Tombola...
+	character_event = { id = HF.12003 days = 10 random = 15 } #Tombola...
+}
+
+save_fellow_member_effect = {
+	#Find someone to talk to...
+	if = {
+		limit = { event_target:original_hero = { is_available_hero_trigger = yes } }
+		event_target:original_hero = { save_event_target_as = fellow_member }
+	}
+	else_if = {
+		limit = { event_target:fellow_hero_1 = { is_available_hero_trigger = yes } }
+		event_target:fellow_hero_1 = { save_event_target_as = fellow_member }
+	}
+	else_if = {
+		limit = { event_target:fellow_hero_2 = { is_available_hero_trigger = yes } }
+		event_target:fellow_hero_2 = { save_event_target_as = fellow_member }
+	}
+	else_if = {
+		limit = { event_target:fellow_hero_3 = { is_available_hero_trigger = yes } }
+		event_target:fellow_hero_3 = { save_event_target_as = fellow_member }
+	}
+	else = {
+		random_society_member = {
+			limit = {
+				same_society_as = ROOT
+				NOT = { character = ROOT }
+				is_inaccessible_or_incapable_trigger = no
+			}
+			save_event_target_as = fellow_member
+		}
+	}
+}
+
+duel_someone_effect = {
+	hidden_effect = {
+		set_character_flag = add_duel_xp
+		set_character_flag = is_legendary_duel
+		reset_duel_timers_effect = yes
+		
+		#Chooses a weapon for mainly loc purposes (but has a tiny effect on outcomes, too)...
+		set_dueling_weapon_effect = yes #You get a weapon!
+		event_target:combatant_2 = { set_dueling_weapon_effect = yes } #and YOU get a weapon!
+		
+		#Chooses a body part for injury (if it occurs), also for loc purposes (effect handles both characters)
+		set_potential_injury_flag_effect = yes
+
+		#Scripted effect requiring event-targets combatant_1 & combatant_2! RAW NUMBERS...
+		evaluate_duel_result_score_effect = yes
+
+		#Room for extra special calculations... (based on traits, and other special circumstances?)
+		evaluate_extra_duel_result_score_effect = yes
+
+		#Send the correct result event (from random_list)...
+		send_duel_result_event_effect = yes 
+	}
+}
+
+resolve_legendary_duel_effect = {
+	if = {
+		limit = { has_character_flag = is_legendary_duel }
+		
+		if = { #You died!
+			limit = { is_dying = yes }
+			if = {
+				limit = { check_variable = { which = legendary_event_progress value = 15 } }
+				set_character_flag = call_it_a_day
+			}
+			character_event = { id = HF.12003 } #Send tombola instantly, in case of death...
+		}
+
+		else = { #You are still standing...!
+			evaluate_legendary_progress_effect = yes #evalutate status of progress flags, as usual...
+			send_legendary_tombola_effect = yes
+		}
+	}
+}
+
+died_before_achieveing_greatness_effect = {
+	#send news of death to other heroes/society members
+	current_heir = {
+		character_event = { id = HF.12103 days = 1 } #send event of what happened...
+	}
+	any_society_member = {
+		limit = {
+			same_society_as = PREV
+			NOT = { character = PREV }
+		}
+		character_event = { id = HF.12103 days = 1 } #our fellow adventurer died (and achieved nothing)...
+	}
+}
+
+died_founding_a_bloodline_effect = { #for the main heir
+	#send news of death to other heroes/society members?
+	save_event_target_as = bloodline_founder
+	found_a_legendary_bloodline_effect = yes
+	
+	if = {
+		limit = { ai = no }
+		#Adding flag to player and new player char, for safety...
+		set_character_flag = achievement_zero_to_hero
+		current_heir = { set_character_flag = achievement_zero_to_hero }
+
+		if = {
+			limit = { current_heir = { NOT = { dynasty = PREV } } } # in case of game over...
+			set_global_flag = achievement_zero_to_hero
+		}
+	}
+
+	current_heir = {
+		save_event_target_as = new_story_owner
+		character_event = { id = HF.12301 days = 1 } #send event of what happened...
+	}
+	any_society_member = {
+		limit = {
+			same_society_as = ROOT
+			NOT = { character = ROOT }
+			current_heir = { NOT = { character = PREV } }
+		}
+		narrative_event = { id = HF.12302 days = 3 } #News event to fellow society members...
+	}
+}
+
+stop_slow_AIs_effect = {
+	hidden_effect = {
+		if = {
+			limit = {
+				is_in_society = yes
+			}
+			if = {
+				limit = {
+					any_society_member = {
+						same_society_as = PREV
+						ai = yes
+						NOT = { character = PREV }
+						OR = {
+							has_character_flag = call_to_legend_active
+							has_character_flag = completed_call_to_legend
+						}
+						NOT = { check_variable = { which = legendary_event_progress value = 8 } }
+					}		
+				}
+				random_society_member = {
+					limit = {   
+						same_society_as = PREV
+						ai = yes
+						NOT = { character = PREV }
+						OR = {
+							has_character_flag = call_to_legend_active
+							has_character_flag = completed_call_to_legend
+						}
+						NOT = { check_variable = { which = legendary_event_progress value = 8 } }
+					}
+					clean_up_after_legendary_showdown_effect = yes
+				}
+				random_society_member = {
+					limit = {   
+						same_society_as = PREV
+						ai = yes
+						NOT = { character = PREV }
+						OR = {
+							has_character_flag = call_to_legend_active
+							has_character_flag = completed_call_to_legend
+						}
+						NOT = { check_variable = { which = legendary_event_progress value = 8 } }
+					}
+					clean_up_after_legendary_showdown_effect = yes
+				}
+
+				#if = {
+				#	limit = { ai = no }
+				#	character_event = { id = HF.12104 }
+				#}
+			}
+			if = { # To make sure the progress bar properly resets.
+				limit = {
+					NOT = {
+						any_society_member = {
+							same_society_as = PREV
+							ai = yes
+							NOT = { character = PREV }
+							has_character_flag = call_to_legend_active
+						}		
+					}
+				}
+				stop_society_progress = yes
+			}
+		}
+	}
+}
+
+found_a_bloodline_effect = { #for alive hero
+	if = {
+		limit = {
+			has_killed_at_least_1_trigger = yes
+			has_killed_at_least_3_trigger = no
+		}
+		set_character_flag = bloodline_quality_1
+	}
+	else_if = {
+		limit = {
+			has_killed_at_least_3_trigger = yes
+			has_killed_at_least_5_trigger = no
+		}
+		set_character_flag = bloodline_quality_2
+	}
+	else_if = {
+		limit = {
+			has_killed_at_least_5_trigger = yes
+		}
+		set_character_flag = bloodline_quality_3
+	}
+	save_event_target_as = bloodline_founder
+	narrative_event = { id = HF.12300 days = 3 }
+	clr_XYZ_desc_flag_effect = yes
+}
+
+found_a_legendary_bloodline_effect = { #For any hero
+	custom_tooltip = {
+		text = found_bloodline_tt
+		hidden_effect = {
+			ROOT = {
+				society = {
+					save_event_target_as = society_affiliation
+				}
+			}
+		}
+		random_list = {
+			10 = {
+				trigger = {
+					OR = {
+						religion_group = american_native
+						is_nomadic = yes
+					}
+					has_character_modifier = pet_hunting_eagle
+					has_character_modifier = friend_of_eagles
+					trait = falconer
+				}
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_eagle_hunter_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_eagle_hunter_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_eagle_hunter
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_eagle_hunter_A }
+						20 = { set_name = bloodline_legendary_eagle_hunter_B }
+						20 = { set_name = bloodline_legendary_eagle_hunter_C }
+						20 = { set_name = bloodline_legendary_eagle_hunter_D }
+					}
+				}
+			}
+			10 = { # (Way of Life exclusive)
+				trigger = { has_dlc = "Way of Life" }
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_dog_hunter_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_dog_hunter_male society = event_target:society_affiliation }	
+				}
+
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_dog_hunter
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_dog_hunter_A }
+						20 = { set_name = bloodline_legendary_dog_hunter_B }
+						20 = { set_name = bloodline_legendary_dog_hunter_C }
+						20 = { set_name = bloodline_legendary_dog_hunter_D }
+					}
+				}
+			}
+			5 = { #Available to all
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_battle_survivor_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_battle_survivor_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_battle_survivor
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_battle_survivor_A }
+						20 = { set_name = bloodline_legendary_battle_survivor_B }
+						20 = { set_name = bloodline_legendary_battle_survivor_C }
+						20 = { set_name = bloodline_legendary_battle_survivor_D }
+					}
+				}
+			}
+			5 = { #(Conclave exclusive)
+				trigger = { has_dlc = "Conclave" }
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_leader_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_leader_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_leader
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_leader_A }
+						20 = { set_name = bloodline_legendary_leader_B }
+						20 = { set_name = bloodline_legendary_leader_C }
+						20 = { set_name = bloodline_legendary_leader_D }
+					}
+				}
+			}
+			5 = { #Available to all
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_warrior_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_warrior_male society = event_target:society_affiliation }	
+				}
+				
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_warrior
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_warrior_A }
+						20 = { set_name = bloodline_legendary_warrior_B }
+						20 = { set_name = bloodline_legendary_warrior_C }
+						20 = { set_name = bloodline_legendary_warrior_D }
+					}
+				}
+			}
+			10 = { #(Monks & Mystics/Jade Dragon exclusive)
+				trigger = {
+					OR = {
+						has_dlc = "Monks and Mystics"
+						has_dlc = "Jade Dragon"
+					}
+				}
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_soldier_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_soldier_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_soldier
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_soldier_A }
+						20 = { set_name = bloodline_legendary_soldier_B }
+						20 = { set_name = bloodline_legendary_soldier_C }
+						20 = { set_name = bloodline_legendary_soldier_D }
+					}
+				}
+			}
+			5 = { #Available to all
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_battle_bard_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_battle_bard_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_battle_bard
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_battle_bard_A }
+						20 = { set_name = bloodline_legendary_battle_bard_B }
+						20 = { set_name = bloodline_legendary_battle_bard_C }
+						20 = { set_name = bloodline_legendary_battle_bard_D }
+					}
+				}
+			}
+			5 = { #Available to all
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_commander_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_commander_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_commander
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_commander_A }
+						20 = { set_name = bloodline_legendary_commander_B }
+						20 = { set_name = bloodline_legendary_commander_C }
+						20 = { set_name = bloodline_legendary_commander_D }
+					}
+				}
+			}
+			5 = { #Available to all
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_captor_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_captor_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_captor
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_captor_A }
+						20 = { set_name = bloodline_legendary_captor_B }
+						20 = { set_name = bloodline_legendary_captor_C }
+						20 = { set_name = bloodline_legendary_captor_D }
+					}
+				}
+			}
+			5 = { #Available to all
+				if = {
+					limit = { is_female = yes }
+					create_bloodline = { type = legendary_raider_female society = event_target:society_affiliation }
+				}
+				else = {
+					create_bloodline = { type = legendary_raider_male society = event_target:society_affiliation }	
+				}
+				new_bloodline = {
+					set_description = bloodline_desc_legendary_raider
+					random_list = { 
+						#Randomize names
+						20 = { set_name = bloodline_legendary_raider_A }
+						20 = { set_name = bloodline_legendary_raider_B }
+						20 = { set_name = bloodline_legendary_raider_C }
+						20 = { set_name = bloodline_legendary_raider_D }
+					}
+				}
+			}
+		}
+	}
+}
+
+randomize_ABCDEF_desc_flag_effect = {	
+	clr_ABCDEF_desc_flag_effect = yes
+	random_list = {
+		10 = {
+			trigger = { NOT = { has_character_flag = had_WL_desc_A } }
+			set_character_flag = WL_desc_A
+		}
+		10 = {
+			trigger = { NOT = { has_character_flag = had_WL_desc_B } }
+			set_character_flag = WL_desc_B
+		}
+		10 = {
+			trigger = { NOT = { has_character_flag = had_WL_desc_C } }
+			set_character_flag = WL_desc_C
+		}
+		10 = {
+			trigger = { NOT = { has_character_flag = had_WL_desc_D } }
+			set_character_flag = WL_desc_D
+		}
+		10 = {
+			trigger = { NOT = { has_character_flag = had_WL_desc_E } }
+			set_character_flag = WL_desc_E
+		}
+		#10 = { set_character_flag = desc_F }
+	}
+}
+clr_ABCDEF_desc_flag_effect = {
+	if = {
+		limit = { has_character_flag = WL_desc_A }
+		clr_character_flag = WL_desc_A
+		set_character_flag = had_WL_desc_A
+	}
+	if = {
+		limit = { has_character_flag = WL_desc_B }
+		clr_character_flag = WL_desc_B
+		set_character_flag = had_WL_desc_B
+	}
+	if = {
+		limit = { has_character_flag = WL_desc_C }
+		clr_character_flag = WL_desc_C
+		set_character_flag = had_WL_desc_C
+	}
+	if = {
+		limit = { has_character_flag = WL_desc_D }
+		clr_character_flag = WL_desc_D
+		set_character_flag = had_WL_desc_D
+	}
+	if = {
+		limit = { has_character_flag = WL_desc_E }
+		clr_character_flag = WL_desc_E
+		set_character_flag = had_WL_desc_E
+	}
+	if = {
+		limit = {
+			has_character_flag = had_WL_desc_A
+			has_character_flag = had_WL_desc_B
+			has_character_flag = had_WL_desc_C
+			has_character_flag = had_WL_desc_D
+			has_character_flag = had_WL_desc_E
+		}
+		
+		clr_character_flag = WL_desc_A
+		clr_character_flag = WL_desc_B
+		clr_character_flag = WL_desc_C
+		clr_character_flag = WL_desc_D
+		clr_character_flag = WL_desc_E
+		clr_character_flag = had_WL_desc_A
+		clr_character_flag = had_WL_desc_B
+		clr_character_flag = had_WL_desc_C
+		clr_character_flag = had_WL_desc_D
+		clr_character_flag = had_WL_desc_E
+
+	}
+}
+randomize_XYZ_desc_flag_effect = { # Can run twice. Then it messes up.
+	clr_XYZ_desc_flag_effect = yes
+	random_list = {
+		10 = {
+			trigger = { NOT = { has_character_flag = WL_desc_X } }
+			set_character_flag = WL_desc_X
+			if = {
+				limit = {
+					has_character_flag = WL_desc_Y
+				}
+				clr_character_flag = WL_desc_Y
+			}
+			if = {
+				limit = {
+					has_character_flag = WL_desc_Z
+				}
+				clr_character_flag = WL_desc_Z
+			}
+		}
+		10 = {
+			trigger = { NOT = { has_character_flag = WL_desc_Y } }
+			if = {
+				limit = {
+					has_character_flag = WL_desc_X
+				}
+				clr_character_flag = WL_desc_X
+			}
+			if = {
+				limit = {
+					has_character_flag = WL_desc_Z
+				}
+				clr_character_flag = WL_desc_Z
+			}
+			set_character_flag = WL_desc_Y
+		}
+		10 = {
+			trigger = { NOT = { has_character_flag = WL_desc_Z } }
+			if = {
+				limit = {
+					has_character_flag = WL_desc_X
+				}
+				clr_character_flag = WL_desc_X
+			}
+			if = {
+				limit = {
+					has_character_flag = WL_desc_Y
+				}
+				clr_character_flag = WL_desc_Y
+			}
+			set_character_flag = WL_desc_Z
+		}
+	}
+}
+clr_XYZ_desc_flag_effect = {
+	clr_character_flag = WL_desc_X
+	clr_character_flag = WL_desc_Y
+	clr_character_flag = WL_desc_Z
+	clr_character_flag = WL_desc_A
+	clr_character_flag = WL_desc_B
+	clr_character_flag = WL_desc_C
+	clr_character_flag = WL_desc_D
+	clr_character_flag = WL_desc_E
+	clr_character_flag = had_WL_desc_A
+	clr_character_flag = had_WL_desc_B
+	clr_character_flag = had_WL_desc_C
+	clr_character_flag = had_WL_desc_D
+	clr_character_flag = had_WL_desc_E
+}
+
+add_legend_progress_trivial_effect = {
+	if = {
+		limit = {
+			society = {
+				NOT = { has_flag = block_society_progress }  #if legendary journey is not already on-going		
+				society_has_active_progress = yes #A society-member has used the Legendary Gathering
+			}
+		}
+		custom_tooltip = { text = society_legend_increases_tt }
+		hidden_effect = {
+			add_society_progress = 1
+		}
+	}
+}
+
+add_legend_progress_tiny_effect = {
+	if = {
+		limit = {
+			society = {
+				NOT = { has_flag = block_society_progress }  #if legendary journey is not already on-going		
+				society_has_active_progress = yes #A society-member has used the Legendary Gathering
+			}
+		}
+		custom_tooltip = { text = society_legend_increases_tt }
+		hidden_effect = {
+			add_society_progress = 2
+		}
+	}
+} 
+
+add_legend_progress_minor_effect = {
+	if = {
+		limit = {
+			society = {
+				NOT = { has_flag = block_society_progress }  #if legendary journey is not already on-going		
+				society_has_active_progress = yes #A society-member has used the Legendary Gathering
+			}
+		}
+		custom_tooltip = { text = society_legend_increases_tt }
+		hidden_effect = {
+			add_society_progress = 3
+		}
+	}
+}
+
+add_legend_progress_medium_effect = {
+	if = {
+		limit = { society_has_active_progress = no }
+		start_society_progress = yes
+	}
+	add_society_progress = 4
+}
+
+add_legend_progress_major_effect = {
+	if = {
+		limit = { society_has_active_progress = no }
+		start_society_progress = yes
+	}
+	add_society_progress = 5
+}
+
+add_legend_progress_massive_effect = {
+	if = {
+		limit = { society_has_active_progress = no }
+		start_society_progress = yes
+	}
+	add_society_progress = 10
+}
+
+send_new_eagle_event_effect = {
+	hidden_effect = {
+		if = { #If you have a "Friend of Eagles" bloodline
+			limit = { any_owned_bloodline = { has_bloodline_flag = bloodline_effect_pet_eagle } }
+			#character_event = { id = HF.12400 days = 55 random = 55 } #Get a new bird!
+			character_event = { id = HF.12400 days = 5 random = 5 } #Get a new bird! #TEST
+		}
+	}
+}
+
+send_new_dog_event_effect = {
+	hidden_effect = {
+		if = { #If you have a "Friend of Eagles" bloodline
+			limit = { any_owned_bloodline = { has_bloodline_flag = bloodline_effect_pet_dog } }
+			character_event = { id = HF.12401 days = 65 random = 55 } #Get a new dog!
+		}
+	}
+}
+
+
+spawn_old_duelist_effect = {
+	if = { 
+		limit = { has_religion_feature = religion_matriarchal }
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = actually_culture
+			female = yes
+			age = 60
+			attributes = {
+				diplomacy = 5
+				learning = 1
+				stewardship = 2
+				intrigue = 9
+				martial = 12
+			}
+		}
+	}
+	if = { 
+		limit = { NOT = { has_religion_feature = religion_matriarchal } }
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = actually_culture
+			female = 10
+			age = 60
+			attributes = {
+				diplomacy = 5
+				learning = 1
+				stewardship = 2
+				intrigue = 9
+				martial = 12
+			}
+		}
+	}
+	new_character = {
+		character_event = { id = misc.3 } # Diversity
+		character_event = { id = misc.4 } # Physique
+		remove_trait = weak
+		remove_trait = slow
+		remove_trait = imbecile
+		remove_trait = dull
+		remove_trait = dwarf
+		remove_trait = giant
+		remove_trait = hunchback
+		remove_trait = clubfooted
+		remove_trait = craven
+		remove_trait = paranoid
+		
+		remove_trait = mystic
+		remove_trait = socializer
+		remove_trait = gamer
+		remove_trait = hedonist
+		remove_trait = duelist
+		remove_trait = hunter
+		remove_trait = strategist
+		remove_trait = administrator
+		remove_trait = architect
+		remove_trait = gardener
+		remove_trait = schemer
+		remove_trait = impaler
+		remove_trait = seducer
+		remove_trait = seductress
+		remove_trait = theologian
+		remove_trait = scholar
+		
+		remove_trait = misguided_warrior
+		remove_trait = tough_soldier
+		remove_trait = skilled_tactician
+		
+		add_trait = brilliant_strategist
+		
+		random_list = {
+			20 = {
+				add_trait = robust
+			}
+			10 = {
+				add_trait = strong
+			}
+			5 = {
+				health = 2
+			}
+		}
+		
+		random_list = {
+			10 = {
+				add_trait = narrow_flank_leader
+			}
+			10 = {
+				add_trait = defensive_leader
+			}
+			10 = {
+				add_trait = experimenter
+			}
+			10 = {
+				add_trait = flanker
+			}
+			10 = {
+				add_trait = heavy_infantry_leader
+			}
+			10 = {
+				add_trait = inspiring_leader
+			}
+			10 = {
+				add_trait = organizer
+			}
+			10 = {
+				add_trait = siege_leader
+			}
+			10 = {
+				add_trait = trickster
+			}
+			10 = {
+				add_trait = aggressive_leader
+			}
+		}
+		
+		random_list = { # Flavor Randomization
+			20 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						has_dlc = "Reapers"
+					}
+				}
+				add_trait = giant
+				add_trait = robust
+				add_trait = strategist
+				add_trait = one_eyed
+				change_martial = 1
+				give_nickname = nick_the_cyclops
+			}
+			20 = {
+				add_trait = holy_warrior
+				add_trait = scarred
+				change_martial = 3
+				give_nickname = nick_the_hammer
+			}
+			20 = {
+				add_trait = brave
+				add_trait = poet
+				change_martial = 2
+				give_nickname = nick_the_fearless
+			}
+			20 = {
+				add_trait = robust
+				remove_trait = temperate
+				add_trait = wroth
+				add_trait = falconer
+				change_martial = 1
+				give_nickname = nick_the_ill_tempered
+			}
+			20 = {
+				add_trait = unyielding_leader
+				remove_trait = wroth
+				add_trait = patient
+				change_martial = 2
+				give_nickname = nick_the_defender
+			}
+			20 = {
+				add_trait = aggressive_leader
+				remove_trait = patient
+				add_trait = wroth
+				change_martial = 3
+				give_nickname = nick_the_destroyer
+			}
+			20 = {
+				add_trait = shrewd
+				add_trait = brave
+				change_martial = 2
+				give_nickname = nick_the_brave
+			}
+			20 = {
+				add_trait = robust
+				add_trait = strategist
+				change_martial = 1
+				give_nickname = nick_the_strong
+			}
+			20 = {
+				add_trait = genius
+				add_trait = socializer
+				add_trait = poet
+				change_martial = 4
+				give_nickname = nick_the_noble
+			}
+			20 = {
+				add_trait = blinded
+				add_trait = strategist
+				add_trait = genius
+				change_martial = 4
+				give_nickname = nick_the_blind
+			}
+			20 = {
+				remove_trait = humble
+				add_trait = proud
+				add_trait = duelist
+				change_martial = 2
+				give_nickname = nick_the_proud
+			}
+			20 = {
+				add_trait = hunter
+				add_trait = shrewd
+				change_martial = 3
+				give_nickname = nick_the_hunter
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						has_dlc = "Reapers"
+					}
+				}
+				add_trait = disfigured
+				add_trait = scarred
+				add_trait = genius
+				change_martial = 2
+				change_intrigue = 12
+				give_nickname = nick_of_a_thousand_faces
+			}
+			20 = {
+				add_trait = genius
+				add_trait = clubfooted
+				change_martial = 1
+				give_nickname = nick_the_bear
+			}
+			20 = {
+				add_trait = trusting
+				add_trait = quick
+				change_martial = 4
+				give_nickname = nick_the_loyal
+			}
+			20 = {
+				add_trait = ugly
+				add_trait = strong
+				add_trait = duelist
+				change_martial = 1
+				give_nickname = nick_the_boar
+			}
+			20 = {
+				add_trait = fair
+				add_trait = strategist
+				change_martial = 4
+				give_nickname = nick_the_lion
+			}
+			20 = {
+				add_trait = brave
+				add_trait = duelist
+				change_martial = 3
+				give_nickname = nick_the_bold
+			}
+			20 = {
+				add_trait = shrewd
+				add_trait = hedonist
+				change_martial = 4
+				give_nickname = nick_the_quarreller
+			}
+			20 = {
+				add_trait = shrewd
+				add_trait = cavalry_leader
+				change_martial = 2
+				give_nickname = nick_the_wolf
+			}
+		}
+		hidden_tooltip = {
+			#if = {
+			#	limit = {
+			#		has_dharmic_religion_trigger = yes
+			#	}
+			#	add_trait = kshatriya
+			#	character_event = { id = RoI.30121 }
+			#}
+			if = {
+				limit = {
+					has_religion_feature = religion_no_leader
+					religion_group = pagan_group
+					NOR = {
+						religion = occultist
+						religion = occultist_reformed
+					}
+				}
+				random_list = {  
+					5 = {
+						add_trait = pagan_branch_1
+					}
+					25 = {
+						add_trait = pagan_branch_2
+					}
+					25 = {
+						add_trait = pagan_branch_3
+					}
+					25 = {
+						add_trait = pagan_branch_4
+					}
+				}
+			}
+		}
+		add_one_duel_experience_modifier = yes
+		add_one_duel_experience_modifier = yes
+		add_one_duel_experience_modifier = yes
+		add_one_duel_experience_modifier = yes
+		add_one_duel_experience_modifier = yes
+		add_one_duel_experience_modifier = yes
+		add_one_duel_experience_modifier = yes
+		set_character_flag = invited_soldier
+		save_event_target_as = invited_character
+	}
+}
+
+spawn_giant_duelist_effect = {
+	if = { 
+		limit = { has_religion_feature = religion_matriarchal }
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = actually_culture
+			female = yes
+			attributes = {
+				diplomacy = 4
+				learning = 1
+				stewardship = 1
+				intrigue = 1
+				martial = 20
+			}
+		}
+	}
+	if = { 
+		limit = { NOT = { has_religion_feature = religion_matriarchal } }
+		create_random_soldier = {
+			random_traits = yes
+			dynasty = actually_culture
+			female = 10
+			attributes = {
+				diplomacy = 4
+				learning = 1
+				stewardship = 1
+				intrigue = 1
+				martial = 20
+			}
+		}
+	}
+	new_character = {
+		character_event = { id = misc.3 } # Diversity
+		character_event = { id = misc.4 } # Physique
+		remove_trait = weak
+		remove_trait = slow
+		remove_trait = imbecile
+		remove_trait = dull
+		remove_trait = dwarf
+		remove_trait = giant
+		remove_trait = hunchback
+		remove_trait = clubfooted
+		remove_trait = craven
+		remove_trait = paranoid
+		
+		remove_trait = mystic
+		remove_trait = socializer
+		remove_trait = gamer
+		remove_trait = hedonist
+		remove_trait = duelist
+		remove_trait = hunter
+		remove_trait = strategist
+		remove_trait = administrator
+		remove_trait = architect
+		remove_trait = gardener
+		remove_trait = schemer
+		remove_trait = impaler
+		remove_trait = seducer
+		remove_trait = seductress
+		remove_trait = theologian
+		remove_trait = scholar
+		
+		remove_trait = misguided_warrior
+		remove_trait = tough_soldier
+		remove_trait = skilled_tactician
+		
+		add_trait = brilliant_strategist
+
+		add_trait = giant
+		health = 1
+		
+		random_list = {
+			20 = {
+				add_trait = robust
+			}
+			10 = {
+				add_trait = strong
+			}
+		}
+		
+		random_list = {
+			10 = {
+				add_trait = narrow_flank_leader
+			}
+			10 = {
+				add_trait = defensive_leader
+			}
+			10 = {
+				add_trait = experimenter
+			}
+			10 = {
+				add_trait = heavy_infantry_leader
+			}
+			10 = {
+				add_trait = aggressive_leader
+			}
+		}
+
+		random_list = { # Flavor Randomization
+			20 = {
+				add_trait = robust
+				add_trait = hunter
+				change_martial = 2
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						has_dlc = "Reapers"
+					}
+				}
+				add_trait = robust
+				add_trait = strategist
+				add_trait = one_eyed
+				change_martial = 1
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				add_trait = giant
+				add_trait = brave
+				add_trait = poet
+				change_martial = 2
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				add_trait = robust
+				remove_trait = temperate
+				add_trait = wroth
+				add_trait = falconer
+				change_martial = 1
+				give_nickname = nick_the_ill_tempered
+			}
+			20 = {
+				remove_trait = wroth
+				add_trait = patient
+				change_martial = 2
+				give_nickname = nick_the_monster
+			}
+			20 = {
+				add_trait = aggressive_leader
+				remove_trait = patient
+				add_trait = wroth
+				change_martial = 3
+				give_nickname = nick_the_destroyer
+			}
+			20 = {
+				add_trait = robust
+				add_trait = shrewd
+				change_martial = 1
+				give_nickname = nick_the_tower
+			}
+			20 = {
+				add_trait = genius
+				add_trait = socializer
+				add_trait = poet
+				change_martial = 4
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				add_trait = hunter
+				add_trait = shrewd
+				change_martial = 3
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						has_dlc = "Reapers"
+					}
+				}
+				add_trait = disfigured
+				add_trait = scarred
+				add_trait = genius
+				add_trait = duelist
+				change_martial = 2
+				change_intrigue = 12
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				add_trait = slow
+				add_trait = duelist
+				add_trait = clubfooted
+				change_martial = 1
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				add_trait = ugly
+				add_trait = strong
+				add_trait = duelist
+				change_martial = 1
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				add_trait = fair
+				add_trait = strategist
+				change_martial = 4
+				give_nickname = nick_tnick_the_gianthe_lion
+			}
+			20 = {
+				add_trait = brave
+				add_trait = duelist
+				change_martial = 3
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				add_trait = shrewd
+				add_trait = hedonist
+				change_martial = 4
+				give_nickname = nick_the_giant
+			}
+		}
+		hidden_tooltip = {
+			#if = {
+			#	limit = {
+			#		has_dharmic_religion_trigger = yes
+			#	}
+			#	add_trait = kshatriya
+			#	character_event = { id = RoI.30121 }
+			#}
+			if = {
+				limit = {
+					has_religion_feature = religion_no_leader
+					religion_group = pagan_group
+					NOR = {
+						religion = occultist
+						religion = occultist_reformed
+					}
+				}
+				random_list = {  
+					5 = {
+						add_trait = pagan_branch_1
+					}
+					25 = {
+						add_trait = pagan_branch_2
+					}
+					25 = {
+						add_trait = pagan_branch_3
+					}
+					25 = {
+						add_trait = pagan_branch_4
+					}
+				}
+			}
+		}
+		set_character_flag = invited_soldier
+		save_event_target_as = invited_character
+	}
+}
+
+spawn_creature_champion_effect = {
+	if = { 
+		limit = { has_religion_feature = religion_matriarchal }
+		create_random_soldier = {
+			random_traits = yes
+			culture = bear
+			dynasty = actually_culture
+			female = yes
+			attributes = {
+				diplomacy = 4
+				learning = 4
+				stewardship = 4
+				intrigue = 4
+				martial = 12
+			}
+		}
+	}
+	if = { 
+		limit = { NOT = { has_religion_feature = religion_matriarchal } }
+		create_random_soldier = {
+			random_traits = yes
+			culture = bear
+			dynasty = actually_culture
+			female = 20
+			attributes = {
+				diplomacy = 4
+				learning = 4
+				stewardship = 4
+				intrigue = 4
+				martial = 12
+			}
+		}
+	}
+	new_character = {
+		character_event = { id = misc.3 } # Diversity
+		character_event = { id = misc.4 } # Physique
+		set_graphical_culture = event_target:target_ruler
+		remove_trait = weak
+		remove_trait = slow
+		remove_trait = imbecile
+		remove_trait = dull
+		remove_trait = dwarf
+		remove_trait = giant
+		remove_trait = hunchback
+		remove_trait = clubfooted
+		remove_trait = craven
+		remove_trait = paranoid
+		
+		remove_trait = mystic
+		remove_trait = socializer
+		remove_trait = gamer
+		remove_trait = hedonist
+		remove_trait = duelist
+		remove_trait = hunter
+		remove_trait = strategist
+		remove_trait = administrator
+		remove_trait = architect
+		remove_trait = gardener
+		remove_trait = schemer
+		remove_trait = impaler
+		remove_trait = seducer
+		remove_trait = seductress
+		remove_trait = theologian
+		remove_trait = scholar
+		
+		remove_trait = misguided_warrior
+		remove_trait = tough_soldier
+		remove_trait = skilled_tactician
+		
+		add_trait = brilliant_strategist
+		
+		add_trait = robust
+		add_trait = strong
+
+		random_list = { # Give the Bear a pet, for fun
+			10 = {
+				add_character_modifier = {
+					name = pet_hunting_dog
+					duration = -1
+				}
+				hidden_tooltip = { 
+					character_event = { id = WoL.5290 days = 2555 random = 1000 } # Dog dies
+				}
+			}
+			10 = {
+				add_character_modifier = {  
+					name = pet_hunting_eagle
+					duration = -1
+				}
+				hidden_effect = { 
+					character_event = { id = HF.25631 days = 7300 random = 1500 } #Death.
+				}
+			}
+			10 = {
+				add_character_modifier = {
+					name = pet_cat
+					duration = -1
+				}
+				hidden_tooltip = { 
+					character_event = { id = 77802 days = 2555 random = 1000 }  # Cat dies
+				}
+			}
+		}
+
+		random_list = {
+			10 = {
+				add_trait = narrow_flank_leader
+			}
+			10 = {
+				add_trait = defensive_leader
+			}
+			10 = {
+				add_trait = experimenter
+			}
+			10 = {
+				add_trait = flanker
+			}
+			10 = {
+				add_trait = heavy_infantry_leader
+			}
+			10 = {
+				add_trait = inspiring_leader
+			}
+			10 = {
+				add_trait = organizer
+			}
+			10 = {
+				add_trait = siege_leader
+			}
+			10 = {
+				add_trait = trickster
+			}
+			10 = {
+				add_trait = aggressive_leader
+			}
+		}
+		
+		random_list = { # Flavor Randomization
+			20 = {
+				add_trait = giant
+				add_trait = robust
+				add_trait = hunter
+				change_martial = 2
+				give_nickname = nick_the_giant
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						has_dlc = "Reapers"
+					}
+				}
+				add_trait = giant
+				add_trait = robust
+				add_trait = strategist
+				add_trait = one_eyed
+				change_martial = 1
+				give_nickname = nick_the_cyclops
+			}
+			20 = {
+				add_trait = holy_warrior
+				add_trait = scarred
+				change_martial = 3
+				give_nickname = nick_the_hammer
+			}
+			20 = {
+				add_trait = charitable
+				add_trait = poet
+				change_martial = 2
+				give_nickname = nick_the_generous
+			}
+			20 = {
+				add_trait = robust
+				remove_trait = temperate
+				add_trait = wroth
+				add_trait = falconer
+				change_martial = 1
+				give_nickname = nick_the_ill_tempered
+			}
+			20 = {
+				add_trait = unyielding_leader
+				remove_trait = wroth
+				add_trait = patient
+				change_martial = 2
+				give_nickname = nick_the_defender
+			}
+			20 = {
+				add_trait = aggressive_leader
+				remove_trait = patient
+				add_trait = wroth
+				change_martial = 3
+				give_nickname = nick_the_destroyer
+			}
+			20 = {
+				add_trait = shrewd
+				add_trait = brave
+				change_martial = 2
+				give_nickname = nick_the_brave
+			}
+			20 = {
+				add_trait = robust
+				add_trait = hunter
+				add_trait = gregarious
+				change_martial = 1
+				give_nickname = nick_the_jolly
+			}
+			20 = {
+				add_trait = genius
+				add_trait = socializer
+				add_trait = poet
+				change_martial = 4
+				give_nickname = nick_the_noble
+			}
+			20 = {
+				add_trait = zealous
+				add_trait = duelist
+				add_trait = genius
+				change_martial = 4
+				give_nickname = nick_the_witch_hunter
+			}
+			20 = {
+				remove_trait = humble
+				add_trait = proud
+				add_trait = duelist
+				change_martial = 2
+				give_nickname = nick_the_proud
+			}
+			20 = {
+				add_trait = hunter
+				add_trait = shrewd
+				change_martial = 3
+				give_nickname = nick_the_hunter
+			}
+			20 = {
+				modifier = {
+					factor = 0
+					NOT = {
+						has_dlc = "Reapers"
+					}
+				}
+				add_trait = disfigured
+				add_trait = scarred
+				add_trait = genius
+				change_martial = 2
+				change_intrigue = 12
+				give_nickname = nick_of_a_thousand_faces
+			}
+			20 = {
+				add_trait = genius
+				add_trait = clubfooted
+				change_martial = 1
+				give_nickname = nick_the_bear
+			}
+			20 = {
+				add_trait = trusting
+				add_trait = quick
+				change_martial = 4
+				give_nickname = nick_the_loyal
+			}
+			20 = {
+				add_trait = ugly
+				add_trait = strong
+				add_trait = duelist
+				change_martial = 1
+				give_nickname = nick_the_boar
+			}
+			20 = {
+				add_trait = fair
+				add_trait = strategist
+				change_martial = 4
+				give_nickname = nick_the_lion
+			}
+			20 = {
+				add_trait = brave
+				add_trait = duelist
+				change_martial = 3
+				give_nickname = nick_the_dragon
+			}
+			20 = {
+				add_trait = shrewd
+				add_trait = hedonist
+				change_martial = 4
+				give_nickname = nick_the_quarreller
+			}
+			20 = {
+				add_trait = shrewd
+				add_trait = cavalry_leader
+				change_martial = 2
+				give_nickname = nick_the_wolf
+			}
+		}
+		hidden_tooltip = {
+			#if = {
+			#	limit = {
+			#		has_dharmic_religion_trigger = yes
+			#	}
+			#	add_trait = kshatriya
+			#	character_event = { id = RoI.30121 }
+			#}
+			if = {
+				limit = {
+					has_religion_feature = religion_no_leader
+					religion_group = pagan_group
+					NOR = {
+						religion = occultist
+						religion = occultist_reformed
+					}
+				}
+				random_list = {  
+					5 = {
+						add_trait = pagan_branch_1
+					}
+					25 = {
+						add_trait = pagan_branch_2
+					}
+					25 = {
+						add_trait = pagan_branch_3
+					}
+					25 = {
+						add_trait = pagan_branch_4
+					}
+				}
+			}
+		}
+		set_character_flag = invited_soldier
+		save_event_target_as = invited_character
+	}
+}
+
+#### For creating bloodlines in general ####
+#### If your bloodline requires a specific religion, one which should *not change* if the founder changes religion, this needs to be set.
+#### IMPORTANT: If religions are added: add new religion checks in new else-if limits and in the religion_same_as_bloodline_founder_trigger scripted trigger.
+set_bloodline_founder_religion_flag_effect = {
+	if = {
+		limit = { religion_openly_norse_or_reformed_trigger = yes }
+		new_bloodline = { set_bloodline_flag = requires_norse_pagan_religion }
+	}
+	else_if = {
+		limit = { religion_openly_revelationist_or_reformed_trigger = yes }
+		new_bloodline = { set_bloodline_flag = requires_revelationist_religion }
+	}
+	else_if = {
+		limit = { religion_openly_rust_cultist_or_heresy_trigger = yes }
+		new_bloodline = { set_bloodline_flag = requires_rust_cultist_religion }
+	}
+	else_if = {
+		limit = { religion_openly_occultist_or_reformed_trigger = yes }
+		new_bloodline = { set_bloodline_flag = requires_occultist_religion }
+	}
+	else_if = {
+		limit = { religion_openly_thelemic_or_reformed_trigger = yes }
+		new_bloodline = { set_bloodline_flag = requires_thelemic_religion }
+	}
+	else_if = {
+		limit = { religion_openly_celtic_or_reformed_trigger = yes }
+		new_bloodline = { set_bloodline_flag = requires_celtic_pagan_religion }
+	}
+	else_if = {
+		limit = { religion_openly_espiritista_or_reformed_trigger = yes }
+		new_bloodline = { set_bloodline_flag = requires_espiritista_religion }
+	}
+	else_if = {
+		limit = { religion = rastafarian }
+		new_bloodline = { set_bloodline_flag = requires_rastafarian_religion }
+	}
+	else_if = {
+		limit = { religion = voodoo }
+		new_bloodline = { set_bloodline_flag = requires_voodoo_religion }
+	}
+	else_if = {
+		limit = { religion = santeria }
+		new_bloodline = { set_bloodline_flag = requires_santeria_religion }
+	}
+	else_if = {
+		limit = { religion = candomble }
+		new_bloodline = { set_bloodline_flag = requires_candomble_religion }
+	}
+	else_if = {
+		limit = { religion = peyotist }
+		new_bloodline = { set_bloodline_flag = requires_peyotist_religion }
+	}
+	else_if = {
+		limit = { religion = midewiwin }
+		new_bloodline = { set_bloodline_flag = requires_midewiwin_religion }
+	}
+	else_if = {
+		limit = { religion = midewiwin_reformed }
+		new_bloodline = { set_bloodline_flag = requires_midewiwin_reformed_religion }
+	}
+	else_if = {
+		limit = { religion = raven_tales }
+		new_bloodline = { set_bloodline_flag = requires_raven_tales_religion }
+	}
+	else_if = {
+		limit = { religion = raven_tales_reformed }
+		new_bloodline = { set_bloodline_flag = requires_raven_tales_reformed_religion }
+	}
+	else_if = {
+		limit = { religion = catholic }
+		new_bloodline = { set_bloodline_flag = requires_catholic_religion }
+	}
+	else_if = {
+		limit = { religion = neognostic }
+		new_bloodline = { set_bloodline_flag = requires_neognostic_religion }
+	}
+	else_if = {
+		limit = { religion = sedevacantist }
+		new_bloodline = { set_bloodline_flag = requires_sedevacantist_religion }
+	}
+	else_if = {
+		limit = { religion = nestorian }
+		new_bloodline = { set_bloodline_flag = requires_nestorian_religion }
+	}
+	else_if = {
+		limit = { religion = ursuline }
+		new_bloodline = { set_bloodline_flag = requires_ursuline_religion }
+	}
+	else_if = {
+		limit = { religion = angeline }
+		new_bloodline = { set_bloodline_flag = requires_angeline_religion }
+	}
+	else_if = {
+		limit = { religion = confederated }
+		new_bloodline = { set_bloodline_flag = requires_confederated_religion }
+	}
+	else_if = {
+		limit = { religion = anabaptist }
+		new_bloodline = { set_bloodline_flag = requires_anabaptist_religion }
+	}
+	else_if = {
+		limit = { religion = batenburger }
+		new_bloodline = { set_bloodline_flag = requires_batenburger_religion }
+	}
+	else_if = {
+		limit = { religion = evangelical }
+		new_bloodline = { set_bloodline_flag = requires_evangelical_religion }
+	}
+	else_if = {
+		limit = { religion = antinomian }
+		new_bloodline = { set_bloodline_flag = requires_antinomian_religion }
+	}
+	else_if = {
+		limit = { religion = charismatic }
+		new_bloodline = { set_bloodline_flag = requires_charismatic_religion }
+	}
+	else_if = {
+		limit = { religion = postadventist }
+		new_bloodline = { set_bloodline_flag = requires_postadventist_religion }
+	}
+	else_if = {
+		limit = { religion = falling_star }
+		new_bloodline = { set_bloodline_flag = requires_falling_star_religion }
+	}
+	else_if = {
+		limit = { religion = high_church }
+		new_bloodline = { set_bloodline_flag = requires_high_church_religion }
+	}
+	else_if = {
+		limit = { religion = nonconformist }
+		new_bloodline = { set_bloodline_flag = requires_nonconformist_religion }
+	}
+	else_if = {
+		limit = { religion = apostolic }
+		new_bloodline = { set_bloodline_flag = requires_apostolic_religion }
+	}
+	else_if = {
+		limit = { religion = folclorista }
+		new_bloodline = { set_bloodline_flag = requires_folclorista_religion }
+	}
+	else_if = {
+		limit = { religion = sacred_heart }
+		new_bloodline = { set_bloodline_flag = requires_sacred_heart_religion }
+	}
+	else_if = {
+		limit = { religion = gracia_divina }
+		new_bloodline = { set_bloodline_flag = requires_gracia_divina_religion }
+	}
+	else_if = {
+		limit = { religion = cetic }
+		new_bloodline = { set_bloodline_flag = requires_cetic_religion }
+	}
+	else_if = {
+		limit = { religion = gaian }
+		new_bloodline = { set_bloodline_flag = requires_gaian_religion }
+	}
+	else_if = {
+		limit = { religion = shinto }
+		new_bloodline = { set_bloodline_flag = requires_shinto_religion }
+	}
+	else_if = {
+		limit = { religion = nousthreskeia }
+		new_bloodline = { set_bloodline_flag = requires_nousthreskeia_religion }
+	}
+	else_if = {
+		limit = { religion = mormon }
+		new_bloodline = { set_bloodline_flag = requires_mormon_religion }
+	}
+	else_if = {
+		limit = { religion = bickertonite }
+		new_bloodline = { set_bloodline_flag = requires_bickertonite_religion }
+	}
+	else_if = {
+		limit = { religion = woolleyite }
+		new_bloodline = { set_bloodline_flag = requires_woolleyite_religion }
+	}
+	else_if = {
+		limit = { religion = strangite }
+		new_bloodline = { set_bloodline_flag = requires_strangite_religion }
+	}
+	else_if = {
+		limit = { religion = sol_invicta }
+		new_bloodline = { set_bloodline_flag = requires_sol_invicta_religion }
+	}
+	else_if = {
+		limit = { religion = mictlantec }
+		new_bloodline = { set_bloodline_flag = requires_mictlantec_religion }
+	}
+	else_if = {
+		limit = { religion = uahomche }
+		new_bloodline = { set_bloodline_flag = requires_uahomche_religion }
+	}
+	else_if = {
+		limit = { religion = neomayan }
+		new_bloodline = { set_bloodline_flag = requires_neomayan_religion }
+	}
+	else_if = {
+		limit = { religion = americanist }
+		new_bloodline = { set_bloodline_flag = requires_americanist_religion }
+	}
+	else_if = {
+		limit = { religion = hamiltonian }
+		new_bloodline = { set_bloodline_flag = requires_hamiltonian_religion }
+	}
+	else_if = {
+		limit = { religion = jeffersonian }
+		new_bloodline = { set_bloodline_flag = requires_jeffersonian_religion }
+	}
+	else_if = {
+		limit = { religion = libertarian }
+		new_bloodline = { set_bloodline_flag = requires_libertarian_religion }
+	}
+	else_if = {
+		limit = { religion = consumerist }
+		new_bloodline = { set_bloodline_flag = requires_consumerist_religion }
+	}
+	else_if = {
+		limit = { religion = monetarist }
+		new_bloodline = { set_bloodline_flag = requires_monetarist_religion }
+	}
+	else_if = {
+		limit = { religion = atomicist }
+		new_bloodline = { set_bloodline_flag = requires_atomicist_religion }
+	}
+	else_if = {
+		limit = { religion = brethren }
+		new_bloodline = { set_bloodline_flag = requires_brethren_religion }
+	}
+	else_if = {
+		limit = { religion = jewish }
+		new_bloodline = { set_bloodline_flag = requires_jewish_religion }
+	}
+	else_if = {
+		limit = { religion = reform }
+		new_bloodline = { set_bloodline_flag = requires_reform_religion }
+	}
+	else_if = {
+		limit = { religion = meshichist }
+		new_bloodline = { set_bloodline_flag = requires_meshichist_religion }
+	}
+	else_if = {
+		limit = { religion = hindu }
+		new_bloodline = { set_bloodline_flag = requires_hindu_religion }
+	}
+	else_if = {
+		limit = { religion = traditionalist }
+		new_bloodline = { set_bloodline_flag = requires_traditionalist_religion }
+	}
+	else_if = {
+		limit = { religion = revivalist }
+		new_bloodline = { set_bloodline_flag = requires_revivalist_religion }
+	}
+	else_if = {
+		limit = { religion = imamite }
+		new_bloodline = { set_bloodline_flag = requires_imamite_religion }
+	}
+	else_if = {
+		limit = { religion = qingzheng }
+		new_bloodline = { set_bloodline_flag = requires_qingzheng_religion }
+	}
+	else_if = {
+		limit = { religion = alawiyya }
+		new_bloodline = { set_bloodline_flag = requires_alawiyya_religion }
+	}
+	else_if = {
+		limit = { religion = orientalist }
+		new_bloodline = { set_bloodline_flag = requires_orientalist_religion }
+	}
+	else_if = {
+		limit = { religion = misrist }
+		new_bloodline = { set_bloodline_flag = requires_misrist_religion }
+	}
+	else = {
+		# Add new religions in new else-if limits.
+	}
+}
+
+
+
+

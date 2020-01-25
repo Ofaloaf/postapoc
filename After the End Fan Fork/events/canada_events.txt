@@ -69,13 +69,65 @@ narrative_event = {
 	
 	option = { # Yes
 		name = EVTOPTAcanada.2
-		ai_chance = { factor = 75 }
-		religion = confederated
+		if = {
+			limit = {
+				OR = {
+					religion = high_church
+					religion = nonconformist
+				}
+				religion = confederated
+				add_trait = english_rites
+			}
+		}
+		if = {
+			limit = {
+				OR = {
+					religion = ursuline
+					religion = angeline
+				}
+				religion = confederated
+				add_trait = french_rites
+			}
+		}
 		any_courtier = {
-			religion = confederated
+			if = {
+				limit = {
+					OR = {
+						religion = high_church
+						religion = nonconformist
+					}
+					religion = confederated
+					add_trait = english_rites
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						religion = ursuline
+						religion = angeline
+					}
+					religion = confederated
+					add_trait = french_rites
+				}
+			}
 		}
 		capital_scope = {
 			religion = confederated
+		}
+		ai_chance = {
+			factor = 75
+			modifier = {
+				factor = 0.25
+				government = theocracy_government
+			}
+			modifier = {
+				factor = 0
+				government = order_government
+			}
+			modifier = {
+				factor = 0
+				trait = zealous
+			}
 		}
 	}
 	option = { # No
@@ -154,14 +206,14 @@ character_event = {
 			} }
 		}
 		new_character = { 
-			character_event = { id = misc.3 }
+			character_event = { id = misc.3 } # Diversity
 			character_event = { id = misc.4 } # Physique 
 			ROOT = { 
 				any_demesne_title = { 
 					gain_title = PREVPREV 
-				} 
+				}
 			}
-		} # Diversity
+		} 
 	}
 }
 
@@ -968,59 +1020,641 @@ narrative_event = {
 
 #Formation of PEI
 narrative_event = {
-    id = canada.26
-    desc = EVTDESC_canada_26
-    title = EVTTITLE_canada_26
-    picture = GFX_evt_western_knights_byzantine
-    is_triggered_only = yes
+	id = canada.26
+	desc = EVTDESC_canada_26
+	title = EVTTITLE_canada_26
+	picture = GFX_evt_western_knights_byzantine
+	is_triggered_only = yes
 
-    option = {      
-        name = EVTOPTA_canada_26
+	option = {	  
+		name = EVTOPTA_canada_26
 		prestige = 500
-    }
+	}
 }
 
 # Removes the prince / princess titles from the children of the Prince of Prince Edward Island
 character_event = {
-    id = canada.27
-    hide_window = yes
-    is_triggered_only = yes
-    trigger = {
-        has_landed_title = k_prince_edward_island
-    }
+	id = canada.27
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+		has_landed_title = k_prince_edward_island
+	}
 
-    immediate = {
-        if = {
-            limit = {
-                primary_title = {
-                    title = k_prince_edward_island
-                }
-            }
-            any_child = {
-                if = {
-                    limit = {
-                        has_minor_title = title_prince
-                    }
-                    remove_title = title_prince
-                }
-            }
-        }
-    }
+	immediate = {
+		if = {
+			limit = {
+				primary_title = {
+					title = k_prince_edward_island
+				}
+			}
+			any_child = {
+				if = {
+					limit = {
+						has_minor_title = title_prince
+					}
+					remove_title = title_prince
+				}
+			}
+		}
+	}
 }
 
 # Clean up Abbey Guards 
 character_event = {
-    id = canada.28
-    hide_window = yes
-    is_triggered_only = yes
-    trigger = {
-    
-    }
+	id = canada.28
+	hide_window = yes
+	is_triggered_only = yes
+	trigger = {
+	
+	}
 
-    immediate = {
-        activate_title = {
-            title = d_abbey_guards
-            status = no
-        }
-    }
+	immediate = {
+		activate_title = {
+			title = d_abbey_guards
+			status = no
+		}
+	}
+}
+
+#I'm putting St. Patrick's Day here and you can't stop me.
+character_event = {
+	id = canada.30
+	desc = EVTDESC_st_patricks_1
+	picture = GFX_evt_stone_church
+	border = GFX_event_frame_normal_religious
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = st_patricks_day
+	}
+	
+	immediate = {
+		character_event = { id = canada.31 days = 1 }
+	}
+	
+	option = {
+		name = EVTOPTA_st_patricks_1
+		piety = 30
+	}
+}
+
+character_event = {
+	id = canada.31
+	desc = EVTDESC_st_patricks_2
+	picture = GFX_evt_jugglers
+	border = GFX_event_frame_normal_religious
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = st_patricks_day
+	}
+	
+	immediate = {
+		character_event = { id = canada.32 days = 1 }
+	}
+	
+	option = {
+		name = EVTOPTA_st_patricks_2
+		prestige = 50
+	}
+}
+
+character_event = {
+	id = canada.32
+	desc = EVTDESC_st_patricks_3
+	picture = GFX_evt_feast_hf
+	border = GFX_event_frame_normal_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = st_patricks_day
+	}
+	
+	option = {
+		name = EVTOPTA_st_patricks_3
+		prestige = 30
+		piety = -30
+		custom_tooltip = { text = TXT_st_patricks_drunk }
+		hidden_tooltip = {
+			random_list = {
+				50 = { #wake up hungover with a random negative effect
+					character_event = { id = canada.33 days = 1 }
+				}
+				20 = { #wake up injured from a barfight
+					character_event = { id = canada.34 days = 1 }
+				}
+				20 = { #wake up remembering that you were the life of the party
+					character_event = { id = canada.35 days = 1 }
+				}
+				10 = { #wake up in bed next to someone else...
+					character_event = { id = canada.36 days = 1 }
+				}
+			}
+		}
+		ai_chance = {
+			factor = 50
+			modifier = {
+				trait = temperate
+				factor = 0
+			}
+			modifier = {
+				trait = zealous
+				factor = 0
+			}
+		}
+	}
+
+	
+	option = {
+		name = EVTOPTB_st_patricks_3
+		trigger = { NOT = { trait = drunkard } }
+		prestige = -30
+		piety = 30
+		custom_tooltip = { text = TXT_st_patricks_end }
+		hidden_tooltip = { clr_character_flag = st_patricks_day }
+		hidden_tooltip = { clr_character_flag = recent_minor_decision }
+		hidden_tooltip = { clr_character_flag = do_not_disturb }
+		hidden_tooltip = { add_character_modifier = { name = st_patricks_timer years = 3 } }
+		ai_chance = {
+			factor = 50
+		}
+	}
+}
+
+character_event = {
+	id = canada.33
+	desc = EVTDESC_st_patricks_4
+	picture = GFX_evt_outside_tavern_hf
+	border = GFX_event_frame_normal_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = st_patricks_day
+	}
+	
+	immediate = {
+		clr_character_flag = st_patricks_day
+		clr_character_flag = do_not_disturb
+		clr_character_flag = recent_minor_decision
+		add_character_modifier = { name = st_patricks_timer years = 3 }
+	}
+	
+	option = {
+		name = EVTOPTA_st_patricks_4
+		trigger = { NOT = { trait = drunkard } }
+		prestige = -15
+		custom_tooltip = { text = TXT_st_patricks_end }
+		hidden_tooltip = {
+			random_list = {
+				10 = {
+					add_trait = drunkard
+					gain_weight_small_effect = yes
+				}
+				30 = {
+					if = {
+						limit = {
+							NOT = {
+								has_dlc = "Reapers"
+							}
+						}
+						add_trait = ill
+					}
+					if = {
+						limit = {
+							has_dlc = "Reapers"
+						}
+						add_symptom_effect = yes
+					}
+				}
+				10 = {
+					add_trait = gluttonous
+					gain_weight_small_effect = yes
+				}
+				20 = {
+					wealth = -20
+				}
+				30 = { }
+			}
+		}				
+	}
+	
+	option = {
+		name = EVTOPTB_st_patricks_4
+		trigger = { trait = drunkard }
+		prestige = 10
+	}
+}
+
+character_event = {
+	id = canada.34
+	desc = EVTDESC_st_patricks_5
+	picture = GFX_evt_bad_news
+	border = GFX_event_frame_normal_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = st_patricks_day
+	}
+	
+	immediate = {
+		clr_character_flag = st_patricks_day
+		clr_character_flag = do_not_disturb
+		clr_character_flag = recent_minor_decision
+		add_character_modifier = { name = st_patricks_timer years = 3 }
+	}
+	
+	option = {
+		name = EVTOPTA_st_patricks_5
+		if = {
+			limit = {
+				trait = patient
+			}
+			remove_trait = patient
+			prestige = -10
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = patient }
+				NOT = { trait = wroth }
+			}
+			add_trait = wroth
+			prestige = -10
+		}
+		else_if = {
+			limit = {
+				trait = wroth
+			}
+			prestige = 5
+		}
+		random_list =  {
+			30 = { }
+			60 = { add_trait = wounded }
+			10 = { add_severely_injured_effect = yes }
+		}
+		custom_tooltip = { text = TXT_st_patricks_end }
+	}
+}
+
+character_event = {
+	id = canada.35
+	desc = EVTDESC_st_patricks_6
+	picture = GFX_evt_feast_hf
+	border = GFX_event_frame_normal_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = st_patricks_day
+	}
+	
+	immediate = {
+		clr_character_flag = st_patricks_day
+		clr_character_flag = do_not_disturb
+		clr_character_flag = recent_minor_decision
+		add_character_modifier = { name = st_patricks_timer years = 3 }
+	}
+	
+	option = {
+		name = EVTOPTA_st_patricks_6
+		prestige = 30
+		if = {
+			limit = {
+				trait = shy
+			}
+			remove_trait = shy
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = gregarious }
+			}
+			add_trait = gregarious
+		}
+		custom_tooltip = { text = TXT_st_patricks_end }
+	}
+}
+
+character_event = {
+	id = canada.36
+	desc = EVTDESC_st_patricks_7
+	picture = GFX_evt_lovers
+	border = GFX_event_frame_normal_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = st_patricks_day
+	}
+	
+	immediate = {
+		clr_character_flag = st_patricks_day
+		clr_character_flag = do_not_disturb
+		clr_character_flag = recent_minor_decision
+		add_character_modifier = { name = st_patricks_timer years = 3 }
+	}
+	
+	option = {
+		name = EVTOPTA_st_patricks_7
+		trigger = {
+			is_female = no
+			NOT = { trait = homosexual }
+		}
+		piety = -10
+		prestige = 10
+		if = {
+			limit = {
+				trait = chaste
+			}
+			remove_trait = chaste
+		}
+		create_character = {
+			random_traits = no
+			dynasty = NONE
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 17
+			trait = intricate_webweaver
+			trait = fair
+			trait = uncouth
+			trait = quick
+			trait = lustful
+			trait = proud
+			trait = gluttonous
+			attributes = {
+				diplomacy = 3
+				intrigue = 10
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			gain_weight_medium_effect = yes
+			add_lover = ROOT
+			remove_trait = genius
+			remove_trait = imbecile
+			remove_trait = ugly
+			remove_trait = slow
+			remove_trait = chaste
+		}
+		custom_tooltip = { text = TXT_st_patricks_end }
+	}
+	
+	option = {
+		name = EVTOPTB_st_patricks_7
+		trigger = {
+			is_female = yes
+			NOT = { trait = homosexual }
+		}
+		piety = -10
+		prestige = 10
+		if = {
+			limit = {
+				trait = chaste
+			}
+			remove_trait = chaste
+		}
+		create_character = {
+			random_traits = no
+			dynasty = NONE
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 17
+			trait = intricate_webweaver
+			trait = fair
+			trait = uncouth
+			trait = quick
+			trait = lustful
+			trait = proud
+			trait = drunkard
+			attributes = {
+				diplomacy = 3
+				intrigue = 10
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			gain_weight_medium_effect = yes
+			add_lover = ROOT
+			remove_trait = genius
+			remove_trait = imbecile
+			remove_trait = ugly
+			remove_trait = slow
+			remove_trait = chaste			
+		}
+		custom_tooltip = { text = TXT_st_patricks_end }
+	}
+	
+	option = {
+		name = EVTOPTC_st_patricks_7
+		trigger = {
+			is_female = no
+			trait = homosexual
+		}
+		piety = -15
+		prestige = 10
+		if = {
+			limit = {
+				trait = chaste
+			}
+			remove_trait = chaste
+		}
+		create_character = {
+			random_traits = no
+			dynasty = NONE
+			religion = ROOT
+			culture = ROOT
+			female = no
+			age = 17
+			trait = intricate_webweaver
+			trait = fair
+			trait = uncouth
+			trait = quick
+			trait = lustful
+			trait = drunkard
+			trait = proud
+			trait = homosexual
+			attributes = {
+				diplomacy = 3
+				intrigue = 10
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			gain_weight_medium_effect = yes
+			add_lover = ROOT
+			remove_trait = genius
+			remove_trait = imbecile
+			remove_trait = ugly
+			remove_trait = slow
+			remove_trait = chaste
+		}
+		custom_tooltip = { text = TXT_st_patricks_end }
+	}
+	
+	option = {
+		name = EVTOPTD_st_patricks_7
+		trigger = {
+			is_female = yes
+			trait = homosexual
+		}
+		piety = -15
+		prestige = 10
+		if = {
+			limit = {
+				trait = chaste
+			}
+			remove_trait = chaste
+		}
+		create_character = {
+			random_traits = no
+			dynasty = NONE
+			religion = ROOT
+			culture = ROOT
+			female = yes
+			age = 17
+			trait = intricate_webweaver
+			trait = fair
+			trait = uncouth
+			trait = quick
+			trait = lustful
+			trait = gluttonous
+			trait = proud
+			trait = homosexual
+			attributes = {
+				diplomacy = 3
+				intrigue = 10
+			}
+		}
+		new_character = {
+			character_event = { id = misc.3 } # Diversity
+			gain_weight_medium_effect = yes
+			add_lover = ROOT
+			remove_trait = genius
+			remove_trait = imbecile
+			remove_trait = ugly
+			remove_trait = slow
+			remove_trait = chaste
+		}
+		custom_tooltip = { text = TXT_st_patricks_end }
+	}
+}
+
+#character_event = { #Give birth to St. Patrick's Child
+#	id = canada.37
+#	hide_window = yes
+#	is_triggered_only = yes
+#	trigger = { 
+#		OR = {
+#			mother = { has_character_flag = patrick_mother } 
+#			father = { has_character_flag = patrick_father }
+#		}
+#	}
+#	
+#	immediate = {
+#		add_trait = strong
+#		add_trait = quick
+#		remove_trait = weak
+#		remove_trait = clubfooted
+#		remove_trait = harelip
+#		remove_trait = hunchback
+#		remove_trait = imbecile
+#		remove_trait = inbred
+#		remove_trait = lisp
+#		remove_trait = slow
+#		remove_trait = stutter
+#		remove_trait = ugly
+#		remove_trait = giant
+#		if = {
+#			limit = {
+#				is_female = no
+#			}
+#			set_name = "Patrick"
+#		}
+#		else_if = {
+#			limit = {
+#				is_female = yes
+#			}
+#			set_name = "Patricia"
+#		}
+#		mother = {
+#			clr_character_flag = patrick_mother
+#			character_event = { id = canada.38 days = 1 }
+#		}
+#		father = {
+#			clr_character_flag = patrick_father
+#			character_event = { id = canada.38 days = 1 }
+#		}
+#	}
+#}
+
+#character_event = { #Give birth to St. Patrick's Child
+#	id = canada.38
+#	desc = EVTDESC_st_patricks_8
+#	picture = GFX_evt_birth
+#	border = GFX_event_frame_normal_religious
+#	is_triggered_only = yes
+#	
+#	option = {
+#		name = EVTOPTA_st_patricks_8
+#		prestige = 20
+#	}
+#}
+
+character_event = {
+	id = canada.39
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = st_patricks_day
+		clr_character_flag = do_not_disturb
+		clr_character_flag = recent_minor_decision
+	}
+}
+
+character_event = { #Choose Rites
+	id = canada.40
+	desc = EVTDESC_canada_40
+	picture = GFX_evt_bishop
+	is_triggered_only = yes
+	religion = confederated
+	
+	option = {
+		name = EVTOPTA_canada_40 #Choose French Rites
+		add_trait = french_rites
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5	culture_group = gallomerican }
+			modifier = { factor = 5	trait = mastermind_theologian }
+			modifier = { factor = 4	trait = scholarly_theologian }
+			modifier = { factor = 3	trait = martial_cleric }
+			modifier = { factor = 2	trait = detached_priest }
+			modifier = { factor = 4	trait = theologian }
+			modifier = { factor = 3	trait = scholar }
+			modifier = { factor = 2	trait = mystic }
+			modifier = { factor = 2	trait = zealous }
+			modifier = { factor = 1.5 trait = diligent }
+			modifier = { factor = 1.5 trait = humble }
+			modifier = { factor = 0.2 trait = cynical }
+		}
+	}
+	
+	option = {		
+		name = EVTOPTB_canada_40 #Choose English Rites
+		add_trait = english_rites
+		ai_chance = {
+			factor = 10
+			modifier = { factor = 5	NOT = { culture_group = gallomerican } }
+			modifier = { factor = 5	trait = midas_touched }
+			modifier = { factor = 4	trait = fortune_builder }
+			modifier = { factor = 3	trait = thrifty_clerk }
+			modifier = { factor = 2	trait = indulgent_wastrel }
+			modifier = { factor = 4	trait = charitable }
+			modifier = { factor = 3	trait = temperate }
+			modifier = { factor = 2	trait = kind }
+			modifier = { factor = 1.5 trait = patient }
+			modifier = { factor = 1.5 trait = just }
+			modifier = { factor = 0.3 trait = cruel }
+			modifier = { factor = 0.3 trait = zealous }
+		}
+	}
 }

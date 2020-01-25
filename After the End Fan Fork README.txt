@@ -1,7 +1,7 @@
 AFTER THE END FAN FORK
 A fan-made fork of the original post-apocalyptic North America mod for Crusader Kings II
-Version 0.4b (Forked off from After the End v0.9)
-Compatible with CK2 3.1.0 and the Holy Fury DLC
+Version 0.5 (Forked off from After the End v0.9)
+Compatible with CK2 3.2.1 and the Holy Fury DLC
 
 	INSTALLATION
 1. Delete any previous versions of this mod.
@@ -10,9 +10,7 @@ Compatible with CK2 3.1.0 and the Holy Fury DLC
 4. Open Crusader Kings II and check "After the End Fan Fork" in the "Mods" section of the launcher.
 5. If you have Sunset Invasion, enable it and the "After the End Fan Fork - Sunset Invasion DLC" mod. This will not cause an Aztec invasion, but it will allow Native American faces to show properly.
 6. Similarly, if you have African Portraits, enable it and the "After the End Fan Fork - African Faces DLC" mod.
-7. The "After the End Fan Fork - Mongol Faces DLC" works on the same principle.
-8. Again, the "After the End Fan Fork - Chinese Faces DLC" works on the same principle.
-DO NOT ENABLE THE MONGOL FACES AND CHINESE FACES SUBMODS AT THE SAME TIME. ONLY USE THE MONGOL FACES IF YOU DO NOT OWN JADE DRAGON.
+7. All of the other included portrait submods operate on similar principles. English and German Faces requires Monks and Mystics, while Chinese Faces requires Jade Dragon. The others should be easy enough to guess.
 
 	CREDITS
 Mod Creator: Ofaloaf	
@@ -35,8 +33,11 @@ Nexerus
 Lord Puurple
 Katanasama
 Deds
-mochi/vivyshe
+desertflowers/Vivian
 al-Sayyid/ShiatAli
+Shadeoses/BoneLorde
+Lord_Iggy/KaYoS
+jd_stuyvesant/Stuyvesant
 
 Original mod team:
 
@@ -59,6 +60,7 @@ Casus bellis from Project Balance
 Titular Empires from CK2+ (old version) by Wiz
 Portraits from Lux Invicta by DarkReborn and others
 Clothing and headgear from AGOT Congenital Overhaul by LancelotLoire
+Muslim societies from Maal's Sufi Schools mod
 
 Images:
 All flags have been resized to be compatible with game requirements.
@@ -75,9 +77,13 @@ Roraima event image: User/Ixitixel (CC BY-SA 2.0 DE)
 Amazon River event image: Neil Palmer/CIAT
 Totem Pole event image: User/Husky22
 Colorado River flag: User/Xasartha
+Easter Egg CoA: Wagner51
+Jack-O-Lantern Icon: FatCow
+Shamrock Icon: User/Zoney and User/Booyabazooka
+Mayo flag and Yaqui flag: Marrovi
 
 Music:
-"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B, "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past"
+"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B", "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past", "Ibn Al-Noor", "Mystery Bazaar", "Tabuk", "Desert City"
 Kevin MacLeod (incompetech.com)
 
 "Lazy Days"

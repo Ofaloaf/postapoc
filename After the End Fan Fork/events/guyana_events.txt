@@ -1,0 +1,467 @@
+namespace = guyana
+
+#guyana.1	Start of Hosay event chain - in 5 days, interesting stuff will happen. (Muslims get pre-emptive piety for fasting)
+#guyana.2	Parade floats constructed. 3 options based on scaled wealth - determines prestige gain at end of chain.
+#guyana.3	Parade begins! (flat prestige gain, also starts event tombola)
+#guyana.4	Sympathy event (Prestige gain event if you already have all 3 sympathy traits)
+#guyana.5	Injured during stick fight - 10% chance of losing an eye. (won't allow one-eyed characters to be blinded because it's too harsh)
+#guyana.6	Parade float crashes into unsuspecting bystander, severely injuring him. Can either give him money (gain charitable) or refuse to aid him (gain greedy)
+#guyana.7	Learn about "Hosay" and "Yasid" - get either humble or proud
+#guyana.8	Parade floats are ceremonially thrown into the sea - prestige gain based on prior investment
+#guyana.9	End of event chain, get a +5 general opinion modifier for a year. also, clean up character flags
+#guyana.10	Backup cleanup event
+#guyana.11	Cancel in case of war
+
+character_event = {
+	id = guyana.1
+	desc = EVTDESC_guyana_1
+	picture = GFX_evt_throne_room_indo_aryan_group
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_guyana_1
+		trigger = {
+			NOT = { religion_group = muslim }
+		}
+		custom_tooltip = { text = hosay_preparation_start }
+		hidden_tooltip = { character_event = { id = guyana.2 days = 5 } }
+		hidden_tooltip = { character_event = { id = guyana.10 days = 12 } } #backup
+	}
+	option = {
+		name = EVTOPTB_guyana_1
+		trigger = {
+			religion_group = muslim
+		}
+		piety = 15
+		custom_tooltip = { text = hosay_fasting_start }
+		hidden_tooltip = { character_event = { id = guyana.2 days = 5 } }
+	}
+}
+
+character_event = {
+	id = guyana.2
+	desc = EVTDESC_guyana_2
+	picture = GFX_evt_hindu_temple_interior
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	option = {
+		name = EVTOPTA_guyana_2
+		scaled_wealth = -0.05
+		custom_tooltip = { text = hosay_building_start }
+		hidden_tooltip = { set_character_flag = small_hosay_investment }
+		hidden_tooltip = { character_event = { id = guyana.3 days = 1 } }
+	}
+	option = {
+		name = EVTOPTB_guyana_2
+		scaled_wealth = -0.075
+		custom_tooltip = { text = hosay_building_start }
+		hidden_tooltip = { set_character_flag = medium_hosay_investment }
+		hidden_tooltip = { character_event = { id = guyana.3 days = 1 } }
+	}
+	option = {
+		name = EVTOPTC_guyana_2
+		scaled_wealth = -0.1
+		custom_tooltip = { text = hosay_building_start }
+		hidden_tooltip = { set_character_flag = large_hosay_investment }
+		hidden_tooltip = { character_event = { id = guyana.3 days = 1 } }
+	}
+}
+
+character_event = {
+	id = guyana.3
+	desc = EVTDESC_guyana_3
+	picture = GFX_evt_feast_indo_aryan_group
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	immediate = {
+		set_character_flag = hosay_in_progress
+	}
+	
+	option = {
+		name = EVTOPTA_guyana_3
+		prestige = 20
+		custom_tooltip = { text = hosay_real_start }
+		hidden_tooltip = { character_event = { id = guyana.8 days = 4 } }
+		hidden_tooltip = {
+			random_list = {
+				25 = { #Sympathy event
+					character_event = { id = guyana.4 days = 1 }
+				}
+				25 = { #Injured during stick fight
+					character_event = { id = guyana.5 days = 1 }
+				}
+				25 = { #Parade float crash
+					character_event = { id = guyana.6 days = 1 }
+				}
+				25 = { #Learn about Hosay and Hasid
+					character_event = { id = guyana.7 days = 1 }
+				}
+			}
+			random_list = {
+				25 = { #Sympathy event
+					character_event = { id = guyana.4 days = 2 }
+				}
+				25 = { #Injured during stick fight
+					character_event = { id = guyana.5 days = 2 }
+				}
+				25 = { #Parade float crash
+					character_event = { id = guyana.6 days = 2 }
+				}
+				25 = { #Learn about Hosay and Hasid
+					character_event = { id = guyana.7 days = 2 }
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = guyana.4
+	desc = EVTDESC_guyana_4
+	picture = GFX_evt_feast_indo_aryan_group
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = hosay_in_progress
+		NOT = { has_character_flag = hosay_sympathy }
+	}
+	
+	immediate = {
+		set_character_flag = hosay_sympathy
+	}
+	
+	option = {
+		name = EVTOPTA_guyana_4
+		trigger = {
+			NOT = { trait = zealous }
+			NOR = {
+				trait = sympathy_islam
+				trait = sympathy_afro_syncretic
+				trait = sympathy_indian
+			}
+		}
+		if = {
+			limit = {
+				religion_group = muslim
+			}
+			add_trait = sympathy_afro_syncretic
+			add_trait = sympathy_indian
+		}
+		else_if = {
+			limit = {
+				religion_group = afro_syncretic
+			}
+			add_trait = sympathy_islam
+			add_trait = sympathy_indian
+		}
+		else_if = {
+			limit = {
+				religion_group = indian_group
+			}
+			add_trait = sympathy_islam
+			add_trait = sympathy_afro_syncretic
+		}
+		else_if = {
+			limit = {
+				NOR = {
+					religion_group = muslim
+					religion_group = afro_syncretic
+					religion_group = indian_group
+				}
+			}
+			add_trait = sympathy_islam
+			add_trait = sympathy_afro_syncretic
+			add_trait = sympathy_indian
+		}
+		prestige = 10
+	}
+	
+	option = {
+		name = EVTOPTB_guyana_4
+		if = {
+			limit = {
+				trait = cynical
+			}
+			remove_trait = cynical
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = cynical }
+			}
+			add_trait = zealous
+		}
+		piety = 15
+	}
+	
+	option = {
+		name = EVTOPTC_guyana_4
+		trigger = {
+			OR = {
+				trait = sympathy_islam
+				trait = sympathy_afro_syncretic
+				trait = sympathy_indian
+			}
+		}
+		prestige = 20
+	}
+}
+
+character_event = {
+	id = guyana.5
+	desc = EVTDESC_guyana_5
+	picture = GFX_evt_melee_arabic
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = hosay_in_progress
+		NOT = { has_character_flag = hosay_swordfight }
+	}
+	
+	immediate = {
+		set_character_flag = hosay_swordfight
+	}
+	
+	option = {
+		name = EVTOPTA_guyana_5
+		prestige = -10
+		custom_tooltip = { text = hosay_swordfight_injury }
+		hidden_tooltip = {
+			random_list = {
+				95 = {
+					add_trait = wounded
+				}
+				5 = {
+					add_trait_one_eyed_effect = yes
+				}
+			}
+		}
+	}
+}
+
+character_event = {
+	id = guyana.6
+	desc = EVTDESC_guyana_6
+	picture = GFX_evt_carriage_arabic
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = hosay_in_progress
+		NOT = { has_character_flag = hosay_parade_crash }
+	}
+	
+	immediate = {
+		set_character_flag = hosay_parade_crash
+	}
+	
+	option = {
+		name = EVTOPTA_guyana_6
+		trigger = {
+			NOR = {
+				trait = greedy
+				trait = cruel
+			}
+		}
+		scaled_wealth = -0.2
+		prestige = 25
+		piety = 20
+		add_trait = charitable
+	}
+	option = {
+		name = EVTOPTB_guyana_6
+		prestige = -25
+		piety = -20
+		if = {
+			limit = {
+				trait = charitable
+			}
+			remove_trait = charitable
+		}
+		if = {
+			limit = {
+				trait = kind
+			}
+			remove_trait = kind
+		}
+		else_if = {
+			limit = {
+				NOR = {
+					trait = charitable
+					trait = kind
+				}
+			}
+			add_trait = greedy
+			add_trait = cruel
+		}
+	}
+}
+
+character_event = {
+	id = guyana.7
+	desc = EVTDESC_guyana_7
+	picture = GFX_evt_imam
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = hosay_in_progress
+		NOT = { has_character_flag = hosay_story_learned }
+	}
+	
+	immediate = {
+		set_character_flag = hosay_story_learned
+	}
+	
+	option = {
+		name = EVTOPTA_guyana_7
+		piety = 15
+		if = {
+			limit = {
+				trait = proud
+			}
+			remove_trait = proud
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = proud }
+			}
+			add_trait = humble
+		}
+	}
+	option = {
+		name = EVTOPTB_guyana_6
+		prestige = 15
+		if = {
+			limit = {
+				trait = humble
+			}
+			remove_trait = humble
+		}
+		else_if = {
+			limit = {
+				NOT = { trait = humble }
+			}
+			add_trait = proud
+		}
+	}
+}
+
+character_event = {
+	id = guyana.8
+	desc = EVTDESC_guyana_8
+	picture = GFX_evt_india_temple
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = hosay_in_progress
+	}
+	
+	option = {
+		name = EVTOPTA_guyana_8
+		trigger = {
+			has_character_flag = small_hosay_investment
+		}
+		prestige = 25
+		hidden_tooltip = { character_event = { id = guyana.9 days = 1 } }
+	}
+	
+	option = {
+		name = EVTOPTB_guyana_8
+		trigger = {
+			has_character_flag = medium_hosay_investment
+		}
+		prestige = 50
+		hidden_tooltip = { character_event = { id = guyana.9 days = 1 } }
+	}
+	
+	option = {
+		name = EVTOPTC_guyana_8
+		trigger = {
+			has_character_flag = large_hosay_investment
+		}
+		prestige = 100
+		hidden_tooltip = { character_event = { id = guyana.9 days = 1 } }
+	}
+}
+
+character_event = {
+	id = guyana.9
+	desc = EVTDESC_guyana_9
+	picture = GFX_evt_throne_room_indo_aryan_group
+	border = GFX_event_normal_frame_diplomacy
+	is_triggered_only = yes
+	
+	trigger = {
+		has_character_flag = hosay_in_progress
+	}
+	
+	immediate = {
+		clr_character_flag = hosay_started
+		clr_character_flag = small_hosay_investment
+		clr_character_flag = medium_hosay_investment
+		clr_character_flag = large_hosay_investment
+		clr_character_flag = hosay_in_progress
+		clr_character_flag = hosay_sympathy
+		clr_character_flag = hosay_swordfight
+		clr_character_flag = hosay_parade_crash
+		clr_character_flag = hosay_story_learned
+		clr_character_flag = do_not_disturb
+		clr_character_flag = recent_minor_decision
+	}	
+	
+	option = {
+		name = EVTOPTA_guyana_9
+		hidden_tooltip = { add_character_modifier = { name = hosay_opinion years = 1 } }
+		hidden_tooltip = { add_character_modifier = { name = hosay_timer years = 3 } }
+	}
+}
+
+character_event = {
+	id = guyana.10
+	hide_window = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		clr_character_flag = hosay_started
+		clr_character_flag = small_hosay_investment
+		clr_character_flag = medium_hosay_investment
+		clr_character_flag = large_hosay_investment
+		clr_character_flag = hosay_in_progress
+		clr_character_flag = hosay_sympathy
+		clr_character_flag = hosay_swordfight
+		clr_character_flag = hosay_parade_crash
+		clr_character_flag = hosay_story_learned
+		clr_character_flag = do_not_disturb
+		clr_character_flag = recent_minor_decision
+	}
+}
+
+# War interrupts Hosay
+character_event = {
+	id = guyana.11
+	desc = EVTDESC_guyana_11
+	picture = GFX_evt_moors
+	border =  GFX_event_normal_frame_diplomacy
+	war = yes
+	has_character_flag = hosay_started
+	
+	trigger = {
+		
+	}
+	
+	mean_time_to_happen = {
+		days = 1
+	}
+	
+	option = {
+		name = EVTOPTA_guyana_11
+		hidden_tooltip = { character_event = { id = guyana.10 } }
+		hidden_tooltip = { add_character_modifier = { name = hosay_timer years = 3 } }
+	}
+}

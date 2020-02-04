@@ -33,10 +33,11 @@ Nexerus
 Lord Puurple
 Katanasama
 Deds
-mochi/vivyshe
+desertflowers/Vivian
 al-Sayyid/ShiatAli
 Shadeoses/BoneLorde
 Lord_Iggy/KaYoS
+jd_stuyvesant/Stuyvesant
 
 Original mod team:
 
@@ -59,6 +60,7 @@ Casus bellis from Project Balance
 Titular Empires from CK2+ (old version) by Wiz
 Portraits from Lux Invicta by DarkReborn and others
 Clothing and headgear from AGOT Congenital Overhaul by LancelotLoire
+Muslim societies from Maal's Sufi Schools mod
 
 Images:
 All flags have been resized to be compatible with game requirements.
@@ -78,6 +80,7 @@ Colorado River flag: User/Xasartha
 Easter Egg CoA: Wagner51
 Jack-O-Lantern Icon: FatCow
 Shamrock Icon: User/Zoney and User/Booyabazooka
+Mayo flag and Yaqui flag: Marrovi
 
 Music:
 "Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B", "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past", "Ibn Al-Noor", "Mystery Bazaar", "Tabuk", "Desert City"

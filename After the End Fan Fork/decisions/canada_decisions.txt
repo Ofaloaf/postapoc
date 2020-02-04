@@ -5,7 +5,7 @@ decisions = {
 			NOT = {
 				has_alternate_start_parameter = { key = religion_names value = random }
 			}
-			is_ruler = yes
+			has_landed_title = e_canada
 			OR = {
 				religion = ursuline
 				religion = high_church
@@ -15,6 +15,7 @@ decisions = {
 			NOT = { has_global_flag = canadian_church_unified }
 		}
 		allow = {
+			has_landed_title = e_canada
 			OR = {
 				AND = {
 					any_vassal = {
@@ -31,24 +32,147 @@ decisions = {
 					completely_controls = c_toronto
 					completely_controls = c_hochelaga # Montreal
 					completely_controls = c_cap_diamant # Quebec
-					completely_controls = c_chebucto # Halifax
+					completely_controls = c_halifax
 				}
 			}
 		}
 		effect = {
 			religion = confederated
+			if = {
+				limit = {
+					OR = {
+						religion = high_church
+						religion = nonconformist
+					}
+					add_trait = english_rites
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						religion = ursuline
+						religion = angeline
+					}
+					add_trait = french_rites
+				}
+			}
 			any_courtier = {
 				religion = confederated
+				if = {
+					limit = {
+						OR = {
+							religion = high_church
+							religion = nonconformist
+						}
+						add_trait = english_rites
+					}
+				}
+				if = {
+					limit = {
+						OR = {
+							religion = ursuline
+							religion = angeline
+						}
+						add_trait = french_rites
+					}
+				}
 			}
 			capital_scope = {
 				religion = confederated
 			}
+			
 			activate_title = { title = d_confederated status = yes }
 			narrative_event = { id = canada.1 }
-			#activate_title = { title = k_ursuline status = no }
-			#activate_title = { title = d_high_church status = no }
+			activate_title = { title = k_ursuline status = no }
+			activate_title = { title = d_high_church status = no }
 			set_global_flag = canadian_church_unified
 		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	choose_confederated_rites = {
+		is_high_prio = yes
+		potential = {
+			NOT = {
+				has_alternate_start_parameter = { key = religion_names value = random }
+			}
+			religion = confederated
+		}
+		allow = {
+			NOR = {
+				trait = english_rites
+				trait = french_rites
+			}
+		}
+		effect = {
+			character_event = { id = canada.40 }
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	vassalize_mounties = {
+		is_high_prio = yes
+		
+		potential = {
+			is_alternate_start = no
+			
+			has_landed_title = e_canada
+			OR = {
+				culture = ontarian
+				culture = quebecois
+				culture = acadien
+				culture = maritimer
+				culture = newfie
+				culture = ontarois
+				culture = canuck
+				culture = prairielander
+				culture = yukoner
+			}
+			OR = {
+				religion_group = christian
+				religion_group = amero_syncretic
+			}
+			is_title_active = d_mounties
+			d_mounties = {
+				holder_scope = {
+					NOT = { has_truce = ROOT }
+					ROOT = { NOT = { has_truce = PREV } }
+					liege = {
+						NOT = { character = ROOT }
+					}
+					NOT = { num_of_count_titles = 3 }
+					independent = yes
+					primary_title = { title = d_mounties }
+				}
+			}
+		}
+		
+		allow = {
+			wealth = 500
+			piety = 2500
+			completely_controls = c_ottawa
+			completely_controls = c_wascana
+		}
+		
+		effect = {
+			wealth = -500
+			d_mounties = {
+				holder_scope = {
+					wealth = 500
+					ROOT = {
+						set_defacto_vassal = PREV
+					}
+				}
+			}
+		}
+		
+		revoke_allowed = {
+			always = no
+		}
+		
 		ai_will_do = {
 			factor = 1
 		}

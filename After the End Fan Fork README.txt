@@ -83,7 +83,7 @@ Shamrock Icon: User/Zoney and User/Booyabazooka
 Mayo flag and Yaqui flag: Marrovi
 
 Music:
-"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B", "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past", "Ibn Al-Noor", "Mystery Bazaar", "Tabuk", "Desert City"
+"Sardana", "Lord of the Land", "Teller of the Tales", "Drums of the Deep", "DD Groove", "Porch Blues", "Virtutes Instrumenti", "Night of the Owl", "Achaidh Cheide", "Black Bird", "Dhaka", "Moorland", "Thunderhead", "Suonatore di Liuto", "Laid Back Guitars, "Angevin B", "Pippin the Hunchback", "Senbazuru", "Finding Movement", "Hidden Past", "Ibn Al-Noor", "Mystery Bazaar", "Tabuk", "Desert City", "Untitled African rhythm" (named Rhythm in-game)
 Kevin MacLeod (incompetech.com)
 
 "Lazy Days"

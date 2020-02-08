@@ -61,6 +61,8 @@ Titular Empires from CK2+ (old version) by Wiz
 Portraits from Lux Invicta by DarkReborn and others
 Clothing and headgear from AGOT Congenital Overhaul by LancelotLoire
 Muslim societies from Maal's Sufi Schools mod
+Plains Native portraits from Better Looking Garbs (Crackdtoothgrins - Steppe and religious portraits)
+Great Lakes Clothing from Better Looking Garbs
 
 Images:
 All flags have been resized to be compatible with game requirements.

@@ -870,7 +870,6 @@ decisions = {
 		only_playable = yes
 		is_high_prio = yes
 		ai_check_interval = 24
-		religion = atomicist
 		
 		potential = {
 			religion = atomicist
@@ -993,7 +992,6 @@ decisions = {
 		only_playable = yes
 		is_high_prio = yes
 		ai_check_interval = 24
-		religion = rust_cultist
 		
 		potential = {
 			religion = rust_cultist
@@ -1032,14 +1030,16 @@ decisions = {
 	claim_imperial_throne = { # this decision immediately starts a war with the emperor, so be careful
 		only_independent = yes
 		is_high_prio = yes
-		religion = cetic
-		min_age = 20
 		
 		potential = {
 			religion = cetic
+			is_adult = yes
 			e_california = { # requires figurehead emperor
 				holder_scope = {
-					trait = figurehead
+					OR = {
+						trait = figurehead
+						trait = weak_emperor
+					}
 				}
 			}
 			tier = KING
@@ -1522,8 +1522,10 @@ decisions = {
 				trait = greedy
 				trait = lustful
 			}
-			NOT = { #immersion-breaking
-				has_alternate_start_parameter = { key = religion_names value = random }
+			hidden_tooltip = {
+				NOT = { #immersion-breaking
+					has_alternate_start_parameter = { key = religion_names value = random }
+				}
 			}
 		}
 		effect = {
@@ -2009,7 +2011,8 @@ decisions = {
 			is_adult = yes
 			prisoner = no
 			OR = {
-				culture_group = guyan
+				culture = guyanese
+				culture = sranan
 				culture = calypsonian
 			}
 			NOT = { has_character_modifier = hosay_timer }
@@ -2854,7 +2857,10 @@ decisions = {
 				}
 			}
 			age = 16
-			trait = not_evaluated
+			OR = {
+				trait = not_evaluated
+				trait = failed_exam
+			}
 			NOT = {
 				custom_tooltip = {
 					text = ie_applied_TT
@@ -3546,8 +3552,9 @@ targetted_decisions = {
 				has_landed_title = e_california
 				has_landed_title = e_new_california
 			}
-			NOT = {
+			NOR = {
 				trait = figurehead
+				trait = weak_emperor
 			}
 			age = 16
 		}
@@ -3696,7 +3703,10 @@ targetted_decisions = {
 			NOT = {
 				has_character_flag = sancgovwon
 			}
-			trait = figurehead
+			NOR = {
+				trait = figurehead
+				trait = weak_emperor
+			}
 			age = 16
 		}
 		potential = {
@@ -3916,8 +3926,9 @@ targetted_decisions = {
 				has_landed_title = e_california
 				has_landed_title = e_new_california
 			}
-			NOT = {
+			NOR = {
 				trait = figurehead
+				trait = weak_emperor
 			}
 			age = 16
 			has_regent = no
@@ -4170,6 +4181,8 @@ targetted_decisions = {
 			OR = {
 				e_california = { holder_scope = { trait = figurehead } }
 				e_new_california = { holder_scope = { trait = figurehead } }
+				e_california = { holder_scope = { trait = weak_emperor } }
+				e_new_california = { holder_scope = { trait = weak_emperor } }
 			}
 			age = 16
 		}
@@ -4379,6 +4392,8 @@ targetted_decisions = {
 			OR = {
 				e_california = { holder_scope = { trait = figurehead } }
 				e_new_california = { holder_scope = { trait = figurehead } }
+				e_california = { holder_scope = { trait = weak_emperor } }
+				e_new_california = { holder_scope = { trait = weak_emperor } }
 			}
 			age = 16
 			prisoner = no
@@ -4623,14 +4638,16 @@ targetted_decisions = {
 				trait = governator
 				AND = {
 					has_landed_title = e_california
-					NOT = {
+					NOR = {
 						trait = figurehead
+						trait = weak_emperor
 					}
 				}
 				AND = {
 					has_landed_title = e_new_california
-					NOT = {
+					NOR = {
 						trait = figurehead
+						trait = weak_emperor
 					}
 				}
 				AND = {
@@ -4766,4 +4783,62 @@ targetted_decisions = {
 			}
 		}
 	}	
+	educate_child_cetic = {
+		from_potential = {
+			is_playable = yes
+			religion = cetic
+		}
+		potential = {
+			OR = {
+				is_child_of = FROM
+				is_liege_or_above = FROM
+			}
+			NOT = {
+				age = 16
+			}
+		}
+		effect = {
+			remove_trait = way_book
+			remove_trait = way_branch
+			remove_trait = way_cowl
+			remove_trait = way_dove
+			remove_trait = way_fist
+			if = {
+				limit = {
+					FROM = { trait = way_book }	
+				}
+				add_trait = way_book
+			}
+			if = {
+				limit = {
+					FROM = { trait = way_dove }	
+				}
+				add_trait = way_dove
+			}
+			if = {
+				limit = {
+					FROM = { trait = way_fist }	
+				}
+				add_trait = way_fist
+			}
+			if = {
+				limit = {
+					FROM = { trait = way_cowl }	
+				}
+				add_trait = way_cowl
+			}
+			if = {
+				limit = {
+					FROM = { trait = way_branch }	
+				}
+				add_trait = way_branch
+			}
+		}
+		revoke_allowed = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
 }

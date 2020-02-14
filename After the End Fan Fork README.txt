@@ -1,6 +1,6 @@
 AFTER THE END FAN FORK
 A fan-made fork of the original post-apocalyptic North America mod for Crusader Kings II
-Version 0.5 (Forked off from After the End v0.9)
+Version 1.0 (Forked off from After the End v0.9)
 Compatible with CK2 3.2.1 and the Holy Fury DLC
 
 	INSTALLATION

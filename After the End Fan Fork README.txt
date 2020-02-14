@@ -110,7 +110,4 @@ Licensed under Creative Commons: Attribution-NonCommercial-NoDerivs 3.0 (http://
 "Antediluvian Blues"
 by Minmod
 
-"Zahid Bizi Tan Eyleme"
-Performed by Kemal Dinc
-
 test

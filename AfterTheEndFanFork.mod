@@ -1,7 +1,7 @@
 name = "After the End Fan Fork"
 path = "mod/After the End Fan Fork"
 user_dir = "After the End Fan Fork"
-supported_checksums = { XOEA }
+supported_checksums = { IQFT }
 
 replace_path = "history/characters"
 replace_path = "history/provinces"

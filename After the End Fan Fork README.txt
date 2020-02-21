@@ -1,7 +1,7 @@
 AFTER THE END FAN FORK
 A fan-made fork of the original post-apocalyptic North America mod for Crusader Kings II
 Version 1.0 (Forked off from After the End v0.9)
-Compatible with CK2 3.2.1 and the Holy Fury DLC
+Compatible with CK2 3.3.2 and the Holy Fury DLC
 
 	INSTALLATION
 1. Delete any previous versions of this mod.
@@ -27,7 +27,7 @@ ObediahTheSlim
 tsf4
 BomberHarris
 Sigiswulf
-Stormwind/Norse_Emperor
+Stormwind/Norse_Emperor (former)
 KoraxTheGhoul
 Nexerus
 Lord Puurple
@@ -64,7 +64,6 @@ Titular Empires from CK2+ (old version) by Wiz
 Portraits from Lux Invicta by DarkReborn and others
 Clothing and headgear from AGOT Congenital Overhaul by LancelotLoire
 Muslim societies from Maal's Sufi Schools mod
-Plains Native portraits from Better Looking Garbs (Crackdtoothgrins - Steppe and religious portraits)
 Great Lakes Clothing from Better Looking Garbs
 
 Images:

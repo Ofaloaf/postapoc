@@ -1,7 +1,7 @@
 name = "After the End Fan Fork"
 path = "mod/After the End Fan Fork"
 user_dir = "After the End Fan Fork"
-supported_checksums = { FTGN }
+supported_checksums = { WBNC }
 
 replace_path = "history/characters"
 replace_path = "history/provinces"

@@ -41,6 +41,7 @@ jd_stuyvesant/Stuyvesant
 Little Skull Boi
 frederico83
 Popeato Chips
+Lahom
 
 Original mod team:
 
